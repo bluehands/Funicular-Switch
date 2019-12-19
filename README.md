@@ -24,21 +24,25 @@ Funicular-Switch contains two solutions for this approach: **Result** and **Opti
 
 ### Installing
 
+[NuGet: FunicularSwitch](https://www.nuget.org/packages/FunicularSwitch/)
+
 Using dotnet CLI:
 [Install Package using dotnet CLI](https://docs.microsoft.com/en-us/nuget/quickstart/install-and-use-a-package-using-the-dotnet-cli)
 ```
-dotnet add package Funicular-Switch
+dotnet add package FunicularSwitch
 ```
 
 Using Visual Studio:
 [Install Package in Visual Studio](https://docs.microsoft.com/en-us/nuget/quickstart/install-and-use-a-package-in-visual-studio)
 
 ```
-Search for Funicular-Switch
+<PackageReference Include="FunicularSwitch" Version="x.x.x" />
 ```
 ## Usage
 
-[Check out the Tutorial here]()
+[Check out the additional Tutorial markdown here](https://github.com/bluehands/Funicular-Switch/blob/master/TUTORIAL.md)
+
+[Check out the additional Tutorial source here](https://github.com/bluehands/Funicular-Switch/tree/master/Source/Tutorial)
 
 First let is define two functions to Assert 42 is the answer to everything.
 One synchronous, the other asynchronous, which actually means one will return a Task, that can be awaited and the other will not:
@@ -48,14 +52,16 @@ One synchronous, the other asynchronous, which actually means one will return a 
 ```csharp
 // Synchronous:
 public Result<int> AssertItIsTheAnswerToEverything(int answer) {
-    if(answer == 42) {
+    if (answer == 42) 
+    {
         return Result.Ok(answer);
     }
     return Result.Error<int>($"Nah, {answer} is not THE answer!");
 }
 // Asynchronous:
 public Task<Result<int>> AsyncAssertItIsTheAnswerToEverything(int answer) {
-    if(answer == 42) {
+    if (answer == 42) 
+    {
         return Task.FromResult(Result.Ok(answer));
     }
     return Task.FromResult(Result.Error<int>($"Nah, {answer} is not THE answer!"));
@@ -193,7 +199,8 @@ Result<string> proofOfAnswerResult =
     AssertItIsTheAnswerToEverything(42)
         .Aggregate(answerResult, (answer, answerToEverything) => 
         {
-            if(answer == "It is THE answer!" && answerToEverything == 42) {
+            if (answer == "It is THE answer!" && answerToEverything == 42) 
+            {
                 return Result.Ok("THE answer is unambiguously 42!!");
             }
             return Result.Error<string>("Black Holes started to consume the whole universe..!!!");
@@ -277,7 +284,7 @@ We accept Pull Requests (PR).
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
+We use [SemVer](http://semver.org/) for versioning.
 
 ## Authors
 
