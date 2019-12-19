@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29411.108
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch", "FunicularSwitch\FunicularSwitch.csproj", "{5CF89BDE-0AE9-490C-AE0F-A8C1DD93024E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tutorial", "Tutorial\Tutorial.csproj", "{4AF2ACB6-05E9-4247-8D4B-167C40B1FEE7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5CF89BDE-0AE9-490C-AE0F-A8C1DD93024E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CF89BDE-0AE9-490C-AE0F-A8C1DD93024E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CF89BDE-0AE9-490C-AE0F-A8C1DD93024E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CF89BDE-0AE9-490C-AE0F-A8C1DD93024E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AF2ACB6-05E9-4247-8D4B-167C40B1FEE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AF2ACB6-05E9-4247-8D4B-167C40B1FEE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AF2ACB6-05E9-4247-8D4B-167C40B1FEE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AF2ACB6-05E9-4247-8D4B-167C40B1FEE7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0A6C53D4-8DAD-4DBF-B4A6-D02801D28BD4}
+	EndGlobalSection
+EndGlobal
