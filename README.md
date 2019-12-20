@@ -44,7 +44,7 @@ Using Visual Studio:
 
 [Check out the additional Tutorial source here](https://github.com/bluehands/Funicular-Switch/tree/master/Source/Tutorial)
 
-First let is define two functions to Assert 42 is the answer to everything.
+First lets define two functions to Assert 42 is the answer to everything.
 One synchronous, the other asynchronous, which actually means one will return a Task, that can be awaited and the other will not:
 
 **Note**: When you will write an an async function that, returns a Task\<Result\<T>> and you integrate this function in your pipeline, you will see that the whole execution pipeline will be async but you can still use synchronous functions inside. 
