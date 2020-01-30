@@ -5,6 +5,7 @@
 Funicular-Switch is a lightweight C# railway oriented programming pattern oriented on F#'s result types.
 
 By using Funicular-Switch Result we can achieve the following benefits:
+
 - Avoid deep nesting.
 - Avoid null checks, use Result or Option instead.
 - Comfortably write async code pipelines.
@@ -28,6 +29,7 @@ Funicular-Switch contains two solutions for this approach: **Result** and **Opti
 
 Using dotnet CLI:
 [Install Package using dotnet CLI](https://docs.microsoft.com/en-us/nuget/quickstart/install-and-use-a-package-using-the-dotnet-cli)
+
 ```
 dotnet add package FunicularSwitch
 ```
@@ -38,6 +40,7 @@ Using Visual Studio:
 ```
 <PackageReference Include="FunicularSwitch" Version="x.x.x" />
 ```
+
 ## Usage
 
 [Check out the additional Tutorial markdown here](https://github.com/bluehands/Funicular-Switch/blob/master/TUTORIAL.md)
@@ -47,11 +50,9 @@ Using Visual Studio:
 First let's define two functions to Assert 42 is the answer to everything.
 One synchronous, the other asynchronous (it has to ask for the correct answer first, which might take time ;)):
 
-**Note**: When you will write an an async function that, returns a Task\<Result\<T>> and you integrate this function in your pipeline, you will see that the whole execution pipeline will be async but you can still use synchronous functions inside. 
+**Note**: When you will write an an async function that, returns a Task\<Result\<T>> and you integrate this function in your pipeline, you will see that the whole execution pipeline will be async but you can still use synchronous functions inside.
 
-
-
-```cs --region result-creation --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
+``` cs --region result-creation --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
 // Synchronous:
 public Result<int> AssertItIsTheAnswerToEverything(int answer)
     => answer == 42
@@ -62,25 +63,26 @@ public Result<int> AssertItIsTheAnswerToEverything(int answer)
 public async Task<Result<int>> AsyncAssertItIsTheAnswerToEverything(int answer)
     => answer == await ComputeAnswer()
             ? Result.Ok(answer)
-            : Result.Error<int>($"Nah, {answer} is not THE answer!");
+            : Result.Error<int>($"Naaaaah, {answer} is not THE answer!");
 ```
 
 ### **Matching**
 
 Match will check wether a given result is ok or erroneous. In case it is ok it will pass the content to the ok lambda and in case it is erroneous it will pass the error string to the error lambda. Nice thing about match is that to satisfy the compiler one has to handle both, the ok *and* the error case. That is a huge advantage compared to `if` or `switch` statements.
 
-**Note**: match is usually used at the end of your execution pipeline 
+**Note**: match is usually used at the end of your execution pipeline
 
 *Synchronous match*:
 
-```cs --region match-simple --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
+``` cs --region match-simple --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
 Result<int> theAnswer = AssertItIsTheAnswerToEverything(42);
 
 theAnswer.Match(
-	ok => Console.WriteLine($"{ok} no more sefsefsfd needed!"),
-	error => Console.WriteLine(error)
+    ok => Console.WriteLine($"{ok} no more words needed!"),
+    error => Console.WriteLine(error)
 );
 ```
+
 Obviously, 42 is THE answer so we hit the ok case here.
 
 *Async match*:
@@ -88,9 +90,17 @@ Obviously, 42 is THE answer so we hit the ok case here.
 **Note**: Now we take advantage of all the extension methods by not assigning the Result to a variable.
 You can always choose between those two options inside your code but in the most cases using the extensions directly on a parent Result will improve the readability of your code.
 
-```cs --region match-simple-async --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
+``` cs --region match-simple-async --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
+var answerOutput =
+                AsyncAssertItIsTheAnswerToEverything(42)
+                .Match(
+                    ok => $"{ok} no more words needed!",
+                    error => error
+                );
 
+Console.WriteLine(await answerOutput);
 ```
+
 Definitely, 0 is not the answer so we hit the error case here.
 
 ### **Map**
@@ -129,7 +139,7 @@ Result<string> answerResult = AssertItIsTheAnswerToEverything(57)
             : Result.Error<string>("That does not solve any problems!")));
 ```
 
-**Note**: We just changed the Result type of the Assertion from Result\<int> to Result\<string>. 
+**Note**: We just changed the Result type of the Assertion from Result\<int> to Result\<string>.
 
 *As asynchronous pipeline*:
 
@@ -293,6 +303,7 @@ FSharp Project: [FSharp](https://fsharp.org/)
 ## Known issues
 
 - On Azure Build pipeline it might be required to set the LangVersion inside the .csproj to >= C# 7.0:
+
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
@@ -304,3 +315,4 @@ FSharp Project: [FSharp](https://fsharp.org/)
 ## Changelog
 
 - Version 1.0.0
+
