@@ -198,5 +198,8 @@ namespace FunicularSwitch
         }
 
         public static IEnumerable<TOut> Choose<T, TOut>(this IEnumerable<T> items, Func<T, Option<TOut>> choose) => items.SelectMany(i => choose(i));
+
+        public static Result<T> ToResult<T>(this Option<T> option, Func<string> error) =>
+            option.Match(s => Result.Ok(s), () => Result.Error<T>(error()));
     }
 }

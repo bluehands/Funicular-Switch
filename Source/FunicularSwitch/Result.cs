@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,7 @@ namespace FunicularSwitch
         public bool IsOk => !IsError;
     }
 
-    public abstract class Result<T> : Result
+    public abstract class Result<T> : Result, IEnumerable<T>
     {
         public static Result<T> Error(string message) => Error<T>(message);
         public static Result<T> Ok(T value) => Ok<T>(value);
@@ -127,10 +128,12 @@ namespace FunicularSwitch
                 v => v,
                 message => throw new InvalidOperationException($"Cannot access error result value. Error: {message}"));
 
-        // ToString
-        public override string ToString() => Match(ok => $"Ok {ok?.ToString()}", error => $"Error {error}");
-    }
+        public IEnumerator<T> GetEnumerator() => Match(ok => new[]{ok}, error => Enumerable.Empty<T>()).GetEnumerator();
 
+        public override string ToString() => Match(ok => $"Ok {ok?.ToString()}", error => $"Error {error}");
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    
     public sealed class Ok<T> : Result<T>
     {
         public T Value { get; }
@@ -416,6 +419,8 @@ namespace FunicularSwitch
                     return isOk;
                 })
                 .Select(r => r.GetValueOrThrow());
+
+        public static Option<T> ToOption<T>(this Result<T> result) => result.Match(ok => Option.Some(ok), _ => Option.None<T>());
 
         // Helpers
         private static string JoinErrorMessages(
