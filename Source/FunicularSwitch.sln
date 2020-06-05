@@ -9,7 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tutorial", "Tutorial\Tutori
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocSamples", "DocSamples\DocSamples.csproj", "{96C50875-028F-46BB-9594-CD5B3887BB1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Test", "FunicularSwitch.Test\FunicularSwitch.Test.csproj", "{4F26B6F2-E1FD-44BF-A37D-9B348BF33CD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Test", "FunicularSwitch.Test\FunicularSwitch.Test.csproj", "{4F26B6F2-E1FD-44BF-A37D-9B348BF33CD9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docu", "Docu", "{2A5AFC6D-39C3-410A-A007-A6CC74F9A5A0}"
+	ProjectSection(SolutionItems) = preProject
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

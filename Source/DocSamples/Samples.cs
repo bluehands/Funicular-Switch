@@ -20,13 +20,13 @@ namespace DocSamples
         public Result<int> AssertItIsTheAnswerToEverything(int answer)
             => answer == 42
                 ? Result.Ok(answer) //There is an implicit cast to Ok, so you could omit Result.Ok and just write: return answer;
-                : Result.Error<int>($"Nah, {answer} is not THE answer!");
+                : Result.Error<int>($"Naaaaaaaaaaaaaaaaaaaaaaaaah, {answer} is not THE answer!");
 
         // Asynchronous:
         public async Task<Result<int>> AsyncAssertItIsTheAnswerToEverything(int answer)
             => answer == await ComputeAnswer()
                     ? Result.Ok(answer)
-                    : Result.Error<int>($"Naaaaah, {answer} is not THE answer!");
+                    : Result.Error<int>($"Nah, {answer} is not THE answer!");
         #endregion
 
         static Task<int> ComputeAnswer() => Task.FromResult(42);

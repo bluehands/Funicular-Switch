@@ -74,7 +74,7 @@ Match will check wether a given result is ok or erroneous. In case it is ok it w
 
 *Synchronous match*:
 
-```cs
+``` cs --region match-simple --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
 Result<int> theAnswer = AssertItIsTheAnswerToEverything(42);
 
 theAnswer.Match(
@@ -90,7 +90,7 @@ Obviously, 42 is THE answer so we hit the ok case here.
 **Note**: Now we take advantage of all the extension methods by not assigning the Result to a variable.
 You can always choose between those two options inside your code but in the most cases using the extensions directly on a parent Result will improve the readability of your code.
 
-```cs
+``` cs --region match-simple-async --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
 var answerOutput =
                 AsyncAssertItIsTheAnswerToEverything(42)
                 .Match(

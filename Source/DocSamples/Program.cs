@@ -22,36 +22,18 @@ namespace DocSamples
             string project = null,
             string[] args = null)
         {
-            return region switch
+            var regionsSelection = region switch
             {
-                null => await Run(() => Run(RegionSelection.All, session)),
-                _ => await Run(() => Run(RegionSelection.Specific(region), session))
+                null => RegionSelection.All,
+                _ => RegionSelection.Specific(region)
             };
+
+            return await Run(() => Run(regionsSelection, session));
         }
 
         static async Task Run(RegionSelection region, string session)
         {
-            var runners = typeof(Program)
-                .Assembly
-                .GetTypes()
-                .SelectMany(t => t.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public))
-                .Choose(m =>
-                {
-                    var runnerAttribute = m.GetCustomAttribute<RunnerAttribute>();
-                    if (runnerAttribute != null)
-                        return (runnerAttribute.Region, (Func<Task>)(() =>
-                       {
-                           if (m.ReturnType == typeof(void))
-                           {
-                               m.Invoke(null, null);
-                               return Task.CompletedTask;
-                           }
-
-                           return (Task)m.Invoke(null, null);
-                       }));
-                    return Option<(string region, Func<Task> action)>.None;
-                }).ToDictionary(t => t.region, t => t.action);
-
+            var runners = FindRunners();
 
             async Task Execute(string regionName)
             {
@@ -70,6 +52,31 @@ namespace DocSamples
             }, specific => Execute(specific.RegionName));
         }
 
+        static Dictionary<string, Func<Task>> FindRunners()
+        {
+            var runners = typeof(Program)
+                .Assembly
+                .GetTypes()
+                .SelectMany(t => t.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public))
+                .Choose(m =>
+                {
+                    var runnerAttribute = m.GetCustomAttribute<RunnerAttribute>();
+                    if (runnerAttribute != null)
+                        return (runnerAttribute.Region, (Func<Task>) (() =>
+                        {
+                            if (m.ReturnType == typeof(void))
+                            {
+                                m.Invoke(null, null);
+                                return Task.CompletedTask;
+                            }
+
+                            return (Task) m.Invoke(null, null);
+                        }));
+                    return Option<(string region, Func<Task> action)>.None;
+                }).ToDictionary(t => t.region, t => t.action);
+            return runners;
+        }
+
         static async Task<int> Run(Func<Task> sample)
         {
             try
@@ -82,12 +89,6 @@ namespace DocSamples
                 Console.WriteLine("Execution failed: " + e);
                 return 1;
             }
-        }
-
-        static int MissingTag(string tag, bool region = true)
-        {
-            Console.WriteLine($"No code snippet configured for {(region ? "region" : "session")}: {tag}");
-            return 1;
         }
     }
 
