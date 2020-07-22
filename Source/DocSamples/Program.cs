@@ -24,7 +24,7 @@ namespace DocSamples
                 _ => RegionSelection.Specific(region)
             };
 
-            return await Run(() => SampleRunner.Run(regionsSelection, session));
+            return await Run(() => SampleRunner.Run(regionsSelection));
         }
 
         static async Task<int> Run(Func<Task> sample)

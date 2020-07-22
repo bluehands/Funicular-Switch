@@ -3,11 +3,11 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using FunicularSwitch;
 
 namespace DocSamples
 {
-    class RunnerAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class RunnerAttribute : Attribute
     {
         public string Region { get; }
 
@@ -18,7 +18,7 @@ namespace DocSamples
     {
         static readonly Lazy<ImmutableDictionary<string, Func<Task>>> Runners = new Lazy<ImmutableDictionary<string, Func<Task>>>(FindRunners);
 
-        public static async Task Run(RegionSelection region, string session)
+        public static async Task Run(RegionSelection region)
         {
             var runners = Runners.Value;
 
@@ -45,11 +45,12 @@ namespace DocSamples
                 .Assembly
                 .GetTypes()
                 .SelectMany(t => t.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public))
-                .Choose(m =>
+                .SelectMany(m =>
                 {
-                    var runnerAttribute = m.GetCustomAttribute<RunnerAttribute>();
-                    if (runnerAttribute != null)
-                        return (runnerAttribute.Region, (Func<Task>)(() =>
+                    var runnerAttributes = m.GetCustomAttributes<RunnerAttribute>();
+                    return runnerAttributes.Select(runnerAttribute =>
+                    {
+                        var run = (Func<Task>)(() =>
                         {
                             if (m.ReturnType == typeof(void))
                             {
@@ -57,9 +58,11 @@ namespace DocSamples
                                 return Task.CompletedTask;
                             }
 
-                            return (Task)m.Invoke(null, null);
-                        }));
-                    return Option<(string region, Func<Task> action)>.None;
+                            var result = m.Invoke(null, null);
+                            return result is Task task ? task : Task.FromResult(result);
+                        });
+                        return (region: runnerAttribute.Region, action: run);
+                    });
                 }).ToImmutableDictionary(t => t.region, t => t.action);
             return runners;
         }
