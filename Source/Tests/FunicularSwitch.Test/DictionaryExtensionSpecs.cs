@@ -6,7 +6,7 @@ using FunicularSwitch.Extensions;
 namespace FunicularSwitch.Test
 {
     [TestClass]
-    public class DictionaryExtensionTest
+    public class DictionaryExtensionSpecs
     {
         Dictionary<string, int> m_Lookup;
 

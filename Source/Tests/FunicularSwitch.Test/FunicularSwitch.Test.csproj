@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FunicularSwitch\FunicularSwitch.csproj" />
+    <ProjectReference Include="..\..\FunicularSwitch\FunicularSwitch.csproj" />
   </ItemGroup>
 
 </Project>
