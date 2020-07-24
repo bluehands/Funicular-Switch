@@ -1,17 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.0.0</Version>
+	
+	<VersionSuffixLocal></VersionSuffixLocal>
+     <!--When variable is set we are building a prerelease package--> 
+    <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND  '$(IsPreRelease)'">
+      $(VersionSuffix)
+    </VersionSuffixLocal>
+    
+    <Version>1.1.0$(VersionSuffixLocal)</Version>  
+  
+    <TargetFramework>netstandard2.0</TargetFramework>    
     <IsPackable>true</IsPackable>
     <PackageVersion>$(Version)</PackageVersion>
     <PackageId>FunicularSwitch</PackageId>
-    <Titel>FunicularSwitch</Titel>
-    <Authors>Bluehands GmbH &amp; C.ommunication KG</Authors>
-    <PackageDescription>Funicular-Switch is a lightweight C# railway oriented programming pattern oriented on F#'s result types.</PackageDescription>
+    
+	<!-- Descriptions and information-->
+	<Titel>FunicularSwitch</Titel>
+    <Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
+    <PackageDescription>Funicular-Switch is a lightweight C# railway oriented programming pattern oriented on F#'s result types</PackageDescription>
     <Copyright>Copyright 2001-2019 Bluehands GmbH &amp; C.ommunication KG</Copyright>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>content\FunicularSwitch.png</PackageIcon>
+    <PackageIcon>FunicularSwitch.png</PackageIcon>
     <PackageReleaseNotes>Version $(Version)</PackageReleaseNotes>
     <PackageTags>Railway oriented programming, Railway oriented, Railway, Pipeline, F# results, Matching, Result, Option, Bind, Match, Aggregate</PackageTags>
     <PackageOutputPath>$(OutputPath)</PackageOutputPath>
@@ -23,7 +33,7 @@
     <ContentTargetFolders>content</ContentTargetFolders>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Content\FunicularSwitch.png" Pack="true" PackagePath="content" />
-    <None Include="Content\LICENSE.txt" Pack="true" PackagePath="content" />
+    <None Include="Content\FunicularSwitch.png" Pack="true" PackagePath="" />
+    <None Include="Content\LICENSE.txt" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
