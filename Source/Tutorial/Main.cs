@@ -11,8 +11,8 @@ namespace Tutorial
     public class Main
     {
         // This es a small tutorial to show the advantage of using FunicularSwitch
-        
-        private Dictionary<int, string> usersDictionary;
+
+        Dictionary<int, string> usersDictionary;
 
         public async void Tutorial()
         {

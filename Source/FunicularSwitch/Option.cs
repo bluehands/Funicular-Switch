@@ -165,6 +165,8 @@ namespace FunicularSwitch
 
         public static Option<T> ToOption<T>(this T item) where T : class => item ?? Option<T>.None;
 
+        
+
         public static Option<TTarget> As<TTarget>(this object item) where TTarget : class => (item as TTarget).ToOption();
 
         public static async Task<TOut> Match<T, TOut>(this Task<Option<T>> option, Func<T, TOut> some, Func<TOut> none)
@@ -198,5 +200,21 @@ namespace FunicularSwitch
         }
 
         public static IEnumerable<TOut> Choose<T, TOut>(this IEnumerable<T> items, Func<T, Option<TOut>> choose) => items.SelectMany(i => choose(i));
+
+        public static Option<T> ToOption<T>(this Result<T> result) => ToOption(result, null);
+
+        public static Option<T> ToOption<T>(this Result<T> result, Action<string> logError) =>
+            result.Match(
+                ok => Option.Some(ok),
+                error =>
+                {
+                    logError?.Invoke(error);
+                    return Option<T>.None;
+                });
+
+        public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
+            option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
+
+        public static Result<T> Flatten<T>(this Result<Result<T>> result) => result.Bind(r => r);
     }
 }

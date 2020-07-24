@@ -1,10 +1,12 @@
 # Funicular-Switch
 
-[![Build status](https://bluehands.visualstudio.com/bluehands%20Funicular%20Switch/_apis/build/status/bluehands%20Funicular%20Switch%20.NET%20Core-CI)](https://bluehands.visualstudio.com/bluehands%20Funicular%20Switch/_build/latest?definitionId=85)
+![BuildStatus](https://bluehands.visualstudio.com/bluehands%20Funicular%20Switch/_apis/build/status/bluehandsFunicularSwitch-CI?branchName=master)
+![Try_.NET Enabled](https://img.shields.io/badge/Try_.NET-Enabled-501078.svg)
 
 Funicular-Switch is a lightweight C# railway oriented programming pattern oriented on F#'s result types.
 
 By using Funicular-Switch Result we can achieve the following benefits:
+
 - Avoid deep nesting.
 - Avoid null checks, use Result or Option instead.
 - Comfortably write async code pipelines.
@@ -28,6 +30,7 @@ Funicular-Switch contains two solutions for this approach: **Result** and **Opti
 
 Using dotnet CLI:
 [Install Package using dotnet CLI](https://docs.microsoft.com/en-us/nuget/quickstart/install-and-use-a-package-using-the-dotnet-cli)
+
 ```
 dotnet add package FunicularSwitch
 ```
@@ -38,106 +41,76 @@ Using Visual Studio:
 ```
 <PackageReference Include="FunicularSwitch" Version="x.x.x" />
 ```
+
 ## Usage
 
 [Check out the additional Tutorial markdown here](https://github.com/bluehands/Funicular-Switch/blob/master/TUTORIAL.md)
 
 [Check out the additional Tutorial source here](https://github.com/bluehands/Funicular-Switch/tree/master/Source/Tutorial)
 
-First lets define two functions to Assert 42 is the answer to everything.
-One synchronous, the other asynchronous, which actually means one will return a Task, that can be awaited and the other will not:
+First let's define two functions to assert 42 is the answer to everything.
+One synchronous, the other asynchronous (it has to ask for the correct answer first, which might take time ;)):
 
-**Note**: When you will write an an async function that, returns a Task\<Result\<T>> and you integrate this function in your pipeline, you will see that the whole execution pipeline will be async but you can still use synchronous functions inside. 
+**Note**: When you will write an an async function that, returns a Task\<Result\<T>> and you integrate this function in your pipeline, you will see that the whole execution pipeline will be async but you can still use synchronous functions inside.
 
-```csharp
+``` cs --region result-creation --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
 // Synchronous:
-public Result<int> AssertItIsTheAnswerToEverything(int answer) {
-    if (answer == 42) 
-    {
-        return Result.Ok(answer);
-    }
-    return Result.Error<int>($"Nah, {answer} is not THE answer!");
-}
+public Result<int> AssertItIsTheAnswerToEverything(int answer)
+    => answer == 42
+        ? Result.Ok(answer) //There is an implicit cast to Ok, so you could omit Result.Ok and just write: return answer;
+        : Result.Error<int>($"Nah, {answer} is not THE answer!");
+
 // Asynchronous:
-public Task<Result<int>> AsyncAssertItIsTheAnswerToEverything(int answer) {
-    if (answer == 42) 
-    {
-        return Task.FromResult(Result.Ok(answer));
-    }
-    return Task.FromResult(Result.Error<int>($"Nah, {answer} is not THE answer!"));
-}
+public async Task<Result<int>> AsyncAssertItIsTheAnswerToEverything(int answer)
+    => answer == await ComputeAnswer()
+            ? Result.Ok(answer)
+            : Result.Error<int>($"Nah, {answer} is not THE answer!");
 ```
 
 ### **Matching**
 
-Match will check wether a given result is ok or erroneous. In case it is ok it will pass the content to the ok lambda and in case it is erroneous it will pass the error string to the error lambda.
+Match will check wether a given result is ok or erroneous. In case it is ok it will pass the content to the ok lambda and in case it is erroneous it will pass the error string to the error lambda. Nice thing about match is that to satisfy the compiler one has to handle both, the ok *and* the error case. That is a huge advantage compared to `if` or `switch` statements.
 
-**Note**: use match only at the end of your execution pipeline!
+**Note**: match is usually used at the end of your execution pipeline
 
-*As synchronous pipeline*:
+*Synchronous match*:
 
-```csharp
-var theAnswerToEverythingResult = AssertItIsTheAnswerToEverything(42);
+``` cs --region match-simple --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
+Result<int> theAnswer = AssertItIsTheAnswerToEverything(42);
 
-theAnswerToEverythingResult.Match(
-    ok => 
-    {
-        Console.Write($"{ok.ToString()} no more words needed!");
-    },
-    error => 
-    {
-        Console.Write(error);
-    });
+theAnswer.Match(
+    ok => Console.WriteLine($"{ok} no more words needed!"),
+    error => Console.WriteLine(error)
+);
 ```
-Obviously, 42 is THE answer so we match the ok case here.
 
-*As asynchronous pipeline*:
+Obviously, 42 is THE answer so we hit the ok case here.
+
+*Async match*:
 
 **Note**: Now we take advantage of all the extension methods by not assigning the Result to a variable.
-You can always choose between those two options inside your code but in the most cases using the extensions directly on a parent Result will improve the readability of your.
+You can always choose between those two options inside your code but in the most cases using the extensions directly on a parent Result will improve the readability of your code.
 
-```csharp
-Console.Write(
-    await AsyncAssertItIsTheAnswerToEverything(0)
-    .Match(
-        ok => $"{ok.ToString()} no more words needed!",
-        error => error));
-```
-Definitely, 0 is not the answer so we match the error case here.
+``` cs --region match-simple-async --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
+var answerOutput =
+                AsyncAssertItIsTheAnswerToEverything(42)
+                .Match(
+                    ok => $"{ok} no more words needed!",
+                    error => error
+                );
 
-### **Binding**
-
-Bind execute the given lambda inside bind if previous result was ok and binds the new result, which can either be ok or error, to the previous result, otherwise pass the error from the previous result to the next node.
-
-*As synchronous pipeline*:
-
-```csharp
-Result<string> answerResult = AssertItIsTheAnswerToEverything(57)
-    .Bind(answer => 
-        answer == 42 
-            ? Result.Ok("It is THE answer!")
-            : Result.Error<string>("That does not solve any problems!")));
+Console.WriteLine(await answerOutput);
 ```
 
-**Note**: We just changed the Result type of the Assertion from Result\<int> to Result\<string>. 
+Definitely, 0 is not the answer so we hit the error case here.
 
-*As asynchronous pipeline*:
-
-```csharp
-Result<string> answerResult = await AsyncAssertItIsTheAnswerToEverything(42)
-    .Bind(answer =>
-        answer == 42
-            ? Result.Ok("It is THE answer!")
-            : Result.Error<string>("That answer will NOT solve any problems!"));
-```
-
-### **Mapping**
+### **Map**
 
 Map executes the given lambda inside map if previous result was ok and maps the given value to the previous result, otherwise pass the error from the previous result to the next node.
 
 Map is can be used for operations, that can not fail e.g. multiply answer with two.
 
-**Note**: If your operation can fail e.g. divide the answer with zero. use Bind instead and wrap the result of the divion into a Result.Ok on success and otherwise wrap it into a Result.Error.
+**Note**: If your operation can fail e.g. divide the answer with zero. use Bind instead and wrap the result of the division into a Result.Ok on success and otherwise wrap it into a Result.Error.
 
 *As synchronous pipeline*:
 
@@ -151,6 +124,32 @@ Result<int> answerResult = AssertItIsTheAnswerToEverything(90)
 ```csharp
 Result<int> answerResult = await AsyncAssertItIsTheAnswerToEverything(42)
     .Map(answer => answer*2);
+```
+
+### **Bind**
+
+Bind execute the given lambda inside bind if previous result was ok and binds the new result, which can either be ok or error, to the previous result, otherwise pass the error from the previous result to the next node.
+
+*As synchronous pipeline*:
+
+```csharp
+Result<string> answerResult = AssertItIsTheAnswerToEverything(57)
+    .Bind(answer => 
+        answer == 42 
+            ? Result.Ok("It is THE answer!")
+            : Result.Error<string>("That does not solve any problems!")));
+```
+
+**Note**: We just changed the Result type of the Assertion from Result\<int> to Result\<string>.
+
+*As asynchronous pipeline*:
+
+```csharp
+Result<string> answerResult = await AsyncAssertItIsTheAnswerToEverything(42)
+    .Bind(answer =>
+        answer == 42
+            ? Result.Ok("It is THE answer!")
+            : Result.Error<string>("That answer will NOT solve any problems!"));
 ```
 
 ### **Aggregating**
@@ -274,10 +273,6 @@ IEnumerable<int> rightAnswersMatchingTheRule = possibleAnswers.Choose(
     });
 ```
 
-## Running the tests
-
-Not yet implemented
-
 ## Contributing
 
 We accept Pull Requests (PR).
@@ -305,6 +300,7 @@ FSharp Project: [FSharp](https://fsharp.org/)
 ## Known issues
 
 - On Azure Build pipeline it might be required to set the LangVersion inside the .csproj to >= C# 7.0:
+
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
@@ -312,7 +308,3 @@ FSharp Project: [FSharp](https://fsharp.org/)
     </PropertyGroup>
 </Project>
 ```
-
-## Changelog
-
-- Version 1.0.0

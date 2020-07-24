@@ -109,11 +109,25 @@ namespace FunicularSwitch.Extensions
             return output;
         }
 
-        public static IEnumerable<T> Concat<T>(this T item, params T[] further)
+        public static IEnumerable<T> Yield<T>(this T item)
         {
             yield return item;
-            foreach (var f in further)
-                yield return f;
+        }
+
+        public static IEnumerable<TBase> Yield<T, TBase>(this T item) where TBase : T
+        {
+            yield return (TBase)item;
+        }
+
+        public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, T item, params T[] further)
+        {
+            foreach (var i in items)
+                yield return i;
+
+            yield return item;
+
+            foreach (var i in further)
+                yield return i;
         }
     }
 }
