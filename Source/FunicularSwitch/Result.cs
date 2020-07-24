@@ -265,7 +265,7 @@ namespace FunicularSwitch
             Func<T1, T2, TResult> combine,
             string errorSeparator = null)
         {
-            var errors = JoinErrorMessages(r1.Concat<Result>(r2), errorSeparator);
+            var errors = JoinErrorMessages(r1.Yield().Concat<Result>(r2), errorSeparator);
             return !string.IsNullOrEmpty(errors) 
                 ? Result.Error<TResult>(errors) 
                 : combine(r1.GetValueOrThrow(), r2.GetValueOrThrow());
@@ -285,7 +285,7 @@ namespace FunicularSwitch
             Func<T1, T2, T3, TResult> combine,
             string errorSeparator = null)
         {
-            var errors = JoinErrorMessages(r1.Concat<Result>(r2, r3), errorSeparator);
+            var errors = JoinErrorMessages(r1.Yield().Concat<Result>(r2, r3), errorSeparator);
             return !string.IsNullOrEmpty(errors) 
                 ? Result.Error<TResult>(errors) 
                 : combine(r1.GetValueOrThrow(), r2.GetValueOrThrow(), r3.GetValueOrThrow());
@@ -307,7 +307,7 @@ namespace FunicularSwitch
             Func<T1, T2, T3, T4, TResult> combine,
             string errorSeparator = null)
         {
-            var errors = JoinErrorMessages(r1.Concat<Result>(r2, r3, r4), errorSeparator);
+            var errors = JoinErrorMessages(r1.Yield().Concat<Result>(r2, r3, r4), errorSeparator);
             return !string.IsNullOrEmpty(errors) 
                 ? Result.Error<TResult>(errors) 
                 : combine(r1.GetValueOrThrow(), r2.GetValueOrThrow(), r3.GetValueOrThrow(), r4.GetValueOrThrow());
@@ -331,7 +331,7 @@ namespace FunicularSwitch
             Func<T1, T2, T3, T4, T5, TResult> combine,
             string errorSeparator = null)
         {
-            var errors = JoinErrorMessages(r1.Concat<Result>(r2, r3, r4, r5), errorSeparator);
+            var errors = JoinErrorMessages(r1.Yield().Concat<Result>(r2, r3, r4, r5), errorSeparator);
             return !string.IsNullOrEmpty(errors)
                 ? Result.Error<TResult>(errors)
                 : combine(
@@ -359,7 +359,7 @@ namespace FunicularSwitch
             Func<T1, T2, T3, T4, T5, T6, TResult> combine,
             string errorSeparator = null)
         {
-            var errors = JoinErrorMessages(r1.Concat<Result>(r2, r3, r4, r5, r6), errorSeparator);
+            var errors = JoinErrorMessages(r1.Yield().Concat<Result>(r2, r3, r4, r5, r6), errorSeparator);
             return !string.IsNullOrEmpty(errors)
                 ? Result.Error<TResult>(errors)
                 : combine(
