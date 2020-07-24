@@ -273,10 +273,6 @@ IEnumerable<int> rightAnswersMatchingTheRule = possibleAnswers.Choose(
     });
 ```
 
-## Running the tests
-
-Not yet implemented
-
 ## Contributing
 
 We accept Pull Requests (PR).
@@ -312,8 +308,3 @@ FSharp Project: [FSharp](https://fsharp.org/)
     </PropertyGroup>
 </Project>
 ```
-
-## Changelog
-
-- Version 1.0.0
-

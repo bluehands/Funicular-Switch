@@ -12,16 +12,15 @@ namespace FunicularSwitch
     {
         public static Result<T> Error<T>(string message) => new Error<T>(message);
         public static Result<T> Ok<T>(T value) => new Ok<T>(value);
-        public abstract string GetErrorOrDefault(Func<string> defaultValue = null);
-        public abstract bool IsError { get; }
+        public bool IsError => GetType().GetGenericTypeDefinition() == typeof(Error<>);
         public bool IsOk => !IsError;
+        public abstract string GetErrorOrDefault();
     }
 
     public abstract class Result<T> : Result, IEnumerable<T>
     {
         public static Result<T> Error(string message) => Error<T>(message);
         public static Result<T> Ok(T value) => Ok<T>(value);
-        public override bool IsError => GetType() == typeof(Error<T>);
 
         public static implicit operator Result<T>(T value) 
             => Result.Ok(value);
@@ -118,11 +117,6 @@ namespace FunicularSwitch
                 v => v,
                 _ => defaultValue != null ? defaultValue() : default);
 
-        public override string GetErrorOrDefault(Func<string> defaultValue = null)
-            => Match(
-                _ => defaultValue?.Invoke(),
-                error => error);
-
         public T GetValueOrThrow()
             => Match(
                 v => v,
@@ -139,6 +133,8 @@ namespace FunicularSwitch
         public T Value { get; }
 
         public Ok(T value) => Value = value;
+
+        public override string GetErrorOrDefault() => null;
 
         public bool Equals(Ok<T> other)
         {
@@ -165,9 +161,11 @@ namespace FunicularSwitch
     {
         public string Message { get; }
 
-        public Error(string message) => Message = message;
+        public Error(string message) => Message = message ?? throw new ArgumentNullException(nameof(message), "Cannot create error result without error information");
 
         public Error<T1> Convert<T1>() => new Error<T1>(Message);
+
+        public override string GetErrorOrDefault() => Message;
 
         public bool Equals(Error<T> other)
         {
@@ -192,7 +190,8 @@ namespace FunicularSwitch
 
     public static class ResultExtensions
     {
-        // Binds
+        #region bind
+
         public static async Task<Result<T1>> Bind<T, T1>(
             this Task<Result<T>> result,
             Func<T, Result<T1>> bind) 
@@ -203,7 +202,17 @@ namespace FunicularSwitch
             Func<T, Task<Result<T1>>> bind) 
             => await (await result.ConfigureAwait(false)).Bind(bind).ConfigureAwait(false);
 
-        // Maps
+        public static Result<List<T1>> Bind<T, T1>(this IEnumerable<Result<T>> results, Func<T, Result<T1>> bind) =>
+            results.Select(r => r.Bind(bind)).Aggregate();
+
+        public static Result<List<T1>> Bind<T, T1>(this Result<T> result, Func<T, IEnumerable<Result<T1>>> bindMany) => 
+            result.Map(ok => bindMany(ok).Aggregate()).Flatten();
+
+        #endregion
+        
+
+        #region map
+
         public static async Task<Result<T1>> Map<T, T1>(
             this Task<Result<T>> result,
             Func<T, T1> map) 
@@ -214,7 +223,15 @@ namespace FunicularSwitch
             Func<T, Task<T1>> bind) 
             => Bind(result, async v => Result.Ok(await bind(v).ConfigureAwait(false)));
 
-        //Matches
+        public static Result<List<T1>> Map<T, T1>(this IEnumerable<Result<T>> results, Func<T, T1> map) =>
+            results.Select(r => r.Map(map)).Aggregate();
+
+        public static Result<T> MapError<T>(this Result<T> result, Func<string, string> mapError) =>
+            result.Match(ok => ok, error => Result.Error<T>(mapError(error)));
+
+        #endregion
+
+        #region match
         public static async Task<T1> Match<T, T1>(
             this Task<Result<T>> result,
             Func<T, Task<T1>> ok,
@@ -232,8 +249,10 @@ namespace FunicularSwitch
             Func<T, T1> ok,
             Func<string, T1> error) 
             => (await result.ConfigureAwait(false)).Match(ok, error);
+        #endregion
 
-        // Aggregates
+        #region aggregate
+
         public static Result<(T1, T2)> Aggregate<T1, T2>(
             this Result<T1> r1,
             Result<T2> r2,
@@ -399,36 +418,42 @@ namespace FunicularSwitch
                 .SelectMany(e => e)
                 .Aggregate(errorSeparator);
 
-        // Chooses
+        #endregion
+
+        #region choose
+
         public static IEnumerable<T1> Choose<T, T1>(
             this IEnumerable<T> items,
             Func<T, Result<T1>> choose,
             Action<string> onError)
-            => items.Select(i => choose(i))
+            => items
+                .Select(i => choose(i))
                 .Choose(onError);
 
         public static IEnumerable<T> Choose<T>(
             this IEnumerable<Result<T>> results,
-            Action<string> onError) 
+            Action<string> onError)
             => results
                 .Where(r =>
-                {
-                    var isOk = r.IsOk;
-                    if (!isOk)
-                        onError(r.GetErrorOrDefault());
-                    return isOk;
-                })
+                    r.Match(ok => true, error =>
+                    {
+                        onError(error);
+                        return false;
+                    }))
                 .Select(r => r.GetValueOrThrow());
 
-        public static Option<T> ToOption<T>(this Result<T> result) => result.Match(ok => Option.Some(ok), _ => Option.None<T>());
+        #endregion
 
-        // Helpers
-        private static string JoinErrorMessages(
+        #region helpers
+
+        static string JoinErrorMessages(
             this IEnumerable<Result> results,
             string errorSeparator = null) 
             => string.Join(
                 errorSeparator ?? Environment.NewLine,
                 results.Where(r => r.IsError)
                     .Select(r => r.GetErrorOrDefault()));
+
+        #endregion
     }
 }
