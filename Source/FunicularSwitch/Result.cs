@@ -455,5 +455,15 @@ namespace FunicularSwitch
                     .Select(r => r.GetErrorOrDefault()));
 
         #endregion
+
+        public static Result<T1> As<T, T1>(this Result<T> result) =>
+            result.Bind(r =>
+            {
+                if (r is T1 converted)
+                    return converted;
+                return Result.Error<T1>($"Could not convert '{r?.GetType().Name}' to type {typeof(T1)}");
+            });
+
+        public static Result<T1> As<T1>(this Result<object> result) => result.As<object, T1>();
     }
 }
