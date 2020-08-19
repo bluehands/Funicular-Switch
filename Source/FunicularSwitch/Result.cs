@@ -372,25 +372,28 @@ namespace FunicularSwitch
 #endregion
 
         #region async aggregate 
-        public static async Task<Result<(T1, T2)>> Aggregate<T1, T2>(
+        public static Task<Result<(T1, T2)>> Aggregate<T1, T2>(
             this Task<Result<T1>> tr1,
             Task<Result<T2>> tr2,
             string errorSeparator = null)
-            => await tr1.Aggregate(tr2, (v1, v2) => (v1, v2), errorSeparator);
+            => tr1.Aggregate(tr2, (v1, v2) => (v1, v2), errorSeparator);
 
         public static async Task<Result<TResult>> Aggregate<T1, T2, TResult>(
             this Task<Result<T1>> tr1,
             Task<Result<T2>> tr2,
             Func<T1, T2, TResult> combine,
-            string errorSeparator = null) 
-            => (await tr1).Aggregate(await tr2, combine, errorSeparator);
+            string errorSeparator = null)
+        {
+            await Task.WhenAll(tr1, tr2);
+            return tr1.Result.Aggregate(tr2.Result, combine, errorSeparator);
+        }
 
-        public static async Task<Result<(T1, T2, T3)>> Aggregate<T1, T2, T3>(
+        public static Task<Result<(T1, T2, T3)>> Aggregate<T1, T2, T3>(
             this Task<Result<T1>> tr1,
             Task<Result<T2>> tr2,
             Task<Result<T3>> tr3,
-            string errorSeparator = null)
-            => await tr1.Aggregate(tr2, tr3, (v1, v2, v3) => (v1, v2, v3), errorSeparator);
+            string errorSeparator = null) 
+            => tr1.Aggregate(tr2, tr3, (v1, v2, v3) => (v1, v2, v3), errorSeparator);
 
         public static async Task<Result<TResult>> Aggregate<T1, T2, T3, TResult>(
             this Task<Result<T1>> tr1,
@@ -398,15 +401,18 @@ namespace FunicularSwitch
             Task<Result<T3>> tr3,
             Func<T1, T2, T3, TResult> combine,
             string errorSeparator = null)
-            => (await tr1).Aggregate(await tr2, await tr3, combine, errorSeparator);
+        {
+            await Task.WhenAll(tr1, tr2, tr3);
+            return tr1.Result.Aggregate(tr2.Result, tr3.Result, combine, errorSeparator);
+        }
 
-        public static async Task<Result<(T1, T2, T3, T4)>> Aggregate<T1, T2, T3, T4>(
+        public static Task<Result<(T1, T2, T3, T4)>> Aggregate<T1, T2, T3, T4>(
             this Task<Result<T1>> tr1,
             Task<Result<T2>> tr2,
             Task<Result<T3>> tr3,
             Task<Result<T4>> tr4,
             string errorSeparator = null)
-            => await tr1.Aggregate(tr2, tr3, tr4, (v1, v2, v3, v4) => (v1, v2, v3, v4), errorSeparator);
+            => tr1.Aggregate(tr2, tr3, tr4, (v1, v2, v3, v4) => (v1, v2, v3, v4), errorSeparator);
 
         public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, TResult>(
             this Task<Result<T1>> tr1,
@@ -415,16 +421,19 @@ namespace FunicularSwitch
             Task<Result<T4>> tr4,
             Func<T1, T2, T3, T4, TResult> combine,
             string errorSeparator = null)
-            => (await tr1).Aggregate(await tr2, await tr3, await tr4, combine, errorSeparator);
+        {
+            await Task.WhenAll(tr1, tr2, tr3, tr4);
+            return tr1.Result.Aggregate(tr2.Result, tr3.Result, tr4.Result, combine, errorSeparator);
+        }
 
-        public static async Task<Result<(T1, T2, T3, T4, T5)>> Aggregate<T1, T2, T3, T4, T5>(
+        public static Task<Result<(T1, T2, T3, T4, T5)>> Aggregate<T1, T2, T3, T4, T5>(
             this Task<Result<T1>> tr1,
             Task<Result<T2>> tr2,
             Task<Result<T3>> tr3,
             Task<Result<T4>> tr4,
             Task<Result<T5>> tr5,
             string errorSeparator = null)
-            => await tr1.Aggregate(tr2, tr3, tr4, tr5, (v1, v2, v3, v4, v5) => (v1, v2, v3, v4, v5), errorSeparator);
+            => tr1.Aggregate(tr2, tr3, tr4, tr5, (v1, v2, v3, v4, v5) => (v1, v2, v3, v4, v5), errorSeparator);
 
         public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, TResult>(
             this Task<Result<T1>> tr1,
@@ -434,8 +443,12 @@ namespace FunicularSwitch
             Task<Result<T5>> tr5,
             Func<T1, T2, T3, T4, T5, TResult> combine,
             string errorSeparator = null)
-            => (await tr1).Aggregate(await tr2, await tr3, await tr4, await tr5, combine, errorSeparator);
-        public static async Task<Result<(T1, T2, T3, T4, T5, T6)>> Aggregate<T1, T2, T3, T4, T5, T6>(
+        {
+            await Task.WhenAll(tr1, tr2, tr3, tr4, tr5);
+            return tr1.Result.Aggregate(tr2.Result, tr3.Result, tr4.Result, tr5.Result, combine, errorSeparator);
+        }
+
+        public static Task<Result<(T1, T2, T3, T4, T5, T6)>> Aggregate<T1, T2, T3, T4, T5, T6>(
             this Task<Result<T1>> tr1,
             Task<Result<T2>> tr2,
             Task<Result<T3>> tr3,
@@ -443,7 +456,7 @@ namespace FunicularSwitch
             Task<Result<T5>> tr5,
             Task<Result<T6>> tr6,
             string errorSeparator = null)
-            => await tr1.Aggregate(tr2, tr3, tr4, tr5, tr6, (v1, v2, v3, v4, v5, v6) => (v1, v2, v3, v4, v5, v6), errorSeparator);
+            => tr1.Aggregate(tr2, tr3, tr4, tr5, tr6, (v1, v2, v3, v4, v5, v6) => (v1, v2, v3, v4, v5, v6), errorSeparator);
 
         public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(
             this Task<Result<T1>> tr1,
@@ -454,7 +467,10 @@ namespace FunicularSwitch
             Task<Result<T6>> tr6,
             Func<T1, T2, T3, T4, T5, T6, TResult> combine,
             string errorSeparator = null)
-            => (await tr1).Aggregate(await tr2, await tr3, await tr4, await tr5, await tr6, combine, errorSeparator);
+        {
+            await Task.WhenAll(tr1, tr2, tr3, tr4, tr5, tr6);
+            return tr1.Result.Aggregate(tr2.Result, tr3.Result, tr4.Result, tr5.Result, tr6.Result, combine, errorSeparator);
+        }
 
         #endregion
 
