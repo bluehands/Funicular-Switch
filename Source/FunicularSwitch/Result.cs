@@ -22,8 +22,8 @@ namespace FunicularSwitch
         public static Result<T> Error(string message) => Error<T>(message);
         public static Result<T> Ok(T value) => Ok<T>(value);
 
-        public static implicit operator Result<T>(T value) 
-            => Result.Ok(value);
+        public static implicit operator Result<T>(T value) => Result.Ok(value);
+
         public static implicit operator bool(Result<T> result) 
             => result.Match(ok => true, error => false);
 
@@ -253,6 +253,8 @@ namespace FunicularSwitch
 
         #region aggregate
 
+        #region sync aggregate 
+
         public static Result<(T1, T2)> Aggregate<T1, T2>(
             this Result<T1> r1,
             Result<T2> r2,
@@ -367,6 +369,111 @@ namespace FunicularSwitch
                     r4.GetValueOrThrow(), r5.GetValueOrThrow(), r6.GetValueOrThrow());
         }
 
+#endregion
+
+        #region async aggregate 
+        public static Task<Result<(T1, T2)>> Aggregate<T1, T2>(
+            this Task<Result<T1>> tr1,
+            Task<Result<T2>> tr2,
+            string errorSeparator = null)
+            => tr1.Aggregate(tr2, (v1, v2) => (v1, v2), errorSeparator);
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, TResult>(
+            this Task<Result<T1>> tr1,
+            Task<Result<T2>> tr2,
+            Func<T1, T2, TResult> combine,
+            string errorSeparator = null)
+        {
+            await Task.WhenAll(tr1, tr2);
+            return tr1.Result.Aggregate(tr2.Result, combine, errorSeparator);
+        }
+
+        public static Task<Result<(T1, T2, T3)>> Aggregate<T1, T2, T3>(
+            this Task<Result<T1>> tr1,
+            Task<Result<T2>> tr2,
+            Task<Result<T3>> tr3,
+            string errorSeparator = null) 
+            => tr1.Aggregate(tr2, tr3, (v1, v2, v3) => (v1, v2, v3), errorSeparator);
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, TResult>(
+            this Task<Result<T1>> tr1,
+            Task<Result<T2>> tr2,
+            Task<Result<T3>> tr3,
+            Func<T1, T2, T3, TResult> combine,
+            string errorSeparator = null)
+        {
+            await Task.WhenAll(tr1, tr2, tr3);
+            return tr1.Result.Aggregate(tr2.Result, tr3.Result, combine, errorSeparator);
+        }
+
+        public static Task<Result<(T1, T2, T3, T4)>> Aggregate<T1, T2, T3, T4>(
+            this Task<Result<T1>> tr1,
+            Task<Result<T2>> tr2,
+            Task<Result<T3>> tr3,
+            Task<Result<T4>> tr4,
+            string errorSeparator = null)
+            => tr1.Aggregate(tr2, tr3, tr4, (v1, v2, v3, v4) => (v1, v2, v3, v4), errorSeparator);
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, TResult>(
+            this Task<Result<T1>> tr1,
+            Task<Result<T2>> tr2,
+            Task<Result<T3>> tr3,
+            Task<Result<T4>> tr4,
+            Func<T1, T2, T3, T4, TResult> combine,
+            string errorSeparator = null)
+        {
+            await Task.WhenAll(tr1, tr2, tr3, tr4);
+            return tr1.Result.Aggregate(tr2.Result, tr3.Result, tr4.Result, combine, errorSeparator);
+        }
+
+        public static Task<Result<(T1, T2, T3, T4, T5)>> Aggregate<T1, T2, T3, T4, T5>(
+            this Task<Result<T1>> tr1,
+            Task<Result<T2>> tr2,
+            Task<Result<T3>> tr3,
+            Task<Result<T4>> tr4,
+            Task<Result<T5>> tr5,
+            string errorSeparator = null)
+            => tr1.Aggregate(tr2, tr3, tr4, tr5, (v1, v2, v3, v4, v5) => (v1, v2, v3, v4, v5), errorSeparator);
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, TResult>(
+            this Task<Result<T1>> tr1,
+            Task<Result<T2>> tr2,
+            Task<Result<T3>> tr3,
+            Task<Result<T4>> tr4,
+            Task<Result<T5>> tr5,
+            Func<T1, T2, T3, T4, T5, TResult> combine,
+            string errorSeparator = null)
+        {
+            await Task.WhenAll(tr1, tr2, tr3, tr4, tr5);
+            return tr1.Result.Aggregate(tr2.Result, tr3.Result, tr4.Result, tr5.Result, combine, errorSeparator);
+        }
+
+        public static Task<Result<(T1, T2, T3, T4, T5, T6)>> Aggregate<T1, T2, T3, T4, T5, T6>(
+            this Task<Result<T1>> tr1,
+            Task<Result<T2>> tr2,
+            Task<Result<T3>> tr3,
+            Task<Result<T4>> tr4,
+            Task<Result<T5>> tr5,
+            Task<Result<T6>> tr6,
+            string errorSeparator = null)
+            => tr1.Aggregate(tr2, tr3, tr4, tr5, tr6, (v1, v2, v3, v4, v5, v6) => (v1, v2, v3, v4, v5, v6), errorSeparator);
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(
+            this Task<Result<T1>> tr1,
+            Task<Result<T2>> tr2,
+            Task<Result<T3>> tr3,
+            Task<Result<T4>> tr4,
+            Task<Result<T5>> tr5,
+            Task<Result<T6>> tr6,
+            Func<T1, T2, T3, T4, T5, T6, TResult> combine,
+            string errorSeparator = null)
+        {
+            await Task.WhenAll(tr1, tr2, tr3, tr4, tr5, tr6);
+            return tr1.Result.Aggregate(tr2.Result, tr3.Result, tr4.Result, tr5.Result, tr6.Result, combine, errorSeparator);
+        }
+
+        #endregion
+
         public static Result<List<T>> Aggregate<T>(
             this IEnumerable<Result<T>> results,
             string errorSeparator = null)
@@ -455,5 +562,24 @@ namespace FunicularSwitch
                     .Select(r => r.GetErrorOrDefault()));
 
         #endregion
+
+        public static Result<T1> As<T, T1>(this Result<T> result) =>
+            result.Bind(r =>
+            {
+                if (r is T1 converted)
+                    return converted;
+                return Result.Error<T1>($"Could not convert '{r?.GetType().Name}' to type {typeof(T1)}");
+            });
+
+        public static Result<T1> As<T1>(this Result<object> result) => result.As<object, T1>();
+
+        public static Result<T> As<T>(this object item, Func<string> error) =>
+            !(item is T t) ? Result.Error<T>(error()) : t;
+
+        public static Result<T> AssertNotNull<T>(this T item, Func<string> error) where T : class =>
+            item ?? Result.Error<T>(error());
+
+        public static Result<string> NotNullOrWhiteSpace(this string s, Func<string> error)
+            => string.IsNullOrWhiteSpace(s) ? error() : s;
     }
 }

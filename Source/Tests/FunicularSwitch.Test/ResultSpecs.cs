@@ -87,5 +87,17 @@ namespace FunicularSwitch.Test
         class Something
         {
         }
+
+        [TestMethod]
+        public void AsTest()
+        {
+            var obj = Result.Ok<object>(42);
+            var intResult = obj.As<int>();
+            intResult.IsOk.Should().BeTrue();
+            intResult.GetValueOrThrow().Should().Be(42);
+
+            var stringResult = obj.As<string>();
+            stringResult.IsError.Should().BeTrue();
+        }
     }
 }
