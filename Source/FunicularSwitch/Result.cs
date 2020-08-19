@@ -22,8 +22,8 @@ namespace FunicularSwitch
         public static Result<T> Error(string message) => Error<T>(message);
         public static Result<T> Ok(T value) => Ok<T>(value);
 
-        public static implicit operator Result<T>(T value) 
-            => Result.Ok(value);
+        public static implicit operator Result<T>(T value) => Result.Ok(value);
+
         public static implicit operator bool(Result<T> result) 
             => result.Match(ok => true, error => false);
 
@@ -465,5 +465,14 @@ namespace FunicularSwitch
             });
 
         public static Result<T1> As<T1>(this Result<object> result) => result.As<object, T1>();
+
+        public static Result<T> As<T>(this object item, Func<string> error) =>
+            !(item is T t) ? Result.Error<T>(error()) : t;
+
+        public static Result<T> AssertNotNull<T>(this T item, Func<string> error) where T : class =>
+            item ?? Result.Error<T>(error());
+
+        public static Result<string> NotNullOrWhiteSpace(this string s, Func<string> error)
+            => string.IsNullOrWhiteSpace(s) ? error() : s;
     }
 }
