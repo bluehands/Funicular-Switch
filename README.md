@@ -3,28 +3,20 @@
 ![BuildStatus](https://bluehands.visualstudio.com/bluehands%20Funicular%20Switch/_apis/build/status/bluehandsFunicularSwitch-CI?branchName=master)
 ![Try_.NET Enabled](https://img.shields.io/badge/Try_.NET-Enabled-501078.svg)
 
-Funicular-Switch is a lightweight C# railway oriented programming pattern oriented on F#'s result types.
+Funicular-Switch is a lightweight C# port of F#'s result and option types.
 
-By using Funicular-Switch Result we can achieve the following benefits:
+By using Funicular-Switch we can achieve the following benefits:
 
+- Focus on the 'happy path', but collect all error information.
+- Be more explicit in what our methods return.
 - Avoid deep nesting.
 - Avoid null checks, use Result or Option instead.
 - Comfortably write async code pipelines.
-- Ensure async is used properly.
-- Easily combine async with synchronous code.
-- Wrap third party library exceptions into results.
-- Avoid throwing exceptions. Instead create a Result.Error of a specific type with a specific message.
-
-Funicular-Switch contains two solutions for this approach: **Result** and **Option**.
+- Wrap third party library exceptions / return values into results at the code level were we really understand what is happening.
 
 ## Getting Started
 
-### Prerequisites
-
-- Install the latest version of [NuGet.exe](https://www.nuget.org/)
-- Install Visual Studio 2019 (optional)
-
-### Installing
+### Package
 
 [NuGet: FunicularSwitch](https://www.nuget.org/packages/FunicularSwitch/)
 
@@ -296,15 +288,3 @@ bluehands.de
 [F# for fun and profit: Map and Bind and Apply, Oh my!](https://fsharpforfunandprofit.com/series/map-and-bind-and-apply-oh-my.html)
 
 FSharp Project: [FSharp](https://fsharp.org/)
-
-## Known issues
-
-- On Azure Build pipeline it might be required to set the LangVersion inside the .csproj to >= C# 7.0:
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <LangVersion>latest</LangVersion>
-    </PropertyGroup>
-</Project>
-```
