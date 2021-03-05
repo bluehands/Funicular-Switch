@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using FluentAssertions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FunicularSwitch.Test
@@ -110,6 +111,22 @@ namespace FunicularSwitch.Test
 
             var odds = Enumerable.Range(0, 10).Choose(i => i % 2 != 0 ? i * 10 : Option<int>.None).ToList();
             odds.Should().BeEquivalentTo(Enumerable.Range(0, 10).Where(i => i % 2 != 0).Select(i => i*10));
+        }
+
+        [TestMethod]
+        public void BoolConversionTest()
+        {
+            if (Result.Ok(42)) {
+            }
+            else Assert.Fail();
+
+            if (!Result.Error<int>("Fail")) {
+            }
+            else Assert.Fail();
+
+            if (!Result.Ok(42)) {
+                Assert.Fail();
+            }
         }
     }
 }

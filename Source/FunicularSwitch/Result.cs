@@ -24,8 +24,11 @@ namespace FunicularSwitch
 
         public static implicit operator Result<T>(T value) => Result.Ok(value);
 
-        public static implicit operator bool(Result<T> result) 
-            => result.Match(ok => true, _ => false);
+        public static bool operator true(Result<T> result) => result.IsOk;
+        public static bool operator false(Result<T> result) => result.IsError;
+
+        public static bool operator !(Result<T> result) => result.IsError;
+
 
         // Matches
         public void Match(Action<T> ok, Action<string>? error = null) => Match(
@@ -208,11 +211,14 @@ namespace FunicularSwitch
             Func<T, Task<Result<T1>>> bind) 
             => await (await result.ConfigureAwait(false)).Bind(bind).ConfigureAwait(false);
 
-        public static Result<List<T1>> Bind<T, T1>(this IEnumerable<Result<T>> results, Func<T, Result<T1>> bind) =>
+        public static Result<IReadOnlyCollection<T1>> Bind<T, T1>(this IEnumerable<Result<T>> results, Func<T, Result<T1>> bind) =>
             results.Select(r => r.Bind(bind)).Aggregate();
 
-        public static Result<List<T1>> Bind<T, T1>(this Result<T> result, Func<T, IEnumerable<Result<T1>>> bindMany) => 
+        public static Result<IReadOnlyCollection<T1>> Bind<T, T1>(this Result<T> result, Func<T, IEnumerable<Result<T1>>> bindMany) => 
             result.Map(ok => bindMany(ok).Aggregate()).Flatten();
+
+        public static Result<T1> Bind<T, T1>(this IEnumerable<Result<T>> results, Func<IEnumerable<T>, Result<T1>> bind) =>
+            results.Aggregate().Bind(bind);
 
         #endregion
 
@@ -228,7 +234,7 @@ namespace FunicularSwitch
             Func<T, Task<T1>> bind) 
             => Bind(result, async v => Result.Ok(await bind(v).ConfigureAwait(false)));
 
-        public static Result<List<T1>> Map<T, T1>(this IEnumerable<Result<T>> results, Func<T, T1> map) =>
+        public static Result<IReadOnlyCollection<T1>> Map<T, T1>(this IEnumerable<Result<T>> results, Func<T, T1> map) =>
             results.Select(r => r.Map(map)).Aggregate();
 
         public static Result<T> MapError<T>(this Result<T> result, Func<string, string> mapError) =>
@@ -479,7 +485,7 @@ namespace FunicularSwitch
 
         #endregion
 
-        public static Result<List<T>> Aggregate<T>(
+        public static Result<IReadOnlyCollection<T>> Aggregate<T>(
             this IEnumerable<Result<T>> results,
             string? errorSeparator = null)
         {
@@ -493,36 +499,36 @@ namespace FunicularSwitch
             }
 
             var errors = sb.ToString();
-            return !string.IsNullOrEmpty(errors) ? Result.Error<List<T>>(errors) : Result.Ok(oks);
+            return !string.IsNullOrEmpty(errors) ? Result.Error<IReadOnlyCollection<T>>(errors) : Result.Ok<IReadOnlyCollection<T>>(oks);
         }
 
-        public static async Task<Result<List<T>>> Aggregate<T>(
+        public static async Task<Result<IReadOnlyCollection<T>>> Aggregate<T>(
             this Task<IEnumerable<Result<T>>> results,
             string? errorSeparator = null) 
             => (await results.ConfigureAwait(false))
                 .Aggregate(errorSeparator);
 
-        public static async Task<Result<List<T>>> Aggregate<T>(
+        public static async Task<Result<IReadOnlyCollection<T>>> Aggregate<T>(
             this IEnumerable<Task<Result<T>>> results,
             string? errorSeparator = null) 
             => (await results.SelectAsync(e => e).ConfigureAwait(false))
                 .Aggregate(errorSeparator);
 
-        public static async Task<Result<List<T>>> Aggregate<T>(
+        public static async Task<Result<IReadOnlyCollection<T>>> Aggregate<T>(
             this IEnumerable<Task<Result<T>>> results,
             int maxDegreeOfParallelism,
             string? errorSeparator = null)
             => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
                 .Aggregate(errorSeparator);
 
-        public static async Task<Result<List<T>>> AggregateMany<T>(
+        public static async Task<Result<IReadOnlyCollection<T>>> AggregateMany<T>(
             this IEnumerable<Task<IEnumerable<Result<T>>>> results,
             string? errorSeparator = null)
             => (await results.SelectAsync(e => e).ConfigureAwait(false))
                 .SelectMany(e => e)
                 .Aggregate(errorSeparator);
 
-        public static async Task<Result<List<T>>> AggregateMany<T>(
+        public static async Task<Result<IReadOnlyCollection<T>>> AggregateMany<T>(
             this IEnumerable<Task<IEnumerable<Result<T>>>> results,
             int maxDegreeOfParallelism,
             string? errorSeparator = null)
@@ -561,12 +567,15 @@ namespace FunicularSwitch
         static string JoinErrorMessages(
             this IEnumerable<Result> results,
             string? errorSeparator = null) 
-            => string.Join(
-                errorSeparator ?? DefaultErrorSeparator,
-                results.Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()));
+            => results
+                .Where(r => r.IsError)
+                .Select(r => r.GetErrorOrDefault()!)
+                .JoinErrors(errorSeparator);
 
         #endregion
+
+        static string JoinErrors(this IEnumerable<string> errors, string? errorSeparator = null) =>
+            string.Join(errorSeparator ?? DefaultErrorSeparator, errors);
 
         public static Result<T1> As<T, T1>(this Result<T> result) =>
             result.Bind(r =>
@@ -581,23 +590,23 @@ namespace FunicularSwitch
         public static Result<T> As<T>(this object item, Func<string> error) =>
             !(item is T t) ? Result.Error<T>(error()) : t;
 
-        public static Result<T> AssertNotNull<T>(this T? item, Func<string> error) =>
+        public static Result<T> NotNull<T>(this T? item, Func<string> error) =>
             item ?? Result.Error<T>(error());
 
         public static Result<string> NotNullOrWhiteSpace(this string s, Func<string> error)
             => string.IsNullOrWhiteSpace(s) ? error() : s;
 
-        public static Result<T1> FirstOk<T, T1>(this IEnumerable<T> candidates, Func<T, IEnumerable<Result<T1>>> validations, string? errorSeparator = null) =>
+        public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T> validate, Func<string>? onEmpty = null, string? errorSeparator = null) =>
             candidates
-                .SelectMany(validations)
-                .FirstOk(errorSeparator);
+                .Select(r => r.Validate(validate, errorSeparator))
+                .FirstOk(onEmpty, errorSeparator);
 
-        public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Func<T, bool> validate, Func<string> allInvalid) =>
+        public static Result<T> First<T>(this IEnumerable<T> candidates, Func<T, bool> predicate, Func<string> noMatch) =>
             candidates
-                .FirstOrDefault(i => validate(i))
-                .AssertNotNull(allInvalid);
+                .FirstOrDefault(i => predicate(i))
+                .NotNull(noMatch);
 
-        public static Result<T> FirstOk<T>(this IEnumerable<Result<T>> results, string? errorSeparator = null)
+        public static Result<T> FirstOk<T>(this IEnumerable<Result<T>> results, Func<string>? onEmpty = null, string? errorSeparator = null)
         {
             List<string> errors = new();
             foreach (var result in results)
@@ -609,9 +618,29 @@ namespace FunicularSwitch
             }
 
             if (!errors.Any())
-                errors.Add("No result candidates for FirstOk");
+                errors.Add(onEmpty?.Invoke() ?? "No result candidates for FirstOk");
 
             return Result.Error<T>(string.Join(errorSeparator ?? DefaultErrorSeparator, errors));
         }
+
+        public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Validate<T> validate, string? errorSeparator = null) =>
+            candidates
+                .Select(c => c.Validate(validate, errorSeparator))
+                .Aggregate(errorSeparator);
+
+        public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<Result<T>> candidates,
+            Validate<T> validate, string? errorSeparator = null) =>
+            candidates
+                .Bind(items => items.AllOk(validate, errorSeparator));
+
+        public static Result<T> Validate<T>(this Result<T> item, Validate<T> validate, string? errorSeparator = null) => item.Bind(i => i.Validate(validate, errorSeparator));
+
+        public static Result<T> Validate<T>(this T item, Validate<T> validate, string? errorSeparator = null)
+        {
+            var errors = validate(item).JoinErrors(errorSeparator);
+            return !string.IsNullOrEmpty(errors) ? Result.Error<T>(errors) : item;
+        }
     }
+
+    public delegate IEnumerable<string> Validate<in T>(T item);
 }

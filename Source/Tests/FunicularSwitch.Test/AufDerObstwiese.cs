@@ -78,7 +78,7 @@ namespace FunicularSwitch.Test
                         : ausrüstung.Leiter;
 
             var schere = ausrüstung.Scheren
-                .FirstOk(s => s.Scharf, () => "Es gibt keine scharfe Schere");
+                .First(s => s.Scharf, () => "Es gibt keine scharfe Schere");
 
             return leiter.Aggregate(schere);
         }
@@ -86,30 +86,23 @@ namespace FunicularSwitch.Test
         static Result<Baumpfleger> WerSchneidet(IEnumerable<Baumpfleger> kandidaten, Apfelsorte sorte,
             double baumHöhe, Result<GutesWetter> geeignetesWetter)
         {
-            IEnumerable<Result<Baumpfleger>> IstGeignet(Baumpfleger baumpfleger)
+            IEnumerable<string> IstGeignet(Baumpfleger baumpfleger)
             {
-                var ungeeignet = false;
                 if (baumpfleger.Fähigkeit == Fähigkeit.Ahnungslos)
                 {
-                    ungeeignet = true;
-                    yield return Result.Error<Baumpfleger>($"{baumpfleger.Name} muss erst in den Schnittkurs");
+                    yield return $"{baumpfleger.Name} muss erst in den Schnittkurs";
                 }
 
                 if (baumHöhe > 2 && (baumpfleger.AlterInJahren > 100 || baumpfleger.AlterInJahren > 80 &&
                     geeignetesWetter.Map(wetter => wetter.Windstärke).GetValueOrDefault(() => 0) > 5))
                 {
-                    ungeeignet = true;
-                    yield return Result.Error<Baumpfleger>($"Für {baumpfleger.Name} wirds schwierig mit der Leiter");
+                    yield return "Für {baumpfleger.Name} wirds schwierig mit der Leiter";
                 }
 
                 if (!baumpfleger.HatSchonmalGehört(sorte))
                 {
-                    ungeeignet = true;
-                    yield return Result.Error<Baumpfleger>($"{baumpfleger.Name} kennt die Sorte {sorte} überhaupt nicht");
+                    yield return $"{baumpfleger.Name} kennt die Sorte {sorte} überhaupt nicht";
                 }
-
-                if (!ungeeignet)
-                    yield return baumpfleger;
             }
 
             return kandidaten.FirstOk(IstGeignet)

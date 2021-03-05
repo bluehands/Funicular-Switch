@@ -10,7 +10,7 @@ By using Funicular-Switch we can achieve the following benefits:
 - Focus on the 'happy path', but collect all error information.
 - Be more explicit in what our methods return.
 - Avoid deep nesting.
-- Avoid null checks, use Result or Option instead.
+- Avoid null checks and eventual properties (properties only relevaent for a certain state of an object), use Result or Option instead.
 - Comfortably write async code pipelines.
 - Wrap third party library exceptions / return values into results at the code level were we really understand what is happening.
 
@@ -36,238 +36,204 @@ Using Visual Studio:
 
 ## Usage
 
-[Check out the additional Tutorial markdown here](https://github.com/bluehands/Funicular-Switch/blob/master/TUTORIAL.md)
+*This document is created using [dotnet try](https://github.com/dotnet/try/blob/main/DotNetTryLocal.md). If you have dotnet try global tool installed, just clone the repo, type `dotnet try` on top level and play around with all code samples in your browser while reading.*
 
-[Check out the additional Tutorial source here](https://github.com/bluehands/Funicular-Switch/tree/master/Source/Tutorial)
+This following section mainly focuses on `Result`. `Result` is a union type representing either Ok or the Error case just like F#s Result type. For FunicularSwitch the error type is `String` for sake of simplicity (Using types with multiple generic arguments is quite verbose in C#).
 
-First let's define two functions to assert 42 is the answer to everything.
-One synchronous, the other asynchronous (it has to ask for the correct answer first, which might take time ;)):
+Result should be used in all places, were something can go wrong. Doing so it replaces exceptions and null/default return values.
 
-**Note**: When you will write an an async function that, returns a Task\<Result\<T>> and you integrate this function in your pipeline, you will see that the whole execution pipeline will be async but you can still use synchronous functions inside.
+Creating a `Result` is easy:
 
-``` cs --region result-creation --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
-// Synchronous:
-public Result<int> AssertItIsTheAnswerToEverything(int answer)
-    => answer == 42
-        ? Result.Ok(answer) //There is an implicit cast to Ok, so you could omit Result.Ok and just write: return answer;
-        : Result.Error<int>($"Nah, {answer} is not THE answer!");
+``` cs --region resultCreation --source-file Source/DocSamples/ReadmeSamples.cs --project Source/DocSamples/DocSamples.csproj
+//Ok result:
+var fortyTwo = Result.Ok(42);
+//or using implicit cast operator
+Result<string> ok = "Ok";
 
-// Asynchronous:
-public async Task<Result<int>> AsyncAssertItIsTheAnswerToEverything(int answer)
-    => answer == await ComputeAnswer()
-            ? Result.Ok(answer)
-            : Result.Error<int>($"Nah, {answer} is not THE answer!");
+//Error result:
+var error = Result.Error<int>("Could not find the answer");
 ```
 
-### **Matching**
+Now lets follow the happy path, do something, if everything was ok. `Map`:
 
-Match will check wether a given result is ok or erroneous. In case it is ok it will pass the content to the ok lambda and in case it is erroneous it will pass the error string to the error lambda. Nice thing about match is that to satisfy the compiler one has to handle both, the ok *and* the error case. That is a huge advantage compared to `if` or `switch` statements.
+``` cs --region map --source-file Source/DocSamples/ReadmeSamples.cs --project Source/DocSamples/DocSamples.csproj --session map
+static Result<int> Ask() => 42;
 
-**Note**: match is usually used at the end of your execution pipeline
+Result<int> answerTransformed = Ask()
+    .Map(answer => answer * 2);
 
-*Synchronous match*:
-
-``` cs --region match-simple --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
-Result<int> theAnswer = AssertItIsTheAnswerToEverything(42);
-
-theAnswer.Match(
-    ok => Console.WriteLine($"{ok} no more words needed!"),
-    error => Console.WriteLine(error)
-);
+Console.WriteLine(answerTransformed);
 ```
 
-Obviously, 42 is THE answer so we hit the ok case here.
+``` console --session map
+Ok 84
 
-*Async match*:
-
-**Note**: Now we take advantage of all the extension methods by not assigning the Result to a variable.
-You can always choose between those two options inside your code but in the most cases using the extensions directly on a parent Result will improve the readability of your code.
-
-``` cs --region match-simple-async --source-file Source/DocSamples/Samples.cs --project Source/DocSamples/DocSamples.csproj
-var answerOutput =
-                AsyncAssertItIsTheAnswerToEverything(42)
-                .Match(
-                    ok => $"{ok} no more words needed!",
-                    error => error
-                );
-
-Console.WriteLine(await answerOutput);
 ```
 
-Definitely, 0 is not the answer so we hit the error case here.
+or do something that might fail, if everything was ok. `Bind`:
 
-### **Map**
+``` cs --region bind --source-file Source/DocSamples/ReadmeSamples.cs --project Source/DocSamples/DocSamples.csproj --session bind
+static Result<int> Ask() => 42;
 
-Map executes the given lambda inside map if previous result was ok and maps the given value to the previous result, otherwise pass the error from the previous result to the next node.
+Result<int> answerTransformed = Ask()
+    .Bind(answer => answer == 0 ? Result.Error<int>("Division by zero") : 42 / answer);
 
-Map is can be used for operations, that can not fail e.g. multiply answer with two.
-
-**Note**: If your operation can fail e.g. divide the answer with zero. use Bind instead and wrap the result of the division into a Result.Ok on success and otherwise wrap it into a Result.Error.
-
-*As synchronous pipeline*:
-
-```csharp
-Result<int> answerResult = AssertItIsTheAnswerToEverything(90)
-    .Map(answer => answer*2);
+Console.WriteLine(answerTransformed);
 ```
 
-*As asynchronous pipeline*:
+``` console --session bind
+Ok 1
 
-```csharp
-Result<int> answerResult = await AsyncAssertItIsTheAnswerToEverything(42)
-    .Map(answer => answer*2);
 ```
 
-### **Bind**
+The lamdas passed to `Map` and `Bind` are only invoked if everything went well so far, otherwise you are on the error track were error information is passed on 'invisibly':
+b
+``` cs --region errorPropagation --source-file Source/DocSamples/ReadmeSamples.cs --project Source/DocSamples/DocSamples.csproj --session errorPropagation
+static Result<int> Transform(Result<int> result) =>
+                result
+                    .Bind(answer => answer == 0 ? Result.Error<int>("Division by zero") : 42 / answer)
+                    .Map(transformed => transformed * 2);
 
-Bind execute the given lambda inside bind if previous result was ok and binds the new result, which can either be ok or error, to the previous result, otherwise pass the error from the previous result to the next node.
+Result<int> firstLevelError = Transform(Result.Error<int>("I don't know"));
+Console.WriteLine("First level: {firstLevelError}");
 
-*As synchronous pipeline*:
-
-```csharp
-Result<string> answerResult = AssertItIsTheAnswerToEverything(57)
-    .Bind(answer => 
-        answer == 42 
-            ? Result.Ok("It is THE answer!")
-            : Result.Error<string>("That does not solve any problems!")));
+Result<int> secondLevelError = Transform(Result.Ok(0));
+Console.WriteLine($"Second level: {secondLevelError}");
 ```
 
-**Note**: We just changed the Result type of the Assertion from Result\<int> to Result\<string>.
+``` console --session errorPropagation
+First level: {firstLevelError}
+Second level: Error Division by zero
 
-*As asynchronous pipeline*:
-
-```csharp
-Result<string> answerResult = await AsyncAssertItIsTheAnswerToEverything(42)
-    .Bind(answer =>
-        answer == 42
-            ? Result.Ok("It is THE answer!")
-            : Result.Error<string>("That answer will NOT solve any problems!"));
 ```
 
-### **Aggregating**
+Finally you might want to leave the `Result` world, so you have to take care of the error case as well (that's a good thing!). `Match`:
 
-Aggregate will take several results of different or equal types and merge them together to one result.
-Aggregate the resulting result is ok if all aggregated results were ok.
-In case any aggregated result was erroneous, the resulting result will be erroneous too.
+``` cs --region match --source-file Source/DocSamples/ReadmeSamples.cs --project Source/DocSamples/DocSamples.csproj --session match
+static Result<int> Ask() => 42;
 
-> Errors will be combined with the default new line separator if not explicitly specified.
+string whatIsIt =
+    Ask().Match(
+        answer => $"The answer is: {answer}",
+        error => $"Ups: {error}"
+    );
 
-The following use cases are possible:
-
-- 1.: We have two results of different type (or more) and we want to combine them to a tuple if all results are ok.
-- 2.: We have two results of different type (or more) and we want to combine them with a specified lambda (rule) if all results are ok.
-- 3.: We have a collection of results and we want to aggregate them to one result containing a list of content if all results are ok.
-
-#### Use case 1:
-
-*As synchronous pipeline*:
-
-```csharp
-var answerResult = Result.Ok("It is THE answer!");
-// The aggregation will return Result<(int, string)>.
-Result<(int, string)> tupleResult =
-    AssertItIsTheAnswerToEverything(42)
-        .Aggregate(answerResult);
+Console.WriteLine(whatIsIt);
 ```
 
-*As asynchronous pipeline*:
+``` console --session match
+The answer is: 42
 
-```csharp
-var answerResult = Result.Ok("It is THE answer!");
-Result<(string, int)> tupleResult = 
-    await AsyncAssertItIsTheAnswerToEverything(42)
-        .Aggregate(answerResult);
 ```
 
-#### Use case 2:
+Those are basically the four (actually three) main operations on `Result` - `Create`, `Bind`, `Map` and `Match`. There are a lot of overloads and other helpers in FunicularSwitch to avoid repetition of `Result` specific patterns like:
 
-*As synchronous pipeline*:
+- 'Combine results to Ok if everything is Ok otherwise collect errors' - `Aggregate`, `Map` and `Bind` overloads on collections
+- 'Ok if at least one item passes certain validations, otherwise collect info why no one matched' - `FirstOk`
+- 'Ok if item from a dictionary was found, ohterwise (nice) error' - `TryGetValue` extension on Dictionary
+- 'Ok if type T is `as` convertible to T1, error otherwies' - 'As' extension returning Result
+- 'Ok if item is valid regarind custom validations, error otherwise' - `Validate`
+- 'Async support' - `Map` `Bind` and `Aggregate` overloads with async lamdas and extensions defined on Task<...>
+- ...
 
-```csharp
-var answerResult = Result.Ok("It is THE answer!");
-// The aggregation will return Result<string>.
-Result<string> proofOfAnswerResult = 
-    AssertItIsTheAnswerToEverything(42)
-        .Aggregate(answerResult, (answer, answerToEverything) => 
-        {
-            if (answer == "It is THE answer!" && answerToEverything == 42) 
-            {
-                return Result.Ok("THE answer is unambiguously 42!!");
-            }
-            return Result.Error<string>("Black Holes started to consume the whole universe..!!!");
-        });
-```
+If you miss functionality it easy to add it by writing your own extension methods. If it is useful for us all don't hesitate to make pull request. Finally a little example demonstrating some of the functionality mentioned above (validation, aggregation, async pipeline). Lets cook:
 
-*As asynchronous pipeline*:
-
-> await the aggregation as showed before or pass the result to the next pipeline node.
-
-#### Use case 3:
-
-**Note**: Aggregate will use the default error separator: Environment.NewLine if not specified.
-
-*As synchronous pipeline*:
-
-```csharp
-var possibleAnswers = new List<Result<int>> 
+``` cs --region fruitSalad --source-file Source/DocSamples/ReadmeSamples.cs --project Source/DocSamples/DocSamples.csproj --session fruitSalad
+public static async Task FruitSalad()
 {
-    AssertItIsTheAnswerToEverything(42),
-    AssertItIsTheAnswerToEverything(10),
-    AssertItIsTheAnswerToEverything(55),
-};
-// The aggregation will return Result<List<int>>.
-Result<List<int>> possibleAnswersResult = possibleAnswers.Aggregate();
-```
+    var stock = ImmutableList.Create(
+        new Fruit("Orange", 155),
+        new Fruit("Orange", 12),
+        new Fruit("Apple", 132),
+        new Fruit("Stink fruit", 1));
 
-*As asynchronous pipeline*:
+    var ingredients = ImmutableList.Create("Apple", "Banana", "Pear", "Stink fruit");
 
-```csharp
-var possibleAnswers = new List<Task<Result<int>>> 
+    const int cookSkillLevel = 10;
+
+    static IEnumerable<string> CheckFruit(Fruit fruit)
+    {
+        if (fruit.AgeInDays > 20)
+            yield return $"{fruit.Name} is not fresh";
+
+        if (fruit.Name == "Stink fruit")
+            yield return "Stink fruit, I do not serve that";
+    }
+
+    var salad =
+        await ingredients
+            .Select(ingredient =>
+                stock
+                    .Where(fruit => fruit.Name == ingredient)
+                    .FirstOk(CheckFruit, onEmpty: () => $"No {ingredient} in stock")
+                )
+            .Bind(fruits => CutIntoPieces(fruits, cookSkillLevel))
+            .Map(Serve);
+
+    Console.WriteLine(salad.Match(ok => "Salad served successfully", error => $"No salad today:{Environment.NewLine}{error}"));
+}
+
+static Result<Salad> CutIntoPieces(IEnumerable<Fruit> fruits, int skillLevel = 5)
 {
-    AsyncAssertItIsTheAnswerToEverything(42),
-    AsyncAssertItIsTheAnswerToEverything(10),
-    AsyncAssertItIsTheAnswerToEverything(55),
-};
-// The aggregation will return Result<List<int>>.
-Result<List<int>> possibleAnswersResult = await possibleAnswers.Aggregate();
-```
+    try
+    {
+        return CutFruits(fruits, skillLevel);
+    }
+    catch (Exception e)
+    {
+        return Result.Error<Salad>($"Ouch: {e.Message}");
+    }
+}
 
-> You can also pass a maximum degree of maxDegreeOfParallelism to the aggregate function to limit the possible parallelism during execution.
+static Salad CutFruits(IEnumerable<Fruit> fruits, int skillLevel) => skillLevel > 5 ? new Salad(fruits) : throw new Exception("Cut my fingers");
+static Task<Salad> Serve(Salad salad) => Task.FromResult(new Salad(salad.Fruits, true));
 
-> await the aggregation as showed before or pass the result to the next pipeline node.
-
-### **Choosing**
-
-Choose will take all ok results or those, matching the specified rule from a collection, combine and return them and processes all errors inside the lambda.
-
-```csharp
-var possibleAnswers = new List<Result<int>> 
+class Salad
 {
-    AssertItIsTheAnswerToEverything(42),
-    AssertItIsTheAnswerToEverything(10),
-    AssertItIsTheAnswerToEverything(55),
-};
-// Take all oks
-IEnumerable<int> rightOkAnswers = possibleAnswers.Choose(onError => 
-    {
-        // Custom on error logic.
-    });
+    public IReadOnlyCollection<Fruit> Fruits { get; }
+    public bool Served { get; }
 
-// Or with a specified rule:
-IEnumerable<int> rightAnswersMatchingTheRule = possibleAnswers.Choose(
-    choose => 
+    public Salad(IEnumerable<Fruit> fruits, bool served = false)
     {
-        choose == 42
-    },
-    onError => 
+        Fruits = fruits.ToList();
+        Served = served;
+    }
+}
+
+class Fruit
+{
+    public string Name { get; }
+    public int AgeInDays { get; }
+
+    public Fruit(string name, int ageInDays)
     {
-        // Custom on error logic.
-    });
+        Name = name;
+        AgeInDays = ageInDays;
+    }
+}
 ```
+
+``` console --session fruitSalad
+No salad today:
+Apple is not fresh
+No Banana in stock
+No Pear in stock
+Stink fruit, I do not serve that
+
+
+```
+
+As you can see, all errors are collected as far as possible. Feel free to play around with the cooks skill level, fruits in stock and the ingredients list to finally get your fruit salad.
+
+#### Additional documentation
+
+[Tutorial markdown](https://github.com/bluehands/Funicular-Switch/blob/master/TUTORIAL.md)
+
+[Tutorial source](https://github.com/bluehands/Funicular-Switch/tree/master/Source/Tutorial)
 
 ## Contributing
 
-We accept Pull Requests (PR).
+We're looking forward to pull requests.
 
 ## Versioning
 
@@ -287,4 +253,3 @@ bluehands.de
 
 [F# for fun and profit: Map and Bind and Apply, Oh my!](https://fsharpforfunandprofit.com/series/map-and-bind-and-apply-oh-my.html)
 
-FSharp Project: [FSharp](https://fsharp.org/)
