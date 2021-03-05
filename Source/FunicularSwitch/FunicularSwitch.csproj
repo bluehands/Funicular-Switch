@@ -8,7 +8,7 @@
 		<VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND  '$(IsPreRelease)'">
 			$(VersionSuffix)
 		</VersionSuffixLocal>
-		<Version>1.1.3$(VersionSuffixLocal)</Version>
+		<Version>2.0.0$(VersionSuffixLocal)</Version>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<IsPackable>true</IsPackable>
 		<PackageVersion>$(Version)</PackageVersion>
@@ -22,7 +22,7 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>FunicularSwitch.png</PackageIcon>
-		<PackageReleaseNotes>Version $(Version)</PackageReleaseNotes>
+		<PackageReleaseNotes>Version 2.0.0</PackageReleaseNotes>
 		<PackageTags>Railway oriented programming, Railway oriented, Railway, Pipeline, F# results, Matching, Result, Option, Bind, Match, Aggregate</PackageTags>
 		<RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
