@@ -22,7 +22,7 @@ namespace FunicularSwitch.Test
     [TestClass]
     public class DictionaryExtensionSpecs
     {
-        Dictionary<string, int> m_Lookup;
+        Dictionary<string, int> m_Lookup = null!;
 
         [TestInitialize]
         public void Init()

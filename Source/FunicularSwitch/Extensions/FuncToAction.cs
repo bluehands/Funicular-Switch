@@ -15,14 +15,12 @@ namespace FunicularSwitch.Extensions
             return () => { func(); };
         }
 
-        public static Func<T> ToFunc<T>(this Action action)
-        {
-            return () =>
+        public static Func<T?> ToFunc<T>(this Action action) =>
+            () =>
             {
                 action();
                 return default;
             };
-        }
 
         public static Func<T, int> ToFunc<T>(this Action<T> action)
         {
@@ -33,7 +31,7 @@ namespace FunicularSwitch.Extensions
             };
         }
 
-        public static Func<Task<T>> ToFunc<T>(this Func<Task> action)
+        public static Func<Task<T?>> ToFunc<T>(this Func<Task> action)
         {
             return async () =>
             {

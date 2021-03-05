@@ -3,7 +3,7 @@
 		
 		<!--General settings-->		
 		
-		<VersionSuffixLocal/>
+		<VersionSuffixLocal />
 		<!--When variable is set we are building a prerelease package-->
 		<VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND  '$(IsPreRelease)'">
 			$(VersionSuffix)
@@ -32,11 +32,13 @@
 		<PackageOutputPath>$(OutputPath)</PackageOutputPath>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>		
-		<ContentTargetFolders>content</ContentTargetFolders>
+		<ContentTargetFolders>content</ContentTargetFolders>		
+		<LangVersion>latest</LangVersion>		
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<None Include="Content\FunicularSwitch.png" Pack="true" PackagePath=""/>
-		<None Include="Content\LICENSE.txt" Pack="true" PackagePath=""/>
+		<None Include="Content\FunicularSwitch.png" Pack="true" PackagePath="" />
+		<None Include="Content\LICENSE.txt" Pack="true" PackagePath="" />
 	</ItemGroup>
 </Project>

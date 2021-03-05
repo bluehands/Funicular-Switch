@@ -116,7 +116,7 @@ namespace FunicularSwitch.Extensions
 
         public static IEnumerable<TBase> Yield<T, TBase>(this T item) where TBase : T
         {
-            yield return (TBase)item;
+            yield return (TBase)item!;
         }
 
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, T item, params T[] further)
