@@ -5,7 +5,7 @@
 
 Funicular-Switch is a lightweight C# port of F#'s result and option types.
 
-Using Funicular-Switch helps you to:
+Funicular-Switch helps you to:
 
 - Focus on the 'happy path', but collect all error information.
 - Be more explicit in what our methods return.
