@@ -38,7 +38,7 @@ Using Visual Studio:
 
 *This document is created using [dotnet try](https://github.com/dotnet/try/blob/main/DotNetTryLocal.md). If you have dotnet try global tool installed, just clone the repo, type `dotnet try` on top level and play around with all code samples in your browser while reading.*
 
-This following section mainly focuses on `Result`. `Result` is a union type representing either Ok or the Error case just like F#s Result type. For FunicularSwitch the error type is `String` for sake of simplicity (Using types with multiple generic arguments is quite verbose in C#).
+This following section mainly focuses on `Result`. `Result` is a union type representing either Ok or the Error case just like F#s Result type. For Funicular-Switch the error type is `String` for sake of simplicity (Using types with multiple generic arguments is quite verbose in C#).
 
 Result should be used in all places, were something can go wrong. Doing so it replaces exceptions and null/default return values.
 
@@ -126,7 +126,7 @@ The answer is: 42
 
 ```
 
-Those are basically the four (actually three) main operations on `Result` - `Create`, `Bind`, `Map` and `Match`. There are a lot of overloads and other helpers in FunicularSwitch to avoid repetition of `Result` specific patterns like:
+Those are basically the four (actually three) main operations on `Result` - `Create`, `Bind`, `Map` and `Match`. There are a lot of overloads and other helpers in Funicular-Switch to avoid repetition of `Result` specific patterns like:
 
 - 'Combine results to Ok if everything is Ok otherwise collect errors' - `Aggregate`, `Map` and `Bind` overloads on collections
 - 'Ok if at least one item passes certain validations, otherwise collect info why no one matched' - `FirstOk`
