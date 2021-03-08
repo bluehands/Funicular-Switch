@@ -137,7 +137,7 @@ namespace Tutorial
             // parse the string and use the int to get a user from a dictionary:
 
             Result<List<string>> stringListDataFromUnreliableSourceResult = GetDataFromUnreliableSource(aListWithNumbers);
-            Result<List<int>> parsedIntsResult = stringListDataFromUnreliableSourceResult.Bind(stringList =>
+            Result<IReadOnlyCollection<int>> parsedIntsResult = stringListDataFromUnreliableSourceResult.Bind(stringList =>
             {
                 IEnumerable<Result<int>> intResults = stringList.Select(stringNumber => ParseInt(stringNumber));
                 return intResults.Aggregate();
@@ -145,7 +145,7 @@ namespace Tutorial
                 // Otherwise results.Aggregate() will combine all the errors from ParseInt() and set the state to error.
             });
 
-            Result<List<string>> usersResult = parsedIntsResult.Bind(parsedInts =>
+            Result<IReadOnlyCollection<string>> usersResult = parsedIntsResult.Bind(parsedInts =>
             {
                 var useResults = parsedInts.Select(parsedInt => GetUserNameById(parsedInt));
                 return useResults.Aggregate();
@@ -156,7 +156,10 @@ namespace Tutorial
             // Otherwise we print the first error or errors that lead to a failure:
             usersResult.Match(users =>
             {
-                users.ForEach(user => Console.WriteLine(user));
+                foreach (var user in users)
+                {
+                    Console.WriteLine(user);
+                }
             }, errors =>
             {
                 Console.WriteLine(errors);
@@ -172,7 +175,10 @@ namespace Tutorial
                 .Bind(parsedIntegers => parsedIntegers.Select(parsedInt => GetUserNameById(parsedInt)).Aggregate())
                 .Match(users =>
                 {
-                    users.ForEach(user => Console.WriteLine(user));
+                    foreach (var user in users)
+                    {
+                        Console.WriteLine(user);
+                    }
                 }, errors =>
                 {
                     Console.WriteLine(errors);

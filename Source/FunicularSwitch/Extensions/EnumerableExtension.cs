@@ -99,7 +99,7 @@ namespace FunicularSwitch.Extensions
         /// <param name="items"></param>
         /// <param name="selector"></param>
         /// <returns></returns>
-        public static async Task<List<TOut>> SelectAsyncSequential<T, TOut>(this IEnumerable<T> items, Func<T, Task<TOut>> selector)
+        public static async Task<IReadOnlyCollection<TOut>> SelectAsyncSequential<T, TOut>(this IEnumerable<T> items, Func<T, Task<TOut>> selector)
         {
             var output = new List<TOut>();
             foreach (var item in items)
@@ -116,7 +116,7 @@ namespace FunicularSwitch.Extensions
 
         public static IEnumerable<TBase> Yield<T, TBase>(this T item) where TBase : T
         {
-            yield return (TBase)item;
+            yield return (TBase)item!;
         }
 
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, T item, params T[] further)

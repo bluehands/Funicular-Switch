@@ -31,12 +31,12 @@ namespace FunicularSwitch
 
         public Task<Option<T1>> Bind<T1>(Func<T, Task<Option<T1>>> bind) => Match(bind, () => None<T1>());
 
-        public void Match(Action<T> some, Action none = null)
+        public void Match(Action<T> some, Action? none = null)
         {
             Match(some.ToFunc(), none?.ToFunc<int>() ?? (() => 42));
         }
 
-        public async Task Match(Func<T, Task> some, Func<Task> none = null)
+        public async Task Match(Func<T, Task> some, Func<Task>? none = null)
         {
             var iAmSome = this as Some<T>;
             if (iAmSome != null)
@@ -106,15 +106,15 @@ namespace FunicularSwitch
 
         public IEnumerator<T> GetEnumerator() => Match(v => new[] { v }, Enumerable.Empty<T>).GetEnumerator();
 
-        public T GetValueOrDefault(Func<T> defaultValue = null) => Match(v => v, () => defaultValue != null ? defaultValue() : default);
+        public T? GetValueOrDefault(Func<T>? defaultValue = null) => Match(v => v, () => defaultValue != null ? defaultValue() : default);
 
         public T GetValueOrDefault(T defaultValue) => Match(v => v, () => defaultValue);
 
-        public T GetValueOrThrow(string errorMessage = null) => Match(v => v, () => throw new InvalidOperationException(errorMessage ?? "Cannot access value of none option"));
+        public T GetValueOrThrow(string? errorMessage = null) => Match(v => v, () => throw new InvalidOperationException(errorMessage ?? "Cannot access value of none option"));
 
-        public Option<TOther> Convert<TOther>() => Match(s => Some((TOther) (object)s), None<TOther>);
+        public Option<TOther> Convert<TOther>() => Match(s => Some((TOther) (object)s!), None<TOther>);
 
-        public override string ToString() => Match(v => v?.ToString(), () => $"None {GetType().BeautifulName()}");
+        public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {GetType().BeautifulName()}");
     }
 
     public sealed class Some<T> : Option<T>
@@ -125,7 +125,7 @@ namespace FunicularSwitch
 
         bool Equals(Some<T> other) => EqualityComparer<T>.Default.Equals(Value, other.Value);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -135,14 +135,14 @@ namespace FunicularSwitch
 
         public override int GetHashCode() => EqualityComparer<T>.Default.GetHashCode(Value);
 
-        public static bool operator ==(Some<T> left, Some<T> right) => Equals(left, right);
+        public static bool operator ==(Some<T>? left, Some<T>? right) => Equals(left, right);
 
-        public static bool operator !=(Some<T> left, Some<T> right) => !Equals(left, right);
+        public static bool operator !=(Some<T>? left, Some<T>? right) => !Equals(left, right);
     }
 
     public sealed class None<T> : Option<T>
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -163,7 +163,7 @@ namespace FunicularSwitch
             return option.Match(s => s, () => Option<T>.None);
         }
 
-        public static Option<T> ToOption<T>(this T item) where T : class => item ?? Option<T>.None;
+        public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
 
         
 
@@ -203,7 +203,7 @@ namespace FunicularSwitch
 
         public static Option<T> ToOption<T>(this Result<T> result) => ToOption(result, null);
 
-        public static Option<T> ToOption<T>(this Result<T> result, Action<string> logError) =>
+        public static Option<T> ToOption<T>(this Result<T> result, Action<string>? logError) =>
             result.Match(
                 ok => Option.Some(ok),
                 error =>

@@ -14,7 +14,7 @@ namespace FunicularSwitch
         public static Result<T> Ok<T>(T value) => new Ok<T>(value);
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(Error<>);
         public bool IsOk => !IsError;
-        public abstract string GetErrorOrDefault();
+        public abstract string? GetErrorOrDefault();
     }
 
     public abstract class Result<T> : Result, IEnumerable<T>
@@ -24,11 +24,14 @@ namespace FunicularSwitch
 
         public static implicit operator Result<T>(T value) => Result.Ok(value);
 
-        public static implicit operator bool(Result<T> result) 
-            => result.Match(ok => true, error => false);
+        public static bool operator true(Result<T> result) => result.IsOk;
+        public static bool operator false(Result<T> result) => result.IsError;
+
+        public static bool operator !(Result<T> result) => result.IsError;
+
 
         // Matches
-        public void Match(Action<T> ok, Action<string> error = null) => Match(
+        public void Match(Action<T> ok, Action<string>? error = null) => Match(
             v => ok.ToFunc().Invoke(v),
             err =>
             {
@@ -67,7 +70,7 @@ namespace FunicularSwitch
                 case Ok<T> okResult:
                     await ok(okResult.Value).ConfigureAwait(false);
                     break;
-                case Error<T> _:
+                case Error<T>:
                     break;
                 default:
                     throw new InvalidOperationException($"Unexpected derived result type: {GetType()}");
@@ -112,7 +115,7 @@ namespace FunicularSwitch
             => Bind(async value => Ok(await map(value).ConfigureAwait(false)));
 
         // Helpers
-        public T GetValueOrDefault(Func<T> defaultValue = null)
+        public T? GetValueOrDefault(Func<T>? defaultValue = null)
             => Match(
                 v => v,
                 _ => defaultValue != null ? defaultValue() : default);
@@ -122,7 +125,7 @@ namespace FunicularSwitch
                 v => v,
                 message => throw new InvalidOperationException($"Cannot access error result value. Error: {message}"));
 
-        public IEnumerator<T> GetEnumerator() => Match(ok => new[]{ok}, error => Enumerable.Empty<T>()).GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => Match(ok => new[]{ok}, _ => Enumerable.Empty<T>()).GetEnumerator();
 
         public override string ToString() => Match(ok => $"Ok {ok?.ToString()}", error => $"Error {error}");
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -134,10 +137,11 @@ namespace FunicularSwitch
 
         public Ok(T value) => Value = value;
 
-        public override string GetErrorOrDefault() => null;
+        public override string? GetErrorOrDefault() => null;
 
         public bool Equals(Ok<T> other)
         {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return EqualityComparer<T>.Default.Equals(Value, other.Value);
@@ -145,6 +149,7 @@ namespace FunicularSwitch
 
         public override bool Equals(object obj)
         {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             return obj is Ok<T> other && Equals(other);
@@ -163,12 +168,13 @@ namespace FunicularSwitch
 
         public Error(string message) => Message = message ?? throw new ArgumentNullException(nameof(message), "Cannot create error result without error information");
 
-        public Error<T1> Convert<T1>() => new Error<T1>(Message);
+        public Error<T1> Convert<T1>() => new(Message);
 
         public override string GetErrorOrDefault() => Message;
 
         public bool Equals(Error<T> other)
         {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return string.Equals(Message, other.Message);
@@ -176,12 +182,13 @@ namespace FunicularSwitch
 
         public override bool Equals(object obj)
         {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             return obj is Error<T> other && Equals(other);
         }
 
-        public override int GetHashCode() => Message != null ? Message.GetHashCode() : 0;
+        public override int GetHashCode() => Message.GetHashCode();
 
         public static bool operator ==(Error<T> left, Error<T> right) => Equals(left, right);
 
@@ -190,6 +197,8 @@ namespace FunicularSwitch
 
     public static class ResultExtensions
     {
+        public static string DefaultErrorSeparator = Environment.NewLine;
+
         #region bind
 
         public static async Task<Result<T1>> Bind<T, T1>(
@@ -202,14 +211,16 @@ namespace FunicularSwitch
             Func<T, Task<Result<T1>>> bind) 
             => await (await result.ConfigureAwait(false)).Bind(bind).ConfigureAwait(false);
 
-        public static Result<List<T1>> Bind<T, T1>(this IEnumerable<Result<T>> results, Func<T, Result<T1>> bind) =>
+        public static Result<IReadOnlyCollection<T1>> Bind<T, T1>(this IEnumerable<Result<T>> results, Func<T, Result<T1>> bind) =>
             results.Select(r => r.Bind(bind)).Aggregate();
 
-        public static Result<List<T1>> Bind<T, T1>(this Result<T> result, Func<T, IEnumerable<Result<T1>>> bindMany) => 
+        public static Result<IReadOnlyCollection<T1>> Bind<T, T1>(this Result<T> result, Func<T, IEnumerable<Result<T1>>> bindMany) => 
             result.Map(ok => bindMany(ok).Aggregate()).Flatten();
 
+        public static Result<T1> Bind<T, T1>(this IEnumerable<Result<T>> results, Func<IEnumerable<T>, Result<T1>> bind) =>
+            results.Aggregate().Bind(bind);
+
         #endregion
-        
 
         #region map
 
@@ -223,7 +234,7 @@ namespace FunicularSwitch
             Func<T, Task<T1>> bind) 
             => Bind(result, async v => Result.Ok(await bind(v).ConfigureAwait(false)));
 
-        public static Result<List<T1>> Map<T, T1>(this IEnumerable<Result<T>> results, Func<T, T1> map) =>
+        public static Result<IReadOnlyCollection<T1>> Map<T, T1>(this IEnumerable<Result<T>> results, Func<T, T1> map) =>
             results.Select(r => r.Map(map)).Aggregate();
 
         public static Result<T> MapError<T>(this Result<T> result, Func<string, string> mapError) =>
@@ -258,14 +269,14 @@ namespace FunicularSwitch
         public static Result<(T1, T2)> Aggregate<T1, T2>(
             this Result<T1> r1,
             Result<T2> r2,
-            string errorSeparator = null) 
+            string? errorSeparator = null) 
             => r1.Aggregate(r2, (v1, v2) => (v1, v2), errorSeparator);
 
         public static Result<TResult> Aggregate<T1, T2, TResult>(
             this Result<T1> r1,
             Result<T2> r2,
             Func<T1, T2, TResult> combine,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             var errors = JoinErrorMessages(r1.Yield().Concat<Result>(r2), errorSeparator);
             return !string.IsNullOrEmpty(errors) 
@@ -277,7 +288,7 @@ namespace FunicularSwitch
             this Result<T1> r1,
             Result<T2> r2,
             Result<T3> r3,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => r1.Aggregate(r2, r3, (v1, v2, v3) => (v1, v2, v3), errorSeparator);
 
         public static Result<TResult> Aggregate<T1, T2, T3, TResult>(
@@ -285,7 +296,7 @@ namespace FunicularSwitch
             Result<T2> r2,
             Result<T3> r3,
             Func<T1, T2, T3, TResult> combine,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             var errors = JoinErrorMessages(r1.Yield().Concat<Result>(r2, r3), errorSeparator);
             return !string.IsNullOrEmpty(errors) 
@@ -298,7 +309,7 @@ namespace FunicularSwitch
             Result<T2> r2,
             Result<T3> r3,
             Result<T4> r4,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => r1.Aggregate(r2, r3, r4, (v1, v2, v3, v4) => (v1, v2, v3, v4), errorSeparator);
 
         public static Result<TResult> Aggregate<T1, T2, T3, T4, TResult>(
@@ -307,7 +318,7 @@ namespace FunicularSwitch
             Result<T3> r3,
             Result<T4> r4,
             Func<T1, T2, T3, T4, TResult> combine,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             var errors = JoinErrorMessages(r1.Yield().Concat<Result>(r2, r3, r4), errorSeparator);
             return !string.IsNullOrEmpty(errors) 
@@ -321,7 +332,7 @@ namespace FunicularSwitch
             Result<T3> r3,
             Result<T4> r4,
             Result<T5> r5,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => r1.Aggregate(r2, r3, r4, r5, (v1, v2, v3, v4, v5) => (v1, v2, v3, v4, v5), errorSeparator);
 
         public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, TResult>(
@@ -331,7 +342,7 @@ namespace FunicularSwitch
             Result<T4> r4,
             Result<T5> r5,
             Func<T1, T2, T3, T4, T5, TResult> combine,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             var errors = JoinErrorMessages(r1.Yield().Concat<Result>(r2, r3, r4, r5), errorSeparator);
             return !string.IsNullOrEmpty(errors)
@@ -348,7 +359,7 @@ namespace FunicularSwitch
             Result<T4> r4,
             Result<T5> r5,
             Result<T6> r6,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => r1.Aggregate(r2, r3, r4, r5, r6, (v1, v2, v3, v4, v5, v6) => (v1, v2, v3, v4, v5, v6), errorSeparator);
 
         public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(
@@ -359,7 +370,7 @@ namespace FunicularSwitch
             Result<T5> r5,
             Result<T6> r6,
             Func<T1, T2, T3, T4, T5, T6, TResult> combine,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             var errors = JoinErrorMessages(r1.Yield().Concat<Result>(r2, r3, r4, r5, r6), errorSeparator);
             return !string.IsNullOrEmpty(errors)
@@ -375,14 +386,14 @@ namespace FunicularSwitch
         public static Task<Result<(T1, T2)>> Aggregate<T1, T2>(
             this Task<Result<T1>> tr1,
             Task<Result<T2>> tr2,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => tr1.Aggregate(tr2, (v1, v2) => (v1, v2), errorSeparator);
 
         public static async Task<Result<TResult>> Aggregate<T1, T2, TResult>(
             this Task<Result<T1>> tr1,
             Task<Result<T2>> tr2,
             Func<T1, T2, TResult> combine,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             await Task.WhenAll(tr1, tr2);
             return tr1.Result.Aggregate(tr2.Result, combine, errorSeparator);
@@ -392,7 +403,7 @@ namespace FunicularSwitch
             this Task<Result<T1>> tr1,
             Task<Result<T2>> tr2,
             Task<Result<T3>> tr3,
-            string errorSeparator = null) 
+            string? errorSeparator = null) 
             => tr1.Aggregate(tr2, tr3, (v1, v2, v3) => (v1, v2, v3), errorSeparator);
 
         public static async Task<Result<TResult>> Aggregate<T1, T2, T3, TResult>(
@@ -400,7 +411,7 @@ namespace FunicularSwitch
             Task<Result<T2>> tr2,
             Task<Result<T3>> tr3,
             Func<T1, T2, T3, TResult> combine,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             await Task.WhenAll(tr1, tr2, tr3);
             return tr1.Result.Aggregate(tr2.Result, tr3.Result, combine, errorSeparator);
@@ -411,7 +422,7 @@ namespace FunicularSwitch
             Task<Result<T2>> tr2,
             Task<Result<T3>> tr3,
             Task<Result<T4>> tr4,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => tr1.Aggregate(tr2, tr3, tr4, (v1, v2, v3, v4) => (v1, v2, v3, v4), errorSeparator);
 
         public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, TResult>(
@@ -420,7 +431,7 @@ namespace FunicularSwitch
             Task<Result<T3>> tr3,
             Task<Result<T4>> tr4,
             Func<T1, T2, T3, T4, TResult> combine,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             await Task.WhenAll(tr1, tr2, tr3, tr4);
             return tr1.Result.Aggregate(tr2.Result, tr3.Result, tr4.Result, combine, errorSeparator);
@@ -432,7 +443,7 @@ namespace FunicularSwitch
             Task<Result<T3>> tr3,
             Task<Result<T4>> tr4,
             Task<Result<T5>> tr5,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => tr1.Aggregate(tr2, tr3, tr4, tr5, (v1, v2, v3, v4, v5) => (v1, v2, v3, v4, v5), errorSeparator);
 
         public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, TResult>(
@@ -442,7 +453,7 @@ namespace FunicularSwitch
             Task<Result<T4>> tr4,
             Task<Result<T5>> tr5,
             Func<T1, T2, T3, T4, T5, TResult> combine,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             await Task.WhenAll(tr1, tr2, tr3, tr4, tr5);
             return tr1.Result.Aggregate(tr2.Result, tr3.Result, tr4.Result, tr5.Result, combine, errorSeparator);
@@ -455,7 +466,7 @@ namespace FunicularSwitch
             Task<Result<T4>> tr4,
             Task<Result<T5>> tr5,
             Task<Result<T6>> tr6,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => tr1.Aggregate(tr2, tr3, tr4, tr5, tr6, (v1, v2, v3, v4, v5, v6) => (v1, v2, v3, v4, v5, v6), errorSeparator);
 
         public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(
@@ -466,7 +477,7 @@ namespace FunicularSwitch
             Task<Result<T5>> tr5,
             Task<Result<T6>> tr6,
             Func<T1, T2, T3, T4, T5, T6, TResult> combine,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             await Task.WhenAll(tr1, tr2, tr3, tr4, tr5, tr6);
             return tr1.Result.Aggregate(tr2.Result, tr3.Result, tr4.Result, tr5.Result, tr6.Result, combine, errorSeparator);
@@ -474,9 +485,9 @@ namespace FunicularSwitch
 
         #endregion
 
-        public static Result<List<T>> Aggregate<T>(
+        public static Result<IReadOnlyCollection<T>> Aggregate<T>(
             this IEnumerable<Result<T>> results,
-            string errorSeparator = null)
+            string? errorSeparator = null)
         {
             var sb = new StringBuilder();
             var oks = new List<T>();
@@ -484,43 +495,43 @@ namespace FunicularSwitch
             {
                 result.Match(
                     ok => oks.Add(ok),
-                    error => sb.Append(error).Append(errorSeparator ?? Environment.NewLine));
+                    error => sb.Append(error).Append(errorSeparator ?? DefaultErrorSeparator));
             }
 
             var errors = sb.ToString();
-            return !string.IsNullOrEmpty(errors) ? Result.Error<List<T>>(errors) : Result.Ok(oks);
+            return !string.IsNullOrEmpty(errors) ? Result.Error<IReadOnlyCollection<T>>(errors) : Result.Ok<IReadOnlyCollection<T>>(oks);
         }
 
-        public static async Task<Result<List<T>>> Aggregate<T>(
+        public static async Task<Result<IReadOnlyCollection<T>>> Aggregate<T>(
             this Task<IEnumerable<Result<T>>> results,
-            string errorSeparator = null) 
+            string? errorSeparator = null) 
             => (await results.ConfigureAwait(false))
                 .Aggregate(errorSeparator);
 
-        public static async Task<Result<List<T>>> Aggregate<T>(
+        public static async Task<Result<IReadOnlyCollection<T>>> Aggregate<T>(
             this IEnumerable<Task<Result<T>>> results,
-            string errorSeparator = null) 
+            string? errorSeparator = null) 
             => (await results.SelectAsync(e => e).ConfigureAwait(false))
                 .Aggregate(errorSeparator);
 
-        public static async Task<Result<List<T>>> Aggregate<T>(
+        public static async Task<Result<IReadOnlyCollection<T>>> Aggregate<T>(
             this IEnumerable<Task<Result<T>>> results,
             int maxDegreeOfParallelism,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
                 .Aggregate(errorSeparator);
 
-        public static async Task<Result<List<T>>> AggregateMany<T>(
+        public static async Task<Result<IReadOnlyCollection<T>>> AggregateMany<T>(
             this IEnumerable<Task<IEnumerable<Result<T>>>> results,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => (await results.SelectAsync(e => e).ConfigureAwait(false))
                 .SelectMany(e => e)
                 .Aggregate(errorSeparator);
 
-        public static async Task<Result<List<T>>> AggregateMany<T>(
+        public static async Task<Result<IReadOnlyCollection<T>>> AggregateMany<T>(
             this IEnumerable<Task<IEnumerable<Result<T>>>> results,
             int maxDegreeOfParallelism,
-            string errorSeparator = null)
+            string? errorSeparator = null)
             => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
                 .SelectMany(e => e)
                 .Aggregate(errorSeparator);
@@ -542,7 +553,7 @@ namespace FunicularSwitch
             Action<string> onError)
             => results
                 .Where(r =>
-                    r.Match(ok => true, error =>
+                    r.Match(_ => true, error =>
                     {
                         onError(error);
                         return false;
@@ -555,13 +566,16 @@ namespace FunicularSwitch
 
         static string JoinErrorMessages(
             this IEnumerable<Result> results,
-            string errorSeparator = null) 
-            => string.Join(
-                errorSeparator ?? Environment.NewLine,
-                results.Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()));
+            string? errorSeparator = null) 
+            => results
+                .Where(r => r.IsError)
+                .Select(r => r.GetErrorOrDefault()!)
+                .JoinErrors(errorSeparator);
 
         #endregion
+
+        static string JoinErrors(this IEnumerable<string> errors, string? errorSeparator = null) =>
+            string.Join(errorSeparator ?? DefaultErrorSeparator, errors);
 
         public static Result<T1> As<T, T1>(this Result<T> result) =>
             result.Bind(r =>
@@ -576,10 +590,57 @@ namespace FunicularSwitch
         public static Result<T> As<T>(this object item, Func<string> error) =>
             !(item is T t) ? Result.Error<T>(error()) : t;
 
-        public static Result<T> AssertNotNull<T>(this T item, Func<string> error) where T : class =>
+        public static Result<T> NotNull<T>(this T? item, Func<string> error) =>
             item ?? Result.Error<T>(error());
 
         public static Result<string> NotNullOrWhiteSpace(this string s, Func<string> error)
             => string.IsNullOrWhiteSpace(s) ? error() : s;
+
+        public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T> validate, Func<string>? onEmpty = null, string? errorSeparator = null) =>
+            candidates
+                .Select(r => r.Validate(validate, errorSeparator))
+                .FirstOk(onEmpty, errorSeparator);
+
+        public static Result<T> First<T>(this IEnumerable<T> candidates, Func<T, bool> predicate, Func<string> noMatch) =>
+            candidates
+                .FirstOrDefault(i => predicate(i))
+                .NotNull(noMatch);
+
+        public static Result<T> FirstOk<T>(this IEnumerable<Result<T>> results, Func<string>? onEmpty = null, string? errorSeparator = null)
+        {
+            List<string> errors = new();
+            foreach (var result in results)
+            {
+                if (result.IsError)
+                    errors.Add(result.GetErrorOrDefault()!);
+                else
+                    return result;
+            }
+
+            if (!errors.Any())
+                errors.Add(onEmpty?.Invoke() ?? "No result candidates for FirstOk");
+
+            return Result.Error<T>(string.Join(errorSeparator ?? DefaultErrorSeparator, errors));
+        }
+
+        public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Validate<T> validate, string? errorSeparator = null) =>
+            candidates
+                .Select(c => c.Validate(validate, errorSeparator))
+                .Aggregate(errorSeparator);
+
+        public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<Result<T>> candidates,
+            Validate<T> validate, string? errorSeparator = null) =>
+            candidates
+                .Bind(items => items.AllOk(validate, errorSeparator));
+
+        public static Result<T> Validate<T>(this Result<T> item, Validate<T> validate, string? errorSeparator = null) => item.Bind(i => i.Validate(validate, errorSeparator));
+
+        public static Result<T> Validate<T>(this T item, Validate<T> validate, string? errorSeparator = null)
+        {
+            var errors = validate(item).JoinErrors(errorSeparator);
+            return !string.IsNullOrEmpty(errors) ? Result.Error<T>(errors) : item;
+        }
     }
+
+    public delegate IEnumerable<string> Validate<in T>(T item);
 }
