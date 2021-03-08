@@ -88,6 +88,7 @@ Ok 1
 
 The lamdas passed to `Map` and `Bind` are only invoked if everything went well so far, otherwise you are on the error track were error information is passed on 'invisibly':
 b
+
 ``` cs --region errorPropagation --source-file Source/DocSamples/ReadmeSamples.cs --project Source/DocSamples/DocSamples.csproj --session errorPropagation
 static Result<int> Transform(Result<int> result) =>
                 result
@@ -95,14 +96,14 @@ static Result<int> Transform(Result<int> result) =>
                     .Map(transformed => transformed * 2);
 
 Result<int> firstLevelError = Transform(Result.Error<int>("I don't know"));
-Console.WriteLine("First level: {firstLevelError}");
+Console.WriteLine($"First level: {firstLevelError}");
 
 Result<int> secondLevelError = Transform(Result.Ok(0));
 Console.WriteLine($"Second level: {secondLevelError}");
 ```
 
 ``` console --session errorPropagation
-First level: {firstLevelError}
+First level: Error I don't know
 Second level: Error Division by zero
 
 ```
@@ -149,7 +150,7 @@ public static async Task FruitSalad()
 
     var ingredients = ImmutableList.Create("Apple", "Banana", "Pear", "Stink fruit");
 
-    const int cookSkillLevel = 10;
+    const int cookSkillLevel = 3;
 
     static IEnumerable<string> CheckFruit(Fruit fruit)
     {
@@ -170,7 +171,7 @@ public static async Task FruitSalad()
             .Bind(fruits => CutIntoPieces(fruits, cookSkillLevel))
             .Map(Serve);
 
-    Console.WriteLine(salad.Match(ok => "Salad served successfully", error => $"No salad today:{Environment.NewLine}{error}"));
+    Console.WriteLine(salad.Match(ok => "Salad served successfully!", error => $"No salad today:{Environment.NewLine}{error}"));
 }
 
 static Result<Salad> CutIntoPieces(IEnumerable<Fruit> fruits, int skillLevel = 5)
