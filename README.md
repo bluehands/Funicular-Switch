@@ -137,7 +137,7 @@ Those are basically the four (actually three) main operations on `Result` - `Cre
 - 'Async support' - `Map` `Bind` and `Aggregate` overloads with async lamdas and extensions defined on Task<...>
 - ...
 
-If you miss functionality it easy to add it by writing your own extension methods. If it is useful for us all don't hesitate to make pull request. Finally a little example demonstrating some of the functionality mentioned above (validation, aggregation, async pipeline). Lets cook:
+If you miss functionality it can be added easily by writing your own extension methods. If it is useful for us all don't hesitate to make pull request. Finally a little example demonstrating some of the functionality mentioned above (validation, aggregation, async pipeline). Lets cook:
 
 ``` cs --region fruitSalad --source-file Source/DocSamples/ReadmeSamples.cs --project Source/DocSamples/DocSamples.csproj --session fruitSalad
 public static async Task FruitSalad()
