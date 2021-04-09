@@ -8,7 +8,7 @@
 		<VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND  '$(IsPreRelease)'">
 			$(VersionSuffix)
 		</VersionSuffixLocal>
-		<Version>2.0.0$(VersionSuffixLocal)</Version>
+		<Version>2.1.0</Version>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<IsPackable>true</IsPackable>
 		<PackageVersion>$(Version)</PackageVersion>
