@@ -28,6 +28,32 @@ namespace FunicularSwitch
             }
         }
 
+        public static Result<Unit> Try(Action action, Func<Exception, string> formatError)
+        {
+            try
+            {
+                action();
+                return No.Thing;
+            }
+            catch (Exception e)
+            {
+                return Result.Error<Unit>(formatError(e));
+            }
+        }
+
+        public static async Task<Result<Unit>> Try(Func<Task> action, Func<Exception, string> formatError)
+        {
+            try
+            {
+                await action();
+                return No.Thing;
+            }
+            catch (Exception e)
+            {
+                return Result.Error<Unit>(formatError(e));
+            }
+        }
+
         public static async Task<Result<T>> Try<T>(Func<Task<T>> action, Func<Exception, string> formatError)
         {
             try
@@ -39,6 +65,26 @@ namespace FunicularSwitch
                 return Result.Error<T>(formatError(e));
             }
         }
+
+        public static Result<(T1, T2)> Aggregate<T1, T2>(Result<T1> r1, Result<T2> r2) => r1.Aggregate(r2);
+
+        public static Result<(T1, T2, T3)> Aggregate<T1, T2, T3>(Result<T1> r1, Result<T2> r2, Result<T3> r3) => r1.Aggregate(r2, r3);
+
+        public static Result<(T1, T2, T3, T4)> Aggregate<T1, T2, T3, T4>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4) => r1.Aggregate(r2, r3, r4);
+
+        public static Result<(T1, T2, T3, T4, T5)> Aggregate<T1, T2, T3, T4, T5>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5) => r1.Aggregate(r2, r3, r4, r5);
+
+        public static Result<(T1, T2, T3, T4, T5, T6)> Aggregate<T1, T2, T3, T4, T5, T6>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6) => r1.Aggregate(r2, r3, r4, r5, r6);
+
+        public static Task<Result<(T1, T2)>> Aggregate<T1, T2>(Task<Result<T1>> r1, Task<Result<T2>> r2) => r1.Aggregate(r2);
+
+        public static Task<Result<(T1, T2, T3)>> Aggregate<T1, T2, T3>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3) => r1.Aggregate(r2, r3);
+
+        public static Task<Result<(T1, T2, T3, T4)>> Aggregate<T1, T2, T3, T4>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4) => r1.Aggregate(r2, r3, r4);
+
+        public static Task<Result<(T1, T2, T3, T4, T5)>> Aggregate<T1, T2, T3, T4, T5>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5) => r1.Aggregate(r2, r3, r4, r5);
+
+        public static Task<Result<(T1, T2, T3, T4, T5, T6)>> Aggregate<T1, T2, T3, T4, T5, T6>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6) => r1.Aggregate(r2, r3, r4, r5, r6);
     }
 
     public abstract class Result<T> : Result, IEnumerable<T>
@@ -618,10 +664,10 @@ namespace FunicularSwitch
             item ?? Result.Error<T>(error());
 
         public static Result<string> NotNullOrEmpty(this string s, Func<string> error)
-            => string.IsNullOrEmpty(s) ? error() : s;
+            => string.IsNullOrEmpty(s) ? Result.Error<string>(error()) : s;
 
         public static Result<string> NotNullOrWhiteSpace(this string s, Func<string> error)
-            => string.IsNullOrWhiteSpace(s) ? error() : s;
+            => string.IsNullOrWhiteSpace(s) ? Result.Error<string>(error()) : s;
 
         public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T> validate, Func<string>? onEmpty = null, string? errorSeparator = null) =>
             candidates
