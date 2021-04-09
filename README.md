@@ -1,6 +1,6 @@
 # Funicular-Switch
 
-![BuildStatus](https://bluehands.visualstudio.com/bluehands%20Funicular%20Switch/_apis/build/status/bluehandsFunicularSwitch-CI?branchName=master)
+![BuildStatus](https://bluehands.visualstudio.com/bluehands%20Funicular%20Switch/_apis/build/status/bluehandsFunicularSwitch-CI?branchName=develop)
 ![Try_.NET Enabled](https://img.shields.io/badge/Try_.NET-Enabled-501078.svg)
 
 Funicular-Switch is a lightweight C# port of F#'s result and option types.
