@@ -33,7 +33,7 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>		
 		<ContentTargetFolders>content</ContentTargetFolders>		
-		<LangVersion>latest</LangVersion>		
+		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	

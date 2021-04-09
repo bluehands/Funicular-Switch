@@ -15,6 +15,30 @@ namespace FunicularSwitch
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(Error<>);
         public bool IsOk => !IsError;
         public abstract string? GetErrorOrDefault();
+
+        public static Result<T> Try<T>(Func<T> action, Func<Exception, string> formatError)
+        {
+            try
+            {
+                return action();
+            }
+            catch (Exception e)
+            {
+                return Result.Error<T>(formatError(e));
+            }
+        }
+
+        public static async Task<Result<T>> Try<T>(Func<Task<T>> action, Func<Exception, string> formatError)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (Exception e)
+            {
+                return Result.Error<T>(formatError(e));
+            }
+        }
     }
 
     public abstract class Result<T> : Result, IEnumerable<T>
@@ -592,6 +616,9 @@ namespace FunicularSwitch
 
         public static Result<T> NotNull<T>(this T? item, Func<string> error) =>
             item ?? Result.Error<T>(error());
+
+        public static Result<string> NotNullOrEmpty(this string s, Func<string> error)
+            => string.IsNullOrEmpty(s) ? error() : s;
 
         public static Result<string> NotNullOrWhiteSpace(this string s, Func<string> error)
             => string.IsNullOrWhiteSpace(s) ? error() : s;
