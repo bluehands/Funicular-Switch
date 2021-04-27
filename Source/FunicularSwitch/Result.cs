@@ -328,12 +328,6 @@ namespace FunicularSwitch
         #endregion
 
         #region match
-        public static async Task Match<T>(
-            this Task<Result<T>> result,
-            Action<T> ok,
-            Action<string> error) 
-            => (await result.ConfigureAwait(false)).Match(ok, error);
-
         public static async Task<T1> Match<T, T1>(
             this Task<Result<T>> result,
             Func<T, Task<T1>> ok,
