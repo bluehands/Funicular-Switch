@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using FluentAssertions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FunicularSwitch.Test
@@ -22,6 +21,22 @@ namespace FunicularSwitch.Test
             // ReSharper disable once SuspiciousTypeConversion.Global
             Result.Error<long>("error").Equals(Result.Error<int>("error")).Should().BeFalse();
             // ReSharper restore EqualExpressionComparison
+        }
+
+        [TestMethod]
+        public void EqualityOperators()
+        {
+            // ReSharper disable EqualExpressionComparison
+            (Result.Ok("hallo") == Result.Ok("hallo")).Should().BeTrue();
+            (Result.Ok("hallo") == Result.Ok("hallo there")).Should().BeFalse();
+            (Result.Ok("hallo") != Result.Ok("hallo there")).Should().BeTrue();
+            (Result.Ok(("hallo", 42)) == Result.Ok(("hallo", 42))).Should().BeTrue();
+            (Result.Ok("hallo") == Result.Error<string>("hallo")).Should().BeFalse();
+            (Result.Error<int>("error") == Result.Error<int>("error")).Should().BeTrue();
+            (Result.Error<int>("error") == Result.Error<int>("another error")).Should().BeFalse();
+
+            object left = Result.Ok("hallo");
+            left.Equals(Result.Ok("hallo")).Should().BeTrue();
         }
 
         [TestMethod]
@@ -70,10 +85,10 @@ namespace FunicularSwitch.Test
             const string notThere = "it's not there";
             Option.Some(42).ToResult(() => notThere).Should().Equal(Result.Ok(42));
             Option.None<int>().ToResult(() => notThere).Should().Equal(Result.Error<int>(notThere));
-            
+
             var something = new Something();
             something.ToOption().Should().Equal(Option.Some(something));
-            ((Something?) null).ToOption().Should().Equal(Option.None<Something>());
+            ((Something?)null).ToOption().Should().Equal(Option.None<Something>());
 
             var option = Result.Ok(something).ToOption();
             option.Should().Equal(Option.Some(something));
@@ -110,21 +125,24 @@ namespace FunicularSwitch.Test
             option.Equals(Option.Some(42)).Should().BeTrue();
 
             var odds = Enumerable.Range(0, 10).Choose(i => i % 2 != 0 ? i * 10 : Option<int>.None).ToList();
-            odds.Should().BeEquivalentTo(Enumerable.Range(0, 10).Where(i => i % 2 != 0).Select(i => i*10));
+            odds.Should().BeEquivalentTo(Enumerable.Range(0, 10).Where(i => i % 2 != 0).Select(i => i * 10));
         }
 
         [TestMethod]
         public void BoolConversionTest()
         {
-            if (Result.Ok(42)) {
+            if (Result.Ok(42))
+            {
             }
             else Assert.Fail();
 
-            if (!Result.Error<int>("Fail")) {
+            if (!Result.Error<int>("Fail"))
+            {
             }
             else Assert.Fail();
 
-            if (!Result.Ok(42)) {
+            if (!Result.Ok(42))
+            {
                 Assert.Fail();
             }
         }

@@ -99,6 +99,21 @@ namespace FunicularSwitch
 
         public static bool operator !(Result<T> result) => result.IsError;
 
+        bool Equals(Result<T> other) => this is Ok<T> ok ? ok.Equals((Ok<T>)other) : ((Error<T>)this).Equals((Error<T>)other);
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Result<T>) obj);
+        }
+
+        public override int GetHashCode() => throw new NotImplementedException();
+
+        public static bool operator ==(Result<T>? left, Result<T>? right) => Equals(left, right);
+
+        public static bool operator !=(Result<T>? left, Result<T>? right) => !Equals(left, right);
 
         // Matches
         public void Match(Action<T> ok, Action<string>? error = null) => Match(
@@ -217,7 +232,7 @@ namespace FunicularSwitch
             return EqualityComparer<T>.Default.Equals(Value, other.Value);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (ReferenceEquals(null, obj)) return false;
@@ -250,7 +265,7 @@ namespace FunicularSwitch
             return string.Equals(Message, other.Message);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (ReferenceEquals(null, obj)) return false;
