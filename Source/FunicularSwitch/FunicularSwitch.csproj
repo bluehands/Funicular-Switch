@@ -22,6 +22,7 @@
     <PackageId>FunicularSwitch</PackageId>
 
     <!-- Descriptions and information-->
+    <!--<PackageReadmeFile>../../README.md</PackageReadmeFile>-->
     <Titel>FunicularSwitch</Titel>
     <Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
     <PackageDescription>Funicular-Switch is a lightweight C# railway oriented programming pattern oriented on F#'s result types</PackageDescription>
@@ -29,7 +30,6 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>FunicularSwitch.png</PackageIcon>
-    <PackageReleaseNotes>Version 3.0.0</PackageReleaseNotes>
     <PackageTags>Railway oriented programming, Railway oriented, Railway, Pipeline, F# results, Matching, Result, Option, Bind, Match, Aggregate</PackageTags>
     <RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
@@ -46,6 +46,15 @@
     <AssemblyOriginatorKeyFile>FunicularSwitch.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
+
+  <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
+    <ReadLinesFromFile File="../RELEASE-NOTES.txt" >
+      <Output TaskParameter="Lines" ItemName="ReleaseNoteLines"/>
+    </ReadLinesFromFile>
+    <PropertyGroup>
+      <PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
 
   <ItemGroup>
     <None Include="Content\FunicularSwitch.png" Pack="true" PackagePath="" />
