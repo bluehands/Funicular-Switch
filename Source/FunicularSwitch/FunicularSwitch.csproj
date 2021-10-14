@@ -22,15 +22,14 @@
     <PackageId>FunicularSwitch</PackageId>
 
     <!-- Descriptions and information-->
-    <!--<PackageReadmeFile>../../README.md</PackageReadmeFile>-->
     <Titel>FunicularSwitch</Titel>
     <Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
-    <PackageDescription>Funicular-Switch is a lightweight C# railway oriented programming pattern oriented on F#'s result types</PackageDescription>
+    <PackageDescription>Funicular-Switch is a lightweight C# port of F#'s result and option types</PackageDescription>
     <Copyright>Copyright 2001-2021 Bluehands GmbH &amp; C.ommunication KG</Copyright>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>FunicularSwitch.png</PackageIcon>
-    <PackageTags>Railway oriented programming, Railway oriented, Railway, Pipeline, F# results, Matching, Result, Option, Bind, Match, Aggregate</PackageTags>
+    <PackageTags>F# result, Result, Option, Match, Map, Bind, Railway oriented programming, Railway oriented, Railway, Pipeline</PackageTags>
     <RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <RepositoryBranch>master</RepositoryBranch>
