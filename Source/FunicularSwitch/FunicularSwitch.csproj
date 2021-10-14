@@ -3,26 +3,31 @@
 		
 		<!--General settings-->		
 		
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+
 		<VersionSuffixLocal />
 		<!--When variable is set we are building a prerelease package-->
-		<VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND  '$(IsPreRelease)'">
+		<VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
 			$(VersionSuffix)
 		</VersionSuffixLocal>
-		<Version>2.2.1$(VersionSuffixLocal)</Version>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<IsPackable>true</IsPackable>
-		<PackageVersion>$(Version)</PackageVersion>
-		<PackageId>FunicularSwitch</PackageId>
+    <AssemblyVersion>3.0.0</AssemblyVersion>
+		<Version>3.0.1</Version>
+    <!--Increment only on breaking changes-->
+    <FileVersion>3.0.0</FileVersion>
+		
+		<PackageVersion>$(Version)$(VersionSuffixLocal)</PackageVersion>
+    <PackageId>FunicularSwitch</PackageId>
 		
 		<!-- Descriptions and information-->
 		<Titel>FunicularSwitch</Titel>
 		<Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
 		<PackageDescription>Funicular-Switch is a lightweight C# railway oriented programming pattern oriented on F#'s result types</PackageDescription>
-		<Copyright>Copyright 2001-2019 Bluehands GmbH &amp; C.ommunication KG</Copyright>
+		<Copyright>Copyright 2001-2021 Bluehands GmbH &amp; C.ommunication KG</Copyright>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>FunicularSwitch.png</PackageIcon>
-		<PackageReleaseNotes>Version 2.0.0</PackageReleaseNotes>
+		<PackageReleaseNotes>Version 3.0.0</PackageReleaseNotes>
 		<PackageTags>Railway oriented programming, Railway oriented, Railway, Pipeline, F# results, Matching, Result, Option, Bind, Match, Aggregate</PackageTags>
 		<RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
@@ -35,6 +40,8 @@
 		<ContentTargetFolders>content</ContentTargetFolders>		
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>FunicularSwitch.snk</AssemblyOriginatorKeyFile>
 	</PropertyGroup>
 	
 	<ItemGroup>
