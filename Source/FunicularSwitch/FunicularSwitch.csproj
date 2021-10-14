@@ -12,11 +12,13 @@
 			$(VersionSuffix)
 		</VersionSuffixLocal>
 
-    <!--Increment only on breaking changes-->
-    <BaseVersion>3</BaseVersion>
-    <AssemblyVersion>$(BaseVersion).0.0</AssemblyVersion>
-    <!--Increment on minor changes-->
-    <Version>$(BaseVersion).0.2$(VersionSuffixLocal)</Version>
+    <!--#region adapt versions here-->
+    <MajorVersion>3</MajorVersion>
+    <MinorAndPatchVersion>0.2</MinorAndPatchVersion>
+    <!--#endregion-->
+
+    <AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
+    <Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
     <FileVersion>$(Version)</FileVersion>
     <PackageVersion>$(Version)</PackageVersion>
     <PackageId>FunicularSwitch</PackageId>
