@@ -26,7 +26,7 @@
     <!-- Descriptions and information-->
     <Titel>FunicularSwitch</Titel>
     <Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
-    <PackageDescription>Funicular-Switch is a lightweight C# port of F# result and option types.</PackageDescription>
+    <PackageDescription>Funicular-Switch is a lightweight C# port of F# result and option types</PackageDescription>
     <Copyright>Copyright 2001-2021 Bluehands GmbH &amp; C.ommunication KG</Copyright>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
