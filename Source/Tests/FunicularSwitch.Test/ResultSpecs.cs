@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,6 +23,22 @@ namespace FunicularSwitch.Test
             // ReSharper disable once SuspiciousTypeConversion.Global
             Result.Error<long>("error").Equals(Result.Error<int>("error")).Should().BeFalse();
             // ReSharper restore EqualExpressionComparison
+
+            // ReSharper disable SuspiciousTypeConversion.Global
+            Result.Ok(42).Equals(Result.Ok(42L)).Should().BeFalse();
+            Equals(Result.Error<int>("hallo"), Result.Error<long>("hallo")).Should().BeFalse();
+            // ReSharper restore SuspiciousTypeConversion.Global
+
+            var resultSet = ImmutableHashSet.Create(
+                Result.Ok(42),
+                Result.Ok(23),
+                Result.Ok(42),
+                Result.Error<int>("42"),
+                Result.Error<int>("42")
+            );
+
+            resultSet.Should().HaveCount(3);
+            resultSet.Should().BeEquivalentTo(new[]{Result.Ok(42), Result.Ok(23), Result.Error<int>("42")});
         }
 
         [TestMethod]
@@ -145,6 +163,19 @@ namespace FunicularSwitch.Test
             {
                 Assert.Fail();
             }
+        }
+
+        [TestMethod]
+        public async Task AsyncAggregateTest()
+        {
+            static Task<Result<int>> AsyncOperation(int i) => Task.FromResult(Result.Ok(i * 2));
+
+            var result = await Enumerable.Range(0, 3)
+                .Select(AsyncOperation)
+                .Aggregate();
+
+            result.Should().BeOfType<Ok<IReadOnlyCollection<int>>>();
+            result.GetValueOrThrow().Should().BeEquivalentTo(new[] { 0, 2, 4 });
         }
     }
 }
