@@ -15,6 +15,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultType.cs" Link="Templates\ResultType.cs" />
+    <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeWithFunicularSwitch.cs" Link="Templates\ResultTypeWithFunicularSwitch.cs" />
+    <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeWithMerge.cs" Link="Templates\ResultTypeWithMerge.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
   </ItemGroup>
 
