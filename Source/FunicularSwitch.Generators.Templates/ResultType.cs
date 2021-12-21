@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace FunicularSwitch.Generators.Templates
     public abstract partial class MyResult
     {
         public static MyResult<T> Error<T>(MyError details) => new MyResult<T>.Error_(details);
-        public static MyResult<T> Ok<T>(T value) => value;
+        public static MyResult<T> Ok<T>(T value) => new MyResult<T>.Ok_(value);
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(MyResult<>.Error_);
         public bool IsOk => !IsError;
         public abstract MyError? GetErrorOrDefault();
@@ -38,7 +39,7 @@ namespace FunicularSwitch.Generators.Templates
             }
         }
     }
-
+    
     public abstract partial class MyResult<T> : MyResult, IEnumerable<T>
     {
         public static MyResult<T> Error(MyError message) => Error<T>(message);
@@ -118,7 +119,7 @@ namespace FunicularSwitch.Generators.Templates
         public Task<MyResult<T1>> Map<T1>(Func<T, Task<T1>> map)
             => Bind(async value => Ok(await map(value).ConfigureAwait(false)));
 
-        public T GetValueOrDefault(Func<T>? defaultValue = null)
+        public T? GetValueOrDefault(Func<T>? defaultValue = null)
             => Match(
                 v => v,
                 _ => defaultValue != null ? defaultValue() : default);
@@ -170,7 +171,7 @@ namespace FunicularSwitch.Generators.Templates
 
         public MyResult<T1>.Error_ Convert<T1>() => new MyResult<T1>.Error_(Details);
 
-        public override MyError GetErrorOrDefault() => Details;
+        public override MyError? GetErrorOrDefault() => Details;
 
         public bool Equals(Error_? other)
         {

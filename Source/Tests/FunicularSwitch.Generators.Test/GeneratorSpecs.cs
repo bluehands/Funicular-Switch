@@ -4,10 +4,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FunicularSwitch.Generators.Test
 {
     [TestClass]
-    public class When_running_result_type_generator : with_result_type_generator
+    public class Run_result_type_generator : VerifySourceGenerator
     {
         [TestMethod]
-        public Task With_enum_error_type()
+        public Task For_enum_error_type()
         {
             var code = @"
 using FunicularSwitch.Generators;
