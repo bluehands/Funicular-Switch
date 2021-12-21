@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace FunicularSwitch.Test
     public abstract partial class OperationResult
     {
         public static OperationResult<T> Error<T>(MyError details) => new OperationResult<T>.Error_(details);
-        public static OperationResult<T> Ok<T>(T value) => value;
+        public static OperationResult<T> Ok<T>(T value) => new OperationResult<T>.Ok_(value);
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(OperationResult<>.Error_);
         public bool IsOk => !IsError;
         public abstract MyError? GetErrorOrDefault();
@@ -39,7 +40,7 @@ namespace FunicularSwitch.Test
             }
         }
     }
-
+    
     public abstract partial class OperationResult<T> : OperationResult, IEnumerable<T>
     {
         public static OperationResult<T> Error(MyError message) => Error<T>(message);
@@ -119,7 +120,7 @@ namespace FunicularSwitch.Test
         public Task<OperationResult<T1>> Map<T1>(Func<T, Task<T1>> map)
             => Bind(async value => Ok(await map(value).ConfigureAwait(false)));
 
-        public T GetValueOrDefault(Func<T>? defaultValue = null)
+        public T? GetValueOrDefault(Func<T>? defaultValue = null)
             => Match(
                 v => v,
                 _ => defaultValue != null ? defaultValue() : default);
@@ -156,7 +157,7 @@ namespace FunicularSwitch.Test
             return obj is Ok_ other && Equals(other);
         }
 
-        public override int GetHashCode() => EqualityComparer<T>.Default.GetHashCode(Value);
+        public override int GetHashCode() => Value == null ? 0 : EqualityComparer<T>.Default.GetHashCode(Value);
 
         public static bool operator ==(Ok_ left, Ok_ right) => Equals(left, right);
 
@@ -171,7 +172,7 @@ namespace FunicularSwitch.Test
 
         public OperationResult<T1>.Error_ Convert<T1>() => new OperationResult<T1>.Error_(Details);
 
-        public override MyError GetErrorOrDefault() => Details;
+        public override MyError? GetErrorOrDefault() => Details;
 
         public bool Equals(Error_? other)
         {

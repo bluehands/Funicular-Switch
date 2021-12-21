@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FunicularSwitch.Generators.Templates
@@ -11,13 +12,13 @@ namespace FunicularSwitch.Generators.Templates
         public static readonly MyError NotFound = new NotFound_();
         public static readonly MyError NotAuthorized = new NotAuthorized_();
 
-        public static MyError Aggregated(ImmutableList<MyError> errors) => new Aggregated_(errors);
+        public static MyError Aggregated(IEnumerable<MyError> errors) => new Aggregated_(errors);
 
         public MyError Merge(MyError other) => this is Aggregated_ a
             ? a.Add(other)
             : other is Aggregated_ oa
                 ? oa.Add(this)
-                : Aggregated(ImmutableList.Create(this, other));
+                : Aggregated(new []{this, other});
 
         public class Generic_ : MyError
         {
@@ -45,11 +46,11 @@ namespace FunicularSwitch.Generators.Templates
 
         public class Aggregated_ : MyError
         {
-            public ImmutableList<MyError> Errors { get; }
+            public List<MyError> Errors { get; }
 
-            public Aggregated_(ImmutableList<MyError> errors) : base(UnionCases.Aggregated) => Errors = errors;
+            public Aggregated_(IEnumerable<MyError> errors) : base(UnionCases.Aggregated) => Errors = errors.ToList();
 
-            public MyError Add(MyError other) => Aggregated(Errors.Add(other));
+            public MyError Add(MyError other) => Aggregated(Errors.Concat(new []{other}));
         }
 
         internal enum UnionCases

@@ -22,12 +22,17 @@ public abstract class VerifySourceGenerator : VerifyBase
             typeof(object),
             typeof(Enumerable)
         }.Select(t => MetadataReference.CreateFromFile(t.Assembly.Location))
-            .Concat(new []{MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Runtime.dll"))});
+            .Concat(new []
+            {
+                MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Runtime.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll")),
+            });
 
         var compilation = CSharpCompilation.Create(
             assemblyName: "Tests",
             syntaxTrees: new[] { syntaxTree },
-            references: references);
+            references: references,
+            options: new(OutputKind.DynamicallyLinkedLibrary));
 
         var generator = new ResultTypeGenerator();
 
@@ -46,10 +51,7 @@ public abstract class VerifySourceGenerator : VerifyBase
         {
             var diagnostics = compilation.GetDiagnostics();
             var errors = string.Join(Environment.NewLine, diagnostics
-                .Where(d =>
-                        d.Severity == DiagnosticSeverity.Error &&
-                        d.Id != "CS5001" //no main is ok
-                ));
+                .Where(d => d.Severity == DiagnosticSeverity.Error));
             errors.Should().BeNullOrEmpty("Compilation failed");
         });
 }

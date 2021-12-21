@@ -23,7 +23,8 @@ namespace FunicularSwitch.Test
             
             calc.Should().BeEquivalentTo(OperationResult<string>.Error(MyError.Generic("Division by zero")));
 
-            var t = calc.Aggregate(OperationResult.Error<int>(MyError.NotFound));
+            var combinedError = calc.Aggregate(OperationResult.Error<int>(MyError.NotFound));
+            var combinedOk = OperationResult.Ok(42).Aggregate(OperationResult.Ok(" is the answer"));
         }
     }
 

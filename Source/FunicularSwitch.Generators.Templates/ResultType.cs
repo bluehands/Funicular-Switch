@@ -156,7 +156,7 @@ namespace FunicularSwitch.Generators.Templates
             return obj is Ok_ other && Equals(other);
         }
 
-        public override int GetHashCode() => EqualityComparer<T>.Default.GetHashCode(Value);
+        public override int GetHashCode() => Value == null ? 0 : EqualityComparer<T>.Default.GetHashCode(Value);
 
         public static bool operator ==(Ok_ left, Ok_ right) => Equals(left, right);
 

@@ -1,7 +1,9 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+// ReSharper disable once RedundantUsingDirective
 using FunicularSwitch;
 
 namespace FunicularSwitch.Generators.Templates
@@ -48,7 +50,7 @@ namespace FunicularSwitch.Generators.Templates
             candidates
                 .Bind(items => items.AllOk(validate));
 
-        public static MyResult<T> Validate<T>(this MyResult<T> item, Validate<T, MyError> validate, string? errorSeparator = null) => item.Bind(i => i.Validate(validate));
+        public static MyResult<T> Validate<T>(this MyResult<T> item, Validate<T, MyError> validate) => item.Bind(i => i.Validate(validate));
 
         public static MyResult<T> Validate<T>(this T item, Validate<T, MyError> validate)
         {

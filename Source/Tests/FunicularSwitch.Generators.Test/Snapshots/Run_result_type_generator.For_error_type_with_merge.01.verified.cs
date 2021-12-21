@@ -1,17 +1,18 @@
-﻿using System;
+﻿//HintName: OperationResult.g.cs
+#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace FunicularSwitch.Test
-
 {
     public abstract partial class OperationResult
     {
-        public static OperationResult<T> Error<T>(MyError details) => new Error<T>(details);
-        public static OperationResult<T> Ok<T>(T value) => new Ok<T>(value);
-        public bool IsError => GetType().GetGenericTypeDefinition() == typeof(Error<>);
+        public static OperationResult<T> Error<T>(MyError details) => new OperationResult<T>.Error_(details);
+        public static OperationResult<T> Ok<T>(T value) => new OperationResult<T>.Ok_(value);
+        public bool IsError => GetType().GetGenericTypeDefinition() == typeof(OperationResult<>.Error_);
         public bool IsOk => !IsError;
         public abstract MyError? GetErrorOrDefault();
 
@@ -39,7 +40,7 @@ namespace FunicularSwitch.Test
             }
         }
     }
-
+    
     public abstract partial class OperationResult<T> : OperationResult, IEnumerable<T>
     {
         public static OperationResult<T> Error(MyError message) => Error<T>(message);
@@ -67,8 +68,8 @@ namespace FunicularSwitch.Test
         {
             return this switch
             {
-                Ok<T> okOperationResult => ok(okOperationResult.Value),
-                Error<T> errorOperationResult => error(errorOperationResult.Details),
+                Ok_ okOperationResult => ok(okOperationResult.Value),
+                Error_ errorOperationResult => error(errorOperationResult.Details),
                 _ => throw new InvalidOperationException($"Unexpected derived result type: {GetType()}")
             };
         }
@@ -76,15 +77,15 @@ namespace FunicularSwitch.Test
         {
             return this switch
             {
-                Ok<T> okOperationResult => await ok(okOperationResult.Value).ConfigureAwait(false),
-                Error<T> errorOperationResult => await error(errorOperationResult.Details).ConfigureAwait(false),
+                Ok_ okOperationResult => await ok(okOperationResult.Value).ConfigureAwait(false),
+                Error_ errorOperationResult => await error(errorOperationResult.Details).ConfigureAwait(false),
                 _ => throw new InvalidOperationException($"Unexpected derived result type: {GetType()}")
             };
         }
         public Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<MyError, T1> error) => Match(ok, e => Task.FromResult(error(e)));
         public async Task Match(Func<T, Task> ok)
         {
-            if (this is Ok<T> okOperationResult) await ok(okOperationResult.Value).ConfigureAwait(false);
+            if (this is Ok_ okOperationResult) await ok(okOperationResult.Value).ConfigureAwait(false);
         }
         public T Match(Func<MyError, T> error) => Match(v => v, error);
 
@@ -92,9 +93,9 @@ namespace FunicularSwitch.Test
         {
             switch (this)
             {
-                case Ok<T> ok:
+                case Ok_ ok:
                     return bind(ok.Value);
-                case Error<T> error:
+                case Error_ error:
                     return error.Convert<T1>();
                 default:
                     throw new InvalidOperationException($"Unexpected derived result type: {GetType()}");
@@ -104,9 +105,9 @@ namespace FunicularSwitch.Test
         {
             switch (this)
             {
-                case Ok<T> ok:
+                case Ok_ ok:
                     return await bind(ok.Value).ConfigureAwait(false);
-                case Error<T> error:
+                case Error_ error:
                     return error.Convert<T1>();
                 default:
                     throw new InvalidOperationException($"Unexpected derived result type: {GetType()}");
@@ -119,7 +120,7 @@ namespace FunicularSwitch.Test
         public Task<OperationResult<T1>> Map<T1>(Func<T, Task<T1>> map)
             => Bind(async value => Ok(await map(value).ConfigureAwait(false)));
 
-        public T GetValueOrDefault(Func<T>? defaultValue = null)
+        public T? GetValueOrDefault(Func<T>? defaultValue = null)
             => Match(
                 v => v,
                 _ => defaultValue != null ? defaultValue() : default);
@@ -133,17 +134,16 @@ namespace FunicularSwitch.Test
 
         public override string ToString() => Match(ok => $"Ok {ok?.ToString()}", error => $"Error {error}");
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 
-    public sealed partial class Ok<T> : OperationResult<T>
+        public sealed partial class Ok_ : OperationResult<T>
     {
         public T Value { get; }
 
-        public Ok(T value) => Value = value;
+        public Ok_(T value) => Value = value;
 
         public override MyError? GetErrorOrDefault() => null;
 
-        public bool Equals(Ok<T>? other)
+        public bool Equals(Ok_? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -154,27 +154,27 @@ namespace FunicularSwitch.Test
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj is Ok<T> other && Equals(other);
+            return obj is Ok_ other && Equals(other);
         }
 
-        public override int GetHashCode() => EqualityComparer<T>.Default.GetHashCode(Value);
+        public override int GetHashCode() => Value == null ? 0 : EqualityComparer<T>.Default.GetHashCode(Value);
 
-        public static bool operator ==(Ok<T> left, Ok<T> right) => Equals(left, right);
+        public static bool operator ==(Ok_ left, Ok_ right) => Equals(left, right);
 
-        public static bool operator !=(Ok<T> left, Ok<T> right) => !Equals(left, right);
+        public static bool operator !=(Ok_ left, Ok_ right) => !Equals(left, right);
     }
 
-    public sealed partial class Error<T> : OperationResult<T>
+    public sealed partial class Error_ : OperationResult<T>
     {
         public MyError Details { get; }
 
-        public Error(MyError details) => Details = details;
+        public Error_(MyError details) => Details = details;
 
-        public Error<T1> Convert<T1>() => new Error<T1>(Details);
+        public OperationResult<T1>.Error_ Convert<T1>() => new OperationResult<T1>.Error_(Details);
 
-        public override MyError GetErrorOrDefault() => Details;
+        public override MyError? GetErrorOrDefault() => Details;
 
-        public bool Equals(Error<T>? other)
+        public bool Equals(Error_? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -185,14 +185,16 @@ namespace FunicularSwitch.Test
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj is Error<T> other && Equals(other);
+            return obj is Error_ other && Equals(other);
         }
 
         public override int GetHashCode() => Details.GetHashCode();
 
-        public static bool operator ==(Error<T> left, Error<T> right) => Equals(left, right);
+        public static bool operator ==(Error_ left, Error_ right) => Equals(left, right);
 
-        public static bool operator !=(Error<T> left, Error<T> right) => !Equals(left, right);
+        public static bool operator !=(Error_ left, Error_ right) => !Equals(left, right);
+    }
+
     }
 
     public static partial class OperationResultExtension

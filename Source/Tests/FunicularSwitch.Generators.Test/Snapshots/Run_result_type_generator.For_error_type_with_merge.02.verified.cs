@@ -1,11 +1,11 @@
-﻿#nullable enable
+﻿//HintName: OperationResultWithMerge.g.cs
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace FunicularSwitch.Test
-
 {
     public abstract partial class OperationResult
     {
