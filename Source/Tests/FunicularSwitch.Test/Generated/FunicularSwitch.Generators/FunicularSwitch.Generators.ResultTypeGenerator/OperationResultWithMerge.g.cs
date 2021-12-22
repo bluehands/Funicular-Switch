@@ -9,28 +9,70 @@ namespace FunicularSwitch.Test
 {
     public abstract partial class OperationResult
     {
-        public static OperationResult<(T1, T2)> Aggregate<T1, T2>(OperationResult<T1> r1, OperationResult<T2> r2) => r1.Aggregate(r2);
+        
+        public static OperationResult<(T1, T2)> Aggregate<T1, T2>(OperationResult<T1> r1, OperationResult<T2> r2) => OperationResultExtension.Aggregate(r1, r2);
 
-        public static OperationResult<(T1, T2, T3)> Aggregate<T1, T2, T3>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3) =>
-            r1.Aggregate(r2, r3);
+        public static OperationResult<TResult> Aggregate<T1, T2, TResult>(OperationResult<T1> r1, OperationResult<T2> r2, Func<T1, T2, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, combine);
 
-        //public static OperationResult<(T1, T2, T3, T4)> Aggregate<T1, T2, T3, T4>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4) => r1.Aggregate(r2, r3, r4);
+        public static Task<OperationResult<(T1, T2)>> Aggregate<T1, T2>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2) => OperationResultExtension.Aggregate(r1, r2);
 
-        //public static OperationResult<(T1, T2, T3, T4, T5)> Aggregate<T1, T2, T3, T4, T5>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5) => r1.Aggregate(r2, r3, r4, r5);
+        public static Task<OperationResult<TResult>> Aggregate<T1, T2, TResult>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Func<T1, T2, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, combine);
 
-        //public static OperationResult<(T1, T2, T3, T4, T5, T6)> Aggregate<T1, T2, T3, T4, T5, T6>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5, OperationResult<T6> r6) => r1.Aggregate(r2, r3, r4, r5, r6);
+        public static OperationResult<(T1, T2, T3)> Aggregate<T1, T2, T3>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3) => OperationResultExtension.Aggregate(r1, r2, r3);
 
-        public static Task<OperationResult<(T1, T2)>> Aggregate<T1, T2>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2) =>
-            r1.Aggregate(r2);
+        public static OperationResult<TResult> Aggregate<T1, T2, T3, TResult>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, Func<T1, T2, T3, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, combine);
 
-        public static Task<OperationResult<(T1, T2, T3)>> Aggregate<T1, T2, T3>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2,
-            Task<OperationResult<T3>> r3) => r1.Aggregate(r2, r3);
+        public static Task<OperationResult<(T1, T2, T3)>> Aggregate<T1, T2, T3>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3) => OperationResultExtension.Aggregate(r1, r2, r3);
 
-        //public static global::System.Threading.Tasks.Task<OperationResult<(T1, T2, T3, T4)>> Aggregate<T1, T2, T3, T4>(global::System.Threading.Tasks.Task<OperationResult<T1>> r1, global::System.Threading.Tasks.Task<OperationResult<T2>> r2, global::System.Threading.Tasks.Task<OperationResult<T3>> r3, global::System.Threading.Tasks.Task<OperationResult<T4>> r4) => r1.Aggregate(r2, r3, r4);
+        public static Task<OperationResult<TResult>> Aggregate<T1, T2, T3, TResult>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Func<T1, T2, T3, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, combine);
 
-        //public static global::System.Threading.Tasks.Task<OperationResult<(T1, T2, T3, T4, T5)>> Aggregate<T1, T2, T3, T4, T5>(global::System.Threading.Tasks.Task<OperationResult<T1>> r1, global::System.Threading.Tasks.Task<OperationResult<T2>> r2, global::System.Threading.Tasks.Task<OperationResult<T3>> r3, global::System.Threading.Tasks.Task<OperationResult<T4>> r4, global::System.Threading.Tasks.Task<OperationResult<T5>> r5) => r1.Aggregate(r2, r3, r4, r5);
+        public static OperationResult<(T1, T2, T3, T4)> Aggregate<T1, T2, T3, T4>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4) => OperationResultExtension.Aggregate(r1, r2, r3, r4);
 
-        //public static global::System.Threading.Tasks.Task<OperationResult<(T1, T2, T3, T4, T5, T6)>> Aggregate<T1, T2, T3, T4, T5, T6>(global::System.Threading.Tasks.Task<OperationResult<T1>> r1, global::System.Threading.Tasks.Task<OperationResult<T2>> r2, global::System.Threading.Tasks.Task<OperationResult<T3>> r3, global::System.Threading.Tasks.Task<OperationResult<T4>> r4, global::System.Threading.Tasks.Task<OperationResult<T5>> r5, global::System.Threading.Tasks.Task<OperationResult<T6>> r6) => r1.Aggregate(r2, r3, r4, r5, r6);
+        public static OperationResult<TResult> Aggregate<T1, T2, T3, T4, TResult>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, Func<T1, T2, T3, T4, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, combine);
+
+        public static Task<OperationResult<(T1, T2, T3, T4)>> Aggregate<T1, T2, T3, T4>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4) => OperationResultExtension.Aggregate(r1, r2, r3, r4);
+
+        public static Task<OperationResult<TResult>> Aggregate<T1, T2, T3, T4, TResult>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Func<T1, T2, T3, T4, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, combine);
+
+        public static OperationResult<(T1, T2, T3, T4, T5)> Aggregate<T1, T2, T3, T4, T5>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5);
+
+        public static OperationResult<TResult> Aggregate<T1, T2, T3, T4, T5, TResult>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5, Func<T1, T2, T3, T4, T5, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, combine);
+
+        public static Task<OperationResult<(T1, T2, T3, T4, T5)>> Aggregate<T1, T2, T3, T4, T5>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5);
+
+        public static Task<OperationResult<TResult>> Aggregate<T1, T2, T3, T4, T5, TResult>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Func<T1, T2, T3, T4, T5, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, combine);
+
+        public static OperationResult<(T1, T2, T3, T4, T5, T6)> Aggregate<T1, T2, T3, T4, T5, T6>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5, OperationResult<T6> r6) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6);
+
+        public static OperationResult<TResult> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5, OperationResult<T6> r6, Func<T1, T2, T3, T4, T5, T6, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, combine);
+
+        public static Task<OperationResult<(T1, T2, T3, T4, T5, T6)>> Aggregate<T1, T2, T3, T4, T5, T6>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Task<OperationResult<T6>> r6) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6);
+
+        public static Task<OperationResult<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Task<OperationResult<T6>> r6, Func<T1, T2, T3, T4, T5, T6, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, combine);
+
+        public static OperationResult<(T1, T2, T3, T4, T5, T6, T7)> Aggregate<T1, T2, T3, T4, T5, T6, T7>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5, OperationResult<T6> r6, OperationResult<T7> r7) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7);
+
+        public static OperationResult<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, TResult>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5, OperationResult<T6> r6, OperationResult<T7> r7, Func<T1, T2, T3, T4, T5, T6, T7, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, combine);
+
+        public static Task<OperationResult<(T1, T2, T3, T4, T5, T6, T7)>> Aggregate<T1, T2, T3, T4, T5, T6, T7>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Task<OperationResult<T6>> r6, Task<OperationResult<T7>> r7) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7);
+
+        public static Task<OperationResult<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, TResult>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Task<OperationResult<T6>> r6, Task<OperationResult<T7>> r7, Func<T1, T2, T3, T4, T5, T6, T7, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, combine);
+
+        public static OperationResult<(T1, T2, T3, T4, T5, T6, T7, T8)> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5, OperationResult<T6> r6, OperationResult<T7> r7, OperationResult<T8> r8) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8);
+
+        public static OperationResult<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5, OperationResult<T6> r6, OperationResult<T7> r7, OperationResult<T8> r8, Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, combine);
+
+        public static Task<OperationResult<(T1, T2, T3, T4, T5, T6, T7, T8)>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Task<OperationResult<T6>> r6, Task<OperationResult<T7>> r7, Task<OperationResult<T8>> r8) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8);
+
+        public static Task<OperationResult<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Task<OperationResult<T6>> r6, Task<OperationResult<T7>> r7, Task<OperationResult<T8>> r8, Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, combine);
+
+        public static OperationResult<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5, OperationResult<T6> r6, OperationResult<T7> r7, OperationResult<T8> r8, OperationResult<T9> r9) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9);
+
+        public static OperationResult<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(OperationResult<T1> r1, OperationResult<T2> r2, OperationResult<T3> r3, OperationResult<T4> r4, OperationResult<T5> r5, OperationResult<T6> r6, OperationResult<T7> r7, OperationResult<T8> r8, OperationResult<T9> r9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9, combine);
+
+        public static Task<OperationResult<(T1, T2, T3, T4, T5, T6, T7, T8, T9)>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Task<OperationResult<T6>> r6, Task<OperationResult<T7>> r7, Task<OperationResult<T8>> r8, Task<OperationResult<T9>> r9) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9);
+
+        public static Task<OperationResult<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Task<OperationResult<T6>> r6, Task<OperationResult<T7>> r7, Task<OperationResult<T8>> r8, Task<OperationResult<T9>> r9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9, combine);
     }
 
     public static partial class OperationResultExtension
@@ -51,6 +93,39 @@ namespace FunicularSwitch.Test
             Func<IEnumerable<T>, OperationResult<T1>> bind) =>
             results.Aggregate().Bind(bind);
         
+        public static OperationResult<IReadOnlyCollection<T>> Aggregate<T>(this IEnumerable<OperationResult<T>> results)
+        {
+            MyError? errors = default;
+            var oks = new List<T>();
+            foreach (var result in results)
+            {
+                result.Match(
+                    ok => oks.Add(ok),
+                    error => { errors = errors == null ? error : errors.Merge(error); }
+                );
+            }
+
+            return errors != null
+                ? OperationResult.Error<IReadOnlyCollection<T>>(errors)
+                : OperationResult.Ok<IReadOnlyCollection<T>>(oks);
+        }
+
+        public static async Task<OperationResult<IReadOnlyCollection<T>>> Aggregate<T>(
+            this Task<IEnumerable<OperationResult<T>>> results)
+            => (await results.ConfigureAwait(false))
+                .Aggregate();
+
+        public static async Task<OperationResult<IReadOnlyCollection<T>>> Aggregate<T>(
+            this IEnumerable<Task<OperationResult<T>>> results)
+            => (await Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
+                .Aggregate();
+
+        public static async Task<OperationResult<IReadOnlyCollection<T>>> AggregateMany<T>(
+            this IEnumerable<Task<IEnumerable<OperationResult<T>>>> results)
+            => (await Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
+                .SelectMany(e => e)
+                .Aggregate();
+
         
         public static OperationResult<(T1, T2)> Aggregate<T1, T2>(this OperationResult<T1> r1, OperationResult<T2> r2) => 
             Aggregate(r1, r2, (v1, v2) => (v1, v2));
@@ -243,69 +318,6 @@ namespace FunicularSwitch.Test
             await Task.WhenAll(r1, r2, r3, r4, r5, r6, r7, r8, r9);
             return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, r5.Result, r6.Result, r7.Result, r8.Result, r9.Result, combine);
         }
-
-        //public static Task<OperationResult<(T1, T2)>> Aggregate<T1, T2>(
-        //    this Task<OperationResult<T1>> tr1,
-        //    Task<OperationResult<T2>> tr2)
-        //    => tr1.Aggregate(tr2, (v1, v2) => (v1, v2));
-
-        //public static async Task<OperationResult<TOperationResult>> Aggregate<T1, T2, TOperationResult>(
-        //    this Task<OperationResult<T1>> tr1,
-        //    Task<OperationResult<T2>> tr2,
-        //    Func<T1, T2, TOperationResult> combine)
-        //{
-        //    await Task.WhenAll(tr1, tr2);
-        //    return tr1.Result.Aggregate(tr2.Result, combine);
-        //}
-
-        //public static Task<OperationResult<(T1, T2, T3)>> Aggregate<T1, T2, T3>(
-        //    this Task<OperationResult<T1>> tr1,
-        //    Task<OperationResult<T2>> tr2,
-        //    Task<OperationResult<T3>> tr3)
-        //    => tr1.Aggregate(tr2, tr3, (v1, v2, v3) => (v1, v2, v3));
-
-        //public static async Task<OperationResult<TOperationResult>> Aggregate<T1, T2, T3, TOperationResult>(
-        //    this Task<OperationResult<T1>> tr1,
-        //    Task<OperationResult<T2>> tr2,
-        //    Task<OperationResult<T3>> tr3,
-        //    Func<T1, T2, T3, TOperationResult> combine)
-        //{
-        //    await Task.WhenAll(tr1, tr2, tr3);
-        //    return tr1.Result.Aggregate(tr2.Result, tr3.Result, combine);
-        //}
-
-        public static OperationResult<IReadOnlyCollection<T>> Aggregate<T>(this IEnumerable<OperationResult<T>> results)
-        {
-            MyError? errors = default;
-            var oks = new List<T>();
-            foreach (var result in results)
-            {
-                result.Match(
-                    ok => oks.Add(ok),
-                    error => { errors = errors == null ? error : errors.Merge(error); }
-                );
-            }
-
-            return errors != null
-                ? OperationResult.Error<IReadOnlyCollection<T>>(errors)
-                : OperationResult.Ok<IReadOnlyCollection<T>>(oks);
-        }
-
-        public static async Task<OperationResult<IReadOnlyCollection<T>>> Aggregate<T>(
-            this Task<IEnumerable<OperationResult<T>>> results)
-            => (await results.ConfigureAwait(false))
-                .Aggregate();
-
-        public static async Task<OperationResult<IReadOnlyCollection<T>>> Aggregate<T>(
-            this IEnumerable<Task<OperationResult<T>>> results)
-            => (await Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
-                .Aggregate();
-
-        public static async Task<OperationResult<IReadOnlyCollection<T>>> AggregateMany<T>(
-            this IEnumerable<Task<IEnumerable<OperationResult<T>>>> results)
-            => (await Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
-                .SelectMany(e => e)
-                .Aggregate();
 
         public static OperationResult<T> FirstOk<T>(this IEnumerable<OperationResult<T>> results, Func<MyError> onEmpty)
         {

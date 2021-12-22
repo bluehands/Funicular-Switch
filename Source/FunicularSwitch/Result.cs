@@ -66,6 +66,8 @@ namespace FunicularSwitch
             }
         }
 
+        public static Task<Result<TResult>> Aggregate<T1, T2, TResult>(Task<Result<T1>> r1, Task<Result<T2>> r2, Func<T1, T2, TResult> combine) => ResultExtension.Aggregate(r1, r2, combine);
+
         public static Result<(T1, T2)> Aggregate<T1, T2>(Result<T1> r1, Result<T2> r2) => r1.Aggregate(r2);
 
         public static Result<(T1, T2, T3)> Aggregate<T1, T2, T3>(Result<T1> r1, Result<T2> r2, Result<T3> r3) => r1.Aggregate(r2, r3);

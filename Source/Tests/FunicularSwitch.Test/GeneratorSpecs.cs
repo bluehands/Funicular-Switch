@@ -6,10 +6,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FunicularSwitch.Test
 {
     [TestClass]
-    public class When_testdesciption
+    public class When_using_generated_result_type
     {
         [TestMethod]
-        public void MyResultTest()
+        public void Then_it_feels_good()
         {
             static OperationResult<decimal> Divide(decimal i, decimal divisor) => divisor == 0
                 ? OperationResult.Error<decimal>(MyError.Generic("Division by zero"))
@@ -24,7 +24,9 @@ namespace FunicularSwitch.Test
             calc.Should().BeEquivalentTo(OperationResult<string>.Error(MyError.Generic("Division by zero")));
 
             var combinedError = calc.Aggregate(OperationResult.Error<int>(MyError.NotFound));
+            var combinedErrorStatic = OperationResult.Aggregate(calc, OperationResult.Error<int>(MyError.NotFound), (_, i) => i);
             var combinedOk = OperationResult.Ok(42).Aggregate(OperationResult.Ok(" is the answer"));
+            var combinedOkStatic = OperationResult.Aggregate(OperationResult.Ok(42), OperationResult.Ok(" is the answer"));
         }
     }
 

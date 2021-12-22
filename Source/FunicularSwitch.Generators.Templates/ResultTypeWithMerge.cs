@@ -8,25 +8,7 @@ namespace FunicularSwitch.Generators.Templates
 {
     public abstract partial class MyResult
     {
-        //public static MyResult<(T1, T2)> Aggregate<T1, T2>(MyResult<T1> r1, MyResult<T2> r2) => r1.Aggregate(r2);
-
-        //public static MyResult<(T1, T2, T3)> Aggregate<T1, T2, T3>(MyResult<T1> r1, MyResult<T2> r2, MyResult<T3> r3) => r1.Aggregate(r2, r3);
-
-        //public static MyResult<(T1, T2, T3, T4)> Aggregate<T1, T2, T3, T4>(MyResult<T1> r1, MyResult<T2> r2, MyResult<T3> r3, MyResult<T4> r4) => r1.Aggregate(r2, r3, r4);
-
-        //public static MyResult<(T1, T2, T3, T4, T5)> Aggregate<T1, T2, T3, T4, T5>(MyResult<T1> r1, MyResult<T2> r2, MyResult<T3> r3, MyResult<T4> r4, MyResult<T5> r5) => r1.Aggregate(r2, r3, r4, r5);
-
-        //public static MyResult<(T1, T2, T3, T4, T5, T6)> Aggregate<T1, T2, T3, T4, T5, T6>(MyResult<T1> r1, MyResult<T2> r2, MyResult<T3> r3, MyResult<T4> r4, MyResult<T5> r5, MyResult<T6> r6) => r1.Aggregate(r2, r3, r4, r5, r6);
-
-        // public static Task<MyResult<(T1, T2)>> Aggregate<T1, T2>(Task<MyResult<T1>> r1, Task<MyResult<T2>> r2) =>r1.Aggregate(r2);
-
-        //public static Task<MyResult<(T1, T2, T3)>> Aggregate<T1, T2, T3>(Task<MyResult<T1>> r1, Task<MyResult<T2>> r2,Task<MyResult<T3>> r3) => r1.Aggregate(r2, r3);
-
-        //public static global::System.Threading.Tasks.Task<MyResult<(T1, T2, T3, T4)>> Aggregate<T1, T2, T3, T4>(global::System.Threading.Tasks.Task<MyResult<T1>> r1, global::System.Threading.Tasks.Task<MyResult<T2>> r2, global::System.Threading.Tasks.Task<MyResult<T3>> r3, global::System.Threading.Tasks.Task<MyResult<T4>> r4) => r1.Aggregate(r2, r3, r4);
-
-        //public static global::System.Threading.Tasks.Task<MyResult<(T1, T2, T3, T4, T5)>> Aggregate<T1, T2, T3, T4, T5>(global::System.Threading.Tasks.Task<MyResult<T1>> r1, global::System.Threading.Tasks.Task<MyResult<T2>> r2, global::System.Threading.Tasks.Task<MyResult<T3>> r3, global::System.Threading.Tasks.Task<MyResult<T4>> r4, global::System.Threading.Tasks.Task<MyResult<T5>> r5) => r1.Aggregate(r2, r3, r4, r5);
-
-        //public static global::System.Threading.Tasks.Task<MyResult<(T1, T2, T3, T4, T5, T6)>> Aggregate<T1, T2, T3, T4, T5, T6>(global::System.Threading.Tasks.Task<MyResult<T1>> r1, global::System.Threading.Tasks.Task<MyResult<T2>> r2, global::System.Threading.Tasks.Task<MyResult<T3>> r3, global::System.Threading.Tasks.Task<MyResult<T4>> r4, global::System.Threading.Tasks.Task<MyResult<T5>> r5, global::System.Threading.Tasks.Task<MyResult<T6>> r6) => r1.Aggregate(r2, r3, r4, r5, r6);
+        //generated aggregate methods
     }
 
     public static partial class MyResultExtension
@@ -47,8 +29,6 @@ namespace FunicularSwitch.Generators.Templates
             Func<IEnumerable<T>, MyResult<T1>> bind) =>
             results.Aggregate().Bind(bind);
         
-        //generated aggregate methods
-
         public static MyResult<IReadOnlyCollection<T>> Aggregate<T>(this IEnumerable<MyResult<T>> results)
         {
             MyError? errors = default;
@@ -81,6 +61,8 @@ namespace FunicularSwitch.Generators.Templates
             => (await Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
                 .SelectMany(e => e)
                 .Aggregate();
+
+        //generated aggregate extension methods
 
         public static MyResult<T> FirstOk<T>(this IEnumerable<MyResult<T>> results, Func<MyError> onEmpty)
         {
