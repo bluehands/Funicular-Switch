@@ -8,7 +8,6 @@ using FunicularSwitch;
 
 namespace FunicularSwitch.Generators.Templates
 {
-
     public abstract partial class MyResult
     {
         public static MyResult<Unit> Try(Action action, Func<Exception, MyError> formatError)

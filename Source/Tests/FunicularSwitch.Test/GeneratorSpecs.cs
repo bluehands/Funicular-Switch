@@ -31,7 +31,7 @@ namespace FunicularSwitch.Test
     }
 
     [ResultType(typeof(MyError))]
-    public abstract partial class OperationResult<T>
+    abstract partial class OperationResult<T>
     {
     }
 }

@@ -29,6 +29,30 @@ public enum MyError
             return Verify(code);
         }
 
+
+        [TestMethod]
+        public Task For_internal_result_type()
+        {
+            var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[ResultType(errorType: typeof(MyError))]
+abstract partial class OperationResult<T>
+{
+}
+
+public enum MyError 
+{
+    Generic,
+    NotFound,
+    Unauthorized
+}
+";
+            return Verify(code);
+        }
+
         [TestMethod]
         public Task For_error_type_with_merge()
         {

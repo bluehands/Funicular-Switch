@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FunicularSwitch.Test
 {
-    public abstract partial class OperationResult
+    abstract partial class OperationResult
     {
         public static OperationResult<T> Error<T>(MyError details) => new OperationResult<T>.Error_(details);
         public static OperationResult<T> Ok<T>(T value) => new OperationResult<T>.Ok_(value);
@@ -41,7 +41,7 @@ namespace FunicularSwitch.Test
         }
     }
 
-    public abstract partial class OperationResult<T> : OperationResult, IEnumerable<T>
+    abstract partial class OperationResult<T> : OperationResult, IEnumerable<T>
     {
         public static OperationResult<T> Error(MyError message) => Error<T>(message);
         public static OperationResult<T> Ok(T value) => Ok<T>(value);
@@ -197,7 +197,7 @@ namespace FunicularSwitch.Test
 
     }
 
-    public static partial class OperationResultExtension
+    static partial class OperationResultExtension
     {
         #region bind
 

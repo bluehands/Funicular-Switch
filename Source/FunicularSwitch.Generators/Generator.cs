@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace FunicularSwitch.Generators;
 
@@ -12,13 +13,23 @@ static class Generator
     public static IEnumerable<(string filename, string source)> Emit(ResultTypeSchema resultTypeSchema, Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
     {
         var @namespace = resultTypeSchema.ResultType.GetContainingNamespace();
+        var publicModifier = resultTypeSchema.ResultType.Modifiers.FirstOrDefault(t => t.Text == SyntaxFactory.Token(SyntaxKind.PublicKeyword).Text);
         var resultTypeName = resultTypeSchema.ResultType.Identifier.ToFullString();
 
-        string Replace(string code) =>
-            code
+        string Replace(string code)
+        {
+            code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {@namespace}")
                 .Replace(TemplateResultTypeName, resultTypeName)
                 .Replace(TemplateErrorTypeName, resultTypeSchema.ErrorType.Name);
+
+            if (publicModifier == default)
+                code = code
+                    .Replace("public abstract partial", "abstract partial")
+                    .Replace("public static partial", "static partial");
+
+            return code;
+        }
 
         yield return ($"{resultTypeSchema.ResultType.Identifier}.g.cs", Replace(Templates.Templates.ResultType));
 

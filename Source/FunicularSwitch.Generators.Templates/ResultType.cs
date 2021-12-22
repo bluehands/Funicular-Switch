@@ -39,7 +39,7 @@ namespace FunicularSwitch.Generators.Templates
             }
         }
     }
-    
+
     public abstract partial class MyResult<T> : MyResult, IEnumerable<T>
     {
         public static MyResult<T> Error(MyError message) => Error<T>(message);
@@ -135,64 +135,64 @@ namespace FunicularSwitch.Generators.Templates
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public sealed partial class Ok_ : MyResult<T>
-    {
-        public T Value { get; }
-
-        public Ok_(T value) => Value = value;
-
-        public override MyError? GetErrorOrDefault() => null;
-
-        public bool Equals(Ok_? other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return EqualityComparer<T>.Default.Equals(Value, other.Value);
+            public T Value { get; }
+
+            public Ok_(T value) => Value = value;
+
+            public override MyError? GetErrorOrDefault() => null;
+
+            public bool Equals(Ok_? other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return EqualityComparer<T>.Default.Equals(Value, other.Value);
+            }
+
+            public override bool Equals(object? obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                return obj is Ok_ other && Equals(other);
+            }
+
+            public override int GetHashCode() => Value == null ? 0 : EqualityComparer<T>.Default.GetHashCode(Value);
+
+            public static bool operator ==(Ok_ left, Ok_ right) => Equals(left, right);
+
+            public static bool operator !=(Ok_ left, Ok_ right) => !Equals(left, right);
         }
 
-        public override bool Equals(object? obj)
+        public sealed partial class Error_ : MyResult<T>
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is Ok_ other && Equals(other);
+            public MyError Details { get; }
+
+            public Error_(MyError details) => Details = details;
+
+            public MyResult<T1>.Error_ Convert<T1>() => new MyResult<T1>.Error_(Details);
+
+            public override MyError? GetErrorOrDefault() => Details;
+
+            public bool Equals(Error_? other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return Equals(Details, other.Details);
+            }
+
+            public override bool Equals(object? obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                return obj is Error_ other && Equals(other);
+            }
+
+            public override int GetHashCode() => Details.GetHashCode();
+
+            public static bool operator ==(Error_ left, Error_ right) => Equals(left, right);
+
+            public static bool operator !=(Error_ left, Error_ right) => !Equals(left, right);
         }
-
-        public override int GetHashCode() => Value == null ? 0 : EqualityComparer<T>.Default.GetHashCode(Value);
-
-        public static bool operator ==(Ok_ left, Ok_ right) => Equals(left, right);
-
-        public static bool operator !=(Ok_ left, Ok_ right) => !Equals(left, right);
-    }
-
-    public sealed partial class Error_ : MyResult<T>
-    {
-        public MyError Details { get; }
-
-        public Error_(MyError details) => Details = details;
-
-        public MyResult<T1>.Error_ Convert<T1>() => new MyResult<T1>.Error_(Details);
-
-        public override MyError? GetErrorOrDefault() => Details;
-
-        public bool Equals(Error_? other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Equals(Details, other.Details);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj is Error_ other && Equals(other);
-        }
-
-        public override int GetHashCode() => Details.GetHashCode();
-
-        public static bool operator ==(Error_ left, Error_ right) => Equals(left, right);
-
-        public static bool operator !=(Error_ left, Error_ right) => !Equals(left, right);
-    }
 
     }
 
