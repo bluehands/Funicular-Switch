@@ -7,9 +7,9 @@ class ResultTypeSchema
 {
     public ClassDeclarationSyntax ResultType { get; }
     public INamedTypeSymbol ErrorType { get; }
-    public IMethodSymbol? MergeMethod { get; }
+    public MergeMethod? MergeMethod { get; }
 
-    public ResultTypeSchema(ClassDeclarationSyntax resultType, INamedTypeSymbol errorType, IMethodSymbol? mergeMethod)
+    public ResultTypeSchema(ClassDeclarationSyntax resultType, INamedTypeSymbol errorType, MergeMethod? mergeMethod)
     {
         ResultType = resultType;
         ErrorType = errorType;

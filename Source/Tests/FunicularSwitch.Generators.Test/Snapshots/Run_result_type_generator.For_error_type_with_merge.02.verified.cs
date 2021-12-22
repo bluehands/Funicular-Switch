@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+//additional using directives
 
 namespace FunicularSwitch.Test
 {
@@ -95,18 +96,18 @@ namespace FunicularSwitch.Test
         
         public static OperationResult<IReadOnlyCollection<T>> Aggregate<T>(this IEnumerable<OperationResult<T>> results)
         {
-            MyError? errors = default;
+            MyError? aggregated = default;
             var oks = new List<T>();
             foreach (var result in results)
             {
                 result.Match(
                     ok => oks.Add(ok),
-                    error => { errors = errors == null ? error : errors.Merge(error); }
+                    error => { aggregated = aggregated == null ? error : MergeErrors(aggregated, error); }
                 );
             }
 
-            return errors != null
-                ? OperationResult.Error<IReadOnlyCollection<T>>(errors)
+            return aggregated != null
+                ? OperationResult.Error<IReadOnlyCollection<T>>(aggregated)
                 : OperationResult.Ok<IReadOnlyCollection<T>>(oks);
         }
 
@@ -367,12 +368,14 @@ namespace FunicularSwitch.Test
                 }
                 else
                 {
-                    aggregated = aggregated!.Merge(myError);
+                    aggregated = MergeErrors(aggregated!, myError);
                 }
             }
 
             return aggregated;
         }
+
+        static MyError MergeErrors(MyError aggregated, MyError error) => aggregated.Merge(error);
 
         #endregion
     }

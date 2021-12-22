@@ -10,18 +10,8 @@ public class ResultTypeGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
-            "ResultTypeAttribute.g.cs",
-            @"using System;
-namespace FunicularSwitch.Generators
-{
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class ResultTypeAttribute : Attribute
-    {
-        public ResultTypeAttribute(Type errorType) => ErrorType = errorType;
-
-        public Type ErrorType { get; }
-    }
-}"));
+            "Attributes.g.cs",
+            Templates.Templates.StaticCode));
 
         var resultTypeClasses =
             context.SyntaxProvider
@@ -67,13 +57,8 @@ namespace FunicularSwitch.Generators
         {
             foreach (var attributeSyntax in attributeListSyntax.Attributes)
             {
-                var symbol = context.SemanticModel.GetSymbolInfo(attributeSyntax).Symbol;
-                if (symbol is not IMethodSymbol attributeSymbol)
-                    continue;
-
-                var attributeContainingTypeSymbol = attributeSymbol.ContainingType;
-                var attributeFullName = attributeContainingTypeSymbol.ToDisplayString();
-
+                var semanticModel = context.SemanticModel;
+                var attributeFullName = attributeSyntax.GetAttributeFullName(semanticModel);
                 if (attributeFullName == ResultTypeAttribute)
                 {
                     return classDeclarationSyntax;

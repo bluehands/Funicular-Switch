@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using FluentAssertions;
 using FunicularSwitch.Generators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,5 +34,14 @@ namespace FunicularSwitch.Test
     [ResultType(typeof(MyError))]
     abstract partial class OperationResult<T>
     {
+    }
+
+    public static partial class MyErrorExtension
+    {
+        [MergeError]
+        public static string Merge(this string error, string other) => $"{error}{Environment.NewLine}{other}";
+
+        [MergeError]
+        public static MyError Merge(this MyError error, MyError other) => error.Merge(other);
     }
 }

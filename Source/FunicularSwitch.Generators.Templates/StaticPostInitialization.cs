@@ -1,5 +1,4 @@
-﻿//HintName: Attributes.g.cs
-using System;
+﻿using System;
 // ReSharper disable once CheckNamespace
 namespace FunicularSwitch.Generators
 {

@@ -1,5 +1,6 @@
-﻿//HintName: ResultTypeAttribute.g.cs
+﻿//HintName: Attributes.g.cs
 using System;
+// ReSharper disable once CheckNamespace
 namespace FunicularSwitch.Generators
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
@@ -8,5 +9,10 @@ namespace FunicularSwitch.Generators
         public ResultTypeAttribute(Type errorType) => ErrorType = errorType;
 
         public Type ErrorType { get; }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, Inherited = false)]
+    public class MergeErrorAttribute : Attribute
+    {
     }
 }

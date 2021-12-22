@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test
 {
@@ -78,11 +79,9 @@ namespace FunicularSwitch.Test
         public override int GetHashCode() => (int)UnionCase;
     }
 
-    public static class MyErrorExtension
+    public static partial class MyErrorExtension
     {
-        public static T Match<T>(this MyError myError, Func<MyError.Generic_, T> generic,
-            Func<MyError.NotFound_, T> notFound, Func<MyError.NotAuthorized_, T> notAuthorized,
-            Func<MyError.Aggregated_, T> aggregated)
+        public static T Match<T>(this MyError myError, Func<MyError.Generic_, T> generic, Func<MyError.NotFound_, T> notFound, Func<MyError.NotAuthorized_, T> notAuthorized, Func<MyError.Aggregated_, T> aggregated)
         {
             switch (myError.UnionCase)
             {
@@ -99,9 +98,7 @@ namespace FunicularSwitch.Test
             }
         }
 
-        public static async Task<T> Match<T>(this MyError myError, Func<MyError.Generic_, Task<T>> generic,
-            Func<MyError.NotFound_, Task<T>> notFound, Func<MyError.NotAuthorized_, Task<T>> notAuthorized,
-            Func<MyError.Aggregated_, Task<T>> aggregated)
+        public static async Task<T> Match<T>(this MyError myError, Func<MyError.Generic_, Task<T>> generic, Func<MyError.NotFound_, Task<T>> notFound, Func<MyError.NotAuthorized_, Task<T>> notAuthorized, Func<MyError.Aggregated_, Task<T>> aggregated)
         {
             switch (myError.UnionCase)
             {
@@ -118,14 +115,7 @@ namespace FunicularSwitch.Test
             }
         }
 
-        public static async Task<T> Match<T>(this Task<MyError> myError, Func<MyError.Generic_, T> generic,
-            Func<MyError.NotFound_, T> notFound, Func<MyError.NotAuthorized_, T> notAuthorized,
-            Func<MyError.Aggregated_, T> aggregated) =>
-            (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated);
-
-        public static async Task<T> Match<T>(this Task<MyError> myError, Func<MyError.Generic_, Task<T>> generic,
-            Func<MyError.NotFound_, Task<T>> notFound, Func<MyError.NotAuthorized_, Task<T>> notAuthorized,
-            Func<MyError.Aggregated_, Task<T>> aggregated) => await (await myError.ConfigureAwait(false))
-            .Match(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
+        public static async Task<T> Match<T>(this Task<MyError> myError, Func<MyError.Generic_, T> generic, Func<MyError.NotFound_, T> notFound, Func<MyError.NotAuthorized_, T> notAuthorized, Func<MyError.Aggregated_, T> aggregated) => (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated);
+        public static async Task<T> Match<T>(this Task<MyError> myError, Func<MyError.Generic_, Task<T>> generic, Func<MyError.NotFound_, Task<T>> notFound, Func<MyError.NotAuthorized_, Task<T>> notAuthorized, Func<MyError.Aggregated_, Task<T>> aggregated) => await(await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
     }
 }

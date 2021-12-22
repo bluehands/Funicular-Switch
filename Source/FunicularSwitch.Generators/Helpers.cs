@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FunicularSwitch.Generators;
@@ -18,5 +19,24 @@ static class Helpers
         } while (current != null);
 
         throw new InvalidOperationException($"No containing namespace found for node {node}");
+    }
+
+    public static string? GetAttributeFullName(this AttributeSyntax attributeSyntax, SemanticModel semanticModel)
+    {
+        string? attributeFullName = null;
+        var symbol = ModelExtensions.GetSymbolInfo(semanticModel, attributeSyntax).Symbol;
+        if (symbol is IMethodSymbol attributeSymbol)
+        {
+            var attributeContainingTypeSymbol = attributeSymbol.ContainingType;
+            attributeFullName = attributeContainingTypeSymbol.ToDisplayString();
+        }
+
+        return attributeFullName;
+    }
+
+    public static bool HasModifier(this SyntaxTokenList tokens, SyntaxKind syntaxKind)
+    {
+        var token = SyntaxFactory.Token(syntaxKind).Text;
+        return tokens.Any(t => { return t.Text == token; });
     }
 }

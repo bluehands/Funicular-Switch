@@ -34,12 +34,19 @@ static class Generator
         yield return ($"{resultTypeSchema.ResultType.Identifier}.g.cs", Replace(Templates.Templates.ResultType));
 
         if (resultTypeSchema.MergeMethod != null)
-            yield return ($"{resultTypeSchema.ResultType.Identifier}WithMerge.g.cs", Replace(
-                        Templates.Templates.ResultTypeWithMerge
-                            .Replace("//generated aggregate methods", GenerateAggregateMethods(10))
-                            .Replace("//generated aggregate extension methods", GenerateAggregateExtensionMethods(10))
-                    )
-                );
+        {
+            var mergeCode = Replace(
+                Templates.Templates.ResultTypeWithMerge
+                    .Replace("//generated aggregate methods", GenerateAggregateMethods(10))
+                    .Replace("//generated aggregate extension methods", GenerateAggregateExtensionMethods(10))
+            );
+
+            var mergeMethodNamespace = resultTypeSchema.MergeMethod.Match(staticMerge: m => m.Namespace, errorTypeMember: _ => "");
+            if (!string.IsNullOrEmpty(mergeMethodNamespace))
+                mergeCode = mergeCode.Replace("//additional using directives", $"using {mergeMethodNamespace};");
+
+            yield return ($"{resultTypeSchema.ResultType.Identifier}WithMerge.g.cs", mergeCode);
+        }
     }
 
     static string GenerateAggregateExtensionMethods(int maxParameterCount) => Generate(maxParameterCount, MakeAggregateExtensionMethod);

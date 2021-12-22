@@ -25,6 +25,12 @@ public enum MyError
     NotFound,
     Unauthorized
 }
+
+//public static class MyErrorExtension
+//{
+//    [MergeError]
+//    public static MyError MergeErrors(this MyError error, MyError other) => other;
+//}
 ";
             return Verify(code);
         }
@@ -78,6 +84,7 @@ public abstract class MyError
 
     public static MyError Aggregated(IEnumerable<MyError> errors) => new Aggregated_(errors);
 
+    [MergeError]
     public MyError Merge(MyError other) => this is Aggregated_ a
         ? a.Add(other)
         : other is Aggregated_ oa
