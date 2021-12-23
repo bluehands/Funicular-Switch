@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 //additional using directives
 
@@ -84,24 +85,65 @@ namespace FunicularSwitch.Generators.Templates
             if (!errors.Any())
                 errors.Add(onEmpty());
 
-            return MyResult.Error<T>(MergeErrors(errors)!);
+            return MyResult.Error<T>(MergeErrors(errors));
         }
 
-        //depends on FunicularSwitch and merge
+        public static async Task<MyResult<IReadOnlyCollection<T>>> Aggregate<T>(
+            this IEnumerable<Task<MyResult<T>>> results,
+            int maxDegreeOfParallelism)
+            => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
+                .Aggregate();
 
-        //public static async Task<MyResult<IReadOnlyCollection<T>>> Aggregate<T>(
-        //    this IEnumerable<Task<MyResult<T>>> results,
-        //    int maxDegreeOfParallelism)
-        //    => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
-        //        .Aggregate();
+        public static async Task<MyResult<IReadOnlyCollection<T>>> AggregateMany<T>(
+            this IEnumerable<Task<IEnumerable<MyResult<T>>>> results,
+            int maxDegreeOfParallelism)
+            => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
+                .SelectMany(e => e)
+                .Aggregate();
 
-        //public static async Task<MyResult<IReadOnlyCollection<T>>> AggregateMany<T>(
-        //    this IEnumerable<Task<IEnumerable<MyResult<T>>>> results,
-        //    int maxDegreeOfParallelism)
-        //    => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
-        //        .SelectMany(e => e)
-        //        .Aggregate();
+        static async Task<TOut[]> SelectAsync<T, TOut>(this IEnumerable<T> items, Func<T, Task<TOut>> selector, int maxDegreeOfParallelism)
+        {
+            using (var throttler = new SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism))
+            {
+                return await Task.WhenAll(items.Select(async item =>
+                {
+                    // ReSharper disable once AccessToDisposedClosure
+                    await throttler.WaitAsync().ConfigureAwait(false);
+                    try
+                    {
+                        return await selector(item).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        // ReSharper disable once AccessToDisposedClosure
+                        throttler.Release();
+                    }
+                })).ConfigureAwait(false);
+            }
+        }
 
+        public static MyResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Validate<T, MyError> validate) =>
+            candidates
+                .Select(c => c.Validate(validate))
+                .Aggregate();
+
+        public static MyResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<MyResult<T>> candidates,
+            Validate<T, MyError> validate) =>
+            candidates
+                .Bind(items => items.AllOk(validate));
+
+        public static MyResult<T> Validate<T>(this MyResult<T> item, Validate<T, MyError> validate) => item.Bind(i => i.Validate(validate));
+
+        public static MyResult<T> Validate<T>(this T item, Validate<T, MyError> validate)
+        {
+            var errors = validate(item).ToList();
+            return errors.Count > 0 ? MyResult.Error<T>(MergeErrors(errors)) : item;
+        }
+
+        public static MyResult<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T, MyError> validate, Func<MyError> onEmpty) =>
+            candidates
+                .Select(r => r.Validate(validate))
+                .FirstOk(onEmpty);
 
         #region helpers
 

@@ -1,16 +1,15 @@
-﻿#nullable enable
+﻿//HintName: OperationResult.g.cs
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FunicularSwitch;
-using FunicularSwitch.Test;
 
 namespace FunicularSwitch.Test
-
 {
-    abstract partial class OperationResult
+    public abstract partial class OperationResult
     {
         public static OperationResult<T> Error<T>(MyError details) => new OperationResult<T>.Error_(details);
         public static OperationResult<T> Ok<T>(T value) => new OperationResult<T>.Ok_(value);
@@ -69,7 +68,7 @@ namespace FunicularSwitch.Test
         }
     }
 
-    abstract partial class OperationResult<T> : OperationResult, IEnumerable<T>
+    public abstract partial class OperationResult<T> : OperationResult, IEnumerable<T>
     {
         public static OperationResult<T> Error(MyError message) => Error<T>(message);
         public static OperationResult<T> Ok(T value) => Ok<T>(value);
@@ -225,7 +224,7 @@ namespace FunicularSwitch.Test
 
     }
 
-    static partial class OperationResultExtension
+    public static partial class OperationResultExtension
     {
         #region bind
 

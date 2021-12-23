@@ -9,6 +9,32 @@ static class Parser
 {
     public static IEnumerable<ResultTypeSchema> GetResultTypes(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> resultTypeClasses, Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
     {
+        var mergeMethodByErrorTypeName = FindMergeMethods(compilation, reportDiagnostic);
+
+        foreach (var resultTypeClass in resultTypeClasses)
+        {
+            var semanticModel = compilation.GetSemanticModel(resultTypeClass.SyntaxTree);
+
+            var attribute = resultTypeClass.AttributeLists
+                .Select(l => l.Attributes.First(a => a.Name.ToString() == "ResultType"))
+                .First();
+
+            var errorType = TryGetErrorType(attribute, reportDiagnostic);
+            if (errorType == null)
+                continue;
+
+            if (ModelExtensions.GetSymbolInfo(semanticModel, errorType, cancellationToken)
+                    .Symbol is not INamedTypeSymbol errorTypeSymbol)
+                continue;
+
+            mergeMethodByErrorTypeName.TryGetValue(errorTypeSymbol.Name, out var mergeMethod);
+
+            yield return new(resultTypeClass, errorTypeSymbol, mergeMethod);
+        }
+    }
+
+    static Dictionary<string, MergeMethod> FindMergeMethods(Compilation compilation, Action<Diagnostic> reportDiagnostic)
+    {
         var mergeMethodByErrorTypeName = compilation.SyntaxTrees
             .SelectMany(t => FindMergeMethodsWalker.Get(t.GetRoot(), tree => compilation.GetSemanticModel(tree)))
             .Select(methodDeclaration =>
@@ -20,7 +46,8 @@ static class Parser
                         methodDeclaration.ParameterList.Parameters.All(p => p.Type?.ToString() == returnTypeName) &&
                         methodDeclaration.ParameterList.Parameters[0].Modifiers.HasModifier(SyntaxKind.ThisKeyword))
                     {
-                        return MergeMethod.StaticMerge(methodDeclaration.Identifier.ToString(), methodDeclaration.GetContainingNamespace(), returnTypeName);
+                        return MergeMethod.StaticMerge(methodDeclaration.Identifier.ToString(),
+                            methodDeclaration.GetContainingNamespace(), returnTypeName);
                     }
                 }
                 else if (methodDeclaration.ParameterList.Parameters.Count == 1 &&
@@ -44,28 +71,7 @@ static class Parser
                     reportDiagnostic(Diagnostics.AmbiguousMergeMethods(methods.Select(m => m!.MethodName)));
                 return methods[0]!;
             });
-
-
-        foreach (var resultTypeClass in resultTypeClasses)
-        {
-            var semanticModel = compilation.GetSemanticModel(resultTypeClass.SyntaxTree);
-
-            var attribute = resultTypeClass.AttributeLists
-                .Select(l => l.Attributes.First(a => a.Name.ToString() == "ResultType"))
-                .First();
-
-            var errorType = TryGetErrorType(attribute, reportDiagnostic);
-            if (errorType == null)
-                continue;
-
-            if (ModelExtensions.GetSymbolInfo(semanticModel, errorType, cancellationToken)
-                    .Symbol is not INamedTypeSymbol errorTypeSymbol)
-                continue;
-
-            mergeMethodByErrorTypeName.TryGetValue(errorTypeSymbol.Name, out var mergeMethod);
-
-            yield return new(resultTypeClass, errorTypeSymbol, mergeMethod);
-        }
+        return mergeMethodByErrorTypeName;
     }
 
     static TypeSyntax? TryGetErrorType(AttributeSyntax attribute, Action<Diagnostic> reportDiagnostics)

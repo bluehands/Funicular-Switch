@@ -7,6 +7,7 @@ static class Templates
     public static string ResultType => ReadResource("ResultType.cs");
     public static string ResultTypeWithMerge => ReadResource("ResultTypeWithMerge.cs");
     public static string StaticCode => ReadResource("StaticPostInitialization.cs");
+    public static string FunicularTypes => ReadResource("FunicularTypes.cs");
 
     static string ReadResource(string filename)
     {

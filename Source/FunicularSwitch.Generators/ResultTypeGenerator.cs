@@ -38,6 +38,9 @@ public class ResultTypeGenerator : IIncrementalGenerator
 
         var generated = resultTypeSchemata.SelectMany(r => Generator.Emit(r, context.ReportDiagnostic, context.CancellationToken)).ToImmutableArray();
 
+        if (compilation.ReferencedAssemblyNames.All(n => n.Name != "FunicularSwitch"))
+            context.AddSource("FunicularTypes.g.cs", Templates.Templates.FunicularTypes);
+
         foreach (var (filename, source) in generated) context.AddSource(filename, source);
     }
 

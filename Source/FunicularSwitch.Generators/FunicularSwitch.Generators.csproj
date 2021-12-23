@@ -15,12 +15,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\FunicularTypes.cs" Link="Templates\FunicularTypes.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\StaticPostInitialization.cs" Link="Templates\StaticPostInitialization.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultType.cs" Link="Templates\ResultType.cs" />
-    <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeWithFunicularSwitch.cs" Link="Templates\ResultTypeWithFunicularSwitch.cs" />
     <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeWithMerge.cs" Link="Templates\ResultTypeWithMerge.cs" />
   </ItemGroup>
 

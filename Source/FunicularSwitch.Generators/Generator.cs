@@ -37,7 +37,7 @@ static class Generator
             return code;
         }
 
-        var additionalNamespaces = new List<string>();
+        var additionalNamespaces = new List<string> {"FunicularSwitch"};
         if (errorTypeNamespace != resultTypeNamespace)
             additionalNamespaces.Add(errorTypeNamespace);
 

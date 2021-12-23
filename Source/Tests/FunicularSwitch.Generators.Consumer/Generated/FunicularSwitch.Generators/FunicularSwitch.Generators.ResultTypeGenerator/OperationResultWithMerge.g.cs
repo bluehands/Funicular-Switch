@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FunicularSwitch;
-using FunicularSwitch.Test;
+using FunicularSwitch.Generators.Consumer;
 
-namespace FunicularSwitch.Test
+namespace FunicularSwitch.Generators.Consumer
 
 {
     abstract partial class OperationResult
