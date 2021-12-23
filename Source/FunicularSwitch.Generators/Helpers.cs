@@ -51,6 +51,23 @@ static class Helpers
     public static bool HasModifier(this SyntaxTokenList tokens, SyntaxKind syntaxKind)
     {
         var token = SyntaxFactory.Token(syntaxKind).Text;
-        return tokens.Any(t => { return t.Text == token; });
+        return tokens.Any(t => t.Text == token);
+    }
+
+    public static string GetFullTypeName(this Compilation compilation, SyntaxNode typeSyntax)
+    {
+        var semanticModel = compilation.GetSemanticModel(typeSyntax.SyntaxTree);
+        return GetFullTypeName(semanticModel, typeSyntax);
+    }
+
+    public static string GetFullTypeName(this SemanticModel semanticModel, SyntaxNode typeSyntax)
+    {
+        var typeInfo = semanticModel.GetTypeInfo(typeSyntax);
+        return typeInfo.Type?.ToDisplayString(
+            new SymbolDisplayFormat(
+                typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+                miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes
+            )
+        ) ?? typeSyntax.ToString();
     }
 }

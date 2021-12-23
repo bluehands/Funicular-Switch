@@ -1,16 +1,19 @@
-﻿#nullable enable
+﻿//HintName: OperationResultWithMerge.g.cs
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FunicularSwitch;
-using FunicularSwitch.Test;
+using FunicularSwitch.Test.Errors;
+using FunicularSwitch.Test.Extensions
+;
 
 namespace FunicularSwitch.Test
 
 {
-    abstract partial class OperationResult
+    public abstract partial class OperationResult
     {
         
         public static OperationResult<(T1, T2)> Aggregate<T1, T2>(OperationResult<T1> r1, OperationResult<T2> r2) => OperationResultExtension.Aggregate(r1, r2);
@@ -78,7 +81,7 @@ namespace FunicularSwitch.Test
         public static Task<OperationResult<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Task<OperationResult<T6>> r6, Task<OperationResult<T7>> r7, Task<OperationResult<T8>> r8, Task<OperationResult<T9>> r9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9, combine);
     }
 
-    static partial class OperationResultExtension
+    public static partial class OperationResultExtension
     {
         public static OperationResult<IReadOnlyCollection<T1>> Map<T, T1>(this IEnumerable<OperationResult<T>> results,
             Func<T, T1> map) =>
@@ -146,7 +149,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -170,7 +173,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -194,7 +197,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -218,7 +221,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -242,7 +245,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -266,7 +269,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6, r7 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -290,7 +293,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6, r7, r8 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -314,7 +317,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6, r7, r8, r9 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         

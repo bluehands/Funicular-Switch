@@ -80,6 +80,10 @@ namespace FunicularSwitch.Test
 
         public static bool operator !(OperationResult<T> result) => result.IsError;
 
+        public static bool operator ==(OperationResult<T>? left, OperationResult<T>? right) => Equals(left, right);
+
+        public static bool operator !=(OperationResult<T>? left, OperationResult<T>? right) => !Equals(left, right);
+
         public void Match(Action<T> ok, Action<MyError>? error = null) => Match(
             v =>
             {

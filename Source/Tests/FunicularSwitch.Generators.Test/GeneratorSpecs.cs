@@ -26,10 +26,18 @@ public enum MyError
     Unauthorized
 }
 
+[ResultType(errorType: typeof(string))]
+public abstract partial class Result<T>
+{
+}
+
 public static class MyErrorExtension
 {
     [MergeError]
     public static MyError MergeErrors(this MyError error, MyError other) => other;
+
+    [MergeError]
+    public static string MergeErrors(this string error, string other) => $""{error}{System.Environment.NewLine}{other}"";
 }
 ";
             return Verify(code);

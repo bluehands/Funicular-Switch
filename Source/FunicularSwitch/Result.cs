@@ -99,6 +99,10 @@ namespace FunicularSwitch
         public static bool operator true(Result<T> result) => result.IsOk;
         public static bool operator false(Result<T> result) => result.IsError;
 
+        public static bool operator ==(Result<T>? left, Result<T>? right) => Equals(left, right);
+
+        public static bool operator !=(Result<T>? left, Result<T>? right) => !Equals(left, right);
+
         public static bool operator !(Result<T> result) => result.IsError;
 
         public void Match(Action<T> ok, Action<string>? error = null) => Match(

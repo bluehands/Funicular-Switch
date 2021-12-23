@@ -23,11 +23,12 @@ static class Parser
             if (errorType == null)
                 continue;
 
-            if (ModelExtensions.GetSymbolInfo(semanticModel, errorType, cancellationToken)
-                    .Symbol is not INamedTypeSymbol errorTypeSymbol)
+            if (semanticModel.GetSymbolInfo(errorType, cancellationToken).Symbol is not INamedTypeSymbol errorTypeSymbol)
                 continue;
 
-            mergeMethodByErrorTypeName.TryGetValue(errorTypeSymbol.Name, out var mergeMethod);
+            var fullErrorTypeName = semanticModel.GetFullTypeName(errorType);
+
+            mergeMethodByErrorTypeName.TryGetValue(fullErrorTypeName, out var mergeMethod);
 
             yield return new(resultTypeClass, errorTypeSymbol, mergeMethod);
         }
@@ -39,11 +40,13 @@ static class Parser
             .SelectMany(t => FindMergeMethodsWalker.Get(t.GetRoot(), tree => compilation.GetSemanticModel(tree)))
             .Select(methodDeclaration =>
             {
-                var returnTypeName = methodDeclaration.ReturnType.ToString();
+                var semanticModel = compilation.GetSemanticModel(methodDeclaration.SyntaxTree);
+                var returnTypeName = semanticModel.GetFullTypeName(methodDeclaration.ReturnType);
+
                 if (methodDeclaration.Modifiers.HasModifier(SyntaxKind.StaticKeyword))
                 {
                     if (methodDeclaration.ParameterList.Parameters.Count == 2 &&
-                        methodDeclaration.ParameterList.Parameters.All(p => p.Type?.ToString() == returnTypeName) &&
+                        methodDeclaration.ParameterList.Parameters.All(p => semanticModel.GetFullTypeName(p.Type!) == returnTypeName) &&
                         methodDeclaration.ParameterList.Parameters[0].Modifiers.HasModifier(SyntaxKind.ThisKeyword))
                     {
                         return MergeMethod.StaticMerge(methodDeclaration.Identifier.ToString(),
@@ -52,18 +55,19 @@ static class Parser
                 }
                 else if (methodDeclaration.ParameterList.Parameters.Count == 1 &&
                          methodDeclaration.Parent is ClassDeclarationSyntax c &&
-                         c.Identifier.ToString() == returnTypeName &&
-                         methodDeclaration.ParameterList.Parameters.All(p => p.Type?.ToString() == returnTypeName))
+                         //TODO: get correct name with visitor or from semantic model
+                         $"{c.GetContainingNamespace()}.{c.Identifier}" == returnTypeName &&
+                         methodDeclaration.ParameterList.Parameters.All(p => semanticModel.GetFullTypeName(p.Type!) == returnTypeName))
                 {
                     return MergeMethod.ErrorTypeMember(methodDeclaration.Identifier.ToString(), returnTypeName);
                 }
 
                 reportDiagnostic(Diagnostics.InvalidMergeMethod(
-                    $"Method {methodDeclaration.Identifier.ToString()}", methodDeclaration.GetLocation()));
+                    $"Method {methodDeclaration.Identifier}", methodDeclaration.GetLocation()));
                 return null;
             })
             .Where(m => m != null)
-            .GroupBy(m => m!.ErrorTypeName)
+            .GroupBy(m => m!.FullErrorTypeName)
             .ToDictionary(g => g.Key, g =>
             {
                 var methods = g.ToList();
@@ -122,12 +126,12 @@ public abstract class MergeMethod
     public static MergeMethod ErrorTypeMember(string methodName, string errorTypeName) => new ErrorTypeMember_(methodName, errorTypeName);
     public static MergeMethod StaticMerge(string methodName, string @namespace, string errorTypeName) => new StaticMerge_(methodName, @namespace, errorTypeName);
 
-    public string ErrorTypeName { get; }
+    public string FullErrorTypeName { get; }
     public string MethodName { get; }
 
     public class ErrorTypeMember_ : MergeMethod
     {
-        public ErrorTypeMember_(string methodName, string errorTypeName) : base(UnionCases.ErrorTypeMember, methodName, errorTypeName)
+        public ErrorTypeMember_(string methodName, string fullErrorTypeName) : base(UnionCases.ErrorTypeMember, methodName, fullErrorTypeName)
         {
         }
     }
@@ -136,7 +140,7 @@ public abstract class MergeMethod
     {
         public string Namespace { get; }
 
-        public StaticMerge_(string methodName, string @namespace, string errorTypeName) : base(UnionCases.StaticMerge, methodName, errorTypeName) => Namespace = @namespace;
+        public StaticMerge_(string methodName, string @namespace, string fullErrorTypeName) : base(UnionCases.StaticMerge, methodName, fullErrorTypeName) => Namespace = @namespace;
     }
 
     internal enum UnionCases
@@ -146,11 +150,11 @@ public abstract class MergeMethod
     }
 
     internal UnionCases UnionCase { get; }
-    MergeMethod(UnionCases unionCase, string methodName, string errorTypeName)
+    MergeMethod(UnionCases unionCase, string methodName, string fullErrorTypeName)
     {
         UnionCase = unionCase;
         MethodName = methodName;
-        ErrorTypeName = errorTypeName;
+        FullErrorTypeName = fullErrorTypeName;
     }
 
     public override string ToString() => Enum.GetName(typeof(UnionCases), UnionCase) ?? UnionCase.ToString();
@@ -196,5 +200,5 @@ public static class MergeMethodExtension
     }
 
     public static async Task<T> Match<T>(this Task<MergeMethod> mergeMethod, Func<MergeMethod.ErrorTypeMember_, T> errorTypeMember, Func<MergeMethod.StaticMerge_, T> staticMerge) => (await mergeMethod.ConfigureAwait(false)).Match(errorTypeMember, staticMerge);
-    public static async Task<T> Match<T>(this Task<MergeMethod> mergeMethod, Func<MergeMethod.ErrorTypeMember_, Task<T>> errorTypeMember, Func<MergeMethod.StaticMerge_, Task<T>> staticMerge) => await(await mergeMethod.ConfigureAwait(false)).Match(errorTypeMember, staticMerge).ConfigureAwait(false);
+    public static async Task<T> Match<T>(this Task<MergeMethod> mergeMethod, Func<MergeMethod.ErrorTypeMember_, Task<T>> errorTypeMember, Func<MergeMethod.StaticMerge_, Task<T>> staticMerge) => await (await mergeMethod.ConfigureAwait(false)).Match(errorTypeMember, staticMerge).ConfigureAwait(false);
 }

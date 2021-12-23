@@ -79,6 +79,10 @@ namespace FunicularSwitch.Generators.Templates
 
         public static bool operator !(MyResult<T> result) => result.IsError;
 
+        public static bool operator ==(MyResult<T>? left, MyResult<T>? right) => Equals(left, right);
+
+        public static bool operator !=(MyResult<T>? left, MyResult<T>? right) => !Equals(left, right);
+
         public void Match(Action<T> ok, Action<MyError>? error = null) => Match(
             v =>
             {

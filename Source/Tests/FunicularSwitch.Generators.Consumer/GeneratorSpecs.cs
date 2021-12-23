@@ -51,6 +51,17 @@ namespace FunicularSwitch.Generators.Consumer
                 }
             }).Should().BeTrue();
         }
+
+        [TestMethod]
+        public void Then_assertion()
+        {
+            
+        }
+    }
+
+    [ResultType(typeof(string))]
+    public abstract partial class Result<T>
+    {
     }
 
     [ResultType(typeof(MyError))]
@@ -62,6 +73,9 @@ namespace FunicularSwitch.Generators.Consumer
     {
         [MergeError]
         public static MyError MergeErrors(this MyError error, MyError other) => error.Merge(other);
+
+        [MergeError]
+        public static string MergeErrors(this string error, string other) => $"{error}{Environment.NewLine}{other}";
     }
 
     public abstract class MyError
