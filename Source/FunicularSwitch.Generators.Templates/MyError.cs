@@ -14,7 +14,7 @@ namespace FunicularSwitch.Generators.Templates
 
         public static MyError Aggregated(IEnumerable<MyError> errors) => new Aggregated_(errors);
 
-        public MyError Merge(MyError other) => this is Aggregated_ a
+        public MyError Merge__MemberOrExtensionMethod(MyError other) => this is Aggregated_ a
             ? a.Add(other)
             : other is Aggregated_ oa
                 ? oa.Add(this)

@@ -26,11 +26,11 @@ public enum MyError
     Unauthorized
 }
 
-//public static class MyErrorExtension
-//{
-//    [MergeError]
-//    public static MyError MergeErrors(this MyError error, MyError other) => other;
-//}
+public static class MyErrorExtension
+{
+    [MergeError]
+    public static MyError MergeErrors(this MyError error, MyError other) => other;
+}
 ";
             return Verify(code);
         }

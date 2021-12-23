@@ -14,7 +14,8 @@ static class Generator
     {
         var @namespace = resultTypeSchema.ResultType.GetContainingNamespace();
         var publicModifier = resultTypeSchema.ResultType.Modifiers.FirstOrDefault(t => t.Text == SyntaxFactory.Token(SyntaxKind.PublicKeyword).Text);
-        var resultTypeName = resultTypeSchema.ResultType.Identifier.ToFullString();
+        var resultTypeName = resultTypeSchema.ResultType.Identifier.ToString();
+        var isValueType = resultTypeSchema.ErrorType.IsValueType;
 
         string Replace(string code)
         {
@@ -38,7 +39,8 @@ static class Generator
             var mergeCode = Replace(
                 Templates.Templates.ResultTypeWithMerge
                     .Replace("//generated aggregate methods", GenerateAggregateMethods(10))
-                    .Replace("//generated aggregate extension methods", GenerateAggregateExtensionMethods(10))
+                    .Replace("//generated aggregate extension methods", GenerateAggregateExtensionMethods(10, isValueType))
+                    .Replace("Merge__MemberOrExtensionMethod", resultTypeSchema.MergeMethod.MethodName)
             );
 
             var mergeMethodNamespace = resultTypeSchema.MergeMethod.Match(staticMerge: m => m.Namespace, errorTypeMember: _ => "");
@@ -49,7 +51,7 @@ static class Generator
         }
     }
 
-    static string GenerateAggregateExtensionMethods(int maxParameterCount) => Generate(maxParameterCount, MakeAggregateExtensionMethod);
+    static string GenerateAggregateExtensionMethods(int maxParameterCount, bool isValueType) => Generate(maxParameterCount, i => MakeAggregateExtensionMethod(i, isValueType));
     static string GenerateAggregateMethods(int maxParameterCount) => Generate(maxParameterCount, GenerateAggregateMethod);
         
 
@@ -59,7 +61,7 @@ static class Generator
             .Select(generateMethods)
             .ToSeparatedString(Environment.NewLine);
 
-    static string MakeAggregateExtensionMethod(int typeParameterCount)
+    static string MakeAggregateExtensionMethod(int typeParameterCount, bool isValueType)
     {
         var range = Enumerable.Range(1, typeParameterCount).ToImmutableArray();
         string Expand(Func<int, string> strAtIndex, string separator = ", ") => range.Select(strAtIndex).ToSeparatedString(separator); 
@@ -90,7 +92,7 @@ static class Generator
             return MyResult.Error<TResult>(
                 MergeErrors(new MyResult[] {{ {resultArrayElements} }}
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!{(isValueType ? ".Value" : "")})
                 )!);
         }}
         

@@ -32,17 +32,22 @@ namespace FunicularSwitch.Generators.Templates
         
         public static MyResult<IReadOnlyCollection<T>> Aggregate<T>(this IEnumerable<MyResult<T>> results)
         {
-            MyError? aggregated = default;
+            var isError = false;
+            MyError aggregated = default!;
             var oks = new List<T>();
             foreach (var result in results)
             {
                 result.Match(
                     ok => oks.Add(ok),
-                    error => { aggregated = aggregated == null ? error : MergeErrors(aggregated, error); }
+                    error =>
+                    {
+                        aggregated = !isError ? error : MergeErrors(aggregated, error);
+                        isError = true;
+                    }
                 );
             }
 
-            return aggregated != null
+            return isError
                 ? MyResult.Error<IReadOnlyCollection<T>>(aggregated)
                 : MyResult.Ok<IReadOnlyCollection<T>>(oks);
         }
@@ -70,8 +75,8 @@ namespace FunicularSwitch.Generators.Templates
             var errors = new List<MyError>();
             foreach (var result in results)
             {
-                if (result.IsError)
-                    errors.Add(result.GetErrorOrDefault()!);
+                if (result is MyResult<T>.Error_ e)
+                    errors.Add(e.Details);
                 else
                     return result;
             }
@@ -100,10 +105,10 @@ namespace FunicularSwitch.Generators.Templates
 
         #region helpers
 
-        static MyError? MergeErrors(IEnumerable<MyError> errors)
+        static MyError MergeErrors(IEnumerable<MyError> errors)
         {
             var first = true;
-            MyError? aggregated = default;
+            MyError aggregated = default!;
             foreach (var myError in errors)
             {
                 if (first)
@@ -113,14 +118,14 @@ namespace FunicularSwitch.Generators.Templates
                 }
                 else
                 {
-                    aggregated = MergeErrors(aggregated!, myError);
+                    aggregated = MergeErrors(aggregated, myError);
                 }
             }
 
             return aggregated;
         }
 
-        static MyError MergeErrors(MyError aggregated, MyError error) => aggregated.Merge(error);
+        static MyError MergeErrors(MyError aggregated, MyError error) => aggregated.Merge__MemberOrExtensionMethod(error);
 
         #endregion
     }

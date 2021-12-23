@@ -97,17 +97,22 @@ namespace FunicularSwitch.Test
         
         public static OperationResult<IReadOnlyCollection<T>> Aggregate<T>(this IEnumerable<OperationResult<T>> results)
         {
-            MyError? aggregated = default;
+            var isError = false;
+            MyError aggregated = default!;
             var oks = new List<T>();
             foreach (var result in results)
             {
                 result.Match(
                     ok => oks.Add(ok),
-                    error => { aggregated = aggregated == null ? error : MergeErrors(aggregated, error); }
+                    error =>
+                    {
+                        aggregated = !isError ? error : MergeErrors(aggregated, error);
+                        isError = true;
+                    }
                 );
             }
 
-            return aggregated != null
+            return isError
                 ? OperationResult.Error<IReadOnlyCollection<T>>(aggregated)
                 : OperationResult.Ok<IReadOnlyCollection<T>>(oks);
         }
@@ -140,7 +145,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -164,7 +169,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -188,7 +193,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -212,7 +217,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -236,7 +241,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -260,7 +265,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6, r7 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -284,7 +289,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6, r7, r8 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -308,7 +313,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6, r7, r8, r9 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!)
+                    .Select(r => r.GetErrorOrDefault()!.Value)
                 )!);
         }
         
@@ -326,8 +331,8 @@ namespace FunicularSwitch.Test
             var errors = new List<MyError>();
             foreach (var result in results)
             {
-                if (result.IsError)
-                    errors.Add(result.GetErrorOrDefault()!);
+                if (result is OperationResult<T>.Error_ e)
+                    errors.Add(e.Details);
                 else
                     return result;
             }
@@ -356,10 +361,10 @@ namespace FunicularSwitch.Test
 
         #region helpers
 
-        static MyError? MergeErrors(IEnumerable<MyError> errors)
+        static MyError MergeErrors(IEnumerable<MyError> errors)
         {
             var first = true;
-            MyError? aggregated = default;
+            MyError aggregated = default!;
             foreach (var myError in errors)
             {
                 if (first)
@@ -369,7 +374,7 @@ namespace FunicularSwitch.Test
                 }
                 else
                 {
-                    aggregated = MergeErrors(aggregated!, myError);
+                    aggregated = MergeErrors(aggregated, myError);
                 }
             }
 
