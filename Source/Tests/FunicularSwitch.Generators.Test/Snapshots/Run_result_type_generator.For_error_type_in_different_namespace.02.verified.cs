@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FunicularSwitch;
+using FunicularSwitch.Test.Errors;
 
 namespace FunicularSwitch.Test
+
 {
     public abstract partial class OperationResult
     {

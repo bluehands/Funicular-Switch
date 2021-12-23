@@ -21,4 +21,8 @@
     <ProjectReference Include="..\..\FunicularSwitch.Generators\FunicularSwitch.Generators.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Snapshots\" />
+  </ItemGroup>
+
 </Project>
