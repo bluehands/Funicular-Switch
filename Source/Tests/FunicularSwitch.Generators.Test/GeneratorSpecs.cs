@@ -35,6 +35,42 @@ public static class MyErrorExtension
             return Verify(code);
         }
 
+        [TestMethod]
+        public Task For_error_type_in_different_namespace()
+        {
+            var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test
+{
+    [ResultType(errorType: typeof(FunicularSwitch.Test.Errors.MyError))]
+    public abstract partial class OperationResult<T>
+    {
+    }
+}
+
+namespace FunicularSwitch.Test.Errors
+{
+    public enum MyError 
+    {
+        Generic,
+        NotFound,
+        Unauthorized
+    }
+}
+
+namespace FunicularSwitch.Test.Extensions
+{
+    public static class MyErrorExtension
+    {
+        [MergeError]
+        public static FunicularSwitch.Test.Errors.MyError MergeErrors(this FunicularSwitch.Test.Errors.MyError error, FunicularSwitch.Test.Errors.MyError other) => other;
+    }
+}
+";
+            return Verify(code);
+        }
+
 
         [TestMethod]
         public Task For_internal_result_type()

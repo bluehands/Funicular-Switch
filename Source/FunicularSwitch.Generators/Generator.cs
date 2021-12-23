@@ -12,15 +12,16 @@ static class Generator
 
     public static IEnumerable<(string filename, string source)> Emit(ResultTypeSchema resultTypeSchema, Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
     {
-        var @namespace = resultTypeSchema.ResultType.GetContainingNamespace();
+        var resultTypeNamespace = resultTypeSchema.ResultType.GetContainingNamespace();
         var publicModifier = resultTypeSchema.ResultType.Modifiers.FirstOrDefault(t => t.Text == SyntaxFactory.Token(SyntaxKind.PublicKeyword).Text);
         var resultTypeName = resultTypeSchema.ResultType.Identifier.ToString();
         var isValueType = resultTypeSchema.ErrorType.IsValueType;
+        var errorTypeNamespace = resultTypeSchema.ErrorType.GetFullNamespace();
 
-        string Replace(string code)
+        string Replace(string code, IReadOnlyCollection<string> additionalNamespaces)
         {
             code = code
-                .Replace($"namespace {TemplateNamespace}", $"namespace {@namespace}")
+                .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")
                 .Replace(TemplateResultTypeName, resultTypeName)
                 .Replace(TemplateErrorTypeName, resultTypeSchema.ErrorType.Name);
 
@@ -29,23 +30,32 @@ static class Generator
                     .Replace("public abstract partial", "abstract partial")
                     .Replace("public static partial", "static partial");
 
+            if (additionalNamespaces.Count > 0)
+                code = code
+                    .Replace("//additional using directives", additionalNamespaces.Select(a => $"using {a};").ToSeparatedString(Environment.NewLine));
+
             return code;
         }
 
-        yield return ($"{resultTypeSchema.ResultType.Identifier}.g.cs", Replace(Templates.Templates.ResultType));
+        var additionalNamespaces = new List<string>();
+        if (errorTypeNamespace != resultTypeNamespace)
+            additionalNamespaces.Add(errorTypeNamespace);
+
+        yield return ($"{resultTypeSchema.ResultType.Identifier}.g.cs", Replace(Templates.Templates.ResultType, additionalNamespaces));
 
         if (resultTypeSchema.MergeMethod != null)
         {
+            var mergeMethodNamespace = resultTypeSchema.MergeMethod.Match(staticMerge: m => m.Namespace, errorTypeMember: _ => "");
+            if (!string.IsNullOrEmpty(mergeMethodNamespace) && mergeMethodNamespace != resultTypeNamespace)
+                additionalNamespaces.Add(mergeMethodNamespace);
+
             var mergeCode = Replace(
                 Templates.Templates.ResultTypeWithMerge
                     .Replace("//generated aggregate methods", GenerateAggregateMethods(10))
                     .Replace("//generated aggregate extension methods", GenerateAggregateExtensionMethods(10, isValueType))
-                    .Replace("Merge__MemberOrExtensionMethod", resultTypeSchema.MergeMethod.MethodName)
+                    .Replace("Merge__MemberOrExtensionMethod", resultTypeSchema.MergeMethod.MethodName),
+                additionalNamespaces
             );
-
-            var mergeMethodNamespace = resultTypeSchema.MergeMethod.Match(staticMerge: m => m.Namespace, errorTypeMember: _ => "");
-            if (!string.IsNullOrEmpty(mergeMethodNamespace))
-                mergeCode = mergeCode.Replace("//additional using directives", $"using {mergeMethodNamespace};");
 
             yield return ($"{resultTypeSchema.ResultType.Identifier}WithMerge.g.cs", mergeCode);
         }
@@ -125,6 +135,9 @@ static class Generator
 
         public static Task<MyResult<TResult>> Aggregate<{typeParameters}, TResult>({taskParameterDeclarations}, Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);";
     }
+}
 
-    static string ToSeparatedString<T>(this IEnumerable<T> items, string separator = ", ") => string.Join(separator, items);
+static class StringExtension
+{
+    public static string ToSeparatedString<T>(this IEnumerable<T> items, string separator = ", ") => string.Join(separator, items);
 }

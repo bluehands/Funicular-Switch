@@ -21,6 +21,20 @@ static class Helpers
         throw new InvalidOperationException($"No containing namespace found for node {node}");
     }
 
+    public static string GetFullNamespace(this INamedTypeSymbol namedType)
+    {
+        var parentNamespaces = new List<string>();
+        var current = namedType.ContainingNamespace;
+        do
+        {
+            parentNamespaces.Add(current!.Name);
+            current = current.ContainingNamespace;
+        } while (!string.IsNullOrEmpty(current?.Name));
+
+        parentNamespaces.Reverse();
+        return parentNamespaces.ToSeparatedString(".");
+    }
+
     public static string? GetAttributeFullName(this AttributeSyntax attributeSyntax, SemanticModel semanticModel)
     {
         string? attributeFullName = null;
