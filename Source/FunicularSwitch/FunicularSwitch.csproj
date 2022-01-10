@@ -1,64 +1,64 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
+	<PropertyGroup>
 
-    <!--General settings-->
+		<!--General settings-->
 
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <IsPackable>true</IsPackable>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<IsPackable>true</IsPackable>
 
-    <VersionSuffixLocal />
-    <!--When variable is set we are building a prerelease package-->
-    <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
+		<VersionSuffixLocal />
+		<!--When variable is set we are building a prerelease package-->
+		<VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
 			$(VersionSuffix)
 		</VersionSuffixLocal>
 
-    <!--#region adapt versions here-->
-    <MajorVersion>3</MajorVersion>
-    <MinorAndPatchVersion>0.2</MinorAndPatchVersion>
-    <!--#endregion-->
+		<!--#region adapt versions here-->
+		<MajorVersion>3</MajorVersion>
+		<MinorAndPatchVersion>0.2</MinorAndPatchVersion>
+		<!--#endregion-->
 
-    <AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
-    <Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
-    <FileVersion>$(Version)</FileVersion>
-    <PackageVersion>$(Version)</PackageVersion>
-    <PackageId>FunicularSwitch</PackageId>
+		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
+		<Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
+		<FileVersion>$(Version)</FileVersion>
+		<PackageVersion>$(Version)</PackageVersion>
+		<PackageId>FunicularSwitch</PackageId>
 
-    <!-- Descriptions and information-->
-    <Titel>FunicularSwitch</Titel>
-    <Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
-    <PackageDescription>Funicular-Switch is a lightweight C# port of F# result and option types</PackageDescription>
-    <Copyright>Copyright 2001-2021 Bluehands GmbH &amp; C.ommunication KG</Copyright>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>FunicularSwitch.png</PackageIcon>
-    <PackageTags>F# result, Result, Option, Match, Map, Bind, Railway oriented programming, Railway oriented, Railway, Pipeline</PackageTags>
-    <RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
-    <RepositoryBranch>master</RepositoryBranch>
+		<!-- Descriptions and information-->
+		<Titel>FunicularSwitch</Titel>
+		<Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
+		<PackageDescription>Funicular-Switch is a lightweight C# port of F# result and option types</PackageDescription>
+		<Copyright>Copyright 2022 Bluehands GmbH &amp; C.ommunication KG</Copyright>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>FunicularSwitch.png</PackageIcon>
+		<PackageTags>F# Result, Result, Option, Match, Map, Bind, Railway oriented programming, Railway oriented, Railway, Pipeline</PackageTags>
+		<RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+		<RepositoryBranch>main</RepositoryBranch>
 
-    <!-- Package specific settings -->
-    <PackageOutputPath>$(OutputPath)</PackageOutputPath>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <ContentTargetFolders>content</ContentTargetFolders>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>FunicularSwitch.snk</AssemblyOriginatorKeyFile>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-  </PropertyGroup>
+		<!-- Package specific settings -->
+		<PackageOutputPath>$(OutputPath)</PackageOutputPath>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<ContentTargetFolders>content</ContentTargetFolders>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>FunicularSwitch.snk</AssemblyOriginatorKeyFile>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	</PropertyGroup>
 
-  <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
-    <ReadLinesFromFile File="../RELEASE-NOTES.txt">
-      <Output TaskParameter="Lines" ItemName="ReleaseNoteLines" />
-    </ReadLinesFromFile>
-    <PropertyGroup>
-      <PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
-    </PropertyGroup>
-  </Target>
+	<Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
+		<ReadLinesFromFile File="../RELEASE-NOTES.txt">
+			<Output TaskParameter="Lines" ItemName="ReleaseNoteLines" />
+		</ReadLinesFromFile>
+		<PropertyGroup>
+			<PackageReleaseNotes>@(ReleaseNoteLines, '%0a')</PackageReleaseNotes>
+		</PropertyGroup>
+	</Target>
 
-  <ItemGroup>
-    <None Include="Content\FunicularSwitch.png" Pack="true" PackagePath="" />
-    <None Include="Content\LICENSE.txt" Pack="true" PackagePath="" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="Content\FunicularSwitch.png" Pack="true" PackagePath="" />
+		<None Include="Content\LICENSE.txt" Pack="true" PackagePath="" />
+	</ItemGroup>
 </Project>

@@ -69,6 +69,8 @@ namespace FunicularSwitch.Generators.Templates
 
     public abstract partial class MyResult<T> : MyResult, IEnumerable<T>
     {
+        public override int GetHashCode() => throw new NotImplementedException();
+
         public static MyResult<T> Error(MyError message) => Error<T>(message);
         public static MyResult<T> Ok(T value) => Ok<T>(value);
 
@@ -78,6 +80,22 @@ namespace FunicularSwitch.Generators.Templates
         public static bool operator false(MyResult<T> result) => result.IsError;
 
         public static bool operator !(MyResult<T> result) => result.IsError;
+
+        //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals
+        bool Equals(MyResult<T> other) => this switch
+        {
+            Ok_ ok => ok.Equals(other),
+            Error_ error => error.Equals(other),
+            _ => Equals(this, other)
+        };
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((MyResult<T>)obj);
+        }
 
         public static bool operator ==(MyResult<T>? left, MyResult<T>? right) => Equals(left, right);
 
