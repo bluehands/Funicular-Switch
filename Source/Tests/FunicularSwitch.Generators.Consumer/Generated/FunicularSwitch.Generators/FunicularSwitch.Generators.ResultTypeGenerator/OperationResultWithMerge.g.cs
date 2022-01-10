@@ -99,7 +99,7 @@ namespace FunicularSwitch.Generators.Consumer
         public static OperationResult<IReadOnlyCollection<T>> Aggregate<T>(this IEnumerable<OperationResult<T>> results)
         {
             var isError = false;
-            MyError aggregated = default!;
+            Error aggregated = default!;
             var oks = new List<T>();
             foreach (var result in results)
             {
@@ -327,9 +327,9 @@ namespace FunicularSwitch.Generators.Consumer
             return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, r5.Result, r6.Result, r7.Result, r8.Result, r9.Result, combine);
         }
 
-        public static OperationResult<T> FirstOk<T>(this IEnumerable<OperationResult<T>> results, Func<MyError> onEmpty)
+        public static OperationResult<T> FirstOk<T>(this IEnumerable<OperationResult<T>> results, Func<Error> onEmpty)
         {
-            var errors = new List<MyError>();
+            var errors = new List<Error>();
             foreach (var result in results)
             {
                 if (result is OperationResult<T>.Error_ e)
@@ -378,35 +378,35 @@ namespace FunicularSwitch.Generators.Consumer
             }
         }
 
-        public static OperationResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Validate<T, MyError> validate) =>
+        public static OperationResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Validate<T, Error> validate) =>
             candidates
                 .Select(c => c.Validate(validate))
                 .Aggregate();
 
         public static OperationResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<OperationResult<T>> candidates,
-            Validate<T, MyError> validate) =>
+            Validate<T, Error> validate) =>
             candidates
                 .Bind(items => items.AllOk(validate));
 
-        public static OperationResult<T> Validate<T>(this OperationResult<T> item, Validate<T, MyError> validate) => item.Bind(i => i.Validate(validate));
+        public static OperationResult<T> Validate<T>(this OperationResult<T> item, Validate<T, Error> validate) => item.Bind(i => i.Validate(validate));
 
-        public static OperationResult<T> Validate<T>(this T item, Validate<T, MyError> validate)
+        public static OperationResult<T> Validate<T>(this T item, Validate<T, Error> validate)
         {
             var errors = validate(item).ToList();
             return errors.Count > 0 ? OperationResult.Error<T>(MergeErrors(errors)) : item;
         }
 
-        public static OperationResult<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T, MyError> validate, Func<MyError> onEmpty) =>
+        public static OperationResult<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T, Error> validate, Func<Error> onEmpty) =>
             candidates
                 .Select(r => r.Validate(validate))
                 .FirstOk(onEmpty);
 
         #region helpers
 
-        static MyError MergeErrors(IEnumerable<MyError> errors)
+        static Error MergeErrors(IEnumerable<Error> errors)
         {
             var first = true;
-            MyError aggregated = default!;
+            Error aggregated = default!;
             foreach (var myError in errors)
             {
                 if (first)
@@ -423,7 +423,7 @@ namespace FunicularSwitch.Generators.Consumer
             return aggregated;
         }
 
-        static MyError MergeErrors(MyError aggregated, MyError error) => aggregated.MergeErrors(error);
+        static Error MergeErrors(Error aggregated, Error error) => aggregated.MergeErrors(error);
 
         #endregion
     }

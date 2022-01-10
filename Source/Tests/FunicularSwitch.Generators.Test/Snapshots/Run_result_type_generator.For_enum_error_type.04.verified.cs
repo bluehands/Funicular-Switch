@@ -81,6 +81,29 @@ namespace FunicularSwitch.Test
 
         public static bool operator !(Result<T> result) => result.IsError;
 
+        //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
+        bool Equals(Result<T> other) => this switch
+        {
+            Ok_ ok => ok.Equals((object)other),
+            Error_ error => error.Equals((object)other),
+            _ => throw new InvalidOperationException($"Unexpected type derived from {nameof(Result<T>)}")
+        };
+
+        public override int GetHashCode() => this switch
+        {
+            Ok_ ok => ok.GetHashCode(),
+            Error_ error => error.GetHashCode(),
+            _ => throw new InvalidOperationException($"Unexpected type derived from {nameof(Result<T>)}")
+        };
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Result<T>)obj);
+        }
+
         public static bool operator ==(Result<T>? left, Result<T>? right) => Equals(left, right);
 
         public static bool operator !=(Result<T>? left, Result<T>? right) => !Equals(left, right);
@@ -96,6 +119,7 @@ namespace FunicularSwitch.Test
                 error?.Invoke(err);
                 return 42;
             });
+
         public T1 Match<T1>(Func<T, T1> ok, Func<String, T1> error)
         {
             return this switch
@@ -105,6 +129,7 @@ namespace FunicularSwitch.Test
                 _ => throw new InvalidOperationException($"Unexpected derived result type: {GetType()}")
             };
         }
+
         public async Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<String, Task<T1>> error)
         {
             return this switch
@@ -114,11 +139,15 @@ namespace FunicularSwitch.Test
                 _ => throw new InvalidOperationException($"Unexpected derived result type: {GetType()}")
             };
         }
-        public Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<String, T1> error) => Match(ok, e => Task.FromResult(error(e)));
+
+        public Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<String, T1> error) =>
+            Match(ok, e => Task.FromResult(error(e)));
+
         public async Task Match(Func<T, Task> ok)
         {
             if (this is Ok_ okResult) await ok(okResult.Value).ConfigureAwait(false);
         }
+
         public T Match(Func<String, T> error) => Match(v => v, error);
 
         public Result<T1> Bind<T1>(Func<T, Result<T1>> bind)
@@ -133,6 +162,7 @@ namespace FunicularSwitch.Test
                     throw new InvalidOperationException($"Unexpected derived result type: {GetType()}");
             }
         }
+
         public async Task<Result<T1>> Bind<T1>(Func<T, Task<Result<T1>>> bind)
         {
             switch (this)
@@ -263,6 +293,7 @@ namespace FunicularSwitch.Test
         #endregion
 
         #region match
+
         public static async Task<T1> Match<T, T1>(
             this Task<Result<T>> result,
             Func<T, Task<T1>> ok,
@@ -280,10 +311,28 @@ namespace FunicularSwitch.Test
             Func<T, T1> ok,
             Func<String, T1> error)
             => (await result.ConfigureAwait(false)).Match(ok, error);
+
         #endregion
 
-        #region choose
+        public static Result<T> Flatten<T>(this Result<Result<T>> result) => result.Bind(r => r);
 
+        public static Result<T1> As<T, T1>(this Result<T> result, Func<String> errorTIsNotT1) =>
+            result.Bind(r =>
+            {
+                if (r is T1 converted)
+                    return converted;
+                return Result.Error<T1>(errorTIsNotT1());
+            });
+
+        public static Result<T1> As<T1>(this Result<object> result, Func<String> errorIsNotT1) =>
+            result.As<object, T1>(errorIsNotT1);
+    }
+}
+
+namespace FunicularSwitch.Test.Extensions
+{
+    public static partial class ResultExtension
+    {
         public static IEnumerable<T1> Choose<T, T1>(
             this IEnumerable<T> items,
             Func<T, Result<T1>> choose,
@@ -303,20 +352,6 @@ namespace FunicularSwitch.Test
                         return false;
                     }))
                 .Select(r => r.GetValueOrThrow());
-
-        #endregion
-
-        public static Result<T> Flatten<T>(this Result<Result<T>> result) => result.Bind(r => r);
-
-        public static Result<T1> As<T, T1>(this Result<T> result, Func<String> errorTIsNotT1) =>
-            result.Bind(r =>
-            {
-                if (r is T1 converted)
-                    return converted;
-                return Result.Error<T1>(errorTIsNotT1());
-            });
-
-        public static Result<T1> As<T1>(this Result<object> result, Func<String> errorIsNotT1) => result.As<object, T1>(errorIsNotT1);
 
         public static Result<T> As<T>(this object item, Func<String> error) =>
             !(item is T t) ? Result.Error<T>(error()) : t;

@@ -4,8 +4,8 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FunicularSwitch.Generators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using FunicularSwitch.Generators.Consumer.Extensions;
 
 namespace FunicularSwitch.Generators.Consumer
 {
@@ -16,7 +16,7 @@ namespace FunicularSwitch.Generators.Consumer
         public void Then_it_feels_good()
         {
             static OperationResult<decimal> Divide(decimal i, decimal divisor) => divisor == 0
-                ? OperationResult.Error<decimal>(MyError.Generic("Division by zero"))
+                ? OperationResult.Error<decimal>(Error.Generic("Division by zero"))
                 : i / divisor;
 
             OperationResult<int> result = 42;
@@ -25,24 +25,26 @@ namespace FunicularSwitch.Generators.Consumer
                 .Bind(i => Divide(i, 0))
                 .Map(i => (i * 2).ToString(CultureInfo.InvariantCulture));
 
-            calc.Should().BeEquivalentTo(OperationResult<string>.Error(MyError.Generic("Division by zero")));
+            calc.Should().BeEquivalentTo(OperationResult<string>.Error(Error.Generic("Division by zero")));
 
-            var combinedError = calc.Aggregate(OperationResult.Error<int>(MyError.NotFound));
-            var combinedErrorStatic = OperationResult.Aggregate(calc, OperationResult.Error<int>(MyError.NotFound), (_, i) => i);
+            var combinedError = calc.Aggregate(OperationResult.Error<int>(Error.NotFound));
+            var combinedErrorStatic = OperationResult.Aggregate(calc, OperationResult.Error<int>(Error.NotFound), (_, i) => i);
             var combinedOk = OperationResult.Ok(42).Aggregate(OperationResult.Ok(" is the answer"));
             var combinedOkStatic = OperationResult.Aggregate(OperationResult.Ok(42), OperationResult.Ok(" is the answer"));
 
-            static IEnumerable<MyError> IsGreaterThanFive(int i)
+            var transformedToInt = combinedOkStatic.As<int>(() => Error.Generic("Unexpected type"));
+
+            static IEnumerable<Error> IsGreaterThanFive(int i)
             {
                 if (i <= 5)
-                    yield return MyError.Generic("To small");
+                    yield return Error.Generic("To small");
                 if (i == 3)
-                    yield return MyError.Generic("Uuh, it's three...");
+                    yield return Error.Generic("Uuh, it's three...");
             }
 
             (3.Validate(IsGreaterThanFive) is OperationResult<int>.Error_
             {
-                Details: MyError.Aggregated_
+                Details: Error.Aggregated_
                 {
                     Errors:
                     {
@@ -64,36 +66,36 @@ namespace FunicularSwitch.Generators.Consumer
     {
     }
 
-    [ResultType(typeof(MyError))]
+    [ResultType(typeof(Error))]
     abstract partial class OperationResult<T>
     {
     }
 
-    public static partial class MyErrorExtension
+    public static partial class ErrorExtension
     {
         [MergeError]
-        public static MyError MergeErrors(this MyError error, MyError other) => error.Merge(other);
+        public static Error MergeErrors(this Error error, Error other) => error.Merge(other);
 
         [MergeError]
         public static string MergeErrors(this string error, string other) => $"{error}{Environment.NewLine}{other}";
     }
 
-    public abstract class MyError
+    public abstract class Error
     {
-        public static MyError Generic(string message) => new Generic_(message);
+        public static Error Generic(string message) => new Generic_(message);
 
-        public static readonly MyError NotFound = new NotFound_();
-        public static readonly MyError NotAuthorized = new NotAuthorized_();
+        public static readonly Error NotFound = new NotFound_();
+        public static readonly Error NotAuthorized = new NotAuthorized_();
 
-        public static MyError Aggregated(ImmutableList<MyError> errors) => new Aggregated_(errors);
+        public static Error Aggregated(ImmutableList<Error> errors) => new Aggregated_(errors);
 
-        public MyError Merge(MyError other) => this is Aggregated_ a
+        public Error Merge(Error other) => this is Aggregated_ a
             ? a.Add(other)
             : other is Aggregated_ oa
                 ? oa.Add(this)
                 : Aggregated(ImmutableList.Create(this, other));
 
-        public class Generic_ : MyError
+        public class Generic_ : Error
         {
             public string Message { get; }
 
@@ -103,27 +105,27 @@ namespace FunicularSwitch.Generators.Consumer
             }
         }
 
-        public class NotFound_ : MyError
+        public class NotFound_ : Error
         {
             public NotFound_() : base(UnionCases.NotFound)
             {
             }
         }
 
-        public class NotAuthorized_ : MyError
+        public class NotAuthorized_ : Error
         {
             public NotAuthorized_() : base(UnionCases.NotAuthorized)
             {
             }
         }
 
-        public class Aggregated_ : MyError
+        public class Aggregated_ : Error
         {
-            public ImmutableList<MyError> Errors { get; }
+            public ImmutableList<Error> Errors { get; }
 
-            public Aggregated_(ImmutableList<MyError> errors) : base(UnionCases.Aggregated) => Errors = errors;
+            public Aggregated_(ImmutableList<Error> errors) : base(UnionCases.Aggregated) => Errors = errors;
 
-            public MyError Add(MyError other) => Aggregated(Errors.Add(other));
+            public Error Add(Error other) => Aggregated(Errors.Add(other));
         }
 
         internal enum UnionCases
@@ -135,59 +137,59 @@ namespace FunicularSwitch.Generators.Consumer
         }
 
         internal UnionCases UnionCase { get; }
-        MyError(UnionCases unionCase) => UnionCase = unionCase;
+        Error(UnionCases unionCase) => UnionCase = unionCase;
 
         public override string ToString() => Enum.GetName(typeof(UnionCases), UnionCase) ?? UnionCase.ToString();
-        bool Equals(MyError other) => UnionCase == other.UnionCase;
+        bool Equals(Error other) => UnionCase == other.UnionCase;
 
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((MyError)obj);
+            return Equals((Error)obj);
         }
 
         public override int GetHashCode() => (int)UnionCase;
     }
 
-    public static partial class MyErrorExtension
+    public static partial class ErrorExtension
     {
-        public static T Match<T>(this MyError myError, Func<MyError.Generic_, T> generic, Func<MyError.NotFound_, T> notFound, Func<MyError.NotAuthorized_, T> notAuthorized, Func<MyError.Aggregated_, T> aggregated)
+        public static T Match<T>(this Error error, Func<Error.Generic_, T> generic, Func<Error.NotFound_, T> notFound, Func<Error.NotAuthorized_, T> notAuthorized, Func<Error.Aggregated_, T> aggregated)
         {
-            switch (myError.UnionCase)
+            switch (error.UnionCase)
             {
-                case MyError.UnionCases.Generic:
-                    return generic((MyError.Generic_)myError);
-                case MyError.UnionCases.NotFound:
-                    return notFound((MyError.NotFound_)myError);
-                case MyError.UnionCases.NotAuthorized:
-                    return notAuthorized((MyError.NotAuthorized_)myError);
-                case MyError.UnionCases.Aggregated:
-                    return aggregated((MyError.Aggregated_)myError);
+                case Error.UnionCases.Generic:
+                    return generic((Error.Generic_)error);
+                case Error.UnionCases.NotFound:
+                    return notFound((Error.NotFound_)error);
+                case Error.UnionCases.NotAuthorized:
+                    return notAuthorized((Error.NotAuthorized_)error);
+                case Error.UnionCases.Aggregated:
+                    return aggregated((Error.Aggregated_)error);
                 default:
-                    throw new ArgumentException($"Unknown type derived from MyError: {myError.GetType().Name}");
+                    throw new ArgumentException($"Unknown type derived from MyError: {error.GetType().Name}");
             }
         }
 
-        public static async Task<T> Match<T>(this MyError myError, Func<MyError.Generic_, Task<T>> generic, Func<MyError.NotFound_, Task<T>> notFound, Func<MyError.NotAuthorized_, Task<T>> notAuthorized, Func<MyError.Aggregated_, Task<T>> aggregated)
+        public static async Task<T> Match<T>(this Error error, Func<Error.Generic_, Task<T>> generic, Func<Error.NotFound_, Task<T>> notFound, Func<Error.NotAuthorized_, Task<T>> notAuthorized, Func<Error.Aggregated_, Task<T>> aggregated)
         {
-            switch (myError.UnionCase)
+            switch (error.UnionCase)
             {
-                case MyError.UnionCases.Generic:
-                    return await generic((MyError.Generic_)myError).ConfigureAwait(false);
-                case MyError.UnionCases.NotFound:
-                    return await notFound((MyError.NotFound_)myError).ConfigureAwait(false);
-                case MyError.UnionCases.NotAuthorized:
-                    return await notAuthorized((MyError.NotAuthorized_)myError).ConfigureAwait(false);
-                case MyError.UnionCases.Aggregated:
-                    return await aggregated((MyError.Aggregated_)myError).ConfigureAwait(false);
+                case Error.UnionCases.Generic:
+                    return await generic((Error.Generic_)error).ConfigureAwait(false);
+                case Error.UnionCases.NotFound:
+                    return await notFound((Error.NotFound_)error).ConfigureAwait(false);
+                case Error.UnionCases.NotAuthorized:
+                    return await notAuthorized((Error.NotAuthorized_)error).ConfigureAwait(false);
+                case Error.UnionCases.Aggregated:
+                    return await aggregated((Error.Aggregated_)error).ConfigureAwait(false);
                 default:
-                    throw new ArgumentException($"Unknown type derived from MyError: {myError.GetType().Name}");
+                    throw new ArgumentException($"Unknown type derived from MyError: {error.GetType().Name}");
             }
         }
 
-        public static async Task<T> Match<T>(this Task<MyError> myError, Func<MyError.Generic_, T> generic, Func<MyError.NotFound_, T> notFound, Func<MyError.NotAuthorized_, T> notAuthorized, Func<MyError.Aggregated_, T> aggregated) => (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated);
-        public static async Task<T> Match<T>(this Task<MyError> myError, Func<MyError.Generic_, Task<T>> generic, Func<MyError.NotFound_, Task<T>> notFound, Func<MyError.NotAuthorized_, Task<T>> notAuthorized, Func<MyError.Aggregated_, Task<T>> aggregated) => await (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
+        public static async Task<T> Match<T>(this Task<Error> myError, Func<Error.Generic_, T> generic, Func<Error.NotFound_, T> notFound, Func<Error.NotAuthorized_, T> notAuthorized, Func<Error.Aggregated_, T> aggregated) => (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated);
+        public static async Task<T> Match<T>(this Task<Error> myError, Func<Error.Generic_, Task<T>> generic, Func<Error.NotFound_, Task<T>> notFound, Func<Error.NotAuthorized_, Task<T>> notAuthorized, Func<Error.Aggregated_, Task<T>> aggregated) => await (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
     }
 }

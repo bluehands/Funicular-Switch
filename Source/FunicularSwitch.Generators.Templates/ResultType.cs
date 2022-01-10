@@ -69,8 +69,6 @@ namespace FunicularSwitch.Generators.Templates
 
     public abstract partial class MyResult<T> : MyResult, IEnumerable<T>
     {
-        public override int GetHashCode() => throw new NotImplementedException();
-
         public static MyResult<T> Error(MyError message) => Error<T>(message);
         public static MyResult<T> Ok(T value) => Ok<T>(value);
 
@@ -81,12 +79,19 @@ namespace FunicularSwitch.Generators.Templates
 
         public static bool operator !(MyResult<T> result) => result.IsError;
 
-        //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals
+        //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
         bool Equals(MyResult<T> other) => this switch
         {
-            Ok_ ok => ok.Equals(other),
-            Error_ error => error.Equals(other),
-            _ => Equals(this, other)
+            Ok_ ok => ok.Equals((object)other),
+            Error_ error => error.Equals((object)other),
+            _ => throw new InvalidOperationException($"Unexpected type derived from {nameof(MyResult<T>)}")
+        };
+
+        public override int GetHashCode() => this switch
+        {
+            Ok_ ok => ok.GetHashCode(),
+            Error_ error => error.GetHashCode(),
+            _ => throw new InvalidOperationException($"Unexpected type derived from {nameof(MyResult<T>)}")
         };
 
         public override bool Equals(object? obj)
@@ -112,6 +117,7 @@ namespace FunicularSwitch.Generators.Templates
                 error?.Invoke(err);
                 return 42;
             });
+
         public T1 Match<T1>(Func<T, T1> ok, Func<MyError, T1> error)
         {
             return this switch
@@ -121,6 +127,7 @@ namespace FunicularSwitch.Generators.Templates
                 _ => throw new InvalidOperationException($"Unexpected derived result type: {GetType()}")
             };
         }
+
         public async Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<MyError, Task<T1>> error)
         {
             return this switch
@@ -130,11 +137,15 @@ namespace FunicularSwitch.Generators.Templates
                 _ => throw new InvalidOperationException($"Unexpected derived result type: {GetType()}")
             };
         }
-        public Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<MyError, T1> error) => Match(ok, e => Task.FromResult(error(e)));
+
+        public Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<MyError, T1> error) =>
+            Match(ok, e => Task.FromResult(error(e)));
+
         public async Task Match(Func<T, Task> ok)
         {
             if (this is Ok_ okMyResult) await ok(okMyResult.Value).ConfigureAwait(false);
         }
+
         public T Match(Func<MyError, T> error) => Match(v => v, error);
 
         public MyResult<T1> Bind<T1>(Func<T, MyResult<T1>> bind)
@@ -149,6 +160,7 @@ namespace FunicularSwitch.Generators.Templates
                     throw new InvalidOperationException($"Unexpected derived result type: {GetType()}");
             }
         }
+
         public async Task<MyResult<T1>> Bind<T1>(Func<T, Task<MyResult<T1>>> bind)
         {
             switch (this)
@@ -279,6 +291,7 @@ namespace FunicularSwitch.Generators.Templates
         #endregion
 
         #region match
+
         public static async Task<T1> Match<T, T1>(
             this Task<MyResult<T>> result,
             Func<T, Task<T1>> ok,
@@ -296,10 +309,28 @@ namespace FunicularSwitch.Generators.Templates
             Func<T, T1> ok,
             Func<MyError, T1> error)
             => (await result.ConfigureAwait(false)).Match(ok, error);
+
         #endregion
 
-        #region choose
+        public static MyResult<T> Flatten<T>(this MyResult<MyResult<T>> result) => result.Bind(r => r);
 
+        public static MyResult<T1> As<T, T1>(this MyResult<T> result, Func<MyError> errorTIsNotT1) =>
+            result.Bind(r =>
+            {
+                if (r is T1 converted)
+                    return converted;
+                return MyResult.Error<T1>(errorTIsNotT1());
+            });
+
+        public static MyResult<T1> As<T1>(this MyResult<object> result, Func<MyError> errorIsNotT1) =>
+            result.As<object, T1>(errorIsNotT1);
+    }
+}
+
+namespace FunicularSwitch.Generators.Templates.Extensions
+{
+    public static partial class MyResultExtension
+    {
         public static IEnumerable<T1> Choose<T, T1>(
             this IEnumerable<T> items,
             Func<T, MyResult<T1>> choose,
@@ -319,20 +350,6 @@ namespace FunicularSwitch.Generators.Templates
                         return false;
                     }))
                 .Select(r => r.GetValueOrThrow());
-
-        #endregion
-
-        public static MyResult<T> Flatten<T>(this MyResult<MyResult<T>> result) => result.Bind(r => r);
-
-        public static MyResult<T1> As<T, T1>(this MyResult<T> result, Func<MyError> errorTIsNotT1) =>
-            result.Bind(r =>
-            {
-                if (r is T1 converted)
-                    return converted;
-                return MyResult.Error<T1>(errorTIsNotT1());
-            });
-
-        public static MyResult<T1> As<T1>(this MyResult<object> result, Func<MyError> errorIsNotT1) => result.As<object, T1>(errorIsNotT1);
 
         public static MyResult<T> As<T>(this object item, Func<MyError> error) =>
             !(item is T t) ? MyResult.Error<T>(error()) : t;
