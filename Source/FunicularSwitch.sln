@@ -26,8 +26,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.Consumer", "Tests\FunicularSwitch.Generators.Consumer\FunicularSwitch.Generators.Consumer.csproj", "{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generators.Consumer.Nuget", "Tests\FunicularSwitch.Generators.Cosumer.Nuget\FunicularSwitch.Generators.Consumer.Nuget.csproj", "{A357959A-CE0E-457B-85F9-095C87CCAF23}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,10 +64,6 @@ Global
 		{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A357959A-CE0E-457B-85F9-095C87CCAF23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A357959A-CE0E-457B-85F9-095C87CCAF23}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A357959A-CE0E-457B-85F9-095C87CCAF23}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A357959A-CE0E-457B-85F9-095C87CCAF23}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,7 +72,6 @@ Global
 		{8BA91518-5F82-4ECD-9CB9-0471667B4F7B} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
 		{9C314AEE-2FB1-458C-81F3-3DFD4309FB45} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
 		{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
-		{A357959A-CE0E-457B-85F9-095C87CCAF23} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A6C53D4-8DAD-4DBF-B4A6-D02801D28BD4}

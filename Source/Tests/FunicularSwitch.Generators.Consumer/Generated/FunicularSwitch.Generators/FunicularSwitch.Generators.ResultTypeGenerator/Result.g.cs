@@ -71,8 +71,6 @@ namespace FunicularSwitch.Generators.Consumer
 
     public abstract partial class Result<T> : Result, IEnumerable<T>
     {
-        public override int GetHashCode() => throw new NotImplementedException();
-
         public static Result<T> Error(String message) => Error<T>(message);
         public static Result<T> Ok(T value) => Ok<T>(value);
 
@@ -83,12 +81,19 @@ namespace FunicularSwitch.Generators.Consumer
 
         public static bool operator !(Result<T> result) => result.IsError;
 
-        //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals
+        //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
         bool Equals(Result<T> other) => this switch
         {
-            Ok_ ok => ok.Equals(other),
-            Error_ error => error.Equals(other),
-            _ => Equals(this, other)
+            Ok_ ok => ok.Equals((object)other),
+            Error_ error => error.Equals((object)other),
+            _ => throw new InvalidOperationException($"Unexpected type derived from {nameof(Result<T>)}")
+        };
+
+        public override int GetHashCode() => this switch
+        {
+            Ok_ ok => ok.GetHashCode(),
+            Error_ error => error.GetHashCode(),
+            _ => throw new InvalidOperationException($"Unexpected type derived from {nameof(Result<T>)}")
         };
 
         public override bool Equals(object? obj)
