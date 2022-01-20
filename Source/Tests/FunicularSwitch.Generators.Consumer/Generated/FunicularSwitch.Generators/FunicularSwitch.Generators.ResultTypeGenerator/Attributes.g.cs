@@ -3,15 +3,16 @@
 namespace FunicularSwitch.Generators
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class ResultTypeAttribute : Attribute
+    public sealed class ResultTypeAttribute : Attribute
     {
+        public ResultTypeAttribute() => ErrorType = typeof(string);
         public ResultTypeAttribute(Type errorType) => ErrorType = errorType;
 
-        public Type ErrorType { get; }
+        public Type ErrorType { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Method, Inherited = false)]
-    public class MergeErrorAttribute : Attribute
+    public sealed class MergeErrorAttribute : Attribute
     {
     }
 }

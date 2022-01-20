@@ -61,7 +61,7 @@ namespace FunicularSwitch.Generators.Consumer
         }
     }
 
-    [ResultType(typeof(string))]
+    [ResultType(ErrorType = typeof(string))]
     public abstract partial class Result<T>
     {
     }
