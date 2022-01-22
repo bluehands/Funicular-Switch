@@ -1,15 +1,15 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FunicularSwitch.Generators.Test
+namespace FunicularSwitch.Generators.Test;
+
+[TestClass]
+public class Run_result_type_generator : VerifySourceGenerator
 {
-    [TestClass]
-    public class Run_result_type_generator : VerifySourceGenerator
+    [TestMethod]
+    public Task For_enum_error_type()
     {
-        [TestMethod]
-        public Task For_enum_error_type()
-        {
-            var code = @"
+        var code = @"
 using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test;
@@ -40,13 +40,13 @@ public static class MyErrorExtension
     public static string MergeErrors(this string error, string other) => $""{error}{System.Environment.NewLine}{other}"";
 }
 ";
-            return Verify(code);
-        }
+        return Verify(code);
+    }
 
-        [TestMethod]
-        public Task For_error_type_in_different_namespace()
-        {
-            var code = @"
+    [TestMethod]
+    public Task For_error_type_in_different_namespace()
+    {
+        var code = @"
 using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test
@@ -76,14 +76,14 @@ namespace FunicularSwitch.Test.Extensions
     }
 }
 ";
-            return Verify(code);
-        }
+        return Verify(code);
+    }
 
 
-        [TestMethod]
-        public Task For_internal_result_type()
-        {
-            var code = @"
+    [TestMethod]
+    public Task For_internal_result_type()
+    {
+        var code = @"
 using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test;
@@ -100,13 +100,13 @@ public enum MyError
     Unauthorized
 }
 ";
-            return Verify(code);
-        }
+        return Verify(code);
+    }
 
-        [TestMethod]
-        public Task For_error_type_with_merge()
-        {
-            var code = @"
+    [TestMethod]
+    public Task For_error_type_with_merge()
+    {
+        var code = @"
 using FunicularSwitch.Generators;
 using System;
 using System.Collections.Generic;
@@ -193,7 +193,6 @@ public abstract class MyError
     public override int GetHashCode() => (int)UnionCase;
 }
 ";
-            return Verify(code);
-        }
+        return Verify(code);
     }
 }

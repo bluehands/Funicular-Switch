@@ -19,7 +19,7 @@ public class UnionTypeGenerator : IIncrementalGenerator
         var unionTypeClasses =
             context.SyntaxProvider
                 .CreateSyntaxProvider(
-                    predicate: static (s, _) => s.IsClassDeclarationWithAttributes(),
+                    predicate: static (s, _) => s.IsTypeDeclarationWithAttributes(),
                     transform: static (ctx, _) => GeneratorHelper.GetSemanticTargetForGeneration(ctx, UnionTypeAttribute)
 
                 )
@@ -33,7 +33,7 @@ public class UnionTypeGenerator : IIncrementalGenerator
             static (spc, source) => Execute(source.Left, source.Right, spc));
     }
 
-    static void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> unionTypeClasses, SourceProductionContext context)
+    static void Execute(Compilation compilation, ImmutableArray<BaseTypeDeclarationSyntax> unionTypeClasses, SourceProductionContext context)
     {
         if (unionTypeClasses.IsDefaultOrEmpty) return;
 

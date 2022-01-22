@@ -23,8 +23,8 @@ static class RoslynExtensions
         throw new InvalidOperationException($"No containing namespace found for node {node}");
     }
 
-    public static bool IsClassDeclarationWithAttributes(this SyntaxNode syntaxNode) =>
-        syntaxNode is ClassDeclarationSyntax
+    public static bool IsTypeDeclarationWithAttributes(this SyntaxNode syntaxNode) =>
+        syntaxNode is BaseTypeDeclarationSyntax
         {
             AttributeLists.Count: > 0
         };

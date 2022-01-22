@@ -8,7 +8,7 @@ namespace FunicularSwitch.Generators.UnionType;
 static class Parser
 {
     public static IEnumerable<UnionTypeSchema> GetUnionTypes(Compilation compilation,
-        ImmutableArray<ClassDeclarationSyntax> unionTypeClasses, Action<Diagnostic> reportDiagnostic,
+        ImmutableArray<BaseTypeDeclarationSyntax> unionTypeClasses, Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken) =>
         unionTypeClasses.Select(unionTypeClass =>
         {

@@ -34,9 +34,7 @@ public abstract class VerifySourceGenerator : VerifyBase
             references: references,
             options: new(OutputKind.DynamicallyLinkedLibrary));
 
-        var generator = new ResultTypeGenerator();
-
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(new ResultTypeGenerator(), new UnionTypeGenerator());
 
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var updatedCompilation, out var diagnostics);
 

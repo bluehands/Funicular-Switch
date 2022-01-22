@@ -5,9 +5,9 @@ namespace FunicularSwitch.Generators;
 
 static class GeneratorHelper
 {
-    public static ClassDeclarationSyntax? GetSemanticTargetForGeneration(GeneratorSyntaxContext context, string expectedAttributeName)
+    public static BaseTypeDeclarationSyntax? GetSemanticTargetForGeneration(GeneratorSyntaxContext context, string expectedAttributeName)
     {
-        var classDeclarationSyntax = (ClassDeclarationSyntax)context.Node;
+        var classDeclarationSyntax = (BaseTypeDeclarationSyntax)context.Node;
         var hasAttribute = false;
         foreach (var attributeListSyntax in classDeclarationSyntax.AttributeLists)
         {

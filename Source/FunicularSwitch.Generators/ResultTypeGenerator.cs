@@ -17,7 +17,7 @@ public class ResultTypeGenerator : IIncrementalGenerator
         var resultTypeClasses =
             context.SyntaxProvider
                 .CreateSyntaxProvider(
-                    predicate: static (s, _) => s.IsClassDeclarationWithAttributes(),
+                    predicate: static (s, _) => s.IsTypeDeclarationWithAttributes(),
                     transform: static (ctx, _) => GeneratorHelper.GetSemanticTargetForGeneration(ctx, ResultTypeAttribute)
 
                 )
@@ -28,7 +28,8 @@ public class ResultTypeGenerator : IIncrementalGenerator
 
         context.RegisterSourceOutput(
             compilationAndClasses, 
-            static (spc, source) => Execute(source.Left, source.Right, spc));
+            //TODO: support record result types one day
+            static (spc, source) => Execute(source.Left, source.Right.OfType<ClassDeclarationSyntax>().ToImmutableArray(), spc));
     }
 
     static void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> resultTypeClasses, SourceProductionContext context)
