@@ -54,10 +54,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\StaticPostInitialization.cs" Link="Templates\StaticPostInitialization.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultType.cs" Link="Templates\ResultType.cs" />
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeWithMerge.cs" Link="Templates\ResultTypeWithMerge.cs" />
 	</ItemGroup>
@@ -68,9 +64,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeAttributes.cs" Link="Templates\ResultTypeAttributes.cs" />
+	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\UnionTypeAttributes.cs" Link="Templates\UnionTypeAttributes.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="Content\FunicularSwitch.png" Pack="true" PackagePath="" />
 		<None Include="Content\LICENSE.txt" Pack="true" PackagePath="" />
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="UnionType\" />
 	</ItemGroup>
 
 </Project>

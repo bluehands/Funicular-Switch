@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace FunicularSwitch.Generators;
+namespace FunicularSwitch.Generators.ResultType;
 
 static class Generator
 {
@@ -41,7 +41,7 @@ static class Generator
         if (errorTypeNamespace != resultTypeNamespace)
             additionalNamespaces.Add(errorTypeNamespace);
 
-        yield return ($"{resultTypeSchema.ResultType.Identifier}.g.cs", Replace(Templates.Templates.ResultType, additionalNamespaces));
+        yield return ($"{resultTypeSchema.ResultType.Identifier}.g.cs", Replace(Templates.ResultTypeTemplates.ResultType, additionalNamespaces));
 
         if (resultTypeSchema.MergeMethod != null)
         {
@@ -50,7 +50,7 @@ static class Generator
                 additionalNamespaces.Add(mergeMethodNamespace);
 
             var mergeCode = Replace(
-                Templates.Templates.ResultTypeWithMerge
+                Templates.ResultTypeTemplates.ResultTypeWithMerge
                     .Replace("//generated aggregate methods", GenerateAggregateMethods(10))
                     .Replace("//generated aggregate extension methods", GenerateAggregateExtensionMethods(10, isValueType))
                     .Replace("Merge__MemberOrExtensionMethod", resultTypeSchema.MergeMethod.MethodName),

@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FunicularSwitch.Generators;
+namespace FunicularSwitch.Generators.ResultType;
 
 class ResultTypeSchema
 {

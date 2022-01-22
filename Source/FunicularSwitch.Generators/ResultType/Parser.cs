@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FunicularSwitch.Generators;
+namespace FunicularSwitch.Generators.ResultType;
 
 static class Parser
 {
