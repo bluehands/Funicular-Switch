@@ -1,44 +1,35 @@
-# Funicular-Switch
+# FunicularSwitch
 
 ![BuildStatus](https://bluehands.visualstudio.com/bluehands%20Funicular%20Switch/_apis/build/status/bluehandsFunicularSwitch-CI?branchName=develop)
 ![Try_.NET Enabled](https://img.shields.io/badge/Try_.NET-Enabled-501078.svg)
 
-Funicular-Switch is a lightweight C# port of F# result and option types.
+FunicularSwitch is a lightweight C# port of F# result and option types.
 
-Funicular-Switch helps you to:
+FunicularSwitch helps you to:
 
 - Focus on the 'happy path', but collect all error information.
 - Be more explicit in what our methods return.
 - Avoid deep nesting.
-- Avoid null checks and eventual properties (properties only relevaent for a certain state of an object), use Result or Option instead.
+- Avoid null checks and eventual properties (properties only relevant for a certain state of an object), use Result or Option instead.
 - Comfortably write async code pipelines.
 - Wrap third party library exceptions / return values into results at the code level were we really understand what is happening.
 
 ## Getting Started
 
-### Package
+### Packages
 
-[NuGet: FunicularSwitch](https://www.nuget.org/packages/FunicularSwitch/)
+ - [NuGet: FunicularSwitch](https://www.nuget.org/packages/FunicularSwitch/)
+ - [NuGet: FunicularSwitch.Generators](https://www.nuget.org/packages/FunicularSwitch.Generators/)
 
-Using dotnet CLI:
-[Install Package using dotnet CLI](https://docs.microsoft.com/en-us/nuget/quickstart/install-and-use-a-package-using-the-dotnet-cli)
+[**FunicularSwitch**](#funicular_usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
 
-```
-dotnet add package FunicularSwitch
-```
+[**FunicularSwitch.Generators**]((#generators_usage)) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations).
 
-Using Visual Studio:
-[Install Package in Visual Studio](https://docs.microsoft.com/en-us/nuget/quickstart/install-and-use-a-package-in-visual-studio)
-
-```
-<PackageReference Include="FunicularSwitch" Version="x.x.x" />
-```
-
-## Usage
+## <a name="funicular_usage"></a>FunicularSwitch Usage
 
 *This document is created using [dotnet try](https://github.com/dotnet/try/blob/main/DotNetTryLocal.md). If you have dotnet try global tool installed, just clone the repo, type `dotnet try` on top level and play around with all code samples in your browser while reading.*
 
-This following section mainly focuses on `Result`. `Result` is a union type representing either Ok or the Error case just like F#s Result type. For Funicular-Switch the error type is `String` for sake of simplicity (Using types with multiple generic arguments is quite verbose in C#).
+This following section mainly focuses on `Result`. `Result` is a union type representing either Ok or the Error case just like F#s Result type. For FunicularSwitch the error type is `String` for sake of simplicity (Using types with multiple generic arguments is quite verbose in C#).
 
 Result should be used in all places, were something can go wrong. Doing so it replaces exceptions and null/default return values.
 
@@ -127,7 +118,7 @@ The answer is: 42
 
 ```
 
-Those are basically the four (actually three) main operations on `Result` - `Create`, `Bind`, `Map` and `Match`. There are a lot of overloads and other helpers in Funicular-Switch to avoid repetition of `Result` specific patterns like:
+Those are basically the four (actually three) main operations on `Result` - `Create`, `Bind`, `Map` and `Match`. There are a lot of overloads and other helpers in FunicularSwitch to avoid repetition of `Result` specific patterns like:
 
 - 'Combine results to Ok if everything is Ok otherwise collect errors' - `Aggregate`, `Map` and `Bind` overloads on collections
 - 'Ok if at least one item passes certain validations, otherwise collect info why no one matched' - `FirstOk`
@@ -220,17 +211,62 @@ Apple is not fresh
 No Banana in stock
 No Pear in stock
 Stink fruit, I do not serve that
+```
+As you can see, all errors are collected as far as possible. Feel free to play around with the cooks skill level, fruits in stock and the ingredients list to finally get your fruit salad.
 
+## <a name="generators_usage"></a>FunicularSwitch.Generators Usage
 
+After adding the FunicularSwitch.Generators package you can mark a class as result type using the `ResultType` attribute. Ok and Error cases, Map, Bind, Match and some other methods will be generated so you can use your Result just like the one from the FunicularSwitch package.
+
+``` cs
+  [FunicularSwitch.Generators.ResultType(ErrorType = typeof(MyCustomErrorType))]
+  public abstract partial class Result<T> {}
 ```
 
-As you can see, all errors are collected as far as possible. Feel free to play around with the cooks skill level, fruits in stock and the ingredients list to finally get your fruit salad.
+if your errors can be combined, write an attributed extension method
+``` cs
+public static class MyCustomErrorExtension
+{
+  [FunicularSwitch.Generators.MergeError]
+  public static MyCustomError Merge(this MyCustomError error, MyCustomError other) => ...
+}
+```
+and a bunch of methods like `Aggregate`, `Validate`, `AllOk`, `FirstOk` and more will appear that make use of the fact that errors can be concatenated.
+
+There is anonther useful generator coming with the package. Adding the `UnionType` attribute to a base type makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
+
+``` cs
+[FunicularSwitch.Generators.UnionType]
+public astract class Error{...}
+
+public sealed class NotFound : Error {...}
+public sealed class Failure : Error {...}
+public sealed class InvalidInput : Error {...}
+```
+
+the generator detecting the `[UnionType]` adds Match methods so you can write:
+
+``` cs
+static string PrintError(Error error) =>
+        error.Match(
+                notFound => $"Not found: {notFound.Message}",
+                failure => $"Ups, something went wrong: {failure.Message} - {failure.Exception}",
+                invalidInput => $"Name was invalid: {invalidInput.Message}"                
+            );
+```
+
+If you decide to add a case to your Error union all consuming switches break and you never miss a case at runtime!
+
+Match methods are also provided for async case handlers and as extensions on `Task<Error>`.
+
+If you like union types but don't like excessive typing in C# try the [Switchyard](https://github.com/bluehands/Switchyard) Visual Studio extension, which generates the boilerplate code for you. It plays nicely with the FunicularSwitch.Generators package.
+
 
 #### Additional documentation
 
-[Tutorial markdown](https://github.com/bluehands/Funicular-Switch/blob/master/TUTORIAL.md)
+[Tutorial markdown](https://github.com/bluehands/FunicularSwitch/blob/master/TUTORIAL.md)
 
-[Tutorial source](https://github.com/bluehands/Funicular-Switch/tree/master/Source/Tutorial)
+[Tutorial source](https://github.com/bluehands/FunicularSwitch/tree/master/Source/Tutorial)
 
 ## Contributing
 
@@ -246,7 +282,7 @@ bluehands.de
 
 ## License
 
-[MIT License](https://github.com/bluehands/Funicular-Switch/blob/master/LICENSE)
+[MIT License](https://github.com/bluehands/FunicularSwitch/blob/master/LICENSE)
 
 ## Acknowledgments
 

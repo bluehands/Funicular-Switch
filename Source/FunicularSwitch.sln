@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29411.108
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch", "FunicularSwitch\FunicularSwitch.csproj", "{5CF89BDE-0AE9-490C-AE0F-A8C1DD93024E}"
 EndProject
@@ -17,6 +17,16 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3411C93C-2928-49DF-8180-90DDB1F8FB6C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Test", "Tests\FunicularSwitch.Test\FunicularSwitch.Test.csproj", "{8BA91518-5F82-4ECD-9CB9-0471667B4F7B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators", "FunicularSwitch.Generators\FunicularSwitch.Generators.csproj", "{35633310-5F61-463B-A62E-1940E2DFAE7D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.Templates", "FunicularSwitch.Generators.Templates\FunicularSwitch.Generators.Templates.csproj", "{2E99A4C7-42AE-4285-9832-BAB3D6145FEA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.Test", "Tests\FunicularSwitch.Generators.Test\FunicularSwitch.Generators.Test.csproj", "{9C314AEE-2FB1-458C-81F3-3DFD4309FB45}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.Consumer", "Tests\FunicularSwitch.Generators.Consumer\FunicularSwitch.Generators.Consumer.csproj", "{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.Consumer.Nuget", "Tests\FunicularSwitch.Generators.Consumer.Nuget\FunicularSwitch.Generators.Consumer.Nuget.csproj", "{05DEB150-372C-4D76-856C-C7A20F7F3EA0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,12 +50,35 @@ Global
 		{8BA91518-5F82-4ECD-9CB9-0471667B4F7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BA91518-5F82-4ECD-9CB9-0471667B4F7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BA91518-5F82-4ECD-9CB9-0471667B4F7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35633310-5F61-463B-A62E-1940E2DFAE7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35633310-5F61-463B-A62E-1940E2DFAE7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35633310-5F61-463B-A62E-1940E2DFAE7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35633310-5F61-463B-A62E-1940E2DFAE7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E99A4C7-42AE-4285-9832-BAB3D6145FEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E99A4C7-42AE-4285-9832-BAB3D6145FEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E99A4C7-42AE-4285-9832-BAB3D6145FEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E99A4C7-42AE-4285-9832-BAB3D6145FEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C314AEE-2FB1-458C-81F3-3DFD4309FB45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C314AEE-2FB1-458C-81F3-3DFD4309FB45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C314AEE-2FB1-458C-81F3-3DFD4309FB45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C314AEE-2FB1-458C-81F3-3DFD4309FB45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05DEB150-372C-4D76-856C-C7A20F7F3EA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05DEB150-372C-4D76-856C-C7A20F7F3EA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05DEB150-372C-4D76-856C-C7A20F7F3EA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05DEB150-372C-4D76-856C-C7A20F7F3EA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8BA91518-5F82-4ECD-9CB9-0471667B4F7B} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
+		{9C314AEE-2FB1-458C-81F3-3DFD4309FB45} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
+		{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
+		{05DEB150-372C-4D76-856C-C7A20F7F3EA0} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A6C53D4-8DAD-4DBF-B4A6-D02801D28BD4}

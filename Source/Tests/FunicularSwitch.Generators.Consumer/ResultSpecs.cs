@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FunicularSwitch.Test
+namespace FunicularSwitch.Generators.Consumer
 {
     [TestClass]
     public class ResultSpecs
@@ -97,26 +97,26 @@ namespace FunicularSwitch.Test
                 .BeEquivalentTo(Result.Error<List<int>>(string.Join(Environment.NewLine, errorMessage)));
         }
 
-        [TestMethod]
-        public void OptionResultConversion()
-        {
-            const string notThere = "it's not there";
-            Option.Some(42).ToResult(() => notThere).Should().Equal(Result.Ok(42));
-            Option.None<int>().ToResult(() => notThere).Should().Equal(Result.Error<int>(notThere));
+        //[TestMethod]
+        //public void OptionResultConversion()
+        //{
+        //    const string notThere = "it's not there";
+        //    Option.Some(42).ToResult(() => notThere).Should().Equal(Result.Ok(42));
+        //    Option.None<int>().ToResult(() => notThere).Should().Equal(Result.Error<int>(notThere));
 
-            var something = new Something();
-            something.ToOption().Should().Equal(Option.Some(something));
-            ((Something?)null).ToOption().Should().Equal(Option.None<Something>());
+        //    var something = new Something();
+        //    something.ToOption().Should().Equal(Option.Some(something));
+        //    ((Something?)null).ToOption().Should().Equal(Option.None<Something>());
 
-            var option = Result.Ok(something).ToOption();
-            option.Should().Equal(Option.Some(something));
-            Result.Error<Something>(notThere).ToOption().Should().Equal(Option.None<Something>());
+        //    var option = Result.Ok(something).ToOption();
+        //    option.Should().Equal(Option.Some(something));
+        //    Result.Error<Something>(notThere).ToOption().Should().Equal(Option.None<Something>());
 
-            var errorLogged = false;
-            void LogError(string error) => errorLogged = true;
-            Result.Error<Something>(notThere).ToOption(LogError).Should().Equal(Option.None<Something>());
-            errorLogged.Should().BeTrue();
-        }
+        //    var errorLogged = false;
+        //    void LogError(string error) => errorLogged = true;
+        //    Result.Error<Something>(notThere).ToOption(LogError).Should().Equal(Option.None<Something>());
+        //    errorLogged.Should().BeTrue();
+        //}
 
         class Something
         {
@@ -126,25 +126,25 @@ namespace FunicularSwitch.Test
         public void AsTest()
         {
             var obj = Result.Ok<object>(42);
-            var intResult = obj.As<int>();
+            var intResult = obj.As<int>(() => "not an int");
             intResult.IsOk.Should().BeTrue();
             intResult.GetValueOrThrow().Should().Be(42);
 
-            var stringResult = obj.As<string>();
+            var stringResult = obj.As<string>(() => "not a string");
             stringResult.IsError.Should().BeTrue();
         }
 
-        [TestMethod]
-        public void ImplicitCastTest()
-        {
-            Result<int> result = 42;
-            result.Equals(Result.Ok(42)).Should().BeTrue();
-            Option<int> option = 42;
-            option.Equals(Option.Some(42)).Should().BeTrue();
+        //[TestMethod]
+        //public void ImplicitCastTest()
+        //{
+        //    Result<int> result = 42;
+        //    result.Equals(Result.Ok(42)).Should().BeTrue();
+        //    Option<int> option = 42;
+        //    option.Equals(Option.Some(42)).Should().BeTrue();
 
-            var odds = Enumerable.Range(0, 10).Choose(i => i % 2 != 0 ? i * 10 : Option<int>.None).ToList();
-            odds.Should().BeEquivalentTo(Enumerable.Range(0, 10).Where(i => i % 2 != 0).Select(i => i * 10));
-        }
+        //    var odds = Enumerable.Range(0, 10).Choose(i => i % 2 != 0 ? i * 10 : Option<int>.None).ToList();
+        //    odds.Should().BeEquivalentTo(Enumerable.Range(0, 10).Where(i => i % 2 != 0).Select(i => i * 10));
+        //}
 
         [TestMethod]
         public void BoolConversionTest()
@@ -174,7 +174,7 @@ namespace FunicularSwitch.Test
                 .Select(AsyncOperation)
                 .Aggregate();
 
-            result.Should().BeOfType<Ok<IReadOnlyCollection<int>>>();
+            result.Should().BeOfType<Result<IReadOnlyCollection<int>>.Ok_>();
             result.GetValueOrThrow().Should().BeEquivalentTo(new[] { 0, 2, 4 });
         }
     }

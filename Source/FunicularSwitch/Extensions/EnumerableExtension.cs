@@ -36,7 +36,7 @@ namespace FunicularSwitch.Extensions
         }
 
         /// <summary>
-        /// WhereAsync keeping execution order. Parallelism is not possible.
+        /// WhereAsync keeping execution order. Predicate is evaluated sequentially for every item.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="items"></param>

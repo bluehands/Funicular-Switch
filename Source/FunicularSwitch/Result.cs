@@ -24,7 +24,7 @@ namespace FunicularSwitch
             }
             catch (Exception e)
             {
-                return Result.Error<T>(formatError(e));
+                return Error<T>(formatError(e));
             }
         }
 
@@ -37,7 +37,7 @@ namespace FunicularSwitch
             }
             catch (Exception e)
             {
-                return Result.Error<Unit>(formatError(e));
+                return Error<Unit>(formatError(e));
             }
         }
 
@@ -50,7 +50,7 @@ namespace FunicularSwitch
             }
             catch (Exception e)
             {
-                return Result.Error<Unit>(formatError(e));
+                return Error<Unit>(formatError(e));
             }
         }
 
@@ -62,9 +62,11 @@ namespace FunicularSwitch
             }
             catch (Exception e)
             {
-                return Result.Error<T>(formatError(e));
+                return Error<T>(formatError(e));
             }
         }
+
+        public static Task<Result<TResult>> Aggregate<T1, T2, TResult>(Task<Result<T1>> r1, Task<Result<T2>> r2, Func<T1, T2, TResult> combine) => ResultExtension.Aggregate(r1, r2, combine);
 
         public static Result<(T1, T2)> Aggregate<T1, T2>(Result<T1> r1, Result<T2> r2) => r1.Aggregate(r2);
 
@@ -97,25 +99,12 @@ namespace FunicularSwitch
         public static bool operator true(Result<T> result) => result.IsOk;
         public static bool operator false(Result<T> result) => result.IsError;
 
-        public static bool operator !(Result<T> result) => result.IsError;
-
-        bool Equals(Result<T> other) => this is Ok<T> ok ? ok.Equals((Ok<T>)other) : ((Error<T>)this).Equals((Error<T>)other);
-
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((Result<T>) obj);
-        }
-
-        public override int GetHashCode() => throw new NotImplementedException();
-
         public static bool operator ==(Result<T>? left, Result<T>? right) => Equals(left, right);
 
         public static bool operator !=(Result<T>? left, Result<T>? right) => !Equals(left, right);
 
-        // Matches
+        public static bool operator !(Result<T> result) => result.IsError;
+
         public void Match(Action<T> ok, Action<string>? error = null) => Match(
             v => ok.ToFunc().Invoke(v),
             err =>
@@ -163,8 +152,6 @@ namespace FunicularSwitch
         }
         public T Match(Func<string, T> error) => Match(v => v, error);
 
-        #region Bind
-
         public Result<T1> Bind<T1>(Func<T, Result<T1>> bind)
         {
             switch (this)
@@ -190,16 +177,12 @@ namespace FunicularSwitch
             }
         }
 
-        #endregion
-        
-        // Maps
         public Result<T1> Map<T1>(Func<T, T1> map) 
             => Bind(value => Ok(map(value)));
 
         public Task<Result<T1>> Map<T1>(Func<T, Task<T1>> map) 
             => Bind(async value => Ok(await map(value).ConfigureAwait(false)));
 
-        // Helpers
         public T? GetValueOrDefault(Func<T>? defaultValue = null)
             => Match(
                 v => v,
@@ -257,9 +240,8 @@ namespace FunicularSwitch
 
         public override string GetErrorOrDefault() => Message;
 
-        public bool Equals(Error<T> other)
+        public bool Equals(Error<T>? other)
         {
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return string.Equals(Message, other.Message);
@@ -267,7 +249,6 @@ namespace FunicularSwitch
 
         public override bool Equals(object? obj)
         {
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             return obj is Error<T> other && Equals(other);
@@ -280,8 +261,9 @@ namespace FunicularSwitch
         public static bool operator !=(Error<T> left, Error<T> right) => !Equals(left, right);
     }
 
-    public static class ResultExtensions
+    public static class ResultExtension
     {
+        // ReSharper disable once FieldCanBeMadeReadOnly.Global
         public static string DefaultErrorSeparator = Environment.NewLine;
 
         #region bind
@@ -657,10 +639,12 @@ namespace FunicularSwitch
                 .Select(r => r.GetErrorOrDefault()!)
                 .JoinErrors(errorSeparator);
 
-        #endregion
-
         static string JoinErrors(this IEnumerable<string> errors, string? errorSeparator = null) =>
             string.Join(errorSeparator ?? DefaultErrorSeparator, errors);
+
+        #endregion
+
+        public static Result<T> Flatten<T>(this Result<Result<T>> result) => result.Bind(r => r);
 
         public static Result<T1> As<T, T1>(this Result<T> result) =>
             result.Bind(r =>
@@ -684,7 +668,7 @@ namespace FunicularSwitch
         public static Result<string> NotNullOrWhiteSpace(this string s, Func<string> error)
             => string.IsNullOrWhiteSpace(s) ? Result.Error<string>(error()) : s;
 
-        public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T> validate, Func<string>? onEmpty = null, string? errorSeparator = null) =>
+        public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T, string> validate, Func<string>? onEmpty = null, string? errorSeparator = null) =>
             candidates
                 .Select(r => r.Validate(validate, errorSeparator))
                 .FirstOk(onEmpty, errorSeparator);
@@ -711,24 +695,24 @@ namespace FunicularSwitch
             return Result.Error<T>(string.Join(errorSeparator ?? DefaultErrorSeparator, errors));
         }
 
-        public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Validate<T> validate, string? errorSeparator = null) =>
+        public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Validate<T, string> validate, string? errorSeparator = null) =>
             candidates
                 .Select(c => c.Validate(validate, errorSeparator))
                 .Aggregate(errorSeparator);
 
         public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<Result<T>> candidates,
-            Validate<T> validate, string? errorSeparator = null) =>
+            Validate<T, string> validate, string? errorSeparator = null) =>
             candidates
                 .Bind(items => items.AllOk(validate, errorSeparator));
 
-        public static Result<T> Validate<T>(this Result<T> item, Validate<T> validate, string? errorSeparator = null) => item.Bind(i => i.Validate(validate, errorSeparator));
+        public static Result<T> Validate<T>(this Result<T> item, Validate<T, string> validate, string? errorSeparator = null) => item.Bind(i => i.Validate(validate, errorSeparator));
 
-        public static Result<T> Validate<T>(this T item, Validate<T> validate, string? errorSeparator = null)
+        public static Result<T> Validate<T>(this T item, Validate<T, string> validate, string? errorSeparator = null)
         {
             var errors = validate(item).JoinErrors(errorSeparator);
             return !string.IsNullOrEmpty(errors) ? Result.Error<T>(errors) : item;
         }
     }
 
-    public delegate IEnumerable<string> Validate<in T>(T item);
+    public delegate IEnumerable<TError> Validate<in T, out TError>(T item);
 }

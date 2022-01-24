@@ -214,7 +214,5 @@ namespace FunicularSwitch
 
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
             option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
-
-        public static Result<T> Flatten<T>(this Result<Result<T>> result) => result.Bind(r => r);
     }
 }
