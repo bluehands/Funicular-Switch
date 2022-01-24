@@ -21,9 +21,9 @@ FunicularSwitch helps you to:
  - [NuGet: FunicularSwitch](https://www.nuget.org/packages/FunicularSwitch/)
  - [NuGet: FunicularSwitch.Generators](https://www.nuget.org/packages/FunicularSwitch.Generators/)
 
-[**FunicularSwitch**](#funicular_usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
+[**FunicularSwitch**](https://github.com/bluehands/Funicular-Switch#funicularswitch-usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
 
-[**FunicularSwitch.Generators**]((#generators_usage)) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations).
+[**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations).
 
 ## <a name="funicular_usage"></a>FunicularSwitch Usage
 
