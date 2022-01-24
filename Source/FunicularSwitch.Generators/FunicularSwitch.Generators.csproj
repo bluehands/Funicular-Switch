@@ -14,10 +14,6 @@
 		<IsPackable>true</IsPackable>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 
-		<!--<IsPreRelease>true</IsPreRelease>
-		<VersionSuffix>feature-Generators</VersionSuffix>-->
-
-
 		<VersionSuffixLocal />
 		<!--When variable is set we are building a prerelease package-->
 		<VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
@@ -25,8 +21,8 @@
 		</VersionSuffixLocal>
 
 		<!--#region adapt versions here-->
-		<MajorVersion>0</MajorVersion>
-		<MinorAndPatchVersion>9.0</MinorAndPatchVersion>
+		<MajorVersion>1</MajorVersion>
+		<MinorAndPatchVersion>0.0</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
@@ -38,12 +34,12 @@
 		<!-- Descriptions and information-->
 		<Titel>FunicularSwitch.Generators</Titel>
 		<Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
-		<PackageDescription>Source generator package to have result types like in F# with your custom error type</PackageDescription>
+		<PackageDescription>Source generator emitting result types like in F# with your custom error type and Match methods (safe switches) for base types and their derived cases</PackageDescription>
 		<Copyright>Copyright 2022 bluehands GmbH &amp; C.ommunication KG</Copyright>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>FunicularSwitch.png</PackageIcon>
-		<PackageTags>F# Result, Result, Match, Map, Bind, Railway oriented programming, Railway oriented, Railway, Source Generator</PackageTags>
+		<PackageTags>F# Result, Result, Match, UnionTypes, Map, Bind, Railway oriented programming, Railway oriented, Railway, Source Generator</PackageTags>
 		<RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
 		<RepositoryBranch>main</RepositoryBranch>
