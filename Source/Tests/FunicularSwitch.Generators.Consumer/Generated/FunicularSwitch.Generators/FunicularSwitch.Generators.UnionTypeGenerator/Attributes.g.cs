@@ -4,7 +4,7 @@
 namespace FunicularSwitch.Generators
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public sealed class UnionTypeAttribute : Attribute
+    sealed class UnionTypeAttribute : Attribute
     {
     }
 }
