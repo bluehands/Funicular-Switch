@@ -4,7 +4,7 @@
 namespace FunicularSwitch.Generators
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public sealed class ResultTypeAttribute : Attribute
+    sealed class ResultTypeAttribute : Attribute
     {
         public ResultTypeAttribute() => ErrorType = typeof(string);
         public ResultTypeAttribute(Type errorType) => ErrorType = errorType;
@@ -13,7 +13,7 @@ namespace FunicularSwitch.Generators
     }
 
     [AttributeUsage(AttributeTargets.Method, Inherited = false)]
-    public sealed class MergeErrorAttribute : Attribute
+    sealed class MergeErrorAttribute : Attribute
     {
     }
 }
