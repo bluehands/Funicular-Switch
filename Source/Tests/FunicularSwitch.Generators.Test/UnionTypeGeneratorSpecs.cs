@@ -18,6 +18,7 @@ namespace FunicularSwitch.Test;
 public abstract record Base;
 
 public record One : Base;
+public record Aaa : Base;
 public record Two : Base;";
 
         return Verify(code);

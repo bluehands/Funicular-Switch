@@ -10,6 +10,7 @@ using System;
 namespace FunicularSwitch.Generators.Consumer
 
 {
+#pragma warning disable 1591
     public abstract partial class Result
     {
         public static Result<T> Error<T>(String details) => new Result<T>.Error_(details);
@@ -371,4 +372,5 @@ namespace FunicularSwitch.Generators.Consumer
                 .FirstOrDefault(i => predicate(i))
                 .NotNull(noMatch);
     }
+#pragma warning restore 1591
 }

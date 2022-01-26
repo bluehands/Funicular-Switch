@@ -38,7 +38,6 @@ public class UnionTypeGenerator : IIncrementalGenerator
 
         var resultTypeSchemata = 
             Parser.GetUnionTypes(compilation, unionTypeClasses, context.ReportDiagnostic, context.CancellationToken)
-                .OrderBy(t => t.TypeName)
                 .ToImmutableArray();
 
         var generation =

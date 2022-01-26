@@ -6,7 +6,9 @@ public sealed record UnionTypeSchema(string Namespace, string TypeName, IReadOnl
 {
     public string Namespace { get; } = Namespace;
     public string TypeName { get; } = TypeName;
-    public IReadOnlyCollection<DerivedType> Cases { get; } = Cases;
+    IReadOnlyCollection<DerivedType> Cases { get; } = Cases;
+
+    public IEnumerable<DerivedType> OrderedCases() => Cases.OrderBy(c => c.FullTypeName);
 }
 
 public sealed record DerivedType

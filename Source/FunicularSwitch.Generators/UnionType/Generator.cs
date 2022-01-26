@@ -22,11 +22,12 @@ public static class Generator
                 builder.WriteLine("");
                 var thisParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.TypeName}>");
                 WriteMatchSignature(builder, unionTypeSchema, thisParameter, "Task<T>", "T", "public static async");
-                builder.WriteLine($"(await {thisParameter.Name}.ConfigureAwait(false)).Match({unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString()});");
+                var caseParameters = unionTypeSchema.OrderedCases().Select(c => c.ParameterName).ToSeparatedString();
+                builder.WriteLine($"(await {thisParameter.Name}.ConfigureAwait(false)).Match({caseParameters});");
                 builder.WriteLine("");
                 var thisParameter1 = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.TypeName}>");
                 WriteMatchSignature(builder, unionTypeSchema, thisParameter1, "Task<T>", handlerReturnType: "Task<T>", "public static async");
-                builder.WriteLine($"await (await {thisParameter1.Name}.ConfigureAwait(false)).Match({unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString()}).ConfigureAwait(false);");
+                builder.WriteLine($"await (await {thisParameter1.Name}.ConfigureAwait(false)).Match({caseParameters}).ConfigureAwait(false);");
             }
         }
 
@@ -43,7 +44,7 @@ public static class Generator
         using (builder.ScopeWithSemicolon())
         {
             var caseIndex = 0;
-            foreach (var c in unionTypeSchema.Cases)
+            foreach (var c in unionTypeSchema.OrderedCases())
             {
                 caseIndex++;
                 builder.WriteLine($"{c.FullTypeName} case{caseIndex} => {c.ParameterName}(case{caseIndex}),");
@@ -60,7 +61,7 @@ public static class Generator
         Parameter thisParameter, string returnType, string? handlerReturnType = null, string modifiers = "public static")
     {
         handlerReturnType ??= returnType;
-        var handlerParameters = unionTypeSchema.Cases
+        var handlerParameters = unionTypeSchema.OrderedCases()
             .Select(c => new Parameter($"Func<{c.FullTypeName}, {handlerReturnType}>", c.ParameterName));
 
         builder.WriteMethodSignature(
