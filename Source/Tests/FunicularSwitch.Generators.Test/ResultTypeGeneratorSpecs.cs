@@ -14,7 +14,7 @@ using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test;
 
-[ResultType(errorType: typeof(MyError))]
+[ResultType(ErrorType = typeof(MyError))]
 public abstract partial class OperationResult<T>
 {
 }

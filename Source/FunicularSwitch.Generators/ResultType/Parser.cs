@@ -16,7 +16,7 @@ static class Parser
             var semanticModel = compilation.GetSemanticModel(resultTypeClass.SyntaxTree);
 
             var attribute = resultTypeClass.AttributeLists
-                .Select(l => l.Attributes.First(a => a.Name.ToString() == "ResultType"))
+                .Select(l => l.Attributes.First(a => a.GetAttributeFullName(semanticModel) == ResultTypeGenerator.ResultTypeAttribute))
                 .First();
 
             var errorType = TryGetErrorType(attribute, reportDiagnostic);
@@ -83,7 +83,7 @@ static class Parser
         var expressionSyntax = attribute.ArgumentList!.Arguments[0].Expression;
         if (expressionSyntax is not TypeOfExpressionSyntax es)
         {
-            reportDiagnostics(Diagnostics.InvalidAttributeUsage("Expected typeof expression for error type parameter", attribute.GetLocation()));
+            reportDiagnostics(Diagnostics.InvalidResultTypeAttributeUsage("Expected typeof expression for error type parameter", attribute.GetLocation()));
             return null;
         }
 

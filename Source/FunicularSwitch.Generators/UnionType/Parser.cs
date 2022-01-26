@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using FunicularSwitch.Generators.ResultType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,27 +18,106 @@ static class Parser
             if (unionTypeSymbol == null)
                 throw new ArgumentException("Cannot get union type symbol"); //TODO: report diagnostics
 
+            var attribute = unionTypeClass.AttributeLists
+                .Select(l => l.Attributes.First(a => a.GetAttributeFullName(semanticModel) == UnionTypeGenerator.UnionTypeAttribute))
+                .First();
+
+            var caseOrder = TryGetCaseOrder(attribute, reportDiagnostic);
+
             var derivedTypes = compilation.SyntaxTrees.SelectMany(t =>
             {
                 var root = t.GetRoot(cancellationToken);
-                var treeSemanticModel =
-                    t != unionTypeClass.SyntaxTree ? compilation.GetSemanticModel(t) : semanticModel;
+                var treeSemanticModel = t != unionTypeClass.SyntaxTree ? compilation.GetSemanticModel(t) : semanticModel;
                 return FindConcreteDerivedTypesWalker.Get(root, unionTypeSymbol, treeSemanticModel);
             });
 
             return new UnionTypeSchema(
                 unionTypeSymbol.GetFullNamespace(),
                 unionTypeSymbol.Name,
-                derivedTypes.Select(d => new DerivedType(d.@namespace + "." + d.typeName, d.typeName.Name))
+                ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic)
                     .ToImmutableArray()
             );
 
         });
+
+    static CaseOrder TryGetCaseOrder(AttributeSyntax attribute, Action<Diagnostic> reportDiagnostics)
+    {
+        if ((attribute.ArgumentList?.Arguments.Count ?? 0) < 1)
+            return CaseOrder.Alphabetic;
+
+        var expressionSyntax = attribute.ArgumentList?.Arguments[0].Expression;
+        if (expressionSyntax is not MemberAccessExpressionSyntax l)
+        {
+            //TODO: report diagnostics
+            return CaseOrder.Alphabetic;
+        }
+        
+        return (CaseOrder)Enum.Parse(typeof(CaseOrder), l.Name.ToString());
+    }
+
+    static IEnumerable<DerivedType> ToOrderedCases(CaseOrder caseOrder, IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int numberOfConctreteBaseTypes)> derivedTypes, Action<Diagnostic> reportDiagnostic)
+    {
+        var ordered = derivedTypes.OrderByDescending(d => d.numberOfConctreteBaseTypes);
+        ordered = caseOrder switch
+        {
+            CaseOrder.Alphabetic => ordered.ThenBy(d => d.node.QualifiedName().Name),
+            CaseOrder.AsDeclared => ordered.ThenBy(d => d.node.SyntaxTree.FilePath)
+                .ThenBy(d => d.node.Span.Start),
+            CaseOrder.Explicit => ordered.ThenBy(d => d.caseIndex),
+            _ => throw new ArgumentOutOfRangeException(nameof(caseOrder), caseOrder, null)
+        };
+
+        var result = ordered.ToImmutableArray();
+
+        switch (caseOrder)
+        {
+            case CaseOrder.Alphabetic:
+            case CaseOrder.AsDeclared:
+                foreach (var t in result.Where(r => r.caseIndex != null))
+                {
+                    var message = $"Explicit case index on {t.node.Name()} is ignored, because CaseOrder on UnionTypeAttribute is {caseOrder}. Set it CaseOrder.Explicit for explicit ordering.";
+                    reportDiagnostic(Diagnostics.MisleadingCaseOrdering(message, t.node.GetLocation()));
+                }
+                break;
+            case CaseOrder.Explicit:
+                foreach (var t in result.Where(r => r.caseIndex == null))
+                {
+                    var message = $"Missing case index on {t.node.Name()}. Please add UnionCaseAttribute for explicit case ordering.";
+                    reportDiagnostic(Diagnostics.CaseIndexNotSet(message, t.node.GetLocation()));
+                }
+
+                foreach (var group in result.Where(r => r.caseIndex != null)
+                             .GroupBy(r => r.caseIndex)
+                             .Where(g => g.Count() > 1))
+                {
+                    var message = $"Cases {group.Select(g => g.node.Name()).ToSeparatedString()} define the same case index. Order is not guaranteed.";
+                    reportDiagnostic(Diagnostics.AmbiguousCaseIndex(message, group.First().node.GetLocation()));
+                }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(caseOrder), caseOrder, null);
+        }
+
+        return result.Select(d =>
+        {
+            var qualifiedTypeName = d.node.QualifiedName();
+            return new DerivedType(
+                fullTypeName: d.symbol.GetFullNamespace() + "." + qualifiedTypeName,
+                typeName: qualifiedTypeName.Name);
+        });
+    }
+}
+
+enum CaseOrder
+{
+    Alphabetic,
+    AsDeclared,
+    Explicit
 }
 
 class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
 {
-    readonly List<(string @namespace, QualifiedTypeName typeName)> m_DerivedClasses = new();
+    readonly List<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex)> m_DerivedClasses = new();
     readonly SemanticModel m_SemanticModel;
     readonly ITypeSymbol m_BaseClass;
 
@@ -47,11 +127,11 @@ class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
         m_BaseClass = baseClass;
     }
 
-    public static List<(string @namespace, QualifiedTypeName typeName)> Get(SyntaxNode node, ITypeSymbol baseClass, SemanticModel semanticModel)
+    public static IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int numberOfConctreteBaseTypes)> Get(SyntaxNode node, ITypeSymbol baseClass, SemanticModel semanticModel)
     {
         var me = new FindConcreteDerivedTypesWalker(semanticModel, baseClass);
         me.Visit(node);
-        return me.m_DerivedClasses;
+        return me.m_DerivedClasses.Select(d => (d.symbol, d.node, d.caseIndex, numberOfConctreteBaseTypes: me.m_DerivedClasses.Count(t => d.symbol.InheritsFrom(t.symbol))));
     }
 
     public override void VisitClassDeclaration(ClassDeclarationSyntax node)
@@ -74,8 +154,28 @@ class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
             var symbol = m_SemanticModel.GetDeclaredSymbol(node);
             if (symbol != null && symbol.InheritsFrom(m_BaseClass))
             {
-                m_DerivedClasses.Add((symbol.GetFullNamespace(), node.QualifiedName()));
+                var attribute = node.AttributeLists
+                    .Select(l => l.Attributes.First(a => a.GetAttributeFullName(m_SemanticModel) == UnionTypeGenerator.UnionCaseAttribute))
+                    .FirstOrDefault();
+                
+                var caseIndex = TryGetCaseIndex(attribute);
+
+                m_DerivedClasses.Add((symbol, node, caseIndex));
             }
         }
+    }
+
+    static int? TryGetCaseIndex(AttributeSyntax? attribute)
+    {
+        if (attribute == null)
+            return null;
+
+        var expressionSyntax = attribute.ArgumentList?.Arguments[0].Expression;
+        if (expressionSyntax is not LiteralExpressionSyntax l)
+        {
+            //reportDiagnostics(Diagnostics.InvalidAttributeUsage("Expected literal numeric value as argument for UnionCaseAttribute", attribute.GetLocation()));
+            return null;
+        }
+        return l.Token.Value as int?;
     }
 }

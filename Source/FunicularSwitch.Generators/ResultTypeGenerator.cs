@@ -46,7 +46,5 @@ public class ResultTypeGenerator : IIncrementalGenerator
         foreach (var (filename, source) in generated) context.AddSource(filename, source);
     }
 
-    
-
-    const string ResultTypeAttribute = "FunicularSwitch.Generators.ResultTypeAttribute";
+    internal const string ResultTypeAttribute = "FunicularSwitch.Generators.ResultTypeAttribute";
 }

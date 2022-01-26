@@ -8,7 +8,8 @@ namespace FunicularSwitch.Generators;
 [Generator]
 public class UnionTypeGenerator : IIncrementalGenerator
 {
-    const string UnionTypeAttribute = "FunicularSwitch.Generators.UnionTypeAttribute";
+    internal const string UnionTypeAttribute = "FunicularSwitch.Generators.UnionTypeAttribute";
+    internal const string UnionCaseAttribute = "FunicularSwitch.Generators.UnionCaseAttribute";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Threading.Tasks;
+using System.Xml.XPath;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FunicularSwitch.Generators.Consumer.Extensions;
@@ -80,6 +81,7 @@ namespace FunicularSwitch.Generators.Consumer
         public static string MergeErrors(this string error, string other) => $"{error}{Environment.NewLine}{other}";
     }
 
+    [UnionType(CaseOrder = CaseOrder.AsDeclared)]
     public abstract class Error
     {
         public static Error Generic(string message) => new Generic_(message);
@@ -153,43 +155,43 @@ namespace FunicularSwitch.Generators.Consumer
         public override int GetHashCode() => (int)UnionCase;
     }
 
-    public static partial class ErrorExtension
-    {
-        public static T Match<T>(this Error error, Func<Error.Generic_, T> generic, Func<Error.NotFound_, T> notFound, Func<Error.NotAuthorized_, T> notAuthorized, Func<Error.Aggregated_, T> aggregated)
-        {
-            switch (error.UnionCase)
-            {
-                case Error.UnionCases.Generic:
-                    return generic((Error.Generic_)error);
-                case Error.UnionCases.NotFound:
-                    return notFound((Error.NotFound_)error);
-                case Error.UnionCases.NotAuthorized:
-                    return notAuthorized((Error.NotAuthorized_)error);
-                case Error.UnionCases.Aggregated:
-                    return aggregated((Error.Aggregated_)error);
-                default:
-                    throw new ArgumentException($"Unknown type derived from MyError: {error.GetType().Name}");
-            }
-        }
+    //public static partial class ErrorExtension
+    //{
+    //    public static T Match<T>(this Error error, Func<Error.Generic_, T> generic, Func<Error.NotFound_, T> notFound, Func<Error.NotAuthorized_, T> notAuthorized, Func<Error.Aggregated_, T> aggregated)
+    //    {
+    //        switch (error.UnionCase)
+    //        {
+    //            case Error.UnionCases.Generic:
+    //                return generic((Error.Generic_)error);
+    //            case Error.UnionCases.NotFound:
+    //                return notFound((Error.NotFound_)error);
+    //            case Error.UnionCases.NotAuthorized:
+    //                return notAuthorized((Error.NotAuthorized_)error);
+    //            case Error.UnionCases.Aggregated:
+    //                return aggregated((Error.Aggregated_)error);
+    //            default:
+    //                throw new ArgumentException($"Unknown type derived from MyError: {error.GetType().Name}");
+    //        }
+    //    }
 
-        public static async Task<T> Match<T>(this Error error, Func<Error.Generic_, Task<T>> generic, Func<Error.NotFound_, Task<T>> notFound, Func<Error.NotAuthorized_, Task<T>> notAuthorized, Func<Error.Aggregated_, Task<T>> aggregated)
-        {
-            switch (error.UnionCase)
-            {
-                case Error.UnionCases.Generic:
-                    return await generic((Error.Generic_)error).ConfigureAwait(false);
-                case Error.UnionCases.NotFound:
-                    return await notFound((Error.NotFound_)error).ConfigureAwait(false);
-                case Error.UnionCases.NotAuthorized:
-                    return await notAuthorized((Error.NotAuthorized_)error).ConfigureAwait(false);
-                case Error.UnionCases.Aggregated:
-                    return await aggregated((Error.Aggregated_)error).ConfigureAwait(false);
-                default:
-                    throw new ArgumentException($"Unknown type derived from MyError: {error.GetType().Name}");
-            }
-        }
+    //    public static async Task<T> Match<T>(this Error error, Func<Error.Generic_, Task<T>> generic, Func<Error.NotFound_, Task<T>> notFound, Func<Error.NotAuthorized_, Task<T>> notAuthorized, Func<Error.Aggregated_, Task<T>> aggregated)
+    //    {
+    //        switch (error.UnionCase)
+    //        {
+    //            case Error.UnionCases.Generic:
+    //                return await generic((Error.Generic_)error).ConfigureAwait(false);
+    //            case Error.UnionCases.NotFound:
+    //                return await notFound((Error.NotFound_)error).ConfigureAwait(false);
+    //            case Error.UnionCases.NotAuthorized:
+    //                return await notAuthorized((Error.NotAuthorized_)error).ConfigureAwait(false);
+    //            case Error.UnionCases.Aggregated:
+    //                return await aggregated((Error.Aggregated_)error).ConfigureAwait(false);
+    //            default:
+    //                throw new ArgumentException($"Unknown type derived from MyError: {error.GetType().Name}");
+    //        }
+    //    }
 
-        public static async Task<T> Match<T>(this Task<Error> myError, Func<Error.Generic_, T> generic, Func<Error.NotFound_, T> notFound, Func<Error.NotAuthorized_, T> notAuthorized, Func<Error.Aggregated_, T> aggregated) => (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated);
-        public static async Task<T> Match<T>(this Task<Error> myError, Func<Error.Generic_, Task<T>> generic, Func<Error.NotFound_, Task<T>> notFound, Func<Error.NotAuthorized_, Task<T>> notAuthorized, Func<Error.Aggregated_, Task<T>> aggregated) => await (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
-    }
+    //    public static async Task<T> Match<T>(this Task<Error> myError, Func<Error.Generic_, T> generic, Func<Error.NotFound_, T> notFound, Func<Error.NotAuthorized_, T> notAuthorized, Func<Error.Aggregated_, T> aggregated) => (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated);
+    //    public static async Task<T> Match<T>(this Task<Error> myError, Func<Error.Generic_, Task<T>> generic, Func<Error.NotFound_, Task<T>> notFound, Func<Error.NotAuthorized_, Task<T>> notAuthorized, Func<Error.Aggregated_, Task<T>> aggregated) => await (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
+    //}
 }

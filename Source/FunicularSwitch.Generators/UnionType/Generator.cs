@@ -22,7 +22,7 @@ public static class Generator
                 builder.WriteLine("");
                 var thisParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.TypeName}>");
                 WriteMatchSignature(builder, unionTypeSchema, thisParameter, "Task<T>", "T", "public static async");
-                var caseParameters = unionTypeSchema.OrderedCases().Select(c => c.ParameterName).ToSeparatedString();
+                var caseParameters = unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();
                 builder.WriteLine($"(await {thisParameter.Name}.ConfigureAwait(false)).Match({caseParameters});");
                 builder.WriteLine("");
                 var thisParameter1 = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.TypeName}>");
@@ -44,7 +44,7 @@ public static class Generator
         using (builder.ScopeWithSemicolon())
         {
             var caseIndex = 0;
-            foreach (var c in unionTypeSchema.OrderedCases())
+            foreach (var c in unionTypeSchema.Cases)
             {
                 caseIndex++;
                 builder.WriteLine($"{c.FullTypeName} case{caseIndex} => {c.ParameterName}(case{caseIndex}),");
@@ -61,7 +61,7 @@ public static class Generator
         Parameter thisParameter, string returnType, string? handlerReturnType = null, string modifiers = "public static")
     {
         handlerReturnType ??= returnType;
-        var handlerParameters = unionTypeSchema.OrderedCases()
+        var handlerParameters = unionTypeSchema.Cases
             .Select(c => new Parameter($"Func<{c.FullTypeName}, {handlerReturnType}>", c.ParameterName));
 
         builder.WriteMethodSignature(
