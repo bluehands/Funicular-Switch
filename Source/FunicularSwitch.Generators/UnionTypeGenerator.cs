@@ -8,7 +8,8 @@ namespace FunicularSwitch.Generators;
 [Generator]
 public class UnionTypeGenerator : IIncrementalGenerator
 {
-    const string UnionTypeAttribute = "FunicularSwitch.Generators.UnionTypeAttribute";
+    internal const string UnionTypeAttribute = "FunicularSwitch.Generators.UnionTypeAttribute";
+    internal const string UnionCaseAttribute = "FunicularSwitch.Generators.UnionCaseAttribute";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -21,7 +22,6 @@ public class UnionTypeGenerator : IIncrementalGenerator
                 .CreateSyntaxProvider(
                     predicate: static (s, _) => s.IsTypeDeclarationWithAttributes(),
                     transform: static (ctx, _) => GeneratorHelper.GetSemanticTargetForGeneration(ctx, UnionTypeAttribute)
-
                 )
                 .Where(static target => target != null)
                 .Select(static (target, _) => target!);
@@ -37,7 +37,9 @@ public class UnionTypeGenerator : IIncrementalGenerator
     {
         if (unionTypeClasses.IsDefaultOrEmpty) return;
 
-        var resultTypeSchemata = Parser.GetUnionTypes(compilation, unionTypeClasses, context.ReportDiagnostic, context.CancellationToken).ToImmutableArray();
+        var resultTypeSchemata = 
+            Parser.GetUnionTypes(compilation, unionTypeClasses, context.ReportDiagnostic, context.CancellationToken)
+                .ToImmutableArray();
 
         var generation =
             resultTypeSchemata.Select(r => Generator.Emit(r, context.ReportDiagnostic, context.CancellationToken));

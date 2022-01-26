@@ -10,6 +10,7 @@ using System;
 namespace FunicularSwitch.Generators.Consumer
 
 {
+#pragma warning disable 1591
     public abstract partial class Result
     {
         
@@ -427,4 +428,5 @@ namespace FunicularSwitch.Generators.Consumer
 
         #endregion
     }
+#pragma warning restore 1591
 }

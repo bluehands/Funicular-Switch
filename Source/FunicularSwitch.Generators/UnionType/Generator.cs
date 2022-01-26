@@ -22,11 +22,12 @@ public static class Generator
                 builder.WriteLine("");
                 var thisParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.TypeName}>");
                 WriteMatchSignature(builder, unionTypeSchema, thisParameter, "Task<T>", "T", "public static async");
-                builder.WriteLine($"(await {thisParameter.Name}.ConfigureAwait(false)).Match({unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString()});");
+                var caseParameters = unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();
+                builder.WriteLine($"(await {thisParameter.Name}.ConfigureAwait(false)).Match({caseParameters});");
                 builder.WriteLine("");
                 var thisParameter1 = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.TypeName}>");
                 WriteMatchSignature(builder, unionTypeSchema, thisParameter1, "Task<T>", handlerReturnType: "Task<T>", "public static async");
-                builder.WriteLine($"await (await {thisParameter1.Name}.ConfigureAwait(false)).Match({unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString()}).ConfigureAwait(false);");
+                builder.WriteLine($"await (await {thisParameter1.Name}.ConfigureAwait(false)).Match({caseParameters}).ConfigureAwait(false);");
             }
         }
 

@@ -10,6 +10,7 @@ using System;
 
 namespace FunicularSwitch.Test
 {
+#pragma warning disable 1591
     public abstract partial class Result
     {
         
@@ -427,4 +428,5 @@ namespace FunicularSwitch.Test
 
         #endregion
     }
+#pragma warning restore 1591
 }

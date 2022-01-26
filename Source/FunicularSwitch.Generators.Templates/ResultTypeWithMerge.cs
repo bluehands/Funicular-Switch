@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace FunicularSwitch.Generators.Templates
 {
+#pragma warning disable 1591
     public abstract partial class MyResult
     {
         //generated aggregate methods
@@ -171,4 +172,5 @@ namespace FunicularSwitch.Generators.Templates
 
         #endregion
     }
+#pragma warning restore 1591
 }
