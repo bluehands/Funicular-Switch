@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace FunicularSwitch.Generators.Templates
 {
+#pragma warning disable 1591
     public abstract class MyError
     {
         public static MyError Generic(string message) => new Generic_(message);
@@ -128,4 +129,5 @@ namespace FunicularSwitch.Generators.Templates
             Func<MyError.Aggregated_, Task<T>> aggregated) => await (await myError.ConfigureAwait(false))
             .Match(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
     }
+#pragma warning restore 1591
 }

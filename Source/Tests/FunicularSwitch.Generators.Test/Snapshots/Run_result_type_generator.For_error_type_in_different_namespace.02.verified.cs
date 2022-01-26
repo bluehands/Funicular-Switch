@@ -11,6 +11,7 @@ using FunicularSwitch.Test.Errors;
 namespace FunicularSwitch.Test
 
 {
+#pragma warning disable 1591
     public abstract partial class OperationResult
     {
         public static OperationResult<T> Error<T>(MyError details) => new OperationResult<T>.Error_(details);
@@ -372,4 +373,5 @@ namespace FunicularSwitch.Test
                 .FirstOrDefault(i => predicate(i))
                 .NotNull(noMatch);
     }
+#pragma warning restore 1591
 }

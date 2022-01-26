@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace FunicularSwitch.Generators.Templates
 {
+#pragma warning disable 1591
     public abstract partial class MyResult
     {
         public static MyResult<T> Error<T>(MyError details) => new MyResult<T>.Error_(details);
@@ -368,4 +369,5 @@ namespace FunicularSwitch.Generators.Templates.Extensions
                 .FirstOrDefault(i => predicate(i))
                 .NotNull(noMatch);
     }
+#pragma warning restore 1591
 }
