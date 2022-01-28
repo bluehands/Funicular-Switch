@@ -239,7 +239,7 @@ There is anonther useful generator coming with the package. Adding the `UnionTyp
 
 ``` cs
 [FunicularSwitch.Generators.UnionType]
-public astract class Error{...}
+public abstract class Error{...}
 
 public sealed class NotFound : Error {...}
 public sealed class Failure : Error {...}
@@ -260,6 +260,29 @@ static string PrintError(Error error) =>
 If you decide to add a case to your Error union all consuming switches break and you never miss a case at runtime!
 
 Match methods are also provided for async case handlers and as extensions on `Task<Error>`.
+
+To avoid bad suprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` attribute (FunicularSwitch.Generators namespace omitted):
+
+``` cs
+//default
+[UnionType(CaseOrder = CaseOrder.Alphabetical)]
+public abstract class Error{...}
+
+//useful for union types the define their cases as nested subclasses in a well defined order
+[UnionType(CaseOrder = CaseOrder.AsDeclared)]
+public abstract class Error{...}
+
+//order defined explicitly. Case sort index with [UnionCase] attribute on derived types is expected (generator warning if missing or ambigous)
+[UnionType(CaseOrder = CaseOrder.Explicit)]
+public abstract class Error{...}
+
+[UnionCase(index: 0)]
+public sealed class NotFound : Error {...}
+[UnionCase(index: 20)]
+public sealed class Failure : Error {...}
+[UnionCase(index: 10)]
+public sealed class InvalidInput : Error {...}
+```
 
 If you like union types but don't like excessive typing in C# try the [Switchyard](https://github.com/bluehands/Switchyard) Visual Studio extension, which generates the boilerplate code for you. It plays nicely with the FunicularSwitch.Generators package.
 
