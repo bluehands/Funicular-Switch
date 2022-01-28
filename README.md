@@ -216,10 +216,12 @@ As you can see, all errors are collected as far as possible. Feel free to play a
 
 ## <a name="generators_usage"></a>FunicularSwitch.Generators Usage
 
+*DISCLAIMER*: Right now source generator support in Visual Studio is quite a new feature. Often, especially after adding or updating the generator package intellisense will show errors, even though the code actually compiles. In this cases Visual Studio needs a restart right now (Visual Studio 2022 17.0.5).
+
 After adding the FunicularSwitch.Generators package you can mark a class as result type using the `ResultType` attribute. Ok and Error cases, Map, Bind, Match and some other methods will be generated so you can use your Result just like the one from the FunicularSwitch package.
 
 ``` cs
-  [FunicularSwitch.Generators.ResultType(ErrorType = typeof(MyCustomErrorType))]
+  [FunicularSwitch.Generators.ResultType(ErrorType = typeof(MyCustomError))]
   public abstract partial class Result<T> {}
 ```
 
