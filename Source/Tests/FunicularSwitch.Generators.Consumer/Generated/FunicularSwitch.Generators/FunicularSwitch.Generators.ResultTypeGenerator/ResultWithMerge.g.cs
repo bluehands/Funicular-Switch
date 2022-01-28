@@ -379,25 +379,25 @@ namespace FunicularSwitch.Generators.Consumer
             }
         }
 
-        public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Validate<T, String> validate) =>
+        public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<String>> validate) =>
             candidates
                 .Select(c => c.Validate(validate))
                 .Aggregate();
 
         public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<Result<T>> candidates,
-            Validate<T, String> validate) =>
+            Func<T, IEnumerable<String>> validate) =>
             candidates
                 .Bind(items => items.AllOk(validate));
 
-        public static Result<T> Validate<T>(this Result<T> item, Validate<T, String> validate) => item.Bind(i => i.Validate(validate));
+        public static Result<T> Validate<T>(this Result<T> item, Func<T, IEnumerable<String>> validate) => item.Bind(i => i.Validate(validate));
 
-        public static Result<T> Validate<T>(this T item, Validate<T, String> validate)
+        public static Result<T> Validate<T>(this T item, Func<T, IEnumerable<String>> validate)
         {
             var errors = validate(item).ToList();
             return errors.Count > 0 ? Result.Error<T>(MergeErrors(errors)) : item;
         }
 
-        public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T, String> validate, Func<String> onEmpty) =>
+        public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<String>> validate, Func<String> onEmpty) =>
             candidates
                 .Select(r => r.Validate(validate))
                 .FirstOk(onEmpty);

@@ -40,32 +40,6 @@ namespace FunicularSwitch.Generators.Templates
                 return Error<T>(formatError(e));
             }
         }
-
-        public static MyResult<Unit> Try(Action action, Func<Exception, MyError> formatError)
-        {
-            try
-            {
-                action();
-                return No.Thing;
-            }
-            catch (Exception e)
-            {
-                return Error<Unit>(formatError(e));
-            }
-        }
-
-        public static async Task<MyResult<Unit>> Try(Func<Task> action, Func<Exception, MyError> formatError)
-        {
-            try
-            {
-                await action();
-                return No.Thing;
-            }
-            catch (Exception e)
-            {
-                return Error<Unit>(formatError(e));
-            }
-        }
     }
 
     public abstract partial class MyResult<T> : MyResult, IEnumerable<T>

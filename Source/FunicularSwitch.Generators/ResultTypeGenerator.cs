@@ -10,9 +10,12 @@ public class ResultTypeGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
-            "Attributes.g.cs",
-            Templates.ResultTypeTemplates.StaticCode));
+        context.RegisterPostInitializationOutput(ctx =>
+        {
+            ctx.AddSource(
+                "Attributes.g.cs",
+                Templates.ResultTypeTemplates.StaticCode);
+        });
 
         var resultTypeClasses =
             context.SyntaxProvider
@@ -39,9 +42,6 @@ public class ResultTypeGenerator : IIncrementalGenerator
         var resultTypeSchemata = Parser.GetResultTypes(compilation, resultTypeClasses, context.ReportDiagnostic, context.CancellationToken).ToImmutableArray();
 
         var generated = resultTypeSchemata.SelectMany(r => Generator.Emit(r, context.ReportDiagnostic, context.CancellationToken)).ToImmutableArray();
-
-        if (compilation.ReferencedAssemblyNames.All(n => n.Name != "FunicularSwitch"))
-            context.AddSource("FunicularTypes.g.cs", Templates.ResultTypeTemplates.FunicularTypes);
 
         foreach (var (filename, source) in generated) context.AddSource(filename, source);
     }

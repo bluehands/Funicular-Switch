@@ -123,25 +123,25 @@ namespace FunicularSwitch.Generators.Templates
             }
         }
 
-        public static MyResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Validate<T, MyError> validate) =>
+        public static MyResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<MyError>> validate) =>
             candidates
                 .Select(c => c.Validate(validate))
                 .Aggregate();
 
         public static MyResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<MyResult<T>> candidates,
-            Validate<T, MyError> validate) =>
+            Func<T, IEnumerable<MyError>> validate) =>
             candidates
                 .Bind(items => items.AllOk(validate));
 
-        public static MyResult<T> Validate<T>(this MyResult<T> item, Validate<T, MyError> validate) => item.Bind(i => i.Validate(validate));
+        public static MyResult<T> Validate<T>(this MyResult<T> item, Func<T, IEnumerable<MyError>> validate) => item.Bind(i => i.Validate(validate));
 
-        public static MyResult<T> Validate<T>(this T item, Validate<T, MyError> validate)
+        public static MyResult<T> Validate<T>(this T item, Func<T, IEnumerable<MyError>> validate)
         {
             var errors = validate(item).ToList();
             return errors.Count > 0 ? MyResult.Error<T>(MergeErrors(errors)) : item;
         }
 
-        public static MyResult<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T, MyError> validate, Func<MyError> onEmpty) =>
+        public static MyResult<T> FirstOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<MyError>> validate, Func<MyError> onEmpty) =>
             candidates
                 .Select(r => r.Validate(validate))
                 .FirstOk(onEmpty);

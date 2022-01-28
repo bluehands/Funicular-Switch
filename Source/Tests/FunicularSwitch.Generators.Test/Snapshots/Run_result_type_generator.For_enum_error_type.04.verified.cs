@@ -1,9 +1,9 @@
-﻿//HintName: Result.g.cs
+﻿//HintName: ResultWithMerge.g.cs
 #nullable enable
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FunicularSwitch;
 using System;
@@ -13,363 +13,420 @@ namespace FunicularSwitch.Test
 #pragma warning disable 1591
     public abstract partial class Result
     {
-        public static Result<T> Error<T>(String details) => new Result<T>.Error_(details);
-        public static Result<T> Ok<T>(T value) => new Result<T>.Ok_(value);
-        public bool IsError => GetType().GetGenericTypeDefinition() == typeof(Result<>.Error_);
-        public bool IsOk => !IsError;
-        public abstract String? GetErrorOrDefault();
+        
+        public static Result<(T1, T2)> Aggregate<T1, T2>(Result<T1> r1, Result<T2> r2) => ResultExtension.Aggregate(r1, r2);
 
-        public static Result<T> Try<T>(Func<T> action, Func<Exception, String> formatError)
-        {
-            try
-            {
-                return action();
-            }
-            catch (Exception e)
-            {
-                return Error<T>(formatError(e));
-            }
-        }
+        public static Result<TResult> Aggregate<T1, T2, TResult>(Result<T1> r1, Result<T2> r2, Func<T1, T2, TResult> combine) => ResultExtension.Aggregate(r1, r2, combine);
 
-        public static async Task<Result<T>> Try<T>(Func<Task<T>> action, Func<Exception, String> formatError)
-        {
-            try
-            {
-                return await action();
-            }
-            catch (Exception e)
-            {
-                return Error<T>(formatError(e));
-            }
-        }
+        public static Task<Result<(T1, T2)>> Aggregate<T1, T2>(Task<Result<T1>> r1, Task<Result<T2>> r2) => ResultExtension.Aggregate(r1, r2);
 
-        public static Result<Unit> Try(Action action, Func<Exception, String> formatError)
-        {
-            try
-            {
-                action();
-                return No.Thing;
-            }
-            catch (Exception e)
-            {
-                return Error<Unit>(formatError(e));
-            }
-        }
+        public static Task<Result<TResult>> Aggregate<T1, T2, TResult>(Task<Result<T1>> r1, Task<Result<T2>> r2, Func<T1, T2, TResult> combine) => ResultExtension.Aggregate(r1, r2, combine);
 
-        public static async Task<Result<Unit>> Try(Func<Task> action, Func<Exception, String> formatError)
-        {
-            try
-            {
-                await action();
-                return No.Thing;
-            }
-            catch (Exception e)
-            {
-                return Error<Unit>(formatError(e));
-            }
-        }
-    }
+        public static Result<(T1, T2, T3)> Aggregate<T1, T2, T3>(Result<T1> r1, Result<T2> r2, Result<T3> r3) => ResultExtension.Aggregate(r1, r2, r3);
 
-    public abstract partial class Result<T> : Result, IEnumerable<T>
-    {
-        public static Result<T> Error(String message) => Error<T>(message);
-        public static Result<T> Ok(T value) => Ok<T>(value);
+        public static Result<TResult> Aggregate<T1, T2, T3, TResult>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Func<T1, T2, T3, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, combine);
 
-        public static implicit operator Result<T>(T value) => Result.Ok(value);
+        public static Task<Result<(T1, T2, T3)>> Aggregate<T1, T2, T3>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3) => ResultExtension.Aggregate(r1, r2, r3);
 
-        public static bool operator true(Result<T> result) => result.IsOk;
-        public static bool operator false(Result<T> result) => result.IsError;
+        public static Task<Result<TResult>> Aggregate<T1, T2, T3, TResult>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Func<T1, T2, T3, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, combine);
 
-        public static bool operator !(Result<T> result) => result.IsError;
+        public static Result<(T1, T2, T3, T4)> Aggregate<T1, T2, T3, T4>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4) => ResultExtension.Aggregate(r1, r2, r3, r4);
 
-        //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
-        bool Equals(Result<T> other) => this switch
-        {
-            Ok_ ok => ok.Equals((object)other),
-            Error_ error => error.Equals((object)other),
-            _ => throw new InvalidOperationException($"Unexpected type derived from {nameof(Result<T>)}")
-        };
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, TResult>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Func<T1, T2, T3, T4, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, combine);
 
-        public override int GetHashCode() => this switch
-        {
-            Ok_ ok => ok.GetHashCode(),
-            Error_ error => error.GetHashCode(),
-            _ => throw new InvalidOperationException($"Unexpected type derived from {nameof(Result<T>)}")
-        };
+        public static Task<Result<(T1, T2, T3, T4)>> Aggregate<T1, T2, T3, T4>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4) => ResultExtension.Aggregate(r1, r2, r3, r4);
 
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((Result<T>)obj);
-        }
+        public static Task<Result<TResult>> Aggregate<T1, T2, T3, T4, TResult>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Func<T1, T2, T3, T4, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, combine);
 
-        public static bool operator ==(Result<T>? left, Result<T>? right) => Equals(left, right);
+        public static Result<(T1, T2, T3, T4, T5)> Aggregate<T1, T2, T3, T4, T5>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5) => ResultExtension.Aggregate(r1, r2, r3, r4, r5);
 
-        public static bool operator !=(Result<T>? left, Result<T>? right) => !Equals(left, right);
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, TResult>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Func<T1, T2, T3, T4, T5, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, combine);
 
-        public void Match(Action<T> ok, Action<String>? error = null) => Match(
-            v =>
-            {
-                ok.Invoke(v);
-                return 42;
-            },
-            err =>
-            {
-                error?.Invoke(err);
-                return 42;
-            });
+        public static Task<Result<(T1, T2, T3, T4, T5)>> Aggregate<T1, T2, T3, T4, T5>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5) => ResultExtension.Aggregate(r1, r2, r3, r4, r5);
 
-        public T1 Match<T1>(Func<T, T1> ok, Func<String, T1> error)
-        {
-            return this switch
-            {
-                Ok_ okResult => ok(okResult.Value),
-                Error_ errorResult => error(errorResult.Details),
-                _ => throw new InvalidOperationException($"Unexpected derived result type: {GetType()}")
-            };
-        }
+        public static Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, TResult>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Func<T1, T2, T3, T4, T5, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, combine);
 
-        public async Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<String, Task<T1>> error)
-        {
-            return this switch
-            {
-                Ok_ okResult => await ok(okResult.Value).ConfigureAwait(false),
-                Error_ errorResult => await error(errorResult.Details).ConfigureAwait(false),
-                _ => throw new InvalidOperationException($"Unexpected derived result type: {GetType()}")
-            };
-        }
+        public static Result<(T1, T2, T3, T4, T5, T6)> Aggregate<T1, T2, T3, T4, T5, T6>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6);
 
-        public Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<String, T1> error) =>
-            Match(ok, e => Task.FromResult(error(e)));
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Func<T1, T2, T3, T4, T5, T6, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, combine);
 
-        public async Task Match(Func<T, Task> ok)
-        {
-            if (this is Ok_ okResult) await ok(okResult.Value).ConfigureAwait(false);
-        }
+        public static Task<Result<(T1, T2, T3, T4, T5, T6)>> Aggregate<T1, T2, T3, T4, T5, T6>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6);
 
-        public T Match(Func<String, T> error) => Match(v => v, error);
+        public static Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Func<T1, T2, T3, T4, T5, T6, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, combine);
 
-        public Result<T1> Bind<T1>(Func<T, Result<T1>> bind)
-        {
-            switch (this)
-            {
-                case Ok_ ok:
-                    return bind(ok.Value);
-                case Error_ error:
-                    return error.Convert<T1>();
-                default:
-                    throw new InvalidOperationException($"Unexpected derived result type: {GetType()}");
-            }
-        }
+        public static Result<(T1, T2, T3, T4, T5, T6, T7)> Aggregate<T1, T2, T3, T4, T5, T6, T7>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7);
 
-        public async Task<Result<T1>> Bind<T1>(Func<T, Task<Result<T1>>> bind)
-        {
-            switch (this)
-            {
-                case Ok_ ok:
-                    return await bind(ok.Value).ConfigureAwait(false);
-                case Error_ error:
-                    return error.Convert<T1>();
-                default:
-                    throw new InvalidOperationException($"Unexpected derived result type: {GetType()}");
-            }
-        }
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, TResult>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7, Func<T1, T2, T3, T4, T5, T6, T7, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, combine);
 
-        public Result<T1> Map<T1>(Func<T, T1> map)
-            => Bind(value => Ok(map(value)));
+        public static Task<Result<(T1, T2, T3, T4, T5, T6, T7)>> Aggregate<T1, T2, T3, T4, T5, T6, T7>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7);
 
-        public Task<Result<T1>> Map<T1>(Func<T, Task<T1>> map)
-            => Bind(async value => Ok(await map(value).ConfigureAwait(false)));
+        public static Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, TResult>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7, Func<T1, T2, T3, T4, T5, T6, T7, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, combine);
 
-        public T? GetValueOrDefault(Func<T>? defaultValue = null)
-            => Match(
-                v => v,
-                _ => defaultValue != null ? defaultValue() : default);
+        public static Result<(T1, T2, T3, T4, T5, T6, T7, T8)> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7, Result<T8> r8) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8);
 
-        public T GetValueOrThrow()
-            => Match(
-                v => v,
-                details => throw new InvalidOperationException($"Cannot access error result value. Error: {details}"));
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7, Result<T8> r8, Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, combine);
 
-        public IEnumerator<T> GetEnumerator() => Match(ok => new[] { ok }, _ => Enumerable.Empty<T>()).GetEnumerator();
+        public static Task<Result<(T1, T2, T3, T4, T5, T6, T7, T8)>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7, Task<Result<T8>> r8) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8);
 
-        public override string ToString() => Match(ok => $"Ok {ok?.ToString()}", error => $"Error {error}");
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public static Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7, Task<Result<T8>> r8, Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, combine);
 
-        public sealed partial class Ok_ : Result<T>
-        {
-            public T Value { get; }
+        public static Result<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7, Result<T8> r8, Result<T9> r9) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9);
 
-            public Ok_(T value) => Value = value;
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7, Result<T8> r8, Result<T9> r9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9, combine);
 
-            public override String? GetErrorOrDefault() => null;
+        public static Task<Result<(T1, T2, T3, T4, T5, T6, T7, T8, T9)>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7, Task<Result<T8>> r8, Task<Result<T9>> r9) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9);
 
-            public bool Equals(Ok_? other)
-            {
-                if (ReferenceEquals(null, other)) return false;
-                if (ReferenceEquals(this, other)) return true;
-                return EqualityComparer<T>.Default.Equals(Value, other.Value);
-            }
-
-            public override bool Equals(object? obj)
-            {
-                if (ReferenceEquals(null, obj)) return false;
-                if (ReferenceEquals(this, obj)) return true;
-                return obj is Ok_ other && Equals(other);
-            }
-
-            public override int GetHashCode() => Value == null ? 0 : EqualityComparer<T>.Default.GetHashCode(Value);
-
-            public static bool operator ==(Ok_ left, Ok_ right) => Equals(left, right);
-
-            public static bool operator !=(Ok_ left, Ok_ right) => !Equals(left, right);
-        }
-
-        public sealed partial class Error_ : Result<T>
-        {
-            public String Details { get; }
-
-            public Error_(String details) => Details = details;
-
-            public Result<T1>.Error_ Convert<T1>() => new Result<T1>.Error_(Details);
-
-            public override String? GetErrorOrDefault() => Details;
-
-            public bool Equals(Error_? other)
-            {
-                if (ReferenceEquals(null, other)) return false;
-                if (ReferenceEquals(this, other)) return true;
-                return Equals(Details, other.Details);
-            }
-
-            public override bool Equals(object? obj)
-            {
-                if (ReferenceEquals(null, obj)) return false;
-                if (ReferenceEquals(this, obj)) return true;
-                return obj is Error_ other && Equals(other);
-            }
-
-            public override int GetHashCode() => Details.GetHashCode();
-
-            public static bool operator ==(Error_ left, Error_ right) => Equals(left, right);
-
-            public static bool operator !=(Error_ left, Error_ right) => !Equals(left, right);
-        }
-
+        public static Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7, Task<Result<T8>> r8, Task<Result<T9>> r9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> combine) => ResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9, combine);
     }
 
     public static partial class ResultExtension
     {
-        #region bind
+        public static Result<IReadOnlyCollection<T1>> Map<T, T1>(this IEnumerable<Result<T>> results,
+            Func<T, T1> map) =>
+            results.Select(r => r.Map(map)).Aggregate();
 
-        public static async Task<Result<T1>> Bind<T, T1>(
-            this Task<Result<T>> result,
-            Func<T, Result<T1>> bind)
-            => (await result.ConfigureAwait(false)).Bind(bind);
+        public static Result<IReadOnlyCollection<T1>> Bind<T, T1>(this IEnumerable<Result<T>> results,
+            Func<T, Result<T1>> bind) =>
+            results.Select(r => r.Bind(bind)).Aggregate();
 
-        public static async Task<Result<T1>> Bind<T, T1>(
-            this Task<Result<T>> result,
-            Func<T, Task<Result<T1>>> bind)
-            => await (await result.ConfigureAwait(false)).Bind(bind).ConfigureAwait(false);
+        public static Result<IReadOnlyCollection<T1>> Bind<T, T1>(this Result<T> result,
+            Func<T, IEnumerable<Result<T1>>> bindMany) =>
+            result.Map(ok => bindMany(ok).Aggregate()).Flatten();
 
-        #endregion
-
-        #region map
-
-        public static async Task<Result<T1>> Map<T, T1>(
-            this Task<Result<T>> result,
-            Func<T, T1> map)
-            => (await result.ConfigureAwait(false)).Map(map);
-
-        public static Task<Result<T1>> Map<T, T1>(
-            this Task<Result<T>> result,
-            Func<T, Task<T1>> bind)
-            => Bind(result, async v => Result.Ok(await bind(v).ConfigureAwait(false)));
-
-        public static Result<T> MapError<T>(this Result<T> result, Func<String, String> mapError) =>
-            result.Match(ok => ok, error => Result.Error<T>(mapError(error)));
-
-        #endregion
-
-        #region match
-
-        public static async Task<T1> Match<T, T1>(
-            this Task<Result<T>> result,
-            Func<T, Task<T1>> ok,
-            Func<String, Task<T1>> error)
-            => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
-
-        public static async Task<T1> Match<T, T1>(
-            this Task<Result<T>> result,
-            Func<T, Task<T1>> ok,
-            Func<String, T1> error)
-            => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
-
-        public static async Task<T1> Match<T, T1>(
-            this Task<Result<T>> result,
-            Func<T, T1> ok,
-            Func<String, T1> error)
-            => (await result.ConfigureAwait(false)).Match(ok, error);
-
-        #endregion
-
-        public static Result<T> Flatten<T>(this Result<Result<T>> result) => result.Bind(r => r);
-
-        public static Result<T1> As<T, T1>(this Result<T> result, Func<String> errorTIsNotT1) =>
-            result.Bind(r =>
+        public static Result<T1> Bind<T, T1>(this IEnumerable<Result<T>> results,
+            Func<IEnumerable<T>, Result<T1>> bind) =>
+            results.Aggregate().Bind(bind);
+        
+        public static Result<IReadOnlyCollection<T>> Aggregate<T>(this IEnumerable<Result<T>> results)
+        {
+            var isError = false;
+            String aggregated = default!;
+            var oks = new List<T>();
+            foreach (var result in results)
             {
-                if (r is T1 converted)
-                    return converted;
-                return Result.Error<T1>(errorTIsNotT1());
-            });
-
-        public static Result<T1> As<T1>(this Result<object> result, Func<String> errorIsNotT1) =>
-            result.As<object, T1>(errorIsNotT1);
-    }
-}
-
-namespace FunicularSwitch.Test.Extensions
-{
-    public static partial class ResultExtension
-    {
-        public static IEnumerable<T1> Choose<T, T1>(
-            this IEnumerable<T> items,
-            Func<T, Result<T1>> choose,
-            Action<String> onError)
-            => items
-                .Select(i => choose(i))
-                .Choose(onError);
-
-        public static IEnumerable<T> Choose<T>(
-            this IEnumerable<Result<T>> results,
-            Action<String> onError)
-            => results
-                .Where(r =>
-                    r.Match(_ => true, error =>
+                result.Match(
+                    ok => oks.Add(ok),
+                    error =>
                     {
-                        onError(error);
-                        return false;
-                    }))
-                .Select(r => r.GetValueOrThrow());
+                        aggregated = !isError ? error : MergeErrors(aggregated, error);
+                        isError = true;
+                    }
+                );
+            }
 
-        public static Result<T> As<T>(this object item, Func<String> error) =>
-            !(item is T t) ? Result.Error<T>(error()) : t;
+            return isError
+                ? Result.Error<IReadOnlyCollection<T>>(aggregated)
+                : Result.Ok<IReadOnlyCollection<T>>(oks);
+        }
 
-        public static Result<T> NotNull<T>(this T item, Func<String> error) =>
-            item ?? Result.Error<T>(error());
+        public static async Task<Result<IReadOnlyCollection<T>>> Aggregate<T>(
+            this Task<IEnumerable<Result<T>>> results)
+            => (await results.ConfigureAwait(false))
+                .Aggregate();
 
-        public static Result<string> NotNullOrEmpty(this string s, Func<String> error)
-            => string.IsNullOrEmpty(s) ? Result.Error<string>(error()) : s;
+        public static async Task<Result<IReadOnlyCollection<T>>> Aggregate<T>(
+            this IEnumerable<Task<Result<T>>> results)
+            => (await Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
+                .Aggregate();
 
-        public static Result<string> NotNullOrWhiteSpace(this string s, Func<String> error)
-            => string.IsNullOrWhiteSpace(s) ? Result.Error<string>(error()) : s;
+        public static async Task<Result<IReadOnlyCollection<T>>> AggregateMany<T>(
+            this IEnumerable<Task<IEnumerable<Result<T>>>> results)
+            => (await Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
+                .SelectMany(e => e)
+                .Aggregate();
 
-        public static Result<T> First<T>(this IEnumerable<T> candidates, Func<T, bool> predicate, Func<String> noMatch) =>
+        
+        public static Result<(T1, T2)> Aggregate<T1, T2>(this Result<T1> r1, Result<T2> r2) => 
+            Aggregate(r1, r2, (v1, v2) => (v1, v2));
+
+        public static Result<TResult> Aggregate<T1, T2, TResult>(this Result<T1> r1, Result<T2> r2, Func<T1, T2, TResult> combine)            
+        {
+            if (r1 is Result<T1>.Ok_ ok1 && r2 is Result<T2>.Ok_ ok2)
+                return combine(ok1.Value, ok2.Value);
+
+            return Result.Error<TResult>(
+                MergeErrors(new Result[] { r1, r2 }
+                    .Where(r => r.IsError)
+                    .Select(r => r.GetErrorOrDefault()!)
+                )!);
+        }
+        
+        public static Task<Result<(T1, T2)>> Aggregate<T1, T2>(this Task<Result<T1>> r1, Task<Result<T2>> r2)
+            => Aggregate(r1, r2, (v1, v2) => (v1, v2));
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, TResult>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Func<T1, T2, TResult> combine)            
+        {
+            await Task.WhenAll(r1, r2);
+            return Aggregate(r1.Result, r2.Result, combine);
+        }
+
+        public static Result<(T1, T2, T3)> Aggregate<T1, T2, T3>(this Result<T1> r1, Result<T2> r2, Result<T3> r3) => 
+            Aggregate(r1, r2, r3, (v1, v2, v3) => (v1, v2, v3));
+
+        public static Result<TResult> Aggregate<T1, T2, T3, TResult>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Func<T1, T2, T3, TResult> combine)            
+        {
+            if (r1 is Result<T1>.Ok_ ok1 && r2 is Result<T2>.Ok_ ok2 && r3 is Result<T3>.Ok_ ok3)
+                return combine(ok1.Value, ok2.Value, ok3.Value);
+
+            return Result.Error<TResult>(
+                MergeErrors(new Result[] { r1, r2, r3 }
+                    .Where(r => r.IsError)
+                    .Select(r => r.GetErrorOrDefault()!)
+                )!);
+        }
+        
+        public static Task<Result<(T1, T2, T3)>> Aggregate<T1, T2, T3>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3)
+            => Aggregate(r1, r2, r3, (v1, v2, v3) => (v1, v2, v3));
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, TResult>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Func<T1, T2, T3, TResult> combine)            
+        {
+            await Task.WhenAll(r1, r2, r3);
+            return Aggregate(r1.Result, r2.Result, r3.Result, combine);
+        }
+
+        public static Result<(T1, T2, T3, T4)> Aggregate<T1, T2, T3, T4>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4) => 
+            Aggregate(r1, r2, r3, r4, (v1, v2, v3, v4) => (v1, v2, v3, v4));
+
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, TResult>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Func<T1, T2, T3, T4, TResult> combine)            
+        {
+            if (r1 is Result<T1>.Ok_ ok1 && r2 is Result<T2>.Ok_ ok2 && r3 is Result<T3>.Ok_ ok3 && r4 is Result<T4>.Ok_ ok4)
+                return combine(ok1.Value, ok2.Value, ok3.Value, ok4.Value);
+
+            return Result.Error<TResult>(
+                MergeErrors(new Result[] { r1, r2, r3, r4 }
+                    .Where(r => r.IsError)
+                    .Select(r => r.GetErrorOrDefault()!)
+                )!);
+        }
+        
+        public static Task<Result<(T1, T2, T3, T4)>> Aggregate<T1, T2, T3, T4>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4)
+            => Aggregate(r1, r2, r3, r4, (v1, v2, v3, v4) => (v1, v2, v3, v4));
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, TResult>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Func<T1, T2, T3, T4, TResult> combine)            
+        {
+            await Task.WhenAll(r1, r2, r3, r4);
+            return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, combine);
+        }
+
+        public static Result<(T1, T2, T3, T4, T5)> Aggregate<T1, T2, T3, T4, T5>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5) => 
+            Aggregate(r1, r2, r3, r4, r5, (v1, v2, v3, v4, v5) => (v1, v2, v3, v4, v5));
+
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, TResult>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Func<T1, T2, T3, T4, T5, TResult> combine)            
+        {
+            if (r1 is Result<T1>.Ok_ ok1 && r2 is Result<T2>.Ok_ ok2 && r3 is Result<T3>.Ok_ ok3 && r4 is Result<T4>.Ok_ ok4 && r5 is Result<T5>.Ok_ ok5)
+                return combine(ok1.Value, ok2.Value, ok3.Value, ok4.Value, ok5.Value);
+
+            return Result.Error<TResult>(
+                MergeErrors(new Result[] { r1, r2, r3, r4, r5 }
+                    .Where(r => r.IsError)
+                    .Select(r => r.GetErrorOrDefault()!)
+                )!);
+        }
+        
+        public static Task<Result<(T1, T2, T3, T4, T5)>> Aggregate<T1, T2, T3, T4, T5>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5)
+            => Aggregate(r1, r2, r3, r4, r5, (v1, v2, v3, v4, v5) => (v1, v2, v3, v4, v5));
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, TResult>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Func<T1, T2, T3, T4, T5, TResult> combine)            
+        {
+            await Task.WhenAll(r1, r2, r3, r4, r5);
+            return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, r5.Result, combine);
+        }
+
+        public static Result<(T1, T2, T3, T4, T5, T6)> Aggregate<T1, T2, T3, T4, T5, T6>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6) => 
+            Aggregate(r1, r2, r3, r4, r5, r6, (v1, v2, v3, v4, v5, v6) => (v1, v2, v3, v4, v5, v6));
+
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Func<T1, T2, T3, T4, T5, T6, TResult> combine)            
+        {
+            if (r1 is Result<T1>.Ok_ ok1 && r2 is Result<T2>.Ok_ ok2 && r3 is Result<T3>.Ok_ ok3 && r4 is Result<T4>.Ok_ ok4 && r5 is Result<T5>.Ok_ ok5 && r6 is Result<T6>.Ok_ ok6)
+                return combine(ok1.Value, ok2.Value, ok3.Value, ok4.Value, ok5.Value, ok6.Value);
+
+            return Result.Error<TResult>(
+                MergeErrors(new Result[] { r1, r2, r3, r4, r5, r6 }
+                    .Where(r => r.IsError)
+                    .Select(r => r.GetErrorOrDefault()!)
+                )!);
+        }
+        
+        public static Task<Result<(T1, T2, T3, T4, T5, T6)>> Aggregate<T1, T2, T3, T4, T5, T6>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6)
+            => Aggregate(r1, r2, r3, r4, r5, r6, (v1, v2, v3, v4, v5, v6) => (v1, v2, v3, v4, v5, v6));
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, TResult>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Func<T1, T2, T3, T4, T5, T6, TResult> combine)            
+        {
+            await Task.WhenAll(r1, r2, r3, r4, r5, r6);
+            return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, r5.Result, r6.Result, combine);
+        }
+
+        public static Result<(T1, T2, T3, T4, T5, T6, T7)> Aggregate<T1, T2, T3, T4, T5, T6, T7>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7) => 
+            Aggregate(r1, r2, r3, r4, r5, r6, r7, (v1, v2, v3, v4, v5, v6, v7) => (v1, v2, v3, v4, v5, v6, v7));
+
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, TResult>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7, Func<T1, T2, T3, T4, T5, T6, T7, TResult> combine)            
+        {
+            if (r1 is Result<T1>.Ok_ ok1 && r2 is Result<T2>.Ok_ ok2 && r3 is Result<T3>.Ok_ ok3 && r4 is Result<T4>.Ok_ ok4 && r5 is Result<T5>.Ok_ ok5 && r6 is Result<T6>.Ok_ ok6 && r7 is Result<T7>.Ok_ ok7)
+                return combine(ok1.Value, ok2.Value, ok3.Value, ok4.Value, ok5.Value, ok6.Value, ok7.Value);
+
+            return Result.Error<TResult>(
+                MergeErrors(new Result[] { r1, r2, r3, r4, r5, r6, r7 }
+                    .Where(r => r.IsError)
+                    .Select(r => r.GetErrorOrDefault()!)
+                )!);
+        }
+        
+        public static Task<Result<(T1, T2, T3, T4, T5, T6, T7)>> Aggregate<T1, T2, T3, T4, T5, T6, T7>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7)
+            => Aggregate(r1, r2, r3, r4, r5, r6, r7, (v1, v2, v3, v4, v5, v6, v7) => (v1, v2, v3, v4, v5, v6, v7));
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, TResult>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7, Func<T1, T2, T3, T4, T5, T6, T7, TResult> combine)            
+        {
+            await Task.WhenAll(r1, r2, r3, r4, r5, r6, r7);
+            return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, r5.Result, r6.Result, r7.Result, combine);
+        }
+
+        public static Result<(T1, T2, T3, T4, T5, T6, T7, T8)> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7, Result<T8> r8) => 
+            Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, (v1, v2, v3, v4, v5, v6, v7, v8) => (v1, v2, v3, v4, v5, v6, v7, v8));
+
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7, Result<T8> r8, Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> combine)            
+        {
+            if (r1 is Result<T1>.Ok_ ok1 && r2 is Result<T2>.Ok_ ok2 && r3 is Result<T3>.Ok_ ok3 && r4 is Result<T4>.Ok_ ok4 && r5 is Result<T5>.Ok_ ok5 && r6 is Result<T6>.Ok_ ok6 && r7 is Result<T7>.Ok_ ok7 && r8 is Result<T8>.Ok_ ok8)
+                return combine(ok1.Value, ok2.Value, ok3.Value, ok4.Value, ok5.Value, ok6.Value, ok7.Value, ok8.Value);
+
+            return Result.Error<TResult>(
+                MergeErrors(new Result[] { r1, r2, r3, r4, r5, r6, r7, r8 }
+                    .Where(r => r.IsError)
+                    .Select(r => r.GetErrorOrDefault()!)
+                )!);
+        }
+        
+        public static Task<Result<(T1, T2, T3, T4, T5, T6, T7, T8)>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7, Task<Result<T8>> r8)
+            => Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, (v1, v2, v3, v4, v5, v6, v7, v8) => (v1, v2, v3, v4, v5, v6, v7, v8));
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7, Task<Result<T8>> r8, Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> combine)            
+        {
+            await Task.WhenAll(r1, r2, r3, r4, r5, r6, r7, r8);
+            return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, r5.Result, r6.Result, r7.Result, r8.Result, combine);
+        }
+
+        public static Result<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7, Result<T8> r8, Result<T9> r9) => 
+            Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9, (v1, v2, v3, v4, v5, v6, v7, v8, v9) => (v1, v2, v3, v4, v5, v6, v7, v8, v9));
+
+        public static Result<TResult> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(this Result<T1> r1, Result<T2> r2, Result<T3> r3, Result<T4> r4, Result<T5> r5, Result<T6> r6, Result<T7> r7, Result<T8> r8, Result<T9> r9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> combine)            
+        {
+            if (r1 is Result<T1>.Ok_ ok1 && r2 is Result<T2>.Ok_ ok2 && r3 is Result<T3>.Ok_ ok3 && r4 is Result<T4>.Ok_ ok4 && r5 is Result<T5>.Ok_ ok5 && r6 is Result<T6>.Ok_ ok6 && r7 is Result<T7>.Ok_ ok7 && r8 is Result<T8>.Ok_ ok8 && r9 is Result<T9>.Ok_ ok9)
+                return combine(ok1.Value, ok2.Value, ok3.Value, ok4.Value, ok5.Value, ok6.Value, ok7.Value, ok8.Value, ok9.Value);
+
+            return Result.Error<TResult>(
+                MergeErrors(new Result[] { r1, r2, r3, r4, r5, r6, r7, r8, r9 }
+                    .Where(r => r.IsError)
+                    .Select(r => r.GetErrorOrDefault()!)
+                )!);
+        }
+        
+        public static Task<Result<(T1, T2, T3, T4, T5, T6, T7, T8, T9)>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7, Task<Result<T8>> r8, Task<Result<T9>> r9)
+            => Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9, (v1, v2, v3, v4, v5, v6, v7, v8, v9) => (v1, v2, v3, v4, v5, v6, v7, v8, v9));
+
+        public static async Task<Result<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(this Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6, Task<Result<T7>> r7, Task<Result<T8>> r8, Task<Result<T9>> r9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> combine)            
+        {
+            await Task.WhenAll(r1, r2, r3, r4, r5, r6, r7, r8, r9);
+            return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, r5.Result, r6.Result, r7.Result, r8.Result, r9.Result, combine);
+        }
+
+        public static Result<T> FirstOk<T>(this IEnumerable<Result<T>> results, Func<String> onEmpty)
+        {
+            var errors = new List<String>();
+            foreach (var result in results)
+            {
+                if (result is Result<T>.Error_ e)
+                    errors.Add(e.Details);
+                else
+                    return result;
+            }
+
+            if (!errors.Any())
+                errors.Add(onEmpty());
+
+            return Result.Error<T>(MergeErrors(errors));
+        }
+
+        public static async Task<Result<IReadOnlyCollection<T>>> Aggregate<T>(
+            this IEnumerable<Task<Result<T>>> results,
+            int maxDegreeOfParallelism)
+            => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
+                .Aggregate();
+
+        public static async Task<Result<IReadOnlyCollection<T>>> AggregateMany<T>(
+            this IEnumerable<Task<IEnumerable<Result<T>>>> results,
+            int maxDegreeOfParallelism)
+            => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
+                .SelectMany(e => e)
+                .Aggregate();
+
+        static async Task<TOut[]> SelectAsync<T, TOut>(this IEnumerable<T> items, Func<T, Task<TOut>> selector, int maxDegreeOfParallelism)
+        {
+            using (var throttler = new SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism))
+            {
+                return await Task.WhenAll(items.Select(async item =>
+                {
+                    // ReSharper disable once AccessToDisposedClosure
+                    await throttler.WaitAsync().ConfigureAwait(false);
+                    try
+                    {
+                        return await selector(item).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        // ReSharper disable once AccessToDisposedClosure
+                        throttler.Release();
+                    }
+                })).ConfigureAwait(false);
+            }
+        }
+
+        public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<String>> validate) =>
             candidates
-                .FirstOrDefault(i => predicate(i))
-                .NotNull(noMatch);
+                .Select(c => c.Validate(validate))
+                .Aggregate();
+
+        public static Result<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<Result<T>> candidates,
+            Func<T, IEnumerable<String>> validate) =>
+            candidates
+                .Bind(items => items.AllOk(validate));
+
+        public static Result<T> Validate<T>(this Result<T> item, Func<T, IEnumerable<String>> validate) => item.Bind(i => i.Validate(validate));
+
+        public static Result<T> Validate<T>(this T item, Func<T, IEnumerable<String>> validate)
+        {
+            var errors = validate(item).ToList();
+            return errors.Count > 0 ? Result.Error<T>(MergeErrors(errors)) : item;
+        }
+
+        public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<String>> validate, Func<String> onEmpty) =>
+            candidates
+                .Select(r => r.Validate(validate))
+                .FirstOk(onEmpty);
+
+        #region helpers
+
+        static String MergeErrors(IEnumerable<String> errors)
+        {
+            var first = true;
+            String aggregated = default!;
+            foreach (var myError in errors)
+            {
+                if (first)
+                {
+                    aggregated = myError;
+                    first = false;
+                }
+                else
+                {
+                    aggregated = MergeErrors(aggregated, myError);
+                }
+            }
+
+            return aggregated;
+        }
+
+        static String MergeErrors(String aggregated, String error) => aggregated.MergeErrors(error);
+
+        #endregion
     }
 #pragma warning restore 1591
 }

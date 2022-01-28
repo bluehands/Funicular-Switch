@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 // ReSharper disable once CheckNamespace
-namespace FunicularSwitch;
+;
 
 public delegate IEnumerable<TError> Validate<in T, out TError>(T item);
 
