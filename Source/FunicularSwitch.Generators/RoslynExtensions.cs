@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FunicularSwitch.Generators;
 
-static class RoslynExtensions
+public static class RoslynExtensions
 {
     public static string GetContainingNamespace(this SyntaxNode node)
     {
@@ -31,7 +31,9 @@ static class RoslynExtensions
 
     public static bool IsAnyKeyWord(this string identifier) =>
         SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None
-        || SyntaxFacts.GetContextualKeywordKind(identifier) != SyntaxKind.None;
+        || SyntaxFacts.GetContextualKeywordKind(identifier) != SyntaxKind.None
+        || SyntaxFacts.GetReservedKeywordKinds().Contains(SyntaxFactory.ParseToken(identifier).Kind());
+
 
     public static bool InheritsFrom(this INamedTypeSymbol symbol, ITypeSymbol type)
     {

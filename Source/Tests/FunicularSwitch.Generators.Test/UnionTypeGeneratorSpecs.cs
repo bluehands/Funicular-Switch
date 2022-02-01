@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FunicularSwitch.Generators.Test;
@@ -79,4 +80,31 @@ public record Two : Base;";
 
         return Verify(code);
     }
+
+    [TestMethod]
+    public Task For_record_union_type_with_predefined_case_names()
+    {
+        var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType(CaseOrder = CaseOrder.AsDeclared)]
+public abstract record Field;
+
+public record String : Field;
+public record Enum : Field;
+public record Event : Field;";
+
+        return Verify(code);
+    }
+
+    [TestMethod]
+    public void KeyWorkSpecs()
+    {
+        "string".IsAnyKeyWord().Should().BeTrue();
+        "myparameter".IsAnyKeyWord().Should().BeFalse();
+        "event".IsAnyKeyWord().Should().BeTrue();
+    }
+
 }
