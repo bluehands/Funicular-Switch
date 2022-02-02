@@ -82,19 +82,62 @@ public record Two : Base;";
     }
 
     [TestMethod]
-    public Task For_record_union_type_with_predefined_case_names()
+    public Task For_switchyard_union_type()
     {
         var code = @"
-using FunicularSwitch.Generators;
-
 namespace FunicularSwitch.Test;
 
-[UnionType(CaseOrder = CaseOrder.AsDeclared)]
-public abstract record Field;
+[FunicularSwitch.Generators.UnionType]
+public abstract class FieldType
+{
+    public static readonly FieldType String = new String_();
+    public static readonly FieldType Bool = new Bool_();
+    public static readonly FieldType Enum = new Enum_();
 
-public record String : Field;
-public record Enum : Field;
-public record Event : Field;";
+    public class String_ : FieldType
+    {
+        public String_() : base(UnionCases.String)
+        {
+        }
+    }
+
+    public class Bool_ : FieldType
+    {
+        public Bool_() : base(UnionCases.Bool)
+        {
+        }
+    }
+
+    public class Enum_ : FieldType
+    {
+        public Enum_() : base(UnionCases.Enum)
+        {
+        }
+    }
+
+    internal enum UnionCases
+    {
+        String,
+        Bool,
+        Enum
+    }
+
+    internal UnionCases UnionCase { get; }
+    FieldType(UnionCases unionCase) => UnionCase = unionCase;
+
+    public override string ToString() => System.Enum.GetName(typeof(UnionCases), UnionCase) ?? UnionCase.ToString();
+    bool Equals(FieldType other) => UnionCase == other.UnionCase;
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((FieldType)obj);
+    }
+
+    public override int GetHashCode() => (int)UnionCase;
+}";
 
         return Verify(code);
     }

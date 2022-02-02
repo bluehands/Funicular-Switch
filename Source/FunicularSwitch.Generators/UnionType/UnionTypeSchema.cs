@@ -17,6 +17,6 @@ public sealed record DerivedType
     public DerivedType(string fullTypeName, string typeName)
     {
         FullTypeName = fullTypeName;
-        ParameterName = typeName.ToParameterName().TrimEnd('_');
+        ParameterName = (typeName.Any(c => c != '_') ? typeName.TrimEnd('_') : typeName).ToParameterName();
     }
 }
