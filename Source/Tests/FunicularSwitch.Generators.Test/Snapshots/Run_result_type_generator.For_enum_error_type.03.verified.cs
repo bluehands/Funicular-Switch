@@ -157,10 +157,23 @@ namespace FunicularSwitch.Test
         public Task<Result<T1>> Map<T1>(Func<T, Task<T1>> map)
             => Bind(async value => Ok(await map(value).ConfigureAwait(false)));
 
-        public T? GetValueOrDefault(Func<T>? defaultValue = null)
-            => Match(
-                v => v,
-                _ => defaultValue != null ? defaultValue() : default);
+        public T? GetValueOrDefault()
+	        => Match(
+		        v => (T?)v,
+		        _ => default
+	        );
+
+        public T GetValueOrDefault(Func<T> defaultValue)
+	        => Match(
+		        v => v,
+		        _ => defaultValue()
+	        );
+
+        public T GetValueOrDefault(T defaultValue)
+	        => Match(
+		        v => v,
+		        _ => defaultValue
+	        );
 
         public T GetValueOrThrow()
             => Match(
