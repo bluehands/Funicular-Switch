@@ -2,11 +2,13 @@
 {
     public class Unit
     {
-        public static readonly Unit Instance = new Unit();
+        public static readonly Unit Instance = new();
 
-        private Unit()
+        Unit()
         {
         }
+
+        public override string ToString() => nameof(Unit);
     }
 
     public static class No

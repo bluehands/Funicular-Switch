@@ -106,7 +106,9 @@ namespace FunicularSwitch
 
         public IEnumerator<T> GetEnumerator() => Match(v => new[] { v }, Enumerable.Empty<T>).GetEnumerator();
 
-        public T? GetValueOrDefault(Func<T>? defaultValue = null) => Match(v => v, () => defaultValue != null ? defaultValue() : default);
+        public T? GetValueOrDefault() => Match(v => (T?)v, () => default);
+
+        public T GetValueOrDefault(Func<T> defaultValue) => Match(v => v, () => defaultValue());
 
         public T GetValueOrDefault(T defaultValue) => Match(v => v, () => defaultValue);
 
