@@ -6,28 +6,51 @@ namespace FunicularSwitch.Generators.UnionType;
 
 public static class Generator
 {
-    public static (string filename, string source) Emit(UnionTypeSchema unionTypeSchema,
+	const string VoidMatchMethodName = "Switch";
+	const string MatchMethodName = "Match";
+
+	public static (string filename, string source) Emit(UnionTypeSchema unionTypeSchema,
         Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
     {
         var builder = new CSharpBuilder();
         builder.WriteUsings("System", "System.Threading.Tasks");
 
+
+        void BlankLine()
+        {
+	        builder.WriteLine("");
+        }
+
         using (builder.Namespace(unionTypeSchema.Namespace))
         {
             using (builder.PublicStaticPartialClass("MatchExtension"))
             {
+	            var thisTaskParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.FullTypeName}>");
+	            var caseParameters = unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();
+	            void WriteBodyForTaskExtension(string matchMethodName) => builder.WriteLine($"(await {thisTaskParameter.Name}.ConfigureAwait(false)).{matchMethodName}({caseParameters});");
+	            void WriteBodyForAsyncTaskExtension(string matchMethodName) => builder.WriteLine($"await (await {thisTaskParameter.Name}.ConfigureAwait(false)).{matchMethodName}({caseParameters}).ConfigureAwait(false);");
+
                 GenerateMatchMethod(builder, unionTypeSchema, "T");
-                builder.WriteLine("");
+                BlankLine();
                 GenerateMatchMethod(builder, unionTypeSchema, "Task<T>");
-                builder.WriteLine("");
-                var thisParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.FullTypeName}>");
-                WriteMatchSignature(builder, unionTypeSchema, thisParameter, "Task<T>", "T", "public static async");
-                var caseParameters = unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();
-                builder.WriteLine($"(await {thisParameter.Name}.ConfigureAwait(false)).Match({caseParameters});");
-                builder.WriteLine("");
-                var thisParameter1 = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.FullTypeName}>");
-                WriteMatchSignature(builder, unionTypeSchema, thisParameter1, "Task<T>", handlerReturnType: "Task<T>", "public static async");
-                builder.WriteLine($"await (await {thisParameter1.Name}.ConfigureAwait(false)).Match({caseParameters}).ConfigureAwait(false);");
+                BlankLine();
+                
+                WriteMatchSignature(builder, unionTypeSchema, thisTaskParameter, "Task<T>", "T", "public static async");
+                WriteBodyForTaskExtension(MatchMethodName);
+                BlankLine();
+                WriteMatchSignature(builder, unionTypeSchema, thisTaskParameter, "Task<T>", handlerReturnType: "Task<T>", "public static async");
+                WriteBodyForAsyncTaskExtension(MatchMethodName);
+                BlankLine();
+
+                GenerateSwitchMethod(builder, unionTypeSchema, false);
+                BlankLine();
+                GenerateSwitchMethod(builder, unionTypeSchema, true);
+                BlankLine();
+                WriteSwitchSignature(builder: builder, unionTypeSchema: unionTypeSchema, thisParameter: thisTaskParameter, isAsync: false, asyncReturn: true, lambda: true);
+                WriteBodyForTaskExtension(VoidMatchMethodName);
+                BlankLine();
+                WriteSwitchSignature(builder: builder, unionTypeSchema: unionTypeSchema, thisParameter: thisTaskParameter, isAsync: true, lambda: true);
+                WriteBodyForAsyncTaskExtension(VoidMatchMethodName);
             }
         }
 
@@ -55,6 +78,41 @@ public static class Generator
         }
     }
 
+    static void GenerateSwitchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, bool isAsync)
+    {
+	    var thisParameterType = unionTypeSchema.FullTypeName;
+	    var thisParameter = ThisParameter(unionTypeSchema, thisParameterType);
+	    var thisParameterName = thisParameter.Name;
+	    WriteSwitchSignature(builder, unionTypeSchema, thisParameter, isAsync);
+	    using (builder.Scope())
+	    {
+		    builder.WriteLine($"switch ({thisParameterName})");
+		    using (builder.Scope())
+		    {
+			    var caseIndex = 0;
+			    foreach (var c in unionTypeSchema.Cases)
+			    {
+				    caseIndex++;
+				    builder.WriteLine($"case {c.FullTypeName} case{caseIndex}:");
+				    using (builder.Indent())
+				    {
+					    var call = $"{c.ParameterName}(case{caseIndex})";
+					    if (isAsync)
+						    call = $"await {call}.ConfigureAwait(false)";
+					    builder.WriteLine($"{call};");
+					    builder.WriteLine("break;");
+				    }
+			    }
+
+			    builder.WriteLine("default:");
+			    using (builder.Indent())
+			    {
+				    builder.WriteLine($"throw new ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\");");
+			    }
+		    }
+	    }
+    }
+
     static Parameter ThisParameter(UnionTypeSchema unionTypeSchema, string thisParameterType) => new($"this {thisParameterType}", unionTypeSchema.TypeName.ToParameterName());
 
     static void WriteMatchSignature(CSharpBuilder builder, UnionTypeSchema unionTypeSchema,
@@ -69,5 +127,21 @@ public static class Generator
             returnType: returnType,
             methodName: "Match<T>", parameters: new[] { thisParameter }.Concat(handlerParameters),
             lambda: true);
+    }
+
+    static void WriteSwitchSignature(CSharpBuilder builder, UnionTypeSchema unionTypeSchema,
+	    Parameter thisParameter, bool isAsync, bool? asyncReturn = null, bool lambda = false)
+    {
+	    var returnType = asyncReturn ?? isAsync ? "async Task" : "void";
+        var handlerParameters = unionTypeSchema.Cases
+		    .Select(c => new Parameter(isAsync ? $"Func<{c.FullTypeName}, Task>" : $"Action<{c.FullTypeName}>", c.ParameterName));
+
+        string modifiers = "public static";
+
+        builder.WriteMethodSignature(
+		    modifiers: modifiers,
+		    returnType: returnType,
+		    methodName: VoidMatchMethodName, parameters: new[] { thisParameter }.Concat(handlerParameters),
+		    lambda: lambda);
     }
 }

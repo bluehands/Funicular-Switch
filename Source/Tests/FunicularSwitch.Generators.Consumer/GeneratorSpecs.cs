@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Threading.Tasks;
-using System.Xml.XPath;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FunicularSwitch.Generators.Consumer.Extensions;
@@ -56,9 +55,25 @@ namespace FunicularSwitch.Generators.Consumer
         }
 
         [TestMethod]
-        public void Then_assertion()
+        public async Task Void_switches_are_generated()
         {
-            
+	        var error = Error.Generic("This is wrong");
+
+	        static void DoNothing<T>(T item) { }
+	        error.Switch(
+		        generic: DoNothing,
+		        notFound: DoNothing,
+		        notAuthorized: DoNothing,
+		        aggregated: DoNothing
+	        );
+
+	        static Task DoNothingAsync<T>(T item) => Task.CompletedTask;
+	        await error.Switch(
+		        generic: DoNothingAsync,
+		        notFound: DoNothingAsync,
+		        notAuthorized: DoNothingAsync,
+		        aggregated: DoNothingAsync
+	        );
         }
     }
 
