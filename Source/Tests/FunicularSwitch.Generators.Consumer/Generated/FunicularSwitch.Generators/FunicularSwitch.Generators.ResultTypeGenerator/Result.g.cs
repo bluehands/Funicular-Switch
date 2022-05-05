@@ -8,7 +8,6 @@ using FunicularSwitch;
 using System;
 
 namespace FunicularSwitch.Generators.Consumer
-
 {
 #pragma warning disable 1591
     public abstract partial class Result
@@ -317,8 +316,7 @@ namespace FunicularSwitch.Generators.Consumer
     }
 }
 
-namespace FunicularSwitch.Generators.Consumer
-.Extensions
+namespace FunicularSwitch.Generators.Consumer.Extensions
 {
     public static partial class ResultExtension
     {

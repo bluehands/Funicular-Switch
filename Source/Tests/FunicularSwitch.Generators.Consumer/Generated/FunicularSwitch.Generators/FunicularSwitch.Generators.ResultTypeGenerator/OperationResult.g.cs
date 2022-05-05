@@ -5,10 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FunicularSwitch;
-using FunicularSwitch.Generators.Consumer;
 
 namespace FunicularSwitch.Generators.Consumer
-
 {
 #pragma warning disable 1591
     abstract partial class OperationResult
@@ -317,8 +315,7 @@ namespace FunicularSwitch.Generators.Consumer
     }
 }
 
-namespace FunicularSwitch.Generators.Consumer
-.Extensions
+namespace FunicularSwitch.Generators.Consumer.Extensions
 {
     static partial class OperationResultExtension
     {

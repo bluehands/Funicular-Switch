@@ -13,14 +13,23 @@ static class Parser
 	public static IEnumerable<UnionTypeSchema> GetUnionTypes(Compilation compilation,
         ImmutableArray<BaseTypeDeclarationSyntax> unionTypeClasses, Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken) =>
-        unionTypeClasses.Select(unionTypeClass =>
+        unionTypeClasses
+	        .Select(unionTypeClass =>
         {
             var semanticModel = compilation.GetSemanticModel(unionTypeClass.SyntaxTree);
             var unionTypeSymbol = semanticModel.GetDeclaredSymbol(unionTypeClass);
-            
-            if (unionTypeSymbol == null)
-                throw new ArgumentException("Cannot get union type symbol"); //TODO: report diagnostics
 
+            if (unionTypeSymbol == null)//TODO: report diagnostics
+	            return null;
+
+            var fullTypeName = unionTypeSymbol.ToDisplayString(s_FullTypeDisplayFormat);
+            var acc = unionTypeSymbol.DeclaredAccessibility;
+            if (acc == Accessibility.Private || acc == Accessibility.Protected)
+            {
+	            reportDiagnostic(Diagnostics.UnionTypeIsNotAccessible($"{fullTypeName} needs at least internal accessibility", unionTypeClass.GetLocation()));
+	            return null;
+            }
+            
             var attribute = unionTypeClass.AttributeLists
                 .Select(l => l.Attributes.First(a => a.GetAttributeFullName(semanticModel) == UnionTypeGenerator.UnionTypeAttribute))
                 .First();
@@ -34,8 +43,6 @@ static class Parser
                 return FindConcreteDerivedTypesWalker.Get(root, unionTypeSymbol, treeSemanticModel);
             });
 
-            var fullTypeName = unionTypeSymbol.ToDisplayString(s_FullTypeDisplayFormat);
-
             return new UnionTypeSchema(
                 Namespace: unionTypeSymbol.GetFullNamespace(),
                 TypeName: unionTypeSymbol.Name,
@@ -44,7 +51,8 @@ static class Parser
                     .ToImmutableArray()
             );
 
-        });
+        })
+	        .Where(unionTypeClass => unionTypeClass != null)!;
 
     static CaseOrder TryGetCaseOrder(AttributeSyntax attribute, Action<Diagnostic> reportDiagnostics)
     {

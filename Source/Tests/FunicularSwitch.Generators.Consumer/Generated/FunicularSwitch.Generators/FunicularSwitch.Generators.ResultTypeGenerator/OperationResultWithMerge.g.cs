@@ -5,10 +5,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FunicularSwitch;
-using FunicularSwitch.Generators.Consumer;
 
 namespace FunicularSwitch.Generators.Consumer
-
 {
 #pragma warning disable 1591
     abstract partial class OperationResult

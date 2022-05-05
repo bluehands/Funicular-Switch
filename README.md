@@ -261,6 +261,8 @@ If you decide to add a case to your Error union all consuming switches break and
 
 Match methods are also provided for async case handlers and as extensions on `Task<Error>`.
 
+There is also a `Switch` extension method generated which is the 'void' version of `Match`, although this is not recommended from a functional point of view :).
+
 To avoid bad suprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` attribute (FunicularSwitch.Generators namespace omitted):
 
 ``` cs

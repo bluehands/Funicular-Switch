@@ -47,6 +47,13 @@ static class Diagnostics
             messageFormat: message
         );
 
+    public static Diagnostic UnionTypeIsNotAccessible(string message, Location location) =>
+	    Warning(location,
+		    id: "FUN0007",
+		    title: "Union type is not accessible",
+		    messageFormat: message
+	    );
+
     static Diagnostic Warning(Location location, string id, string title, string messageFormat) =>
         Diagnostic.Create(
             new(
