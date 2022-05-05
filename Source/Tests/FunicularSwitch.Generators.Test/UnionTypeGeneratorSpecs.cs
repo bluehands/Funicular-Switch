@@ -150,4 +150,25 @@ public abstract class FieldType
         "event".IsAnyKeyWord().Should().BeTrue();
     }
 
+    [TestMethod]
+    public Task For_nested_record_union_type()
+    {
+	    var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+public class Outer {
+
+	[UnionType]
+	public abstract record Base;
+
+	public record One : Base;
+	public record Aaa : Base;
+	public record Two : Base;
+}
+";
+
+	    return Verify(code);
+    }
 }

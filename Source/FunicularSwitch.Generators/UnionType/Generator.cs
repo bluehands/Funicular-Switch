@@ -20,12 +20,12 @@ public static class Generator
                 builder.WriteLine("");
                 GenerateMatchMethod(builder, unionTypeSchema, "Task<T>");
                 builder.WriteLine("");
-                var thisParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.TypeName}>");
+                var thisParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.FullTypeName}>");
                 WriteMatchSignature(builder, unionTypeSchema, thisParameter, "Task<T>", "T", "public static async");
                 var caseParameters = unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();
                 builder.WriteLine($"(await {thisParameter.Name}.ConfigureAwait(false)).Match({caseParameters});");
                 builder.WriteLine("");
-                var thisParameter1 = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.TypeName}>");
+                var thisParameter1 = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.FullTypeName}>");
                 WriteMatchSignature(builder, unionTypeSchema, thisParameter1, "Task<T>", handlerReturnType: "Task<T>", "public static async");
                 builder.WriteLine($"await (await {thisParameter1.Name}.ConfigureAwait(false)).Match({caseParameters}).ConfigureAwait(false);");
             }
@@ -36,7 +36,7 @@ public static class Generator
 
     static void GenerateMatchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, string t)
     {
-        var thisParameterType = unionTypeSchema.TypeName;
+        var thisParameterType = unionTypeSchema.FullTypeName;
         var thisParameter = ThisParameter(unionTypeSchema, thisParameterType);
         var thisParameterName = thisParameter.Name;
         WriteMatchSignature(builder, unionTypeSchema, thisParameter, t);
@@ -51,7 +51,7 @@ public static class Generator
             }
 
             builder.WriteLine(
-                $"_ => throw new ArgumentException($\"Unknown type derived from {unionTypeSchema.TypeName}: {{{thisParameterName}.GetType().Name}}\")");
+                $"_ => throw new ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\")");
         }
     }
 

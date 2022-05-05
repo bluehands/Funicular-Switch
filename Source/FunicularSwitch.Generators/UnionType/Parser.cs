@@ -8,13 +8,16 @@ namespace FunicularSwitch.Generators.UnionType;
 
 static class Parser
 {
-    public static IEnumerable<UnionTypeSchema> GetUnionTypes(Compilation compilation,
+	static readonly SymbolDisplayFormat s_FullTypeDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
+
+	public static IEnumerable<UnionTypeSchema> GetUnionTypes(Compilation compilation,
         ImmutableArray<BaseTypeDeclarationSyntax> unionTypeClasses, Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken) =>
         unionTypeClasses.Select(unionTypeClass =>
         {
             var semanticModel = compilation.GetSemanticModel(unionTypeClass.SyntaxTree);
             var unionTypeSymbol = semanticModel.GetDeclaredSymbol(unionTypeClass);
+            
             if (unionTypeSymbol == null)
                 throw new ArgumentException("Cannot get union type symbol"); //TODO: report diagnostics
 
@@ -31,10 +34,13 @@ static class Parser
                 return FindConcreteDerivedTypesWalker.Get(root, unionTypeSymbol, treeSemanticModel);
             });
 
+            var fullTypeName = unionTypeSymbol.ToDisplayString(s_FullTypeDisplayFormat);
+
             return new UnionTypeSchema(
-                unionTypeSymbol.GetFullNamespace(),
-                unionTypeSymbol.Name,
-                ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic)
+                Namespace: unionTypeSymbol.GetFullNamespace(),
+                TypeName: unionTypeSymbol.Name,
+                FullTypeName: fullTypeName,
+                Cases: ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic)
                     .ToImmutableArray()
             );
 
