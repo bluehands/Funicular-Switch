@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FunicularSwitch;
-using System;
 
 namespace FunicularSwitch.Generators.Consumer
 {
@@ -343,7 +342,7 @@ namespace FunicularSwitch.Generators.Consumer.Extensions
         public static Result<T> As<T>(this object item, Func<String> error) =>
             !(item is T t) ? Result.Error<T>(error()) : t;
 
-        public static Result<T> NotNull<T>(this T item, Func<String> error) =>
+        public static Result<T> NotNull<T>(this T? item, Func<String> error) =>
             item ?? Result.Error<T>(error());
 
         public static Result<string> NotNullOrEmpty(this string s, Func<String> error)

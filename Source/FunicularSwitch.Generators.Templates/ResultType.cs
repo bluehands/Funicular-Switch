@@ -342,7 +342,7 @@ namespace FunicularSwitch.Generators.Templates.Extensions
         public static MyResult<T> As<T>(this object item, Func<MyError> error) =>
             !(item is T t) ? MyResult.Error<T>(error()) : t;
 
-        public static MyResult<T> NotNull<T>(this T item, Func<MyError> error) =>
+        public static MyResult<T> NotNull<T>(this T? item, Func<MyError> error) =>
             item ?? MyResult.Error<T>(error());
 
         public static MyResult<string> NotNullOrEmpty(this string s, Func<MyError> error)

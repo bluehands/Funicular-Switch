@@ -40,7 +40,7 @@ public static class RoslynExtensions
         var baseType = symbol.BaseType;
         while (baseType != null)
         {
-            if (type.Equals(baseType))
+            if (type.Equals(baseType, SymbolEqualityComparer.Default))
                 return true;
 
             baseType = baseType.BaseType;

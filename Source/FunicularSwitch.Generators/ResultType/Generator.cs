@@ -38,7 +38,7 @@ static class Generator
         }
 
         var additionalNamespaces = new List<string> {"FunicularSwitch"};
-        if (errorTypeNamespace != resultTypeNamespace)
+        if (errorTypeNamespace != resultTypeNamespace && errorTypeNamespace != "System")
             additionalNamespaces.Add(errorTypeNamespace);
 
         yield return ($"{resultTypeSchema.ResultType.Identifier}.g.cs", Replace(Templates.ResultTypeTemplates.ResultType, additionalNamespaces));

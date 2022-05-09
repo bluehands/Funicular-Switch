@@ -343,7 +343,7 @@ namespace FunicularSwitch.Test.Extensions
         public static OperationResult<T> As<T>(this object item, Func<MyError> error) =>
             !(item is T t) ? OperationResult.Error<T>(error()) : t;
 
-        public static OperationResult<T> NotNull<T>(this T item, Func<MyError> error) =>
+        public static OperationResult<T> NotNull<T>(this T? item, Func<MyError> error) =>
             item ?? OperationResult.Error<T>(error());
 
         public static OperationResult<string> NotNullOrEmpty(this string s, Func<MyError> error)

@@ -22,7 +22,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>1</MajorVersion>
-		<MinorAndPatchVersion>3.0</MinorAndPatchVersion>
+		<MinorAndPatchVersion>3.1</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>

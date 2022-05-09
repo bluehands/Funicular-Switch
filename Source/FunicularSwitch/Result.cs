@@ -89,7 +89,10 @@ namespace FunicularSwitch
         public static Task<Result<(T1, T2, T3, T4, T5, T6)>> Aggregate<T1, T2, T3, T4, T5, T6>(Task<Result<T1>> r1, Task<Result<T2>> r2, Task<Result<T3>> r3, Task<Result<T4>> r4, Task<Result<T5>> r5, Task<Result<T6>> r6) => r1.Aggregate(r2, r3, r4, r5, r6);
     }
 
+    //Ok and Error derived types implement Equals / GetHashCode
+#pragma warning disable CS0660, CS0661
     public abstract class Result<T> : Result, IEnumerable<T>
+#pragma warning restore CS0660, CS0661
     {
         public static Result<T> Error(string message) => Error<T>(message);
         public static Result<T> Ok(T value) => Ok<T>(value);

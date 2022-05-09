@@ -342,7 +342,7 @@ namespace FunicularSwitch.Generators.Consumer.Extensions
         public static OperationResult<T> As<T>(this object item, Func<Error> error) =>
             !(item is T t) ? OperationResult.Error<T>(error()) : t;
 
-        public static OperationResult<T> NotNull<T>(this T item, Func<Error> error) =>
+        public static OperationResult<T> NotNull<T>(this T? item, Func<Error> error) =>
             item ?? OperationResult.Error<T>(error());
 
         public static OperationResult<string> NotNullOrEmpty(this string s, Func<Error> error)
