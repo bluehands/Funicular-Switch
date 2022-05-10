@@ -51,10 +51,10 @@ static class Diagnostics
 		    title: "Union type is not accessible",
 		    messageFormat: message, severity: DiagnosticSeverity.Error);
 
-    public static Diagnostic ResultTypeWithoutNamespace(string message, Location location) =>
+    public static Diagnostic ResultTypeInGlobalNamespace(string message, Location location) =>
 	    Create(location,
 		    id: "FUN0008",
-		    title: "Result type has empty namespace",
+		    title: "Result type in global namespace",
 		    messageFormat: message, severity: DiagnosticSeverity.Error);
 
     static Diagnostic Create(Location location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>

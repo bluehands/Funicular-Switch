@@ -16,7 +16,7 @@ static class Generator
         var resultTypeNamespace = resultTypeSchema.ResultType.GetContainingNamespace();
         if (resultTypeNamespace == null)
         {
-	        reportDiagnostic(Diagnostics.ResultTypeWithoutNamespace($"Result type {resultTypeName} is placed in empty top level namespace, this is not supported. Please put {resultTypeName} into non empty namespace.", resultTypeSchema.ResultType.GetLocation()));
+	        reportDiagnostic(Diagnostics.ResultTypeInGlobalNamespace($"Result type {resultTypeName} is placed in global namespace, this is not supported. Please put {resultTypeName} into non empty namespace.", resultTypeSchema.ResultType.GetLocation()));
 	        yield break;
         }
         
