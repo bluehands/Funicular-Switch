@@ -2,12 +2,12 @@
   Diagnostics: [
     {
       Id: FUN0008,
-      Title: Result type has empty namespace,
+      Title: Result type in global namespace,
       Severity: Error,
       WarningLevel: 0,
       Location: : (3,0)-(6,1),
-      MessageFormat: Result type OperationResult is placed in empty top level namespace, this is not supported. Please put OperationResult into non empty namespace.,
-      Message: Result type OperationResult is placed in empty top level namespace, this is not supported. Please put OperationResult into non empty namespace.,
+      MessageFormat: Result type OperationResult is placed in global namespace, this is not supported. Please put OperationResult into non empty namespace.,
+      Message: Result type OperationResult is placed in global namespace, this is not supported. Please put OperationResult into non empty namespace.,
       Category: ResultTypeGenerator
     }
   ]
