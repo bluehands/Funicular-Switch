@@ -12,15 +12,21 @@ static class Generator
 
     public static IEnumerable<(string filename, string source)> Emit(ResultTypeSchema resultTypeSchema, Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
     {
+	    var resultTypeName = resultTypeSchema.ResultType.Identifier.ToString();
         var resultTypeNamespace = resultTypeSchema.ResultType.GetContainingNamespace();
+        if (resultTypeNamespace == null)
+        {
+	        reportDiagnostic(Diagnostics.ResultTypeWithoutNamespace($"Result type {resultTypeName} is placed in empty top level namespace, this is not supported. Please put {resultTypeName} into non empty namespace.", resultTypeSchema.ResultType.GetLocation()));
+	        yield break;
+        }
+        
         var publicModifier = resultTypeSchema.ResultType.Modifiers.FirstOrDefault(t => t.Text == SyntaxFactory.Token(SyntaxKind.PublicKeyword).Text);
-        var resultTypeName = resultTypeSchema.ResultType.Identifier.ToString();
         var isValueType = resultTypeSchema.ErrorType.IsValueType;
         var errorTypeNamespace = resultTypeSchema.ErrorType.GetFullNamespace();
 
         string Replace(string code, IReadOnlyCollection<string> additionalNamespaces)
         {
-            code = code
+	        code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")
                 .Replace(TemplateResultTypeName, resultTypeName)
                 .Replace(TemplateErrorTypeName, resultTypeSchema.ErrorType.Name);
@@ -38,7 +44,7 @@ static class Generator
         }
 
         var additionalNamespaces = new List<string> {"FunicularSwitch"};
-        if (errorTypeNamespace != resultTypeNamespace && errorTypeNamespace != "System")
+        if (errorTypeNamespace != resultTypeNamespace && errorTypeNamespace != "System" && errorTypeNamespace != null)
             additionalNamespaces.Add(errorTypeNamespace);
 
         yield return ($"{resultTypeSchema.ResultType.Identifier}.g.cs", Replace(Templates.ResultTypeTemplates.ResultType, additionalNamespaces));
@@ -47,7 +53,7 @@ static class Generator
         {
             var mergeMethodNamespace = resultTypeSchema.MergeMethod.Match(staticMerge: m => m.Namespace, errorTypeMember: _ => "");
             if (!string.IsNullOrEmpty(mergeMethodNamespace) && mergeMethodNamespace != resultTypeNamespace)
-                additionalNamespaces.Add(mergeMethodNamespace);
+                additionalNamespaces.Add(mergeMethodNamespace!);
 
             var mergeCode = Replace(
                 Templates.ResultTypeTemplates.ResultTypeWithMerge

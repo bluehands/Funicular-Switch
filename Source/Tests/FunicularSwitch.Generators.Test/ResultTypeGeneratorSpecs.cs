@@ -79,6 +79,27 @@ namespace FunicularSwitch.Test.Extensions
         return Verify(code);
     }
 
+    [TestMethod]
+    public Task For_result_type_without_namespace()
+    {
+	    var code = @"
+using FunicularSwitch.Generators;
+
+[ResultType(errorType: typeof(MyError))]
+abstract partial class OperationResult<T>
+{
+}
+
+public enum MyError 
+{
+    Generic,
+    NotFound,
+    Unauthorized
+}
+";
+	    return Verify(code);
+    }
+
 
     [TestMethod]
     public Task For_internal_result_type()

@@ -21,7 +21,7 @@ public static class Generator
 	        builder.WriteLine("");
         }
 
-        using (builder.Namespace(unionTypeSchema.Namespace))
+        using (unionTypeSchema.Namespace != null ? builder.Namespace(unionTypeSchema.Namespace) : null)
         {
             using (builder.PublicStaticPartialClass("MatchExtension"))
             {

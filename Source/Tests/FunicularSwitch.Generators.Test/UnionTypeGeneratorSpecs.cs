@@ -193,4 +193,23 @@ public class Outer {
 
 		return Verify(code);
 	}
+
+	[TestMethod]
+	public Task For_empty_namespace()
+	{
+		var code = @"
+using FunicularSwitch.Generators;
+
+public class Outer {
+
+	[UnionType]
+	public abstract record Base;
+
+	public record One : Base;	
+	public record Two : Base;
+}
+";
+
+		return Verify(code);
+	}
 }

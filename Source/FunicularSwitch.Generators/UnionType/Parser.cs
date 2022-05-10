@@ -115,8 +115,9 @@ static class Parser
         return result.Select(d =>
         {
             var qualifiedTypeName = d.node.QualifiedName();
+            var fullNamespace = d.symbol.GetFullNamespace();
             return new DerivedType(
-                fullTypeName: d.symbol.GetFullNamespace() + "." + qualifiedTypeName,
+                fullTypeName: $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}",
                 typeName: qualifiedTypeName.Name);
         });
     }

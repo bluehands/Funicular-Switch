@@ -56,7 +56,7 @@ static class Parser
                 else if (methodDeclaration.ParameterList.Parameters.Count == 1 &&
                          methodDeclaration.Parent is ClassDeclarationSyntax c &&
                          //TODO: get correct name with visitor or from semantic model
-                         $"{c.GetContainingNamespace()}.{c.Identifier}" == returnTypeName &&
+                         $"{c.GetContainingNamespace()}.{c.Identifier}".TrimStart('.') == returnTypeName &&
                          methodDeclaration.ParameterList.Parameters.All(p => semanticModel.GetFullTypeName(p.Type!) == returnTypeName))
                 {
                     return MergeMethod.ErrorTypeMember(methodDeclaration.Identifier.ToString(), returnTypeName);
@@ -124,7 +124,7 @@ class FindMergeMethodsWalker : CSharpSyntaxWalker
 public abstract class MergeMethod
 {
     public static MergeMethod ErrorTypeMember(string methodName, string errorTypeName) => new ErrorTypeMember_(methodName, errorTypeName);
-    public static MergeMethod StaticMerge(string methodName, string @namespace, string errorTypeName) => new StaticMerge_(methodName, @namespace, errorTypeName);
+    public static MergeMethod StaticMerge(string methodName, string? @namespace, string errorTypeName) => new StaticMerge_(methodName, @namespace, errorTypeName);
 
     public string FullErrorTypeName { get; }
     public string MethodName { get; }
@@ -138,9 +138,9 @@ public abstract class MergeMethod
 
     public class StaticMerge_ : MergeMethod
     {
-        public string Namespace { get; }
+        public string? Namespace { get; }
 
-        public StaticMerge_(string methodName, string @namespace, string fullErrorTypeName) : base(UnionCases.StaticMerge, methodName, fullErrorTypeName) => Namespace = @namespace;
+        public StaticMerge_(string methodName, string? @namespace, string fullErrorTypeName) : base(UnionCases.StaticMerge, methodName, fullErrorTypeName) => Namespace = @namespace;
     }
 
     internal enum UnionCases

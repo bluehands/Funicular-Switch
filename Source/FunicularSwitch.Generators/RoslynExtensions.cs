@@ -8,7 +8,7 @@ namespace FunicularSwitch.Generators;
 
 public static class RoslynExtensions
 {
-    public static string GetContainingNamespace(this SyntaxNode node)
+    public static string? GetContainingNamespace(this SyntaxNode node)
     {
         var current = node;
         do
@@ -20,7 +20,7 @@ public static class RoslynExtensions
             current = current.Parent;
         } while (current != null);
 
-        throw new InvalidOperationException($"No containing namespace found for node {node}");
+        return null;
     }
 
     public static bool IsTypeDeclarationWithAttributes(this SyntaxNode syntaxNode) =>
@@ -49,15 +49,19 @@ public static class RoslynExtensions
         return false;
     }
 
-    public static string GetFullNamespace(this INamedTypeSymbol namedType)
+    public static string? GetFullNamespace(this INamedTypeSymbol namedType)
     {
         var parentNamespaces = new List<string>();
         var current = namedType.ContainingNamespace;
-        do
+        while (!current?.IsGlobalNamespace ?? false)
         {
-            parentNamespaces.Add(current!.Name);
-            current = current.ContainingNamespace;
-        } while (!string.IsNullOrEmpty(current?.Name));
+	        // ReSharper disable once RedundantSuppressNullableWarningExpression
+	        parentNamespaces.Add(current!.Name);
+	        current = current.ContainingNamespace;
+        }
+
+        if (parentNamespaces.Count == 0)
+	        return null;
 
         parentNamespaces.Reverse();
         return parentNamespaces.ToSeparatedString(".");
