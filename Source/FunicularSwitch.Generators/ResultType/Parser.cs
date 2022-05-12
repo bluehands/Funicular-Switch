@@ -110,7 +110,7 @@ class FindMergeMethodsWalker : CSharpSyntaxWalker
         if (node.AttributeLists
             .SelectMany(a => a.Attributes)
             .Any(a =>
-                a.Name.ToString().StartsWith("MergeError") &&
+                a.Name.ToString().Contains("MergeError") &&
                 a.GetAttributeFullName(m_GetSemanticModel(a.SyntaxTree)) == "FunicularSwitch.Generators.MergeErrorAttribute")
             )
         {
