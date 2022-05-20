@@ -349,10 +349,10 @@ namespace FunicularSwitch.Test
         public static OperationResult<T> NotNull<T>(this T? item, Func<MyError> error) =>
             item ?? OperationResult.Error<T>(error());
 
-        public static OperationResult<string> NotNullOrEmpty(this string s, Func<MyError> error)
+        public static OperationResult<string> NotNullOrEmpty(this string? s, Func<MyError> error)
             => string.IsNullOrEmpty(s) ? OperationResult.Error<string>(error()) : s;
 
-        public static OperationResult<string> NotNullOrWhiteSpace(this string s, Func<MyError> error)
+        public static OperationResult<string> NotNullOrWhiteSpace(this string? s, Func<MyError> error)
             => string.IsNullOrWhiteSpace(s) ? OperationResult.Error<string>(error()) : s;
 
         public static OperationResult<T> First<T>(this IEnumerable<T> candidates, Func<T, bool> predicate, Func<MyError> noMatch) =>

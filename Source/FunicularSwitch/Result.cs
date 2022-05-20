@@ -672,16 +672,16 @@ namespace FunicularSwitch
 
         public static Result<T1> As<T1>(this Result<object> result) => result.As<object, T1>();
 
-        public static Result<T> As<T>(this object item, Func<string> error) =>
+        public static Result<T> As<T>(this object? item, Func<string> error) =>
             !(item is T t) ? Result.Error<T>(error()) : t;
 
         public static Result<T> NotNull<T>(this T? item, Func<string> error) =>
             item ?? Result.Error<T>(error());
 
-        public static Result<string> NotNullOrEmpty(this string s, Func<string> error)
+        public static Result<string> NotNullOrEmpty(this string? s, Func<string> error)
             => string.IsNullOrEmpty(s) ? Result.Error<string>(error()) : s;
 
-        public static Result<string> NotNullOrWhiteSpace(this string s, Func<string> error)
+        public static Result<string> NotNullOrWhiteSpace(this string? s, Func<string> error)
             => string.IsNullOrWhiteSpace(s) ? Result.Error<string>(error()) : s;
 
         public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Validate<T, string> validate, Func<string>? onEmpty = null, string? errorSeparator = null) =>

@@ -345,10 +345,10 @@ namespace FunicularSwitch.Generators.Consumer.Extensions
         public static Result<T> NotNull<T>(this T? item, Func<String> error) =>
             item ?? Result.Error<T>(error());
 
-        public static Result<string> NotNullOrEmpty(this string s, Func<String> error)
+        public static Result<string> NotNullOrEmpty(this string? s, Func<String> error)
             => string.IsNullOrEmpty(s) ? Result.Error<string>(error()) : s;
 
-        public static Result<string> NotNullOrWhiteSpace(this string s, Func<String> error)
+        public static Result<string> NotNullOrWhiteSpace(this string? s, Func<String> error)
             => string.IsNullOrWhiteSpace(s) ? Result.Error<string>(error()) : s;
 
         public static Result<T> First<T>(this IEnumerable<T> candidates, Func<T, bool> predicate, Func<String> noMatch) =>
