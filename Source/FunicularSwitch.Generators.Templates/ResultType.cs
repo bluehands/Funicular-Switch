@@ -346,10 +346,10 @@ namespace FunicularSwitch.Generators.Templates.Extensions
             item ?? MyResult.Error<T>(error());
 
         public static MyResult<string> NotNullOrEmpty(this string? s, Func<MyError> error)
-            => string.IsNullOrEmpty(s) ? MyResult.Error<string>(error()) : s;
+            => string.IsNullOrEmpty(s) ? MyResult.Error<string>(error()) : s!;
 
         public static MyResult<string> NotNullOrWhiteSpace(this string? s, Func<MyError> error)
-            => string.IsNullOrWhiteSpace(s) ? MyResult.Error<string>(error()) : s;
+            => string.IsNullOrWhiteSpace(s) ? MyResult.Error<string>(error()) : s!;
 
         public static MyResult<T> First<T>(this IEnumerable<T> candidates, Func<T, bool> predicate, Func<MyError> noMatch) =>
             candidates
