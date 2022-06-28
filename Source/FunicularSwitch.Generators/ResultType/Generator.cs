@@ -38,7 +38,7 @@ static class Generator
 
             if (additionalNamespaces.Count > 0)
                 code = code
-                    .Replace("//additional using directives", additionalNamespaces.Select(a => $"using {a};").ToSeparatedString(Environment.NewLine));
+                    .Replace("//additional using directives", additionalNamespaces.Distinct().Select(a => $"using {a};").ToSeparatedString(Environment.NewLine));
 
             return code;
         }
