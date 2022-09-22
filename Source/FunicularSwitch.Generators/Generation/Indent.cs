@@ -86,7 +86,7 @@ public class Namespace : Scope
 
 public static class BuildExtensions
 {
-    public static Class PublicStaticPartialClass(this CSharpBuilder builder, string name) => new(builder, name, "public static partial");
+    public static Class StaticPartialClass(this CSharpBuilder builder, string name, string accessModifier) => new(builder, name, $"{accessModifier} static partial");
 
     public static Scope Scope(this CSharpBuilder tt) => new(tt);
 

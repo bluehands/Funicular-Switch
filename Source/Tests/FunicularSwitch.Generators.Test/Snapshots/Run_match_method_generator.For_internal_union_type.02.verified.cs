@@ -1,11 +1,10 @@
-﻿//HintName: FunicularSwitch.Test.BaseMatchExtension.g.cs
-#pragma warning disable 1591
+﻿//HintName: BaseMatchExtension.g.cs
 using System;
 using System.Threading.Tasks;
 
 namespace FunicularSwitch.Test
 {
-	public static partial class MatchExtension
+	internal static partial class MatchExtension
 	{
 		public static T Match<T>(this FunicularSwitch.Test.Base @base, Func<FunicularSwitch.Test.Aaa, T> aaa, Func<FunicularSwitch.Test.One, T> one, Func<FunicularSwitch.Test.Two, T> two) =>
 		@base switch
@@ -74,4 +73,3 @@ namespace FunicularSwitch.Test
 		await (await @base.ConfigureAwait(false)).Switch(aaa, one, two).ConfigureAwait(false);
 	}
 }
-#pragma warning enable 1591

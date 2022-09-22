@@ -8,9 +8,7 @@ namespace FunicularSwitch.Generators.UnionType;
 
 static class Parser
 {
-	static readonly SymbolDisplayFormat s_FullTypeDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
-
-	public static IEnumerable<UnionTypeSchema> GetUnionTypes(Compilation compilation,
+    public static IEnumerable<UnionTypeSchema> GetUnionTypes(Compilation compilation,
         ImmutableArray<BaseTypeDeclarationSyntax> unionTypeClasses, Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken) =>
         unionTypeClasses
@@ -19,12 +17,12 @@ static class Parser
             var semanticModel = compilation.GetSemanticModel(unionTypeClass.SyntaxTree);
             var unionTypeSymbol = semanticModel.GetDeclaredSymbol(unionTypeClass);
 
-            if (unionTypeSymbol == null)//TODO: report diagnostics
+            if (unionTypeSymbol == null) //TODO: report diagnostics
 	            return null;
 
-            var fullTypeName = unionTypeSymbol.ToDisplayString(s_FullTypeDisplayFormat);
+            var fullTypeName = unionTypeSymbol.FullTypeNameWithNamespace();
             var acc = unionTypeSymbol.DeclaredAccessibility;
-            if (acc == Accessibility.Private || acc == Accessibility.Protected)
+            if (acc is Accessibility.Private or Accessibility.Protected)
             {
 	            reportDiagnostic(Diagnostics.UnionTypeIsNotAccessible($"{fullTypeName} needs at least internal accessibility", unionTypeClass.GetLocation()));
 	            return null;
@@ -48,7 +46,8 @@ static class Parser
                 TypeName: unionTypeSymbol.Name,
                 FullTypeName: fullTypeName,
                 Cases: ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic)
-                    .ToImmutableArray()
+                    .ToImmutableArray(),
+                acc is Accessibility.NotApplicable or Accessibility.Internal
             );
 
         })
@@ -167,7 +166,7 @@ class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
         if (!isAbstract)
         {
             var symbol = m_SemanticModel.GetDeclaredSymbol(node);
-            if (symbol != null && symbol.InheritsFrom(m_BaseClass))
+            if (symbol != null && (symbol.InheritsFrom(m_BaseClass) || symbol.Implements(m_BaseClass)))
             {
                 var attribute = node.AttributeLists
                     .Select(l => l.Attributes.First(a => a.GetAttributeFullName(m_SemanticModel) == UnionTypeGenerator.UnionCaseAttribute))

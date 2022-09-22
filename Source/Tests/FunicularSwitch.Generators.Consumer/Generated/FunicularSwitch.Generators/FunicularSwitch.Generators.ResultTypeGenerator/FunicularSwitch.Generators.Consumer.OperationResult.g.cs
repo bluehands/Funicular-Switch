@@ -1,25 +1,23 @@
-﻿//HintName: FunicularSwitch.Test.OperationResult.g.cs
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FunicularSwitch;
-using FunicularSwitch.Test.Errors;
 
-namespace FunicularSwitch.Test
+namespace FunicularSwitch.Generators.Consumer
 {
 #pragma warning disable 1591
-    public abstract partial class OperationResult
+    abstract partial class OperationResult
     {
-        public static OperationResult<T> Error<T>(MyError details) => new OperationResult<T>.Error_(details);
+        public static OperationResult<T> Error<T>(Error details) => new OperationResult<T>.Error_(details);
         public static OperationResult<T> Ok<T>(T value) => new OperationResult<T>.Ok_(value);
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(OperationResult<>.Error_);
         public bool IsOk => !IsError;
-        public abstract MyError? GetErrorOrDefault();
+        public abstract Error? GetErrorOrDefault();
 
-        public static OperationResult<T> Try<T>(Func<T> action, Func<Exception, MyError> formatError)
+        public static OperationResult<T> Try<T>(Func<T> action, Func<Exception, Error> formatError)
         {
             try
             {
@@ -31,7 +29,7 @@ namespace FunicularSwitch.Test
             }
         }
 
-        public static async Task<OperationResult<T>> Try<T>(Func<Task<T>> action, Func<Exception, MyError> formatError)
+        public static async Task<OperationResult<T>> Try<T>(Func<Task<T>> action, Func<Exception, Error> formatError)
         {
             try
             {
@@ -44,9 +42,9 @@ namespace FunicularSwitch.Test
         }
     }
 
-    public abstract partial class OperationResult<T> : OperationResult, IEnumerable<T>
+    abstract partial class OperationResult<T> : OperationResult, IEnumerable<T>
     {
-        public static OperationResult<T> Error(MyError message) => Error<T>(message);
+        public static OperationResult<T> Error(Error message) => Error<T>(message);
         public static OperationResult<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator OperationResult<T>(T value) => OperationResult.Ok(value);
@@ -83,7 +81,7 @@ namespace FunicularSwitch.Test
 
         public static bool operator !=(OperationResult<T>? left, OperationResult<T>? right) => !Equals(left, right);
 
-        public void Match(Action<T> ok, Action<MyError>? error = null) => Match(
+        public void Match(Action<T> ok, Action<Error>? error = null) => Match(
             v =>
             {
                 ok.Invoke(v);
@@ -95,7 +93,7 @@ namespace FunicularSwitch.Test
                 return 42;
             });
 
-        public T1 Match<T1>(Func<T, T1> ok, Func<MyError, T1> error)
+        public T1 Match<T1>(Func<T, T1> ok, Func<Error, T1> error)
         {
             return this switch
             {
@@ -105,7 +103,7 @@ namespace FunicularSwitch.Test
             };
         }
 
-        public async Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<MyError, Task<T1>> error)
+        public async Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<Error, Task<T1>> error)
         {
             return this switch
             {
@@ -115,7 +113,7 @@ namespace FunicularSwitch.Test
             };
         }
 
-        public Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<MyError, T1> error) =>
+        public Task<T1> Match<T1>(Func<T, Task<T1>> ok, Func<Error, T1> error) =>
             Match(ok, e => Task.FromResult(error(e)));
 
         public async Task Match(Func<T, Task> ok)
@@ -123,7 +121,7 @@ namespace FunicularSwitch.Test
             if (this is Ok_ okOperationResult) await ok(okOperationResult.Value).ConfigureAwait(false);
         }
 
-        public T Match(Func<MyError, T> error) => Match(v => v, error);
+        public T Match(Func<Error, T> error) => Match(v => v, error);
 
         public OperationResult<T1> Bind<T1>(Func<T, OperationResult<T1>> bind)
         {
@@ -191,7 +189,7 @@ namespace FunicularSwitch.Test
 
             public Ok_(T value) => Value = value;
 
-            public override MyError? GetErrorOrDefault() => null;
+            public override Error? GetErrorOrDefault() => null;
 
             public bool Equals(Ok_? other)
             {
@@ -216,13 +214,13 @@ namespace FunicularSwitch.Test
 
         public sealed partial class Error_ : OperationResult<T>
         {
-            public MyError Details { get; }
+            public Error Details { get; }
 
-            public Error_(MyError details) => Details = details;
+            public Error_(Error details) => Details = details;
 
             public OperationResult<T1>.Error_ Convert<T1>() => new OperationResult<T1>.Error_(Details);
 
-            public override MyError? GetErrorOrDefault() => Details;
+            public override Error? GetErrorOrDefault() => Details;
 
             public bool Equals(Error_? other)
             {
@@ -247,7 +245,7 @@ namespace FunicularSwitch.Test
 
     }
 
-    public static partial class OperationResultExtension
+    static partial class OperationResultExtension
     {
         #region bind
 
@@ -275,7 +273,7 @@ namespace FunicularSwitch.Test
             Func<T, Task<T1>> bind)
             => Bind(result, async v => OperationResult.Ok(await bind(v).ConfigureAwait(false)));
 
-        public static OperationResult<T> MapError<T>(this OperationResult<T> result, Func<MyError, MyError> mapError) =>
+        public static OperationResult<T> MapError<T>(this OperationResult<T> result, Func<Error, Error> mapError) =>
             result.Match(ok => ok, error => OperationResult.Error<T>(mapError(error)));
 
         #endregion
@@ -285,26 +283,26 @@ namespace FunicularSwitch.Test
         public static async Task<T1> Match<T, T1>(
             this Task<OperationResult<T>> result,
             Func<T, Task<T1>> ok,
-            Func<MyError, Task<T1>> error)
+            Func<Error, Task<T1>> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
         public static async Task<T1> Match<T, T1>(
             this Task<OperationResult<T>> result,
             Func<T, Task<T1>> ok,
-            Func<MyError, T1> error)
+            Func<Error, T1> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
         public static async Task<T1> Match<T, T1>(
             this Task<OperationResult<T>> result,
             Func<T, T1> ok,
-            Func<MyError, T1> error)
+            Func<Error, T1> error)
             => (await result.ConfigureAwait(false)).Match(ok, error);
 
         #endregion
 
         public static OperationResult<T> Flatten<T>(this OperationResult<OperationResult<T>> result) => result.Bind(r => r);
 
-        public static OperationResult<T1> As<T, T1>(this OperationResult<T> result, Func<MyError> errorTIsNotT1) =>
+        public static OperationResult<T1> As<T, T1>(this OperationResult<T> result, Func<Error> errorTIsNotT1) =>
             result.Bind(r =>
             {
                 if (r is T1 converted)
@@ -312,26 +310,26 @@ namespace FunicularSwitch.Test
                 return OperationResult.Error<T1>(errorTIsNotT1());
             });
 
-        public static OperationResult<T1> As<T1>(this OperationResult<object> result, Func<MyError> errorIsNotT1) =>
+        public static OperationResult<T1> As<T1>(this OperationResult<object> result, Func<Error> errorIsNotT1) =>
             result.As<object, T1>(errorIsNotT1);
     }
 }
 
-namespace FunicularSwitch.Test.Extensions
+namespace FunicularSwitch.Generators.Consumer.Extensions
 {
-    public static partial class OperationResultExtension
+    static partial class OperationResultExtension
     {
         public static IEnumerable<T1> Choose<T, T1>(
             this IEnumerable<T> items,
             Func<T, OperationResult<T1>> choose,
-            Action<MyError> onError)
+            Action<Error> onError)
             => items
                 .Select(i => choose(i))
                 .Choose(onError);
 
         public static IEnumerable<T> Choose<T>(
             this IEnumerable<OperationResult<T>> results,
-            Action<MyError> onError)
+            Action<Error> onError)
             => results
                 .Where(r =>
                     r.Match(_ => true, error =>
@@ -341,19 +339,19 @@ namespace FunicularSwitch.Test.Extensions
                     }))
                 .Select(r => r.GetValueOrThrow());
 
-        public static OperationResult<T> As<T>(this object item, Func<MyError> error) =>
+        public static OperationResult<T> As<T>(this object item, Func<Error> error) =>
             !(item is T t) ? OperationResult.Error<T>(error()) : t;
 
-        public static OperationResult<T> NotNull<T>(this T? item, Func<MyError> error) =>
+        public static OperationResult<T> NotNull<T>(this T? item, Func<Error> error) =>
             item ?? OperationResult.Error<T>(error());
 
-        public static OperationResult<string> NotNullOrEmpty(this string? s, Func<MyError> error)
+        public static OperationResult<string> NotNullOrEmpty(this string? s, Func<Error> error)
             => string.IsNullOrEmpty(s) ? OperationResult.Error<string>(error()) : s!;
 
-        public static OperationResult<string> NotNullOrWhiteSpace(this string? s, Func<MyError> error)
+        public static OperationResult<string> NotNullOrWhiteSpace(this string? s, Func<Error> error)
             => string.IsNullOrWhiteSpace(s) ? OperationResult.Error<string>(error()) : s!;
 
-        public static OperationResult<T> First<T>(this IEnumerable<T> candidates, Func<T, bool> predicate, Func<MyError> noMatch) =>
+        public static OperationResult<T> First<T>(this IEnumerable<T> candidates, Func<T, bool> predicate, Func<Error> noMatch) =>
             candidates
                 .FirstOrDefault(i => predicate(i))
                 .NotNull(noMatch);

@@ -1,18 +1,15 @@
-﻿//HintName: FunicularSwitch.Test.OperationResultWithMerge.g.cs
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FunicularSwitch;
-using FunicularSwitch.Test.Errors;
-using FunicularSwitch.Test.Extensions;
 
-namespace FunicularSwitch.Test
+namespace FunicularSwitch.Generators.Consumer
 {
 #pragma warning disable 1591
-    public abstract partial class OperationResult
+    abstract partial class OperationResult
     {
         
         public static OperationResult<(T1, T2)> Aggregate<T1, T2>(OperationResult<T1> r1, OperationResult<T2> r2) => OperationResultExtension.Aggregate(r1, r2);
@@ -80,7 +77,7 @@ namespace FunicularSwitch.Test
         public static Task<OperationResult<TResult>> Aggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(Task<OperationResult<T1>> r1, Task<OperationResult<T2>> r2, Task<OperationResult<T3>> r3, Task<OperationResult<T4>> r4, Task<OperationResult<T5>> r5, Task<OperationResult<T6>> r6, Task<OperationResult<T7>> r7, Task<OperationResult<T8>> r8, Task<OperationResult<T9>> r9, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> combine) => OperationResultExtension.Aggregate(r1, r2, r3, r4, r5, r6, r7, r8, r9, combine);
     }
 
-    public static partial class OperationResultExtension
+    static partial class OperationResultExtension
     {
         public static OperationResult<IReadOnlyCollection<T1>> Map<T, T1>(this IEnumerable<OperationResult<T>> results,
             Func<T, T1> map) =>
@@ -101,7 +98,7 @@ namespace FunicularSwitch.Test
         public static OperationResult<IReadOnlyCollection<T>> Aggregate<T>(this IEnumerable<OperationResult<T>> results)
         {
             var isError = false;
-            MyError aggregated = default!;
+            Error aggregated = default!;
             var oks = new List<T>();
             foreach (var result in results)
             {
@@ -148,7 +145,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!.Value)
+                    .Select(r => r.GetErrorOrDefault()!)
                 )!);
         }
         
@@ -172,7 +169,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!.Value)
+                    .Select(r => r.GetErrorOrDefault()!)
                 )!);
         }
         
@@ -196,7 +193,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!.Value)
+                    .Select(r => r.GetErrorOrDefault()!)
                 )!);
         }
         
@@ -220,7 +217,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!.Value)
+                    .Select(r => r.GetErrorOrDefault()!)
                 )!);
         }
         
@@ -244,7 +241,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!.Value)
+                    .Select(r => r.GetErrorOrDefault()!)
                 )!);
         }
         
@@ -268,7 +265,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6, r7 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!.Value)
+                    .Select(r => r.GetErrorOrDefault()!)
                 )!);
         }
         
@@ -292,7 +289,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6, r7, r8 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!.Value)
+                    .Select(r => r.GetErrorOrDefault()!)
                 )!);
         }
         
@@ -316,7 +313,7 @@ namespace FunicularSwitch.Test
             return OperationResult.Error<TResult>(
                 MergeErrors(new OperationResult[] { r1, r2, r3, r4, r5, r6, r7, r8, r9 }
                     .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!.Value)
+                    .Select(r => r.GetErrorOrDefault()!)
                 )!);
         }
         
@@ -329,9 +326,9 @@ namespace FunicularSwitch.Test
             return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, r5.Result, r6.Result, r7.Result, r8.Result, r9.Result, combine);
         }
 
-        public static OperationResult<T> FirstOk<T>(this IEnumerable<OperationResult<T>> results, Func<MyError> onEmpty)
+        public static OperationResult<T> FirstOk<T>(this IEnumerable<OperationResult<T>> results, Func<Error> onEmpty)
         {
-            var errors = new List<MyError>();
+            var errors = new List<Error>();
             foreach (var result in results)
             {
                 if (result is OperationResult<T>.Error_ e)
@@ -380,35 +377,35 @@ namespace FunicularSwitch.Test
             }
         }
 
-        public static OperationResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<MyError>> validate) =>
+        public static OperationResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<Error>> validate) =>
             candidates
                 .Select(c => c.Validate(validate))
                 .Aggregate();
 
         public static OperationResult<IReadOnlyCollection<T>> AllOk<T>(this IEnumerable<OperationResult<T>> candidates,
-            Func<T, IEnumerable<MyError>> validate) =>
+            Func<T, IEnumerable<Error>> validate) =>
             candidates
                 .Bind(items => items.AllOk(validate));
 
-        public static OperationResult<T> Validate<T>(this OperationResult<T> item, Func<T, IEnumerable<MyError>> validate) => item.Bind(i => i.Validate(validate));
+        public static OperationResult<T> Validate<T>(this OperationResult<T> item, Func<T, IEnumerable<Error>> validate) => item.Bind(i => i.Validate(validate));
 
-        public static OperationResult<T> Validate<T>(this T item, Func<T, IEnumerable<MyError>> validate)
+        public static OperationResult<T> Validate<T>(this T item, Func<T, IEnumerable<Error>> validate)
         {
             var errors = validate(item).ToList();
             return errors.Count > 0 ? OperationResult.Error<T>(MergeErrors(errors)) : item;
         }
 
-        public static OperationResult<T> FirstOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<MyError>> validate, Func<MyError> onEmpty) =>
+        public static OperationResult<T> FirstOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<Error>> validate, Func<Error> onEmpty) =>
             candidates
                 .Select(r => r.Validate(validate))
                 .FirstOk(onEmpty);
 
         #region helpers
 
-        static MyError MergeErrors(IEnumerable<MyError> errors)
+        static Error MergeErrors(IEnumerable<Error> errors)
         {
             var first = true;
-            MyError aggregated = default!;
+            Error aggregated = default!;
             foreach (var myError in errors)
             {
                 if (first)
@@ -425,7 +422,7 @@ namespace FunicularSwitch.Test
             return aggregated;
         }
 
-        static MyError MergeErrors(MyError aggregated, MyError error) => aggregated.MergeErrors(error);
+        static Error MergeErrors(Error aggregated, Error error) => aggregated.MergeErrors(error);
 
         #endregion
     }

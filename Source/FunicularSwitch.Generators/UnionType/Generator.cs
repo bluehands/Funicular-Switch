@@ -13,8 +13,8 @@ public static class Generator
         Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
     {
         var builder = new CSharpBuilder();
+        builder.WriteLine("#pragma warning disable 1591");
         builder.WriteUsings("System", "System.Threading.Tasks");
-
 
         void BlankLine()
         {
@@ -23,7 +23,7 @@ public static class Generator
 
         using (unionTypeSchema.Namespace != null ? builder.Namespace(unionTypeSchema.Namespace) : null)
         {
-            using (builder.PublicStaticPartialClass("MatchExtension"))
+            using (builder.StaticPartialClass("MatchExtension", unionTypeSchema.IsInternal ? "internal" : "public"))
             {
 	            var thisTaskParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.FullTypeName}>");
 	            var caseParameters = unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();
@@ -54,7 +54,8 @@ public static class Generator
             }
         }
 
-        return ($"{unionTypeSchema.TypeName}MatchExtension.g.cs", builder.ToString());
+        builder.WriteLine("#pragma warning enable 1591");
+        return ($"{unionTypeSchema.FullTypeName}MatchExtension.g.cs", builder.ToString());
     }
 
     static void GenerateMatchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, string t)

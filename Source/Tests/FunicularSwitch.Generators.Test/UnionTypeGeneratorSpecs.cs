@@ -212,4 +212,55 @@ public class Outer {
 
 		return Verify(code);
 	}
+
+	[TestMethod]
+	public Task For_interface_union_type()
+	{
+		var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType]
+public interface IBase {}
+
+public class One : IBase {}
+public record Two : IBase {}";
+
+		return Verify(code);
+	}
+
+	[TestMethod]
+	public Task For_implicitly_internal_union_type()
+	{
+		var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType]
+abstract record Base;
+
+record One : Base;
+record Two : Base;";
+
+		return Verify(code);
+	}
+
+	[TestMethod]
+	public Task For_explicitly_internal_union_type()
+	{
+		var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType]
+internal abstract record Base;
+
+internal record One : Base;
+record Two : Base;";
+
+		return Verify(code);
+	}
 }

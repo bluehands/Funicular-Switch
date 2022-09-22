@@ -1,4 +1,5 @@
-﻿//HintName: FieldTypeMatchExtension.g.cs
+﻿//HintName: FunicularSwitch.Test.FieldTypeMatchExtension.g.cs
+#pragma warning disable 1591
 using System;
 using System.Threading.Tasks;
 
@@ -73,3 +74,4 @@ namespace FunicularSwitch.Test
 		await (await fieldType.ConfigureAwait(false)).Switch(@bool, @enum, @string).ConfigureAwait(false);
 	}
 }
+#pragma warning enable 1591

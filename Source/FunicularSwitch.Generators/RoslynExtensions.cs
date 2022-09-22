@@ -14,9 +14,9 @@ public static class RoslynExtensions
         do
         {
             if (current is NamespaceDeclarationSyntax n)
-                return n.Name.ToFullString();
+                return n.Name.ToString();
             if (current is FileScopedNamespaceDeclarationSyntax f)
-                return f.Name.ToFullString();
+                return f.Name.ToString();
             current = current.Parent;
         } while (current != null);
 
@@ -49,6 +49,8 @@ public static class RoslynExtensions
         return false;
     }
 
+    public static bool Implements(this INamedTypeSymbol symbol, ITypeSymbol interfaceType) => symbol.Interfaces.Any(i => interfaceType.Equals(i, SymbolEqualityComparer.Default));
+
     public static string? GetFullNamespace(this INamedTypeSymbol namedType)
     {
         var parentNamespaces = new List<string>();
@@ -67,6 +69,9 @@ public static class RoslynExtensions
         return parentNamespaces.ToSeparatedString(".");
     }
 
+    static readonly SymbolDisplayFormat s_FullTypeDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
+
+    public static string FullTypeNameWithNamespace(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(s_FullTypeDisplayFormat);
 
     public static QualifiedTypeName QualifiedName(this BaseTypeDeclarationSyntax dec)
     {

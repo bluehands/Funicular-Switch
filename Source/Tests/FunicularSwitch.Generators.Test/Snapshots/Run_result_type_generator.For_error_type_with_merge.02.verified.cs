@@ -1,4 +1,4 @@
-﻿//HintName: OperationResultWithMerge.g.cs
+﻿//HintName: FunicularSwitch.Test.OperationResultWithMerge.g.cs
 #nullable enable
 using System;
 using System.Collections.Generic;

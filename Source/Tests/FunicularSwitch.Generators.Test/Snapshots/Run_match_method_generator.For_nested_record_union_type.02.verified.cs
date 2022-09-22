@@ -1,4 +1,5 @@
-﻿//HintName: BaseMatchExtension.g.cs
+﻿//HintName: FunicularSwitch.Test.Outer.BaseMatchExtension.g.cs
+#pragma warning disable 1591
 using System;
 using System.Threading.Tasks;
 
@@ -73,3 +74,4 @@ namespace FunicularSwitch.Test
 		await (await @base.ConfigureAwait(false)).Switch(aaa, one, two).ConfigureAwait(false);
 	}
 }
+#pragma warning enable 1591

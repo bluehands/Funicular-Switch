@@ -1,4 +1,5 @@
-﻿//HintName: BaseMatchExtension.g.cs
+﻿//HintName: Outer.BaseMatchExtension.g.cs
+#pragma warning disable 1591
 using System;
 using System.Threading.Tasks;
 
@@ -62,3 +63,4 @@ public static partial class MatchExtension
 	public static async Task Switch(this Task<Outer.Base> @base, Func<Outer.One, Task> one, Func<Outer.Two, Task> two) =>
 	await (await @base.ConfigureAwait(false)).Switch(one, two).ConfigureAwait(false);
 }
+#pragma warning enable 1591

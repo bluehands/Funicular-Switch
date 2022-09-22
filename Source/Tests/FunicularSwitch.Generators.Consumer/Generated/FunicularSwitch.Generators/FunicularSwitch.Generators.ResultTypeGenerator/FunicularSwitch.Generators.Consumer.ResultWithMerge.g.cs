@@ -1,5 +1,4 @@
-﻿//HintName: FunicularSwitch.Test.ResultWithMerge.g.cs
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FunicularSwitch;
 
-namespace FunicularSwitch.Test
+namespace FunicularSwitch.Generators.Consumer
 {
 #pragma warning disable 1591
     public abstract partial class Result

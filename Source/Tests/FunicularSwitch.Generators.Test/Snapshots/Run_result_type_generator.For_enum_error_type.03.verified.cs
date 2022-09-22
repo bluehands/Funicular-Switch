@@ -1,4 +1,4 @@
-﻿//HintName: Result.g.cs
+﻿//HintName: FunicularSwitch.Test.Result.g.cs
 #nullable enable
 using System;
 using System.Collections;

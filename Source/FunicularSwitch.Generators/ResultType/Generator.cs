@@ -47,7 +47,9 @@ static class Generator
         if (errorTypeNamespace != resultTypeNamespace && errorTypeNamespace != "System" && errorTypeNamespace != null)
             additionalNamespaces.Add(errorTypeNamespace);
 
-        yield return ($"{resultTypeSchema.ResultType.Identifier}.g.cs", Replace(Templates.ResultTypeTemplates.ResultType, additionalNamespaces));
+        var generateFileHint = $"{resultTypeNamespace}.{resultTypeSchema.ResultType.QualifiedName()}";
+
+        yield return ($"{generateFileHint}.g.cs", Replace(Templates.ResultTypeTemplates.ResultType, additionalNamespaces));
 
         if (resultTypeSchema.MergeMethod != null)
         {
@@ -63,7 +65,7 @@ static class Generator
                 additionalNamespaces
             );
 
-            yield return ($"{resultTypeSchema.ResultType.Identifier}WithMerge.g.cs", mergeCode);
+            yield return ($"{generateFileHint}WithMerge.g.cs", mergeCode);
         }
     }
 
