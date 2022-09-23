@@ -42,7 +42,8 @@ namespace Test
     {
         public static void werlkj()
         {
-            Result<int> i = null;
+            Result<int>? i = null;
+            Console.WriteLine(i);
 
         }
     }

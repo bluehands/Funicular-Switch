@@ -54,7 +54,7 @@ public static class Generator
             }
         }
 
-        builder.WriteLine("#pragma warning enable 1591");
+        builder.WriteLine("#pragma restore enable 1591");
         return ($"{unionTypeSchema.FullTypeName}MatchExtension.g.cs", builder.ToString());
     }
 

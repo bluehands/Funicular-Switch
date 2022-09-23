@@ -81,4 +81,4 @@ namespace FunicularSwitch.Generators.Consumer
 		await (await error.ConfigureAwait(false)).Switch(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
 	}
 }
-#pragma warning enable 1591
+#pragma restore enable 1591
