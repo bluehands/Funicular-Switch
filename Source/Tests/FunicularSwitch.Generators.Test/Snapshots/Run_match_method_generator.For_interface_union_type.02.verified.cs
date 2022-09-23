@@ -66,4 +66,4 @@ namespace FunicularSwitch.Test
 		await (await iBase.ConfigureAwait(false)).Switch(one, two).ConfigureAwait(false);
 	}
 }
-#pragma restore enable 1591
+#pragma warning restore 1591

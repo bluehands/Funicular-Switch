@@ -63,4 +63,4 @@ public static partial class MatchExtension
 	public static async Task Switch(this Task<Outer.Base> @base, Func<Outer.One, Task> one, Func<Outer.Two, Task> two) =>
 	await (await @base.ConfigureAwait(false)).Switch(one, two).ConfigureAwait(false);
 }
-#pragma restore enable 1591
+#pragma warning restore 1591
