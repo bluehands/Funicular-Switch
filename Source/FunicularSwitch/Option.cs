@@ -158,7 +158,8 @@ namespace FunicularSwitch
 
         public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
 
-        public static Option<T?> ToOption<T>(this T? item) where T : struct => item ?? Option<T?>.None;
+        public static Option<T> ToOption<T>(this T? item) where T : struct => item.HasValue ? Option.Some(item.Value) : Option<T>.None;
+        public static T? ToNullable<T>(this Option<T> option) where T : struct => option.Match(some => some, () => (T?)null);
 
         public static Option<TTarget> As<TTarget>(this object item) where TTarget : class => (item as TTarget).ToOption();
 
