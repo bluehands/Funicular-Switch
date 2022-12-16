@@ -52,21 +52,13 @@ namespace FunicularSwitch
         public TResult Match<TResult>(Func<T, TResult> some, Func<TResult> none)
         {
             var iAmSome = this as Some<T>;
-            if (iAmSome != null)
-            {
-                return some(iAmSome.Value);
-            }
-            return none();
+            return iAmSome != null ? some(iAmSome.Value) : none();
         }
 
         public TResult Match<TResult>(Func<T, TResult> some, TResult none)
         {
             var iAmSome = this as Some<T>;
-            if (iAmSome != null)
-            {
-                return some(iAmSome.Value);
-            }
-            return none;
+            return iAmSome != null ? some(iAmSome.Value) : none;
         }
 
         public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<Task<TResult>> none)
@@ -100,7 +92,6 @@ namespace FunicularSwitch
         }
 
         public static implicit operator Option<T>(T value) => Some(value);
-        public static implicit operator bool(Option<T> value) => value.IsSome();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -167,7 +158,7 @@ namespace FunicularSwitch
 
         public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
 
-        
+        public static Option<T?> ToOption<T>(this T? item) where T : struct => item ?? Option<T?>.None;
 
         public static Option<TTarget> As<TTarget>(this object item) where TTarget : class => (item as TTarget).ToOption();
 
