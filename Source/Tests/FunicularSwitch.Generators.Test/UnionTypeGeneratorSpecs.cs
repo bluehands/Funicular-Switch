@@ -263,7 +263,7 @@ record Two : Base;";
 
 		return Verify(code);
 	}
-	
+
 	[TestMethod]
 	public Task For_enum_type()
 	{
@@ -281,7 +281,6 @@ public enum test {
 		return Verify(code);
 	}
 	
-	
 	[TestMethod]
 	public Task For_enum_type_with_order()
 	{
@@ -296,6 +295,26 @@ public enum test {
 	eins
 }";
 
+		return Verify(code);
+	}
+
+	[TestMethod]
+	public Task For_enum_type_embedded()
+	{
+		var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+public class Outer {
+
+[UnionType]
+public enum test {
+	eins,
+	zwei
+}
+}
+";
 		return Verify(code);
 	}
 }

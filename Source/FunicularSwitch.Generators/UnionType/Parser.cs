@@ -37,8 +37,9 @@ static class Parser
             var fullNamespace = unionTypeSymbol.GetFullNamespace();
             if (unionTypeClass is EnumDeclarationSyntax enumDeclarationSyntax)
             {
+                var fullTypeNameWithNamespace = unionTypeSymbol.FullTypeNameWithNamespace();
                 var unionCases = enumDeclarationSyntax.Members
-                    .Select(m => new DerivedType( $"{fullNamespace}.{unionTypeSymbol.Name}.{m.Identifier.Text}", m.Identifier.Text));
+                    .Select(m => new DerivedType( $"{fullTypeNameWithNamespace}.{m.Identifier.Text}", m.Identifier.Text));
                 if (caseOrder == CaseOrder.Alphabetic)
                 {
                     unionCases = unionCases.OrderBy(m => m.FullTypeName);

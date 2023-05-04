@@ -71,9 +71,10 @@ public static class Generator
             foreach (var c in unionTypeSchema.Cases)
             {
                 caseIndex++;
-                builder.WriteLine( unionTypeSchema.IsEnum 
-	                ? $"{c.FullTypeName} => {c.ParameterName}(),"
-	                : $"{c.FullTypeName} case{caseIndex} => {c.ParameterName}(case{caseIndex}),");
+                builder.WriteLine(
+	                unionTypeSchema.IsEnum
+		                ? $"{c.FullTypeName} => {c.ParameterName}(),"
+		                : $"{c.FullTypeName} case{caseIndex} => {c.ParameterName}(case{caseIndex}),");
             }
 
             builder.WriteLine(
@@ -96,9 +97,10 @@ public static class Generator
 			    foreach (var c in unionTypeSchema.Cases)
 			    {
 				    caseIndex++;
-				    builder.WriteLine(unionTypeSchema.IsEnum 
-					    ? $"case {c.FullTypeName}:" 
-					    : $"case {c.FullTypeName} case{caseIndex}:"
+				    builder.WriteLine(
+					    unionTypeSchema.IsEnum
+						    ? $"case {c.FullTypeName}:"
+						    : $"case {c.FullTypeName} case{caseIndex}:"
 				    );
 				    using (builder.Indent())
 				    {
@@ -145,11 +147,11 @@ public static class Generator
 		    .Select(c =>
 		    {
 			    var parameterType = unionTypeSchema.IsEnum
-				    ? isAsync 
-					    ? "Func<Task>" 
+				    ? isAsync
+					    ? "Func<Task>"
 					    : "Action"
-				    : isAsync 
-					    ? $"Func<{c.FullTypeName}, Task>" 
+				    : isAsync
+					    ? $"Func<{c.FullTypeName}, Task>"
 					    : $"Action<{c.FullTypeName}>";
 			    return new Parameter(
 					    parameterType,
