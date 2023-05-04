@@ -263,4 +263,39 @@ record Two : Base;";
 
 		return Verify(code);
 	}
+	
+	[TestMethod]
+	public Task For_enum_type()
+	{
+		var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType]
+public enum test {
+	eins,
+	zwei
+}";
+
+		return Verify(code);
+	}
+	
+	
+	[TestMethod]
+	public Task For_enum_type_with_order()
+	{
+		var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType(CaseOrder = CaseOrder.Alphabetic)]
+public enum test {
+	zwei,
+	eins
+}";
+
+		return Verify(code);
+	}
 }

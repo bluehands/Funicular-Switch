@@ -3,7 +3,7 @@
 // ReSharper disable once CheckNamespace
 namespace FunicularSwitch.Generators
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Enum, Inherited = false)]
     sealed class UnionTypeAttribute : Attribute
     {
         public CaseOrder CaseOrder { get; set; } = CaseOrder.Alphabetic;
