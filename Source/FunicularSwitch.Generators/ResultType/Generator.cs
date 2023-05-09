@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -143,9 +144,4 @@ static class Generator
 
         public static Task<MyResult<TResult>> Aggregate<{typeParameters}, TResult>({taskParameterDeclarations}, Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);";
     }
-}
-
-static class StringExtension
-{
-    public static string ToSeparatedString<T>(this IEnumerable<T> items, string separator = ", ") => string.Join(separator, items);
 }

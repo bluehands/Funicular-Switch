@@ -28,6 +28,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.Consumer.Nuget", "Tests\FunicularSwitch.Generators.Consumer.Nuget\FunicularSwitch.Generators.Consumer.Nuget.csproj", "{05DEB150-372C-4D76-856C-C7A20F7F3EA0}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FunicularSwitch.Generators.Common", "FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.shproj", "{5DBC7D41-67A3-41C2-8E6D-453CF1334627}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FunicularSwitch.Common", "FunicularSwitch.Common\FunicularSwitch.Common.shproj", "{BF664635-17E2-44EB-A99E-94D564542509}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,5 +86,14 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A6C53D4-8DAD-4DBF-B4A6-D02801D28BD4}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{35633310-5f61-463b-a62e-1940e2dfae7d}*SharedItemsImports = 5
+		FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems*{35633310-5f61-463b-a62e-1940e2dfae7d}*SharedItemsImports = 5
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{5cf89bde-0ae9-490c-ae0f-a8c1dd93024e}*SharedItemsImports = 5
+		FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems*{5dbc7d41-67a3-41c2-8e6d-453cf1334627}*SharedItemsImports = 13
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{bf664635-17e2-44eb-a99e-94d564542509}*SharedItemsImports = 13
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{cc47aaaf-a8b4-4e03-ae78-e2011426f723}*SharedItemsImports = 5
+		FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems*{cc47aaaf-a8b4-4e03-ae78-e2011426f723}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

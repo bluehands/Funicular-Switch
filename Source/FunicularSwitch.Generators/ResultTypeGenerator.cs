@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.ResultType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

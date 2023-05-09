@@ -1,10 +1,9 @@
 ﻿using System.Collections.Immutable;
-using FunicularSwitch.Generators.ResultType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FunicularSwitch.Generators;
+namespace FunicularSwitch.Generators.Common;
 
 public static class RoslynExtensions
 {
@@ -49,7 +48,8 @@ public static class RoslynExtensions
         return false;
     }
 
-    public static bool Implements(this INamedTypeSymbol symbol, ITypeSymbol interfaceType) => symbol.Interfaces.Any(i => interfaceType.Equals(i, SymbolEqualityComparer.Default));
+    public static bool Implements(this INamedTypeSymbol symbol, ITypeSymbol interfaceType)
+        => symbol.Interfaces.Any(i => interfaceType.Equals(i, SymbolEqualityComparer.Default));
 
     public static string? GetFullNamespace(this INamedTypeSymbol namedType)
     {
@@ -57,13 +57,13 @@ public static class RoslynExtensions
         var current = namedType.ContainingNamespace;
         while (!current?.IsGlobalNamespace ?? false)
         {
-	        // ReSharper disable once RedundantSuppressNullableWarningExpression
-	        parentNamespaces.Add(current!.Name);
-	        current = current.ContainingNamespace;
+            // ReSharper disable once RedundantSuppressNullableWarningExpression
+            parentNamespaces.Add(current!.Name);
+            current = current.ContainingNamespace;
         }
 
         if (parentNamespaces.Count == 0)
-	        return null;
+            return null;
 
         parentNamespaces.Reverse();
         return parentNamespaces.ToSeparatedString(".");
@@ -106,6 +106,20 @@ public static class RoslynExtensions
         }
 
         return attributeFullName;
+    }
+
+    public static string? GetAssemblyAttributeName(this AttributeSyntax attributeSyntax, SemanticModel semanticModel)
+    {
+        string? attributeFullName = null;
+        var typeInfo = semanticModel.GetTypeInfo(attributeSyntax);
+        if (typeInfo.Type is not null)
+        {
+            return typeInfo.Type.Name;
+        }
+        else
+        {
+            return attributeSyntax.GetAttributeFullName(semanticModel);
+        }
     }
 
     public static bool HasModifier(this SyntaxTokenList tokens, SyntaxKind syntaxKind)

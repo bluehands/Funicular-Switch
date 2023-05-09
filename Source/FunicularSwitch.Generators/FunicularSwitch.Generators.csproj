@@ -61,13 +61,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Content\FunicularSwitch.png" Pack="true" PackagePath="" />
-		<None Include="Content\LICENSE.txt" Pack="true" PackagePath="" />
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Folder Include="UnionType\" />
 	</ItemGroup>
+
+	<Import Project="..\FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems" Label="Shared" />
+
+	<Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
 
 </Project>
