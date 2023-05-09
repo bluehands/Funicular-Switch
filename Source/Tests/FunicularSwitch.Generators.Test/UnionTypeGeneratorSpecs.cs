@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using FluentAssertions;
+using FunicularSwitch.Generators.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FunicularSwitch.Generators.Test;

@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<IsPackable>true</IsPackable>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+
+		<VersionSuffixLocal />
+		<!--When variable is set we are building a prerelease package-->
+		<VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
+			$(VersionSuffix)
+		</VersionSuffixLocal>
+
+		<!--#region adapt versions here-->
+		<MajorVersion>1</MajorVersion>
+		<MinorAndPatchVersion>4.2</MinorAndPatchVersion>
+		<!--#endregion-->
+
+		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
+		<Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
+		<FileVersion>$(Version)</FileVersion>
+		<PackageVersion>$(Version)</PackageVersion>
+		<PackageId>FunicularSwitch.Generators</PackageId>
+
+		<!-- Descriptions and information-->
+		<Titel>FunicularSwitch.Generators.FluentAssertions</Titel>
+		<Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
+		<PackageDescription>Source generator emitting unit testing methods for result types</PackageDescription>
+		<Copyright>Copyright 2023 bluehands GmbH &amp; C.ommunication KG</Copyright>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>FunicularSwitch.png</PackageIcon>
+		<PackageTags>F# Result, Result, Match, UnionTypes, Map, Bind, Railway oriented programming, Railway oriented, Railway, Source Generator</PackageTags>
+		<RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+		<RepositoryBranch>main</RepositoryBranch>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\GenerateFluentAssertionsForAttribute.cs" Link="Templates\GenerateFluentAssertionsForAttribute.cs" />
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyResultAssertions.cs" Link="Templates\MyResultAssertions.cs" />
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyResultAssertions_DerivedErrorType.cs" Link="Templates\MyResultAssertions_DerivedErrorType.cs" />
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyResultFluentAssertionExtensions.cs" Link="Templates\MyResultFluentAssertionExtensions.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" PrivateAssets="all" GeneratePathProperty="true" />
+		<None Include="$(PkgMicrosoft_CodeAnalysis_CSharp_Workspaces)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
+
+	<Import Project="..\FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems" Label="Shared" />
+
+	<Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
+</Project>
