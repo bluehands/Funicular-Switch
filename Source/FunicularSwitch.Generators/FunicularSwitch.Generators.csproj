@@ -58,6 +58,7 @@
 	<ItemGroup>
 	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeAttributes.cs" Link="Templates\ResultTypeAttributes.cs" />
 	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\UnionTypeAttributes.cs" Link="Templates\UnionTypeAttributes.cs" />
+	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\EnumTypeAttributes.cs" Link="Templates\EnumTypeAttributes.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -68,6 +69,7 @@
 
 	<ItemGroup>
 	  <Folder Include="UnionType\" />
+	  <Folder Include="EnumType\" />
 	</ItemGroup>
 
 </Project>
