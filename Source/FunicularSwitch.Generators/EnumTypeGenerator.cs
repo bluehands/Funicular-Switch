@@ -9,7 +9,6 @@ namespace FunicularSwitch.Generators;
 public class EnumTypeGenerator : IIncrementalGenerator
 {
     internal const string EnumTypeAttribute = "FunicularSwitch.Generators.EnumTypeAttribute";
-    internal const string EnumCaseAttribute = "FunicularSwitch.Generators.EnumCaseAttribute";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
