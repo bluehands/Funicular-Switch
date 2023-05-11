@@ -23,7 +23,7 @@ FunicularSwitch helps you to:
 
 [**FunicularSwitch**](https://github.com/bluehands/Funicular-Switch#funicularswitch-usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
 
-[**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations).
+[**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations). As a third thing the same Match methods are also generated for enum types annotated with the `EnumType` attribute.
 
 ## <a name="funicular_usage"></a>FunicularSwitch Usage
 
@@ -77,7 +77,7 @@ Ok 1
 
 ```
 
-The lamdas passed to `Map` and `Bind` are only invoked if everything went well so far, otherwise you are on the error track were error information is passed on 'invisibly':
+The lambdas passed to `Map` and `Bind` are only invoked if everything went well so far, otherwise you are on the error track were error information is passed on 'invisibly':
 b
 
 ``` cs --region errorPropagation --source-file Source/DocSamples/ReadmeSamples.cs --project Source/DocSamples/DocSamples.csproj --session errorPropagation
@@ -122,10 +122,10 @@ Those are basically the four (actually three) main operations on `Result` - `Cre
 
 - 'Combine results to Ok if everything is Ok otherwise collect errors' - `Aggregate`, `Map` and `Bind` overloads on collections
 - 'Ok if at least one item passes certain validations, otherwise collect info why no one matched' - `FirstOk`
-- 'Ok if item from a dictionary was found, ohterwise (nice) error' - `TryGetValue` extension on Dictionary
-- 'Ok if type T is `as` convertible to T1, error otherwies' - 'As' extension returning Result
-- 'Ok if item is valid regarind custom validations, error otherwise' - `Validate`
-- 'Async support' - `Map` `Bind` and `Aggregate` overloads with async lamdas and extensions defined on Task<...>
+- 'Ok if item from a dictionary was found, otherwise (nice) error' - `TryGetValue` extension on Dictionary
+- 'Ok if type T is `as` convertible to T1, error otherwise' - 'As' extension returning Result
+- 'Ok if item is valid regarding custom validations, error otherwise' - `Validate`
+- 'Async support' - `Map` `Bind` and `Aggregate` overloads with async lambdas and extensions defined on Task<...>
 - ...
 
 If you miss functionality it can be added easily by writing your own extension methods. If it is useful for us all don't hesitate to make pull request. Finally a little example demonstrating some of the functionality mentioned above (validation, aggregation, async pipeline). Lets cook:
@@ -235,7 +235,7 @@ public static class MyCustomErrorExtension
 ```
 and a bunch of methods like `Aggregate`, `Validate`, `AllOk`, `FirstOk` and more will appear that make use of the fact that errors can be concatenated.
 
-There is anonther useful generator coming with the package. Adding the `UnionType` attribute to a base type makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
+There is another useful generator coming with the package. Adding the `UnionType` attribute or to a base type or `EnumType` to an enum makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
 
 ``` cs
 [FunicularSwitch.Generators.UnionType]
@@ -257,6 +257,28 @@ static string PrintError(Error error) =>
             );
 ```
 
+
+
+``` cs
+[FunicularSwitch.Generators.EnumType]
+public enum PlatformIdentifier
+{
+    LinuxDevice,
+    DeveloperMachine,
+    WindowsDevice
+}
+```
+
+the generator detecting the `[EnumType]` adds Match methods so you can write:
+
+``` cs
+var isGraphicalLinux = p.Match(
+            () => true,
+            () => false,
+            () => false
+        );
+```
+
 If you decide to add a case to your Error union all consuming switches break and you never miss a case at runtime!
 
 Match methods are also provided for async case handlers and as extensions on `Task<Error>`.
@@ -272,7 +294,7 @@ static void PrintIfNotFound(Error error) =>
             );
 ```
 
-To avoid bad suprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` attribute (FunicularSwitch.Generators namespace omitted):
+To avoid bad surprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` or `EnumType` attribute (FunicularSwitch.Generators namespace omitted):
 
 ``` cs
 //default

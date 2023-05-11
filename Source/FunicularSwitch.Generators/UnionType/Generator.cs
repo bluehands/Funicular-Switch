@@ -71,7 +71,10 @@ public static class Generator
             foreach (var c in unionTypeSchema.Cases)
             {
                 caseIndex++;
-                builder.WriteLine($"{c.FullTypeName} case{caseIndex} => {c.ParameterName}(case{caseIndex}),");
+                builder.WriteLine(
+	                unionTypeSchema.IsEnum
+		                ? $"{c.FullTypeName} => {c.ParameterName}(),"
+		                : $"{c.FullTypeName} case{caseIndex} => {c.ParameterName}(case{caseIndex}),");
             }
 
             builder.WriteLine(
@@ -94,10 +97,16 @@ public static class Generator
 			    foreach (var c in unionTypeSchema.Cases)
 			    {
 				    caseIndex++;
-				    builder.WriteLine($"case {c.FullTypeName} case{caseIndex}:");
+				    builder.WriteLine(
+					    unionTypeSchema.IsEnum
+						    ? $"case {c.FullTypeName}:"
+						    : $"case {c.FullTypeName} case{caseIndex}:"
+				    );
 				    using (builder.Indent())
 				    {
-					    var call = $"{c.ParameterName}(case{caseIndex})";
+					    var call = unionTypeSchema.IsEnum
+						    ? $"{c.ParameterName}()"
+						    : $"{c.ParameterName}(case{caseIndex})";
 					    if (isAsync)
 						    call = $"await {call}.ConfigureAwait(false)";
 					    builder.WriteLine($"{call};");
@@ -121,7 +130,7 @@ public static class Generator
     {
         handlerReturnType ??= returnType;
         var handlerParameters = unionTypeSchema.Cases
-            .Select(c => new Parameter($"Func<{c.FullTypeName}, {handlerReturnType}>", c.ParameterName));
+            .Select(c => new Parameter( unionTypeSchema.IsEnum ? $"Func<{handlerReturnType}>" : $"Func<{c.FullTypeName}, {handlerReturnType}>", c.ParameterName));
 
         builder.WriteMethodSignature(
             modifiers: modifiers,
@@ -135,7 +144,19 @@ public static class Generator
     {
 	    var returnType = asyncReturn ?? isAsync ? "async Task" : "void";
         var handlerParameters = unionTypeSchema.Cases
-		    .Select(c => new Parameter(isAsync ? $"Func<{c.FullTypeName}, Task>" : $"Action<{c.FullTypeName}>", c.ParameterName));
+		    .Select(c =>
+		    {
+			    var parameterType = unionTypeSchema.IsEnum
+				    ? isAsync
+					    ? "Func<Task>"
+					    : "Action"
+				    : isAsync
+					    ? $"Func<{c.FullTypeName}, Task>"
+					    : $"Action<{c.FullTypeName}>";
+			    return new Parameter(
+					    parameterType,
+					    c.ParameterName);
+		    });
 
         string modifiers = "public static";
 
