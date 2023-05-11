@@ -1,32 +1,41 @@
-﻿namespace FunicularSwitch.Generators.Consumer;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+namespace FunicularSwitch.Generators.Consumer;
+
+[TestClass]
 public class EnumSpecs
 {
-    [UnionType]
+    [EnumType(CaseOrder = CaseOrder.Alphabetic)]
     public enum PlatformIdentifier
     {
+        LinuxDevice,
         DeveloperMachine,
-        LinuxDevice1,
-        LinuxTft,
-        LinuxBox,
-        LinuxBox2,
-        LinuxLed,
-        WindowsXp,
-        WindowsDevice1,
-        WindowsDevice2,
+        WindowsDevice
+    }
+
+    [TestMethod]
+    public void EnumMatchWorks()
+    {
+        var p = PlatformIdentifier.DeveloperMachine;
+        
+        var isGraphicalLinux = p.Match(
+            () => true,
+            () => false,
+            () => true
+        );
+        
+        Assert.IsTrue(isGraphicalLinux);
     }
     
-    private bool IsGraphicalLinux(PlatformIdentifier platformIdentifier)
+    [TestMethod]
+    public void EnumSwitchWorks()
     {
-        return platformIdentifier.Match(
-            () => false,
-            () => false,
-            () => true,
-            () => false,
-            () => true,
-            () => true,
-            () => false,
-            () => false,
-            () => false);
+        var p = PlatformIdentifier.DeveloperMachine;
+
+        p.Switch(
+            () => { },
+            Assert.Fail,
+            Assert.Fail
+        );
     }
 }

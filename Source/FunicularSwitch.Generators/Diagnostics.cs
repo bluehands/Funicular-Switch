@@ -57,6 +57,12 @@ static class Diagnostics
 		    title: "Result type in global namespace",
 		    messageFormat: message, severity: DiagnosticSeverity.Error);
 
+    public static Diagnostic EnumTypeIsNotAccessible(string message, Location location) =>
+        Create(location,
+            id: "FUN0009",
+            title: "Enum type is not accessible",
+            messageFormat: message, severity: DiagnosticSeverity.Error);
+    
     static Diagnostic Create(Location location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
         Diagnostic.Create(
             new(
