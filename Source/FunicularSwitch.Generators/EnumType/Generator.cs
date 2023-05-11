@@ -1,4 +1,5 @@
-﻿using FunicularSwitch.Generators.Generation;
+﻿using FunicularSwitch.Generators.Common;
+using FunicularSwitch.Generators.Generation;
 using FunicularSwitch.Generators.ResultType;
 using Microsoft.CodeAnalysis;
 
