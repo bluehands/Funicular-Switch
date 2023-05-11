@@ -32,7 +32,7 @@ using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test;
 
-[EnumType(CaseOrder = CaseOrder.Alphabetic)]
+[EnumType(CaseOrder = EnumCaseOrder.Alphabetic)]
 public enum test {
 	one,
 	two

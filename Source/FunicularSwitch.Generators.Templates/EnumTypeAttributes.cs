@@ -6,6 +6,12 @@ namespace FunicularSwitch.Generators
     [AttributeUsage(AttributeTargets.Enum)]
     sealed class EnumTypeAttribute : Attribute
     {
-        public CaseOrder CaseOrder { get; set; } = CaseOrder.AsDeclared;
+        public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
+    }
+    
+    enum EnumCaseOrder
+    {
+        Alphabetic,
+        AsDeclared
     }
 }

@@ -5,7 +5,7 @@ namespace FunicularSwitch.Generators.Consumer;
 [TestClass]
 public class EnumSpecs
 {
-    [EnumType(CaseOrder = CaseOrder.Alphabetic)]
+    [EnumType(CaseOrder = EnumCaseOrder.Alphabetic)]
     public enum PlatformIdentifier
     {
         LinuxDevice,
