@@ -77,7 +77,7 @@ Ok 1
 
 ```
 
-The lamdas passed to `Map` and `Bind` are only invoked if everything went well so far, otherwise you are on the error track were error information is passed on 'invisibly':
+The lambdas passed to `Map` and `Bind` are only invoked if everything went well so far, otherwise you are on the error track were error information is passed on 'invisibly':
 b
 
 ``` cs --region errorPropagation --source-file Source/DocSamples/ReadmeSamples.cs --project Source/DocSamples/DocSamples.csproj --session errorPropagation
@@ -122,10 +122,10 @@ Those are basically the four (actually three) main operations on `Result` - `Cre
 
 - 'Combine results to Ok if everything is Ok otherwise collect errors' - `Aggregate`, `Map` and `Bind` overloads on collections
 - 'Ok if at least one item passes certain validations, otherwise collect info why no one matched' - `FirstOk`
-- 'Ok if item from a dictionary was found, ohterwise (nice) error' - `TryGetValue` extension on Dictionary
-- 'Ok if type T is `as` convertible to T1, error otherwies' - 'As' extension returning Result
-- 'Ok if item is valid regarind custom validations, error otherwise' - `Validate`
-- 'Async support' - `Map` `Bind` and `Aggregate` overloads with async lamdas and extensions defined on Task<...>
+- 'Ok if item from a dictionary was found, otherwise (nice) error' - `TryGetValue` extension on Dictionary
+- 'Ok if type T is `as` convertible to T1, error otherwise' - 'As' extension returning Result
+- 'Ok if item is valid regarding custom validations, error otherwise' - `Validate`
+- 'Async support' - `Map` `Bind` and `Aggregate` overloads with async lambdas and extensions defined on Task<...>
 - ...
 
 If you miss functionality it can be added easily by writing your own extension methods. If it is useful for us all don't hesitate to make pull request. Finally a little example demonstrating some of the functionality mentioned above (validation, aggregation, async pipeline). Lets cook:
@@ -235,7 +235,7 @@ public static class MyCustomErrorExtension
 ```
 and a bunch of methods like `Aggregate`, `Validate`, `AllOk`, `FirstOk` and more will appear that make use of the fact that errors can be concatenated.
 
-There is anonther useful generator coming with the package. Adding the `UnionType` attribute to a base type makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
+There is another useful generator coming with the package. Adding the `UnionType` attribute to a base type makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
 
 ``` cs
 [FunicularSwitch.Generators.UnionType]
@@ -272,7 +272,7 @@ static void PrintIfNotFound(Error error) =>
             );
 ```
 
-To avoid bad suprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` attribute (FunicularSwitch.Generators namespace omitted):
+To avoid bad surprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` attribute (FunicularSwitch.Generators namespace omitted):
 
 ``` cs
 //default
