@@ -35,20 +35,44 @@ static class Parser
 
             var caseOrder = TryGetCaseOrder(attribute, reportDiagnostic);
 
+            var fullNamespace = unionTypeSymbol.GetFullNamespace();
+            if (unionTypeClass is EnumDeclarationSyntax enumDeclarationSyntax)
+            {
+                var fullTypeNameWithNamespace = unionTypeSymbol.FullTypeNameWithNamespace();
+                var unionCases = enumDeclarationSyntax.Members
+                    .Select(m => new DerivedType( $"{fullTypeNameWithNamespace}.{m.Identifier.Text}", m.Identifier.Text));
+                if (caseOrder == CaseOrder.Alphabetic)
+                {
+                    unionCases = unionCases.OrderBy(m => m.FullTypeName);
+                }
+                
+                return new UnionTypeSchema(
+                    Namespace: fullNamespace,
+                    TypeName: unionTypeSymbol.Name,
+                    FullTypeName: fullTypeName,
+                    Cases:  unionCases
+                        .ToImmutableArray(),
+                    acc is Accessibility.NotApplicable or Accessibility.Internal,
+                    true
+                );
+            }
+
             var derivedTypes = compilation.SyntaxTrees.SelectMany(t =>
             {
                 var root = t.GetRoot(cancellationToken);
                 var treeSemanticModel = t != unionTypeClass.SyntaxTree ? compilation.GetSemanticModel(t) : semanticModel;
+                
                 return FindConcreteDerivedTypesWalker.Get(root, unionTypeSymbol, treeSemanticModel);
             });
 
             return new UnionTypeSchema(
-                Namespace: unionTypeSymbol.GetFullNamespace(),
+                Namespace: fullNamespace,
                 TypeName: unionTypeSymbol.Name,
                 FullTypeName: fullTypeName,
                 Cases: ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic)
                     .ToImmutableArray(),
-                acc is Accessibility.NotApplicable or Accessibility.Internal
+                acc is Accessibility.NotApplicable or Accessibility.Internal,
+                false
             );
 
         })
