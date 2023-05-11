@@ -23,7 +23,7 @@ FunicularSwitch helps you to:
 
 [**FunicularSwitch**](https://github.com/bluehands/Funicular-Switch#funicularswitch-usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
 
-[**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations).
+[**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations). As a third thing the same Match methods are also generated for enum types annotated with the `EnumType` attribute.
 
 ## <a name="funicular_usage"></a>FunicularSwitch Usage
 
@@ -235,7 +235,7 @@ public static class MyCustomErrorExtension
 ```
 and a bunch of methods like `Aggregate`, `Validate`, `AllOk`, `FirstOk` and more will appear that make use of the fact that errors can be concatenated.
 
-There is another useful generator coming with the package. Adding the `UnionType` attribute to a base type makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
+There is another useful generator coming with the package. Adding the `UnionType` attribute or to a base type or `EnumType` to an enum makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
 
 ``` cs
 [FunicularSwitch.Generators.UnionType]
@@ -257,6 +257,28 @@ static string PrintError(Error error) =>
             );
 ```
 
+
+
+``` cs
+[FunicularSwitch.Generators.EnumType]
+public enum PlatformIdentifier
+{
+    LinuxDevice,
+    DeveloperMachine,
+    WindowsDevice
+}
+```
+
+the generator detecting the `[EnumType]` adds Match methods so you can write:
+
+``` cs
+var isGraphicalLinux = p.Match(
+            () => true,
+            () => false,
+            () => false
+        );
+```
+
 If you decide to add a case to your Error union all consuming switches break and you never miss a case at runtime!
 
 Match methods are also provided for async case handlers and as extensions on `Task<Error>`.
@@ -272,7 +294,7 @@ static void PrintIfNotFound(Error error) =>
             );
 ```
 
-To avoid bad surprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` attribute (FunicularSwitch.Generators namespace omitted):
+To avoid bad surprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` or `EnumType` attribute (FunicularSwitch.Generators namespace omitted):
 
 ``` cs
 //default
