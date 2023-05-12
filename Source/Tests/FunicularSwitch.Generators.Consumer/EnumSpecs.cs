@@ -1,4 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using FluentAssertions.Primitives;
+using FunicularSwitch.Generators;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+[assembly: ExtendEnumTypes(typeof(FluentAssertions.AtLeast))]
 
 namespace FunicularSwitch.Generators.Consumer;
 
@@ -16,7 +20,9 @@ public class EnumSpecs
     [TestMethod]
     public void EnumMatchWorks()
     {
-        var p = PlatformIdentifier.DeveloperMachine;
+	    var x = TimeSpanCondition.Within;
+
+	    var p = PlatformIdentifier.DeveloperMachine;
         
         var isGraphicalLinux = p.Match(
             () => true,
