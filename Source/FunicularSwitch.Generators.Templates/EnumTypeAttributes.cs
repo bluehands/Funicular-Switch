@@ -22,7 +22,7 @@ namespace FunicularSwitch.Generators
     class ExtendEnumTypesAttribute : Attribute
     {
 	    public Type AssemblySpecifier { get; }
-	    public CaseOrder CaseOrder { get; set; } = CaseOrder.AsDeclared;
+	    public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
 	    public ExtensionVisibility Visibility { get; set; } = ExtensionVisibility.Public;
 
 	    public ExtendEnumTypesAttribute() => AssemblySpecifier = typeof(ExtendEnumTypesAttribute);
@@ -41,7 +41,7 @@ namespace FunicularSwitch.Generators
     {
 	    public Type Type { get; }
 
-	    public CaseOrder CaseOrder { get; set; } = CaseOrder.AsDeclared;
+	    public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
 
 	    public ExtensionVisibility Visibility { get; set; } = ExtensionVisibility.Public;
 

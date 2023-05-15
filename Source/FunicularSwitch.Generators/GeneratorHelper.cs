@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Diagnostics;
 using FunicularSwitch.Generators.EnumType;
 
 namespace FunicularSwitch.Generators;
@@ -43,7 +42,7 @@ static class GeneratorHelper
 			}
 		}
 
-		Return:
+	Return:
 		if (!hasAttribute)
 			return null;
 
@@ -59,18 +58,33 @@ static class GeneratorHelper
 		var attributeFullName = attributeSyntax.GetAttributeFullName(semanticModel);
 		if (attributeFullName != expectedAttributeName) return null;
 
-		IAssemblySymbol enumFromAssembly;
-		if (attributeSyntax.ArgumentList?.Arguments.Count > 0)
-		{
-			var typeofExpression = (TypeOfExpressionSyntax)attributeSyntax.ArgumentList.Arguments[0].Expression;
-			enumFromAssembly = semanticModel.GetSymbolInfo(typeofExpression.Type).Symbol!.ContainingAssembly;
-		}
-		else
-		{
-			enumFromAssembly = semanticModel.GetSymbolInfo(attributeSyntax).Symbol!.ContainingAssembly;
-		}
+		var typeofExpression = attributeSyntax.ArgumentList?.Arguments
+			.Select(a => a.Expression)
+			.OfType<TypeOfExpressionSyntax>()
+			.FirstOrDefault();
 
-		return new EnumTypesAttributeInfo(enumFromAssembly);
+		var enumFromAssembly = typeofExpression != null
+				? semanticModel.GetSymbolInfo(typeofExpression.Type).Symbol!.ContainingAssembly
+				: semanticModel.GetSymbolInfo(attributeSyntax).Symbol!.ContainingAssembly;
+
+		var caseOrder = GetNamedEnumAttributeArgument(attributeSyntax, "CaseOrder", EnumCaseOrder.AsDeclared);
+		var visibility = GetNamedEnumAttributeArgument(attributeSyntax, "Visibility", ExtensionVisibility.Public);
+
+		return new(enumFromAssembly, caseOrder, visibility);
+	}
+
+	public static T GetNamedEnumAttributeArgument<T>(AttributeSyntax attribute, string name, T defaultValue) where T : struct
+	{
+		var memberAccess = attribute.ArgumentList?.Arguments
+			.Where(a => a.NameEquals?.Name.ToString() == name)
+			.Select(a => a.Expression)
+			.OfType<MemberAccessExpressionSyntax>()
+			.FirstOrDefault();
+
+
+		if (memberAccess == null) return defaultValue;
+
+		return (T)Enum.Parse(typeof(T), memberAccess.Name.ToString());
 	}
 
 
@@ -78,7 +92,7 @@ static class GeneratorHelper
 	{
 		public static SymbolWrapper<T> Create<T>(T symbol) where T : ISymbol => new(symbol);
 	}
-	public class SymbolWrapper<T> : IEquatable<SymbolWrapper<T>> where T: ISymbol
+	public class SymbolWrapper<T> : IEquatable<SymbolWrapper<T>> where T : ISymbol
 	{
 		public SymbolWrapper(T symbol) => Symbol = symbol;
 
@@ -103,16 +117,27 @@ static class GeneratorHelper
 	}
 
 
-	public class EnumTypesAttributeInfo
+	public class EnumTypesAttributeInfo : IEquatable<EnumTypesAttributeInfo>
 	{
-		public EnumTypesAttributeInfo(IAssemblySymbol assemblySymbol)
+		public EnumTypesAttributeInfo(IAssemblySymbol assemblySymbol, 
+			EnumCaseOrder caseOrder, 
+			ExtensionVisibility visibility)
 		{
 			AssemblySymbol = assemblySymbol;
+			CaseOrder = caseOrder;
+			Visibility = visibility;
 		}
 
 		public IAssemblySymbol AssemblySymbol { get; }
+		public EnumCaseOrder CaseOrder { get; }
+		public ExtensionVisibility Visibility { get; }
 
-		protected bool Equals(EnumTypesAttributeInfo other) => SymbolEqualityComparer.Default.Equals(AssemblySymbol, other.AssemblySymbol);
+		public bool Equals(EnumTypesAttributeInfo other)
+		{
+			if (ReferenceEquals(null, other)) return false;
+			if (ReferenceEquals(this, other)) return true;
+			return SymbolEqualityComparer.Default.Equals(AssemblySymbol, other.AssemblySymbol) && CaseOrder == other.CaseOrder && Visibility == other.Visibility;
+		}
 
 		public override bool Equals(object? obj)
 		{
@@ -122,6 +147,15 @@ static class GeneratorHelper
 			return Equals((EnumTypesAttributeInfo)obj);
 		}
 
-		public override int GetHashCode() => SymbolEqualityComparer.Default.GetHashCode(AssemblySymbol);
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				var hashCode = SymbolEqualityComparer.Default.GetHashCode(AssemblySymbol);
+				hashCode = (hashCode * 397) ^ (int)CaseOrder;
+				hashCode = (hashCode * 397) ^ (int)Visibility;
+				return hashCode;
+			}
+		}
 	}
 }
