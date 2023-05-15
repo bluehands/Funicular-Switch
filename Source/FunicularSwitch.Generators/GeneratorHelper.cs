@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Diagnostics;
+using FunicularSwitch.Generators.EnumType;
 
 namespace FunicularSwitch.Generators;
 
@@ -26,6 +27,31 @@ static class GeneratorHelper
 		return hasAttribute ? classDeclarationSyntax : null;
 	}
 
+	public static EnumTypeSchema? GetSemanticTargetForGeneration3(GeneratorSyntaxContext context, string expectedAttributeName)
+	{
+		var classDeclarationSyntax = (EnumDeclarationSyntax)context.Node;
+		var hasAttribute = false;
+		foreach (var attributeListSyntax in classDeclarationSyntax.AttributeLists)
+		{
+			foreach (var attributeSyntax in attributeListSyntax.Attributes)
+			{
+				var semanticModel = context.SemanticModel;
+				var attributeFullName = attributeSyntax.GetAttributeFullName(semanticModel);
+				if (attributeFullName != expectedAttributeName) continue;
+				hasAttribute = true;
+				goto Return;
+			}
+		}
+
+		Return:
+		if (!hasAttribute)
+			return null;
+
+		var schema = Parser.GetEnumTypeSchema(classDeclarationSyntax, context.SemanticModel, _ => { });
+
+		return schema;
+	}
+
 	public static EnumTypesAttributeInfo? GetSemanticTargetForGeneration2(GeneratorSyntaxContext context, string expectedAttributeName)
 	{
 		var attributeSyntax = (AttributeSyntax)context.Node;
@@ -46,6 +72,36 @@ static class GeneratorHelper
 
 		return new EnumTypesAttributeInfo(enumFromAssembly);
 	}
+
+
+	public class SymbolWrapper
+	{
+		public static SymbolWrapper<T> Create<T>(T symbol) where T : ISymbol => new(symbol);
+	}
+	public class SymbolWrapper<T> : IEquatable<SymbolWrapper<T>> where T: ISymbol
+	{
+		public SymbolWrapper(T symbol) => Symbol = symbol;
+
+		public T Symbol { get; }
+
+		public bool Equals(SymbolWrapper<T>? other)
+		{
+			if (ReferenceEquals(null, other)) return false;
+			if (ReferenceEquals(this, other)) return true;
+			return SymbolEqualityComparer.Default.Equals(Symbol, other.Symbol);
+		}
+
+		public override bool Equals(object? obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((SymbolWrapper<T>)obj);
+		}
+
+		public override int GetHashCode() => SymbolEqualityComparer.Default.GetHashCode(Symbol);
+	}
+
 
 	public class EnumTypesAttributeInfo
 	{

@@ -18,7 +18,7 @@ namespace FunicularSwitch.Generators
     /// <summary>
     /// Generate match methods for all enums defined in assembly that contains AssemblySpecifier.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Assembly)]
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     class ExtendEnumTypesAttribute : Attribute
     {
 	    public Type AssemblySpecifier { get; }
