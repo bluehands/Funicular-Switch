@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using FunicularSwitch.Generators.EnumType;
+﻿using FunicularSwitch.Generators.EnumType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -20,7 +19,7 @@ public class EnumTypeGenerator : IIncrementalGenerator
 			context.SyntaxProvider
 				.CreateSyntaxProvider(
 					predicate: static (s, _) => s is EnumDeclarationSyntax && s.IsTypeDeclarationWithAttributes(),
-					transform: static (ctx, _) => GeneratorHelper.GetSemanticTargetForGeneration3(ctx, EnumTypeAttribute)
+					transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx, EnumTypeAttribute)
 				)
 				.Where(static target => target != null)
 				.Select(static (target, _) => target!);
@@ -32,27 +31,34 @@ public class EnumTypeGenerator : IIncrementalGenerator
 
 	static void Execute(EnumTypeSchema enumTypeSchema, SourceProductionContext context)
 	{
-		//FileLog.LogAccess();
-
 		var (filename, source) = Generator.Emit(enumTypeSchema, context.ReportDiagnostic, context.CancellationToken);
-
 		context.AddSource(filename, source);
 	}
 
-	static void Execute(Compilation compilation, ImmutableArray<BaseTypeDeclarationSyntax> enumTypeClasses, SourceProductionContext context)
+	static EnumTypeSchema? GetSemanticTargetForGeneration(GeneratorSyntaxContext context, string expectedAttributeName)
 	{
-		if (enumTypeClasses.IsDefaultOrEmpty) return;
+		var classDeclarationSyntax = (EnumDeclarationSyntax)context.Node;
+		var hasAttribute = false;
+		foreach (var attributeListSyntax in classDeclarationSyntax.AttributeLists)
+		{
+			foreach (var attributeSyntax in attributeListSyntax.Attributes)
+			{
+				var semanticModel = context.SemanticModel;
+				var attributeFullName = attributeSyntax.GetAttributeFullName(semanticModel);
+				if (attributeFullName != expectedAttributeName) continue;
+				hasAttribute = true;
+				goto Return;
+			}
+		}
 
-		//FileLog.LogAccess();
+		Return:
+		if (!hasAttribute)
+			return null;
 
-		var resultTypeSchemata =
-			Parser.GetEnumTypes(compilation, enumTypeClasses, context.ReportDiagnostic, context.CancellationToken)
-				.ToImmutableArray();
+		//TODO: return class dec with semantic model and parse / generate in later stage
+		var schema = Parser.GetEnumTypeSchema(classDeclarationSyntax, context.SemanticModel, _ => { });
 
-		var generation =
-			resultTypeSchemata.Select(r => Generator.Emit(r, context.ReportDiagnostic, context.CancellationToken));
-
-		foreach (var (filename, source) in generation) context.AddSource(filename, source);
+		return schema;
 	}
 }
 

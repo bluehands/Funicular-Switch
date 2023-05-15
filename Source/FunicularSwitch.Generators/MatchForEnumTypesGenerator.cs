@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
-using FunicularSwitch.Generators.EnumType;
+﻿using FunicularSwitch.Generators.EnumType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -23,7 +21,7 @@ public class MatchForEnumTypesGenerator : IIncrementalGenerator
 			context.SyntaxProvider
 				.CreateSyntaxProvider(
 					predicate: static (s, _) => s is AttributeSyntax,
-					transform: static (ctx, _) => GeneratorHelper.GetSemanticTargetForGeneration2(ctx, EnumTypeAttribute)
+					transform: static (ctx, _) => GetSemanticTargetForGeneration2(ctx, EnumTypeAttribute)
 				)
 				.Where(static target => target != null)
 				.Select(static (target, _) => target!)
@@ -33,93 +31,79 @@ public class MatchForEnumTypesGenerator : IIncrementalGenerator
 					target
 				));
 
-		//var globalNamespace = context.CompilationProvider
-		//	.Select((c, _) => GeneratorHelper.SymbolWrapper.Create(c.GlobalNamespace));
-
-		//var compilationAndClasses = enumTypeClasses.Combine(globalNamespace);
-
-		//var relevantNamespaces =
-		//	compilationAndClasses
-		//		.SelectMany((t, c) =>
-		//		{
-		//			static IEnumerable<INamespaceSymbol> GetNamespaceWithTypeMembers(INamespaceSymbol namespaceSymbol,
-		//				ImmutableHashSet<ISymbol> relevantAssemblies)
-		//			{
-		//				if (!namespaceSymbol.IsGlobalNamespace &&
-		//				    !relevantAssemblies.Contains(namespaceSymbol.ContainingAssembly))
-		//					yield break;
-
-		//				if (!namespaceSymbol.IsGlobalNamespace && namespaceSymbol.GetTypeMembers().Any())
-		//					yield return namespaceSymbol;
-
-		//				foreach (var subNamespace in namespaceSymbol.GetNamespaceMembers())
-		//				{
-		//					foreach (var namedTypeSymbol in GetNamespaceWithTypeMembers(subNamespace,
-		//						         relevantAssemblies))
-		//					{
-		//						yield return namedTypeSymbol;
-		//					}
-		//				}
-		//			}
-
-		//			var assemblies = ImmutableHashSet
-		//				.Create<ISymbol>(SymbolEqualityComparer.Default, t.Left.AssemblySymbol);
-
-		//			var namespaceWithTypeMembers = GetNamespaceWithTypeMembers(t.Right.Symbol, assemblies!)
-		//					.Select(s => (t.Left, GeneratorHelper.SymbolWrapper.Create(s)));
-		//			return namespaceWithTypeMembers;
-		//		});
-
 		context.RegisterSourceOutput(
 			enumTypeClasses,
 			static (spc, source) => Execute(source, spc)
 		);
 	}
-
+	
 	static void Execute(EnumTypeSchema enumTypeSchema, SourceProductionContext spc)
 	{
-		var sw = Stopwatch.StartNew();
 		var (filename, source) = Generator.Emit(enumTypeSchema, spc.ReportDiagnostic, spc.CancellationToken);
-
 		spc.AddSource(filename, source);
-		FileLog.LogAccess(sw.Elapsed, $"namespace: {enumTypeSchema.FullTypeName}");
 	}
 
-	//static void Execute(INamespaceSymbol compilation, ImmutableArray<GeneratorHelper.EnumTypesAttributeInfo> enumTypesAttributes, SourceProductionContext context)
-	//{
-	//	//if (!Debugger.IsAttached)
-	//	//	Debugger.Launch();
-
-	//	if (enumTypesAttributes.IsDefaultOrEmpty) return;
-
-	//	//if (!Debugger.IsAttached) Debugger.Launch();
-
-	//	var sw = Stopwatch.StartNew();
-	//	var resultTypeSchemata =
-	//		Parser.GetEnumTypes(compilation, enumTypesAttributes, context.ReportDiagnostic, context.CancellationToken)
-	//			.ToImmutableArray();
-
-	//	var generation =
-	//		resultTypeSchemata.Select(r => Generator.Emit(r, context.ReportDiagnostic, context.CancellationToken));
-
-	//	foreach (var (filename, source) in generation) context.AddSource(filename, source);
-	//	FileLog.LogAccess(sw.Elapsed, $"namespace: {FullNamespace(compilation)}");
-	//}
-
-	static string FullNamespace(ISymbol compilation)
+	static EnumTypesAttributeInfo? GetSemanticTargetForGeneration2(GeneratorSyntaxContext context, string expectedAttributeName)
 	{
+		var attributeSyntax = (AttributeSyntax)context.Node;
+		var semanticModel = context.SemanticModel;
+		var attributeFullName = attributeSyntax.GetAttributeFullName(semanticModel);
+		if (attributeFullName != expectedAttributeName) return null;
 
-		static IEnumerable<string> GetParentNamespaces(ISymbol ns)
+		var typeofExpression = attributeSyntax.ArgumentList?.Arguments
+			.Select(a => a.Expression)
+			.OfType<TypeOfExpressionSyntax>()
+			.FirstOrDefault();
+
+		var enumFromAssembly = typeofExpression != null
+			? semanticModel.GetSymbolInfo(typeofExpression.Type).Symbol!.ContainingAssembly
+			: semanticModel.GetSymbolInfo(attributeSyntax).Symbol!.ContainingAssembly;
+
+		var caseOrder = attributeSyntax.GetNamedEnumAttributeArgument("CaseOrder", EnumCaseOrder.AsDeclared);
+		var visibility = attributeSyntax.GetNamedEnumAttributeArgument("Visibility", ExtensionVisibility.Public);
+
+		return new(enumFromAssembly, caseOrder, visibility);
+	}
+}
+
+class EnumTypesAttributeInfo : IEquatable<EnumTypesAttributeInfo>
+{
+	public EnumTypesAttributeInfo(IAssemblySymbol assemblySymbol, 
+		EnumCaseOrder caseOrder, 
+		ExtensionVisibility visibility)
+	{
+		AssemblySymbol = assemblySymbol;
+		CaseOrder = caseOrder;
+		Visibility = visibility;
+	}
+
+	public IAssemblySymbol AssemblySymbol { get; }
+	public EnumCaseOrder CaseOrder { get; }
+	public ExtensionVisibility Visibility { get; }
+
+	public bool Equals(EnumTypesAttributeInfo other)
+	{
+		if (ReferenceEquals(null, other)) return false;
+		if (ReferenceEquals(this, other)) return true;
+		return SymbolEqualityComparer.Default.Equals(AssemblySymbol, other.AssemblySymbol) && CaseOrder == other.CaseOrder && Visibility == other.Visibility;
+	}
+
+	public override bool Equals(object? obj)
+	{
+		if (ReferenceEquals(null, obj)) return false;
+		if (ReferenceEquals(this, obj)) return true;
+		if (obj.GetType() != this.GetType()) return false;
+		return Equals((EnumTypesAttributeInfo)obj);
+	}
+
+	public override int GetHashCode()
+	{
+		unchecked
 		{
-			if (ns.ContainingNamespace != null)
-			{
-				foreach (var parentNamespace in GetParentNamespaces(ns.ContainingNamespace))
-					yield return parentNamespace;
-			}
-			yield return ns.Name;
+			var hashCode = SymbolEqualityComparer.Default.GetHashCode(AssemblySymbol);
+			hashCode = (hashCode * 397) ^ (int)CaseOrder;
+			hashCode = (hashCode * 397) ^ (int)Visibility;
+			return hashCode;
 		}
-
-		return ResultType.StringExtension.ToSeparatedString(GetParentNamespaces(compilation)
-			.Where(s => !string.IsNullOrEmpty(s)), ".");
 	}
 }
