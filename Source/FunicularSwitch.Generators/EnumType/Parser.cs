@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -7,62 +6,23 @@ namespace FunicularSwitch.Generators.EnumType;
 
 static class Parser
 {
-	public static IEnumerable<EnumTypeSchema> GetEnumTypes(Compilation compilation,
-		ImmutableArray<BaseTypeDeclarationSyntax> enumTypeClasses, Action<Diagnostic> reportDiagnostic,
-		CancellationToken cancellationToken) =>
-		enumTypeClasses
-			.OfType<EnumDeclarationSyntax>()
-			.Select(enumTypeClass =>
-			{
-				var semanticModel = compilation.GetSemanticModel(enumTypeClass.SyntaxTree);
-
-				return GetEnumTypeSchema(enumTypeClass, semanticModel, reportDiagnostic);
-			})
-			.Where(enumTypeClass => enumTypeClass != null)!;
-
-	public static EnumTypeSchema? GetEnumTypeSchema(EnumDeclarationSyntax enumTypeClass, SemanticModel semanticModel,
-		Action<Diagnostic> reportDiagnostic)
+	public static EnumSymbolInfo? GetEnumSymbolInfo(EnumDeclarationSyntax enumTypeClass, AttributeSyntax attribute, SemanticModel semanticModel)
 	{
 		var enumTypeSymbol = semanticModel.GetDeclaredSymbol(enumTypeClass);
-
-		if (enumTypeSymbol == null) //TODO: report diagnostics
+		if (enumTypeSymbol == null)
 			return null;
-
-		var fullTypeName = enumTypeSymbol.FullTypeNameWithNamespace();
-		var acc = enumTypeSymbol.DeclaredAccessibility;
-		if (acc is Accessibility.Private or Accessibility.Protected)
-		{
-			reportDiagnostic(Diagnostics.EnumTypeIsNotAccessible($"{fullTypeName} needs at least internal accessibility",
-				enumTypeClass.GetLocation()));
-			return null;
-		}
-
-		var attribute = enumTypeClass.AttributeLists
-			.Select(l =>
-				l.Attributes.First(a => a.GetAttributeFullName(semanticModel) == EnumTypeGenerator.EnumTypeAttribute))
-			.First();
 
 		var enumCaseOrder = attribute.GetNamedEnumAttributeArgument("CaseOrder", EnumCaseOrder.AsDeclared);
-		var fullTypeNameWithNamespace = enumTypeSymbol.FullTypeNameWithNamespace();
-		var enumCases = enumTypeClass.Members
-			.Select(m => new DerivedType($"{fullTypeNameWithNamespace}.{m.Identifier.Text}", m.Identifier.Text));
-
-		return new EnumTypeSchema(
-			Namespace: enumTypeSymbol.GetFullNamespace(),
-			TypeName: enumTypeSymbol.Name,
-			FullTypeName: fullTypeName,
-			Cases: OrderEnumCases(enumCases, enumCaseOrder)
-			.ToImmutableArray(),
-			IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal
-		);
+		var visibility = attribute.GetNamedEnumAttributeArgument("Visibility", ExtensionAccessibility.Public);
+		return new(SymbolWrapper.Create(enumTypeSymbol), visibility, enumCaseOrder, AttributePrecedence.High);
 	}
 
-	static IEnumerable<DerivedType> OrderEnumCases(IEnumerable<DerivedType> enumCases, EnumCaseOrder enumCaseOrder) =>
+	static IEnumerable<EnumCase> OrderEnumCases(IEnumerable<EnumCase> enumCases, EnumCaseOrder enumCaseOrder) =>
 		(enumCaseOrder == EnumCaseOrder.AsDeclared
 			? enumCases
-			: enumCases.OrderBy(m => m.FullTypeName));
+			: enumCases.OrderBy(m => m.FullCaseName));
 
-	public static IEnumerable<EnumTypeSchema> GetEnumTypes(INamespaceSymbol globalNamespace, EnumTypesAttributeInfo enumTypesAttribute)
+	public static IEnumerable<INamedTypeSymbol> GetAccessibleEnumTypeSymbols(INamespaceSymbol @namespace, bool includeInternalEnums)
 	{
 		static IEnumerable<INamedTypeSymbol> GetTypes(INamespaceOrTypeSymbol namespaceSymbol)
 		{
@@ -85,24 +45,56 @@ static class Parser
 				}
 		}
 
-		var enumTypes = GetTypes(globalNamespace)
+		var enumTypes = GetTypes(@namespace)
 			.Where(t => t.EnumUnderlyingType != null
-			            && t.DeclaredAccessibility == Accessibility.Public); //TODO: handle nested types correctly: https://stackoverflow.com/questions/54480727/finding-the-effective-accessibility-of-fields-and-types-in-a-roslyn-analyzer
-						
-		return enumTypes.Select(e =>
-		{
-			var fullNamespace = e.GetFullNamespace();
-			var fullTypeNameWithNamespace = e.FullTypeNameWithNamespace();
-			
-			var derivedTypes = e.GetMembers()
-				.OfType<IFieldSymbol>()
-				.Select(f => new DerivedType($"{fullTypeNameWithNamespace}.{f.Name}", f.Name));
-			
-			return new EnumTypeSchema(fullNamespace, e.Name, fullTypeNameWithNamespace,
-				OrderEnumCases(derivedTypes, enumTypesAttribute.CaseOrder)
-					.ToList()
-				, enumTypesAttribute.Visibility == ExtensionVisibility.Internal
+						&& IsAccessible(t, includeInternalEnums)
 			);
-		});
+
+		return enumTypes;
 	}
+
+	static bool IsAccessible(INamedTypeSymbol t, bool includeInternalEnums)
+	{
+		var actualAccessibility = t.GetActualAccessibility();
+
+		return actualAccessibility == Accessibility.Public ||
+		       includeInternalEnums && actualAccessibility == Accessibility.Internal;
+	}
+
+	public static EnumTypeSchema ToEnumTypeSchema(this EnumSymbolInfo symbolInfo)
+	{
+		var enumSymbol = symbolInfo.EnumTypeSymbol.Symbol;
+
+		var fullNamespace = enumSymbol.GetFullNamespace();
+		var fullTypeNameWithNamespace = enumSymbol.FullTypeNameWithNamespace();
+
+		var derivedTypes = enumSymbol.GetMembers()
+			.OfType<IFieldSymbol>()
+			.Select(f => new EnumCase($"{fullTypeNameWithNamespace}.{f.Name}", f.Name));
+
+		var acc = symbolInfo.EnumTypeSymbol.Symbol.GetActualAccessibility();
+		var extensionAccessibility = acc is Accessibility.NotApplicable or Accessibility.Internal
+			? ExtensionAccessibility.Internal
+			: symbolInfo.ExtensionAccessibility;
+
+		return new(fullNamespace, enumSymbol.Name, fullTypeNameWithNamespace,
+			OrderEnumCases(derivedTypes, symbolInfo.CaseOrder)
+				.ToList(),
+			extensionAccessibility == ExtensionAccessibility.Internal
+		);
+	}
+}
+
+record EnumSymbolInfo(
+	SymbolWrapper<INamedTypeSymbol> EnumTypeSymbol,
+	ExtensionAccessibility ExtensionAccessibility,
+	EnumCaseOrder CaseOrder,
+	AttributePrecedence Precedence
+);
+
+enum AttributePrecedence
+{
+	Low,
+	Medium,
+	High
 }

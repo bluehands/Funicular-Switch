@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FunicularSwitch.Test
 {
-	public static partial class MatchExtension
+	public static partial class FieldTypeMatchExtension
 	{
 		public static T Match<T>(this FunicularSwitch.Test.FieldType fieldType, Func<FunicularSwitch.Test.FieldType.Bool_, T> @bool, Func<FunicularSwitch.Test.FieldType.Enum_, T> @enum, Func<FunicularSwitch.Test.FieldType.String_, T> @string) =>
 		fieldType switch

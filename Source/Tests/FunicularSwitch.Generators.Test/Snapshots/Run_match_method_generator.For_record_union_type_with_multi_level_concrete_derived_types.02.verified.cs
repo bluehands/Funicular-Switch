@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FunicularSwitch.Test
 {
-	public static partial class MatchExtension
+	public static partial class BaseMatchExtension
 	{
 		public static T Match<T>(this FunicularSwitch.Test.Base @base, Func<FunicularSwitch.Test.Bbb, T> bbb, Func<FunicularSwitch.Test.Aaa, T> aaa, Func<FunicularSwitch.Test.BaseChild, T> baseChild) =>
 		@base switch

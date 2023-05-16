@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace FunicularSwitch.Generators.Consumer
 {
-	public static partial class MatchExtension
+	public static partial class ErrorMatchExtension
 	{
 		public static T Match<T>(this FunicularSwitch.Generators.Consumer.Error error, Func<FunicularSwitch.Generators.Consumer.Error.Generic_, T> generic, Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, T> notFound, Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, T> notAuthorized, Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, T> aggregated) =>
 		error switch

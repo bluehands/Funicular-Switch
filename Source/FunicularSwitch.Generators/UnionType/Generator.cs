@@ -23,7 +23,7 @@ public static class Generator
 
         using (unionTypeSchema.Namespace != null ? builder.Namespace(unionTypeSchema.Namespace) : null)
         {
-            using (builder.StaticPartialClass("MatchExtension", unionTypeSchema.IsInternal ? "internal" : "public"))
+            using (builder.StaticPartialClass($"{unionTypeSchema.TypeName}MatchExtension", unionTypeSchema.IsInternal ? "internal" : "public"))
             {
 	            var thisTaskParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.FullTypeName}>");
 	            var caseParameters = unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();

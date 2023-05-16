@@ -39,32 +39,33 @@ static class GeneratorHelper
 
 		return (T)Enum.Parse(typeof(T), memberAccess.Name.ToString());
 	}
+}
 
-	public class SymbolWrapper
+public class SymbolWrapper
+{
+	public static SymbolWrapper<T> Create<T>(T symbol) where T : ISymbol => new(symbol);
+}
+
+public class SymbolWrapper<T> : IEquatable<SymbolWrapper<T>> where T : ISymbol
+{
+	public SymbolWrapper(T symbol) => Symbol = symbol;
+
+	public T Symbol { get; }
+
+	public bool Equals(SymbolWrapper<T>? other)
 	{
-		public static SymbolWrapper<T> Create<T>(T symbol) where T : ISymbol => new(symbol);
+		if (ReferenceEquals(null, other)) return false;
+		if (ReferenceEquals(this, other)) return true;
+		return SymbolEqualityComparer.Default.Equals(Symbol, other.Symbol);
 	}
-	public class SymbolWrapper<T> : IEquatable<SymbolWrapper<T>> where T : ISymbol
+
+	public override bool Equals(object? obj)
 	{
-		public SymbolWrapper(T symbol) => Symbol = symbol;
-
-		public T Symbol { get; }
-
-		public bool Equals(SymbolWrapper<T>? other)
-		{
-			if (ReferenceEquals(null, other)) return false;
-			if (ReferenceEquals(this, other)) return true;
-			return SymbolEqualityComparer.Default.Equals(Symbol, other.Symbol);
-		}
-
-		public override bool Equals(object? obj)
-		{
-			if (ReferenceEquals(null, obj)) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != this.GetType()) return false;
-			return Equals((SymbolWrapper<T>)obj);
-		}
-
-		public override int GetHashCode() => SymbolEqualityComparer.Default.GetHashCode(Symbol);
+		if (ReferenceEquals(null, obj)) return false;
+		if (ReferenceEquals(this, obj)) return true;
+		if (obj.GetType() != this.GetType()) return false;
+		return Equals((SymbolWrapper<T>)obj);
 	}
+
+	public override int GetHashCode() => SymbolEqualityComparer.Default.GetHashCode(Symbol);
 }

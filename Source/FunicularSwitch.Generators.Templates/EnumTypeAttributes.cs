@@ -6,7 +6,8 @@ namespace FunicularSwitch.Generators
     [AttributeUsage(AttributeTargets.Enum)]
     sealed class EnumTypeAttribute : Attribute
     {
-        public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
+	    public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
+	    public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
     }
     
     enum EnumCaseOrder
@@ -23,7 +24,7 @@ namespace FunicularSwitch.Generators
     {
 	    public Type AssemblySpecifier { get; }
 	    public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
-	    public ExtensionVisibility Visibility { get; set; } = ExtensionVisibility.Public;
+	    public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
 
 	    public ExtendEnumTypesAttribute() => AssemblySpecifier = typeof(ExtendEnumTypesAttribute);
 
@@ -43,7 +44,7 @@ namespace FunicularSwitch.Generators
 
 	    public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
 
-	    public ExtensionVisibility Visibility { get; set; } = ExtensionVisibility.Public;
+	    public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
 
 	    public ExtendEnumTypeAttribute(Type type)
 	    {
@@ -51,7 +52,7 @@ namespace FunicularSwitch.Generators
 	    }
     }
 
-    enum ExtensionVisibility
+    enum ExtensionAccessibility
     {
 	    Internal,
 	    Public
