@@ -12,8 +12,8 @@ static class Parser
 		if (enumTypeSymbol == null)
 			return null;
 
-		var enumCaseOrder = attribute.GetNamedEnumAttributeArgument("CaseOrder", EnumCaseOrder.AsDeclared);
-		var visibility = attribute.GetNamedEnumAttributeArgument("Visibility", ExtensionAccessibility.Public);
+		var (enumCaseOrder, visibility) = GetAttributeParameters(attribute);
+
 		return new(SymbolWrapper.Create(enumTypeSymbol), visibility, enumCaseOrder, AttributePrecedence.High);
 	}
 
@@ -82,6 +82,13 @@ static class Parser
 				.ToList(),
 			extensionAccessibility == ExtensionAccessibility.Internal
 		);
+	}
+
+	public static (EnumCaseOrder caseOrder, ExtensionAccessibility visibility) GetAttributeParameters(AttributeSyntax attribute)
+	{
+		var caseOrder = attribute.GetNamedEnumAttributeArgument("CaseOrder", EnumCaseOrder.AsDeclared);
+		var visibility = attribute.GetNamedEnumAttributeArgument("Visibility", ExtensionAccessibility.Public);
+		return (caseOrder, visibility);
 	}
 }
 

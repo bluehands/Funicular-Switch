@@ -8,9 +8,11 @@ namespace FunicularSwitch.Generators;
 [Generator]
 public class EnumTypeGenerator : IIncrementalGenerator
 {
-	internal const string EnumTypeAttribute = "FunicularSwitch.Generators.EnumTypeAttribute";
-	internal const string ExtendEnumTypesAttribute = "FunicularSwitch.Generators.ExtendEnumTypesAttribute";
-	const string FunicularswitchGeneratorsNamespace = "FunicularSwitch.Generators";
+	const string EnumTypeAttribute = "FunicularSwitch.Generators.EnumTypeAttribute";
+	const string ExtendEnumTypesAttribute = "FunicularSwitch.Generators.ExtendEnumTypesAttribute";
+	const string ExtendEnumTypeAttribute = "FunicularSwitch.Generators.ExtendEnumTypeAttribute";
+
+	const string FunicularSwitchGeneratorsNamespace = "FunicularSwitch.Generators";
 
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
@@ -58,57 +60,92 @@ public class EnumTypeGenerator : IIncrementalGenerator
 		switch (context.Node)
 		{
 			case EnumDeclarationSyntax enumDeclarationSyntax:
-				{
-					AttributeSyntax? enumTypeAttribute = null;
-					foreach (var attributeListSyntax in enumDeclarationSyntax.AttributeLists)
-					{
-						foreach (var attributeSyntax in attributeListSyntax.Attributes)
-						{
-							var semanticModel = context.SemanticModel;
-							var attributeFullName = attributeSyntax.GetAttributeFullName(semanticModel);
-							if (attributeFullName != EnumTypeAttribute) continue;
-							enumTypeAttribute = attributeSyntax;
-							goto Return;
-						}
-					}
-
-				Return:
-					if (enumTypeAttribute == null)
-						return Enumerable.Empty<EnumSymbolInfo?>();
-
-					var schema = Parser.GetEnumSymbolInfo(enumDeclarationSyntax, enumTypeAttribute, context.SemanticModel);
-
-					return new[] { schema };
-				}
+			{
+				return GetSymbolInfoFromEnumDeclaration(context, enumDeclarationSyntax);
+			}
 			case AttributeSyntax extendEnumTypesAttribute:
 				{
 					var semanticModel = context.SemanticModel;
 					var attributeFullName = extendEnumTypesAttribute.GetAttributeFullName(semanticModel);
-					if (attributeFullName != ExtendEnumTypesAttribute) return Enumerable.Empty<EnumSymbolInfo>();
 
-					var typeofExpression = extendEnumTypesAttribute.ArgumentList?.Arguments
-						.Select(a => a.Expression)
-						.OfType<TypeOfExpressionSyntax>()
-						.FirstOrDefault();
-
-					var attributeSymbol = semanticModel.GetSymbolInfo(extendEnumTypesAttribute).Symbol!;
-					var enumFromAssembly = typeofExpression != null
-						? semanticModel.GetSymbolInfo(typeofExpression.Type).Symbol!.ContainingAssembly
-						: attributeSymbol.ContainingAssembly;
-
-					var caseOrder = extendEnumTypesAttribute.GetNamedEnumAttributeArgument("CaseOrder", EnumCaseOrder.AsDeclared);
-					var visibility = extendEnumTypesAttribute.GetNamedEnumAttributeArgument("Visibility", ExtensionAccessibility.Public);
-
-					return Parser.GetAccessibleEnumTypeSymbols(enumFromAssembly.GlobalNamespace, SymbolEqualityComparer.Default.Equals(attributeSymbol.ContainingAssembly, enumFromAssembly))
-						.Where(e => 
-							(e.Name != "ExtensionAccessibility" || e.GetFullNamespace() != FunicularswitchGeneratorsNamespace) && 
-							(e.Name != "EnumCaseOrder" || e.GetFullNamespace() != FunicularswitchGeneratorsNamespace) &&
-							(e.Name != "CaseOrder" || e.GetFullNamespace() != FunicularswitchGeneratorsNamespace))
-						.Select(e => new EnumSymbolInfo(SymbolWrapper.Create(e), visibility, caseOrder, AttributePrecedence.Low));
+					return attributeFullName switch
+					{
+						ExtendEnumTypesAttribute => GetSymbolInfosForExtendEnumTypesAttribute(extendEnumTypesAttribute, semanticModel),
+						ExtendEnumTypeAttribute => GetSymbolInfosForExtendEnumTypeAttribute(extendEnumTypesAttribute, semanticModel),
+						_ => Enumerable.Empty<EnumSymbolInfo>()
+					};
 				}
 			default:
 				throw new ArgumentException($"Unexpected node of type {context.Node.GetType()}");
 		}
+	}
+
+	static IEnumerable<EnumSymbolInfo?> GetSymbolInfosForExtendEnumTypeAttribute(AttributeSyntax extendEnumTypesAttribute, SemanticModel semanticModel)
+	{
+		var typeofExpression = extendEnumTypesAttribute.ArgumentList?.Arguments
+			.Select(a => a.Expression)
+			.OfType<TypeOfExpressionSyntax>()
+			.FirstOrDefault();
+
+		if (typeofExpression == null)
+			return Enumerable.Empty<EnumSymbolInfo?>();
+
+		if (semanticModel.GetSymbolInfo(typeofExpression.Type).Symbol is not INamedTypeSymbol typeSymbol)
+			return Enumerable.Empty<EnumSymbolInfo?>();
+		
+		if (typeSymbol.EnumUnderlyingType == null)
+			return Enumerable.Empty<EnumSymbolInfo?>();
+
+		var (caseOrder, visibility) = Parser.GetAttributeParameters(extendEnumTypesAttribute);
+		return new[] { new EnumSymbolInfo(SymbolWrapper.Create(typeSymbol), visibility, caseOrder, AttributePrecedence.Medium) };
+	}
+
+	static IEnumerable<EnumSymbolInfo?> GetSymbolInfosForExtendEnumTypesAttribute(AttributeSyntax extendEnumTypesAttribute, SemanticModel semanticModel)
+	{
+		var typeofExpression = extendEnumTypesAttribute.ArgumentList?.Arguments
+			.Select(a => a.Expression)
+			.OfType<TypeOfExpressionSyntax>()
+			.FirstOrDefault();
+
+		var attributeSymbol = semanticModel.GetSymbolInfo(extendEnumTypesAttribute).Symbol!;
+		var enumFromAssembly = typeofExpression != null
+			? semanticModel.GetSymbolInfo(typeofExpression.Type).Symbol!.ContainingAssembly
+			: attributeSymbol.ContainingAssembly;
+
+		var (caseOrder, visibility) = Parser.GetAttributeParameters(extendEnumTypesAttribute);
+
+		return Parser.GetAccessibleEnumTypeSymbols(enumFromAssembly.GlobalNamespace,
+				SymbolEqualityComparer.Default.Equals(attributeSymbol.ContainingAssembly, enumFromAssembly))
+			.Where(e =>
+				(e.Name != "ExtensionAccessibility" || e.GetFullNamespace() != FunicularSwitchGeneratorsNamespace) &&
+				(e.Name != "EnumCaseOrder" || e.GetFullNamespace() != FunicularSwitchGeneratorsNamespace) &&
+				(e.Name != "CaseOrder" || e.GetFullNamespace() != FunicularSwitchGeneratorsNamespace))
+			.Select(e => new EnumSymbolInfo(SymbolWrapper.Create(e), visibility, caseOrder, AttributePrecedence.Low));
+	}
+
+	static IEnumerable<EnumSymbolInfo?> GetSymbolInfoFromEnumDeclaration(GeneratorSyntaxContext context,
+		EnumDeclarationSyntax enumDeclarationSyntax)
+	{
+		AttributeSyntax? enumTypeAttribute = null;
+		foreach (var attributeListSyntax in enumDeclarationSyntax.AttributeLists)
+		{
+			foreach (var attributeSyntax in attributeListSyntax.Attributes)
+			{
+				var semanticModel = context.SemanticModel;
+				var attributeFullName = attributeSyntax.GetAttributeFullName(semanticModel);
+				if (attributeFullName != EnumTypeAttribute) continue;
+				enumTypeAttribute = attributeSyntax;
+				goto Return;
+			}
+		}
+
+		Return:
+		if (enumTypeAttribute == null)
+			return Enumerable.Empty<EnumSymbolInfo?>();
+
+		var schema = Parser.GetEnumSymbolInfo(enumDeclarationSyntax, enumTypeAttribute, context.SemanticModel);
+
+		return new[] { schema };
 	}
 }
 
