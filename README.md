@@ -218,6 +218,8 @@ As you can see, all errors are collected as far as possible. Feel free to play a
 
 *DISCLAIMER*: Right now source generator support in Visual Studio is quite a new feature. Often, especially after adding or updating the generator package intellisense will show errors, even though the code actually compiles. In this cases Visual Studio needs a restart right now (Visual Studio 2022 17.0.5).
 
+### ResultType attribute
+
 After adding the FunicularSwitch.Generators package you can mark a class as result type using the `ResultType` attribute. Ok and Error cases, Map, Bind, Match and some other methods will be generated so you can use your Result just like the one from the FunicularSwitch package.
 
 ``` cs
@@ -235,7 +237,9 @@ public static class MyCustomErrorExtension
 ```
 and a bunch of methods like `Aggregate`, `Validate`, `AllOk`, `FirstOk` and more will appear that make use of the fact that errors can be concatenated.
 
-There is another useful generator coming with the package. Adding the `UnionType` attribute or to a base type or `EnumType` to an enum makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
+### UnionType attribute
+
+There is another useful generator coming with the package. Adding the `UnionType` attribute or to a base type or interface makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
 
 ``` cs
 [FunicularSwitch.Generators.UnionType]
@@ -257,28 +261,6 @@ static string PrintError(Error error) =>
             );
 ```
 
-
-
-``` cs
-[FunicularSwitch.Generators.EnumType]
-public enum PlatformIdentifier
-{
-    LinuxDevice,
-    DeveloperMachine,
-    WindowsDevice
-}
-```
-
-the generator detecting the `[EnumType]` adds Match methods so you can write:
-
-``` cs
-var isGraphicalLinux = p.Match(
-            () => true,
-            () => false,
-            () => false
-        );
-```
-
 If you decide to add a case to your Error union all consuming switches break and you never miss a case at runtime!
 
 Match methods are also provided for async case handlers and as extensions on `Task<Error>`.
@@ -294,7 +276,7 @@ static void PrintIfNotFound(Error error) =>
             );
 ```
 
-To avoid bad surprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` or `EnumType` attribute (FunicularSwitch.Generators namespace omitted):
+To avoid bad surprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` attribute (FunicularSwitch.Generators namespace omitted):
 
 ``` cs
 //default
@@ -319,6 +301,48 @@ public sealed class InvalidInput : Error {...}
 
 If you like union types but don't like excessive typing in C# try the [Switchyard](https://github.com/bluehands/Switchyard) Visual Studio extension, which generates the boilerplate code for you. It plays nicely with the FunicularSwitch.Generators package.
 
+### EnumType attribute
+
+The `EnumType` attribute works like `UnionType` but for enums:
+
+``` cs
+[FunicularSwitch.Generators.EnumType]
+public enum PlatformIdentifier
+{
+    LinuxDevice,
+    DeveloperMachine,
+    WindowsDevice
+}
+```
+
+the generator detecting the `[EnumType]` adds Match methods so you can write:
+
+``` cs
+var isGraphicalLinux = PlatformIdentifier.LinuxDevice
+    .Match(
+        developerMachine: () => false,
+        linuxDevice: () => true,
+        windowsDevice: () => true
+    );
+```
+
+The default case order for `EnumType` is AsDeclared. To avoid problems with changing case orders, one should always use named parameters in Match and Switch calls!
+
+To generate Match extensions for all types in an assembly use the `ExtendEnumTypes` attribute. Flags enums an enums with duplicate values are omitted:
+
+``` cs
+//generate internal Match extension methods for all enums in System (Containing assembly of System.DateTime). 
+[assembly: ExtendEnumTypes(typeof(System.DateTime), Accessibility = ExtensionAccessibility.Internal)]
+
+//shortcut to generate Match extension methods for all enums in current assembly
+[assembly: ExtendEnumTypes]
+```
+
+To generate Match extensions for a specific type in an assembly write:
+
+```
+[assembly: ExtendEnumType(typeof(DateTimeKind), CaseOrder = EnumCaseOrder.Alphabetic)]
+```
 
 #### Additional documentation
 

@@ -37,7 +37,7 @@ namespace FunicularSwitch.Generators
     /// <summary>
     /// Generate match methods for Type. Must be enum.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Assembly)]
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     class ExtendEnumTypeAttribute : Attribute
     {
 	    public Type Type { get; }

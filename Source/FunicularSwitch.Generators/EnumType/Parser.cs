@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -47,7 +48,7 @@ static class Parser
 
 		var enumTypes = GetTypes(@namespace)
 			.Where(t => t.EnumUnderlyingType != null
-						&& IsAccessible(t, includeInternalEnums)
+			            && IsAccessible(t, includeInternalEnums)
 			);
 
 		return enumTypes;

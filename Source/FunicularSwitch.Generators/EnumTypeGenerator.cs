@@ -23,8 +23,8 @@ public class EnumTypeGenerator : IIncrementalGenerator
 		var enumTypeClasses =
 			context.SyntaxProvider
 				.CreateSyntaxProvider(
-					predicate: static (s, _) => s is EnumDeclarationSyntax && s.IsTypeDeclarationWithAttributes() 
-					                            || s.IsAssemblyAttribute(),
+					predicate: static (s, _) => s is EnumDeclarationSyntax && s.IsTypeDeclarationWithAttributes()
+												|| s.IsAssemblyAttribute(),
 					transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx)
 				)
 				.SelectMany(static (target, _) => target!)
@@ -41,17 +41,35 @@ public class EnumTypeGenerator : IIncrementalGenerator
 					 .GroupBy(s => s.EnumTypeSymbol)
 					 .Select(g => g.OrderByDescending(s => s.Precedence).First()))
 		{
-			var acc = enumSymbolInfo.EnumTypeSymbol.Symbol.GetActualAccessibility();
+			var enumSymbol = enumSymbolInfo.EnumTypeSymbol.Symbol;
+
+			var acc = enumSymbol.GetActualAccessibility();
 			if (acc is Accessibility.Private or Accessibility.Protected)
 			{
-				context.ReportDiagnostic(Diagnostics.EnumTypeIsNotAccessible($"{enumSymbolInfo.EnumTypeSymbol.Symbol.FullTypeNameWithNamespace()} needs at least internal accessibility",
-						enumSymbolInfo.EnumTypeSymbol.Symbol.Locations.FirstOrDefault() ?? Location.None));
+				context.ReportDiagnostic(Diagnostics.EnumTypeIsNotAccessible($"{enumSymbol.FullTypeNameWithNamespace()} needs at least internal accessibility",
+						enumSymbol.Locations.FirstOrDefault() ?? Location.None));
 				continue;
 			}
 
+			var isFlags = enumSymbol.GetAttributes().Any(a => a.AttributeClass?.FullTypeNameWithNamespace() == "System.FlagsAttribute");
+			if (isFlags)
+				continue; //TODO: report diagnostics in case of explicit EnumType attribute
+
+#pragma warning disable RS1024
+			var hasDuplicates = enumSymbol.GetMembers()
+				.OfType<IFieldSymbol>()
+				.GroupBy(f => f.ConstantValue ?? 0)
+#pragma warning restore RS1024
+				.Any(g => g.Count() > 1);
+
+			if (hasDuplicates)
+				continue; //TODO: report diagnostics in case of explicit EnumType attribute
+
 			var enumTypeSchema = enumSymbolInfo.ToEnumTypeSchema();
+
 			var (filename, source) = Generator.Emit(enumTypeSchema, context.ReportDiagnostic, context.CancellationToken);
 			context.AddSource(filename, source);
+
 		}
 	}
 
@@ -60,9 +78,9 @@ public class EnumTypeGenerator : IIncrementalGenerator
 		switch (context.Node)
 		{
 			case EnumDeclarationSyntax enumDeclarationSyntax:
-			{
-				return GetSymbolInfoFromEnumDeclaration(context, enumDeclarationSyntax);
-			}
+				{
+					return GetSymbolInfoFromEnumDeclaration(context, enumDeclarationSyntax);
+				}
 			case AttributeSyntax extendEnumTypesAttribute:
 				{
 					var semanticModel = context.SemanticModel;
@@ -92,7 +110,7 @@ public class EnumTypeGenerator : IIncrementalGenerator
 
 		if (semanticModel.GetSymbolInfo(typeofExpression.Type).Symbol is not INamedTypeSymbol typeSymbol)
 			return Enumerable.Empty<EnumSymbolInfo?>();
-		
+
 		if (typeSymbol.EnumUnderlyingType == null)
 			return Enumerable.Empty<EnumSymbolInfo?>();
 
@@ -139,7 +157,7 @@ public class EnumTypeGenerator : IIncrementalGenerator
 			}
 		}
 
-		Return:
+	Return:
 		if (enumTypeAttribute == null)
 			return Enumerable.Empty<EnumSymbolInfo?>();
 

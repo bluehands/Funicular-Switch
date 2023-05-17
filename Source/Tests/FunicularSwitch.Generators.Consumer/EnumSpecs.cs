@@ -94,3 +94,10 @@ class InternalEnumParent
 		Two
 	}
 }
+
+//no match methods should be generated here
+public enum DuplicateValues
+{
+	One = 1,
+	Two = 1
+}
