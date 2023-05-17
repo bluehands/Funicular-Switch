@@ -29,6 +29,12 @@ public static class RoslynExtensions
             AttributeLists.Count: > 0
         };
 
+    public static bool IsAssemblyAttribute(this SyntaxNode s) =>
+	    s is AttributeSyntax
+	    {
+		    Parent: AttributeListSyntax l
+	    } && (l.Target?.Identifier.IsKind(SyntaxKind.AssemblyKeyword)).GetValueOrDefault();
+
     public static bool IsAnyKeyWord(this string identifier) =>
         SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None
         || SyntaxFacts.GetContextualKeywordKind(identifier) != SyntaxKind.None

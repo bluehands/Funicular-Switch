@@ -23,8 +23,8 @@ public class EnumTypeGenerator : IIncrementalGenerator
 		var enumTypeClasses =
 			context.SyntaxProvider
 				.CreateSyntaxProvider(
-					predicate: static (s, _) => s is EnumDeclarationSyntax && s.IsTypeDeclarationWithAttributes() ||
-												s is AttributeSyntax,
+					predicate: static (s, _) => s is EnumDeclarationSyntax && s.IsTypeDeclarationWithAttributes() 
+					                            || s.IsAssemblyAttribute(),
 					transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx)
 				)
 				.SelectMany(static (target, _) => target!)
