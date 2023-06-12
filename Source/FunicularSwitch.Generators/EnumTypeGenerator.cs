@@ -8,9 +8,9 @@ namespace FunicularSwitch.Generators;
 [Generator]
 public class EnumTypeGenerator : IIncrementalGenerator
 {
-	const string EnumTypeAttribute = "FunicularSwitch.Generators.EnumTypeAttribute";
-	const string ExtendEnumTypesAttribute = "FunicularSwitch.Generators.ExtendEnumTypesAttribute";
-	const string ExtendEnumTypeAttribute = "FunicularSwitch.Generators.ExtendEnumTypeAttribute";
+	const string ExtendedEnumAttribute = "FunicularSwitch.Generators.ExtendedEnumAttribute";
+	const string ExtendEnumsAttribute = "FunicularSwitch.Generators.ExtendEnumsAttribute";
+	const string ExtendEnumAttribute = "FunicularSwitch.Generators.ExtendEnumAttribute";
 
 	const string FunicularSwitchGeneratorsNamespace = "FunicularSwitch.Generators";
 
@@ -88,8 +88,8 @@ public class EnumTypeGenerator : IIncrementalGenerator
 
 					return attributeFullName switch
 					{
-						ExtendEnumTypesAttribute => GetSymbolInfosForExtendEnumTypesAttribute(extendEnumTypesAttribute, semanticModel),
-						ExtendEnumTypeAttribute => GetSymbolInfosForExtendEnumTypeAttribute(extendEnumTypesAttribute, semanticModel),
+						ExtendEnumsAttribute => GetSymbolInfosForExtendEnumTypesAttribute(extendEnumTypesAttribute, semanticModel),
+						ExtendEnumAttribute => GetSymbolInfosForExtendEnumTypeAttribute(extendEnumTypesAttribute, semanticModel),
 						_ => Enumerable.Empty<EnumSymbolInfo>()
 					};
 				}
@@ -151,7 +151,7 @@ public class EnumTypeGenerator : IIncrementalGenerator
 			{
 				var semanticModel = context.SemanticModel;
 				var attributeFullName = attributeSyntax.GetAttributeFullName(semanticModel);
-				if (attributeFullName != EnumTypeAttribute) continue;
+				if (attributeFullName != ExtendedEnumAttribute) continue;
 				enumTypeAttribute = attributeSyntax;
 				goto Return;
 			}

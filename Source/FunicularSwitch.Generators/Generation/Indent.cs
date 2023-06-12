@@ -221,7 +221,10 @@ public static class BuildExtensions
 
     public static string ToParameterName(this string name)
     {
-        var parameterName = name.FirstToLower();
+	    var typeNameWithoutOuter = name.Split('.').Last();
+        var parameterName = typeNameWithoutOuter.FirstToLower();
         return parameterName.IsAnyKeyWord() ? $"@{parameterName}" : parameterName;
     }
+
+    public static string ToMatchExtensionFilename(this string fullTypeName) => $"{fullTypeName.Replace(".", "")}MatchExtension.g.cs";
 }

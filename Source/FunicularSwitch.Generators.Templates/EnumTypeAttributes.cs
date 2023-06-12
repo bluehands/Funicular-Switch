@@ -4,7 +4,7 @@
 namespace FunicularSwitch.Generators
 {
     [AttributeUsage(AttributeTargets.Enum)]
-    sealed class EnumTypeAttribute : Attribute
+    sealed class ExtendedEnumAttribute : Attribute
     {
 	    public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
 	    public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
@@ -20,15 +20,15 @@ namespace FunicularSwitch.Generators
     /// Generate match methods for all enums defined in assembly that contains AssemblySpecifier.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    class ExtendEnumTypesAttribute : Attribute
+    class ExtendEnumsAttribute : Attribute
     {
 	    public Type AssemblySpecifier { get; }
 	    public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
 	    public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
 
-	    public ExtendEnumTypesAttribute() => AssemblySpecifier = typeof(ExtendEnumTypesAttribute);
+	    public ExtendEnumsAttribute() => AssemblySpecifier = typeof(ExtendEnumsAttribute);
 
-	    public ExtendEnumTypesAttribute(Type assemblySpecifier)
+	    public ExtendEnumsAttribute(Type assemblySpecifier)
 	    {
 		    AssemblySpecifier = assemblySpecifier;
 	    }
@@ -38,7 +38,7 @@ namespace FunicularSwitch.Generators
     /// Generate match methods for Type. Must be enum.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    class ExtendEnumTypeAttribute : Attribute
+    class ExtendEnumAttribute : Attribute
     {
 	    public Type Type { get; }
 
@@ -46,7 +46,7 @@ namespace FunicularSwitch.Generators
 
 	    public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
 
-	    public ExtendEnumTypeAttribute(Type type)
+	    public ExtendEnumAttribute(Type type)
 	    {
 		    Type = type;
 	    }

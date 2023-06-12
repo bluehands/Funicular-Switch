@@ -1,4 +1,4 @@
-﻿//HintName: FunicularSwitch.Test.FieldTypeMatchExtension.g.cs
+﻿//HintName: FunicularSwitchTestFieldTypeMatchExtension.g.cs
 #pragma warning disable 1591
 using System;
 using System.Threading.Tasks;

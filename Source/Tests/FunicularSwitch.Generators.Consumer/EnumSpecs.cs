@@ -4,16 +4,16 @@ using FunicularSwitch.Generators;
 using FluentAssertions.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-[assembly: ExtendEnumTypes(typeof(FluentAssertions.AtLeast), CaseOrder = EnumCaseOrder.Alphabetic, Accessibility = ExtensionAccessibility.Internal)]
-[assembly: ExtendEnumTypes]
-[assembly: ExtendEnumType(typeof(DateTimeKind), CaseOrder = EnumCaseOrder.Alphabetic)]
+[assembly: ExtendEnums(typeof(FluentAssertions.AtLeast), CaseOrder = EnumCaseOrder.Alphabetic, Accessibility = ExtensionAccessibility.Internal)]
+[assembly: ExtendEnums]
+[assembly: ExtendEnum(typeof(DateTimeKind), CaseOrder = EnumCaseOrder.Alphabetic)]
 
 namespace FunicularSwitch.Generators.Consumer;
 
 [TestClass]
 public class EnumSpecs
 {
-	[EnumType(CaseOrder = EnumCaseOrder.Alphabetic)] //direct EnumType attribute should have higher precedence compared to ExtendEnumTypes attribute,
+	[ExtendedEnum(CaseOrder = EnumCaseOrder.Alphabetic)] //direct EnumType attribute should have higher precedence compared to ExtendEnumTypes attribute,
 													 //so case oder should be Alphabetic for Match methods of PlatformIdentifier
 	public enum PlatformIdentifier
 	{

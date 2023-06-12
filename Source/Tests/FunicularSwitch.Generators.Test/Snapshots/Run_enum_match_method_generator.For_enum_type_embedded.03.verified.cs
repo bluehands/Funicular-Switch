@@ -1,11 +1,11 @@
-﻿//HintName: FunicularSwitch.Test.Outer.testMatchExtension.g.cs
+﻿//HintName: FunicularSwitchTestOutertestMatchExtension.g.cs
 #pragma warning disable 1591
 using System;
 using System.Threading.Tasks;
 
 namespace FunicularSwitch.Test
 {
-	public static partial class testMatchExtension
+	public static partial class Outer_testMatchExtension
 	{
 		public static T Match<T>(this FunicularSwitch.Test.Outer.test test, Func<T> one, Func<T> two) =>
 		test switch

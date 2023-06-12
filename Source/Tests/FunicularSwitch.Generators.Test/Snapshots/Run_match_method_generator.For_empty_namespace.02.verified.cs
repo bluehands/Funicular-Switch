@@ -1,4 +1,4 @@
-﻿//HintName: Outer.BaseMatchExtension.g.cs
+﻿//HintName: OuterBaseMatchExtension.g.cs
 #pragma warning disable 1591
 using System;
 using System.Threading.Tasks;

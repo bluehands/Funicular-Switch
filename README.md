@@ -23,7 +23,7 @@ FunicularSwitch helps you to:
 
 [**FunicularSwitch**](https://github.com/bluehands/Funicular-Switch#funicularswitch-usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
 
-[**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations). As a third thing the same Match methods are also generated for enum types annotated with the `EnumType` attribute.
+[**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations). As a third thing the same Match methods are also generated for enum types annotated with the `ExtendedEnum` attribute.
 
 ## <a name="funicular_usage"></a>FunicularSwitch Usage
 
@@ -301,12 +301,12 @@ public sealed class InvalidInput : Error {...}
 
 If you like union types but don't like excessive typing in C# try the [Switchyard](https://github.com/bluehands/Switchyard) Visual Studio extension, which generates the boilerplate code for you. It plays nicely with the FunicularSwitch.Generators package.
 
-### EnumType attribute
+### ExtendedEnum attribute
 
-The `EnumType` attribute works like `UnionType` but for enums:
+The `ExtendedEnum` attribute works like `UnionType` but for enums:
 
 ``` cs
-[FunicularSwitch.Generators.EnumType]
+[FunicularSwitch.Generators.ExtendedEnum]
 public enum PlatformIdentifier
 {
     LinuxDevice,
@@ -315,7 +315,7 @@ public enum PlatformIdentifier
 }
 ```
 
-the generator detecting the `[EnumType]` adds Match methods so you can write:
+the generator detecting the `[ExtendedEnum]` adds Match methods so you can write:
 
 ``` cs
 var isGraphicalLinux = PlatformIdentifier.LinuxDevice
@@ -326,22 +326,22 @@ var isGraphicalLinux = PlatformIdentifier.LinuxDevice
     );
 ```
 
-The default case order for `EnumType` is AsDeclared. To avoid problems with changing case orders, one should always use named parameters in Match and Switch calls!
+The default case order for `ExtendedEnum` is AsDeclared. To avoid problems with changing case orders, one should always use named parameters in Match and Switch calls!
 
-To generate Match extensions for all types in an assembly use the `ExtendEnumTypes` attribute. Flags enums an enums with duplicate values are omitted:
+To generate Match extensions for all types in an assembly use the `ExtendEnums` attribute. Flags enums an enums with duplicate values are omitted:
 
 ``` cs
 //generate internal Match extension methods for all enums in System (Containing assembly of System.DateTime). 
-[assembly: ExtendEnumTypes(typeof(System.DateTime), Accessibility = ExtensionAccessibility.Internal)]
+[assembly: ExtendEnums(typeof(System.DateTime), Accessibility = ExtensionAccessibility.Internal)]
 
 //shortcut to generate Match extension methods for all enums in current assembly
-[assembly: ExtendEnumTypes]
+[assembly: ExtendEnums]
 ```
 
 To generate Match extensions for a specific type in an assembly write:
 
 ```
-[assembly: ExtendEnumType(typeof(DateTimeKind), CaseOrder = EnumCaseOrder.Alphabetic)]
+[assembly: ExtendEnum(typeof(DateTimeKind), CaseOrder = EnumCaseOrder.Alphabetic)]
 ```
 
 #### Additional documentation

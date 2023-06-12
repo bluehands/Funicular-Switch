@@ -1,4 +1,4 @@
-﻿//HintName: FunicularSwitch.Test.testMatchExtension.g.cs
+﻿//HintName: FunicularSwitchTesttestMatchExtension.g.cs
 #pragma warning disable 1591
 using System;
 using System.Threading.Tasks;
