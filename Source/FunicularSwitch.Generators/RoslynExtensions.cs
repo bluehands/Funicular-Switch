@@ -29,6 +29,12 @@ public static class RoslynExtensions
             AttributeLists.Count: > 0
         };
 
+    public static bool IsAssemblyAttribute(this SyntaxNode s) =>
+	    s is AttributeSyntax
+	    {
+		    Parent: AttributeListSyntax l
+	    } && (l.Target?.Identifier.IsKind(SyntaxKind.AssemblyKeyword)).GetValueOrDefault();
+
     public static bool IsAnyKeyWord(this string identifier) =>
         SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None
         || SyntaxFacts.GetContextualKeywordKind(identifier) != SyntaxKind.None
@@ -69,9 +75,12 @@ public static class RoslynExtensions
         return parentNamespaces.ToSeparatedString(".");
     }
 
-    static readonly SymbolDisplayFormat s_FullTypeDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
+    static readonly SymbolDisplayFormat s_FullTypeWithNamespaceDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
+    static readonly SymbolDisplayFormat s_FullTypeDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes);
 
-    public static string FullTypeNameWithNamespace(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(s_FullTypeDisplayFormat);
+
+    public static string FullTypeNameWithNamespace(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(s_FullTypeWithNamespaceDisplayFormat);
+    public static string FullTypeName(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(s_FullTypeDisplayFormat);
 
     public static QualifiedTypeName QualifiedName(this BaseTypeDeclarationSyntax dec)
     {

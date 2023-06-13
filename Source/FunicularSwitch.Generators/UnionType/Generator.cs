@@ -23,7 +23,7 @@ public static class Generator
 
         using (unionTypeSchema.Namespace != null ? builder.Namespace(unionTypeSchema.Namespace) : null)
         {
-            using (builder.StaticPartialClass("MatchExtension", unionTypeSchema.IsInternal ? "internal" : "public"))
+            using (builder.StaticPartialClass($"{unionTypeSchema.TypeName.Replace(".", "_")}MatchExtension", unionTypeSchema.IsInternal ? "internal" : "public"))
             {
 	            var thisTaskParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.FullTypeName}>");
 	            var caseParameters = unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();
@@ -55,10 +55,10 @@ public static class Generator
         }
 
         builder.WriteLine("#pragma warning restore 1591");
-        return ($"{unionTypeSchema.FullTypeName}MatchExtension.g.cs", builder.ToString());
+        return (unionTypeSchema.FullTypeName.ToMatchExtensionFilename(), builder.ToString());
     }
 
-    static void GenerateMatchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, string t)
+	static void GenerateMatchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, string t)
     {
         var thisParameterType = unionTypeSchema.FullTypeName;
         var thisParameter = ThisParameter(unionTypeSchema, thisParameterType);

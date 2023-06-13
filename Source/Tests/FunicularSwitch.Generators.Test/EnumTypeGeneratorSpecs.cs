@@ -14,7 +14,7 @@ using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test;
 
-[EnumType]
+[ExtendedEnum]
 public enum test {
 	one,
 	two
@@ -32,7 +32,7 @@ using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test;
 
-[EnumType(CaseOrder = EnumCaseOrder.Alphabetic)]
+[ExtendedEnum(CaseOrder = EnumCaseOrder.Alphabetic)]
 public enum test {
 	one,
 	two
@@ -51,7 +51,7 @@ namespace FunicularSwitch.Test;
 
 public class Outer {
 
-[EnumType]
+[ExtendedEnum]
 public enum test {
 	one,
 	two
