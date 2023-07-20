@@ -1,9 +1,9 @@
-﻿//HintName: Outer.BaseMatchExtension.g.cs
+﻿//HintName: OuterBaseMatchExtension.g.cs
 #pragma warning disable 1591
 using System;
 using System.Threading.Tasks;
 
-public static partial class MatchExtension
+public static partial class BaseMatchExtension
 {
 	public static T Match<T>(this Outer.Base @base, Func<Outer.One, T> one, Func<Outer.Two, T> two) =>
 	@base switch

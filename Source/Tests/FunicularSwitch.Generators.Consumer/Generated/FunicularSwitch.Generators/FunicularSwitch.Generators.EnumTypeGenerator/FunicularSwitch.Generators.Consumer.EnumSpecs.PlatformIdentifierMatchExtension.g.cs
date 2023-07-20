@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace FunicularSwitch.Generators.Consumer
 {
-	public static partial class MatchExtension
+	public static partial class PlatformIdentifierMatchExtension
 	{
 		public static T Match<T>(this FunicularSwitch.Generators.Consumer.EnumSpecs.PlatformIdentifier platformIdentifier, Func<T> developerMachine, Func<T> linuxDevice, Func<T> windowsDevice) =>
 		platformIdentifier switch

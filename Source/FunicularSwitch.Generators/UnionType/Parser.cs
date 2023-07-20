@@ -48,7 +48,7 @@ static class Parser
                 
                 return new UnionTypeSchema(
                     Namespace: fullNamespace,
-                    TypeName: unionTypeSymbol.Name,
+                    TypeName: unionTypeSymbol.FullTypeName(),
                     FullTypeName: fullTypeName,
                     Cases:  unionCases
                         .ToImmutableArray(),

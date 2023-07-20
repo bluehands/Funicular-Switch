@@ -24,7 +24,7 @@ public static class Generator
 
         using (enumTypeSchema.Namespace != null ? builder.Namespace(enumTypeSchema.Namespace) : null)
         {
-            using (builder.StaticPartialClass("MatchExtension", enumTypeSchema.IsInternal ? "internal" : "public"))
+            using (builder.StaticPartialClass($"{enumTypeSchema.TypeName.Replace(".", "_")}MatchExtension", enumTypeSchema.IsInternal ? "internal" : "public"))
             {
 	            var thisTaskParameter = ThisParameter(enumTypeSchema, $"Task<{enumTypeSchema.FullTypeName}>");
 	            var caseParameters = enumTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();
@@ -56,7 +56,7 @@ public static class Generator
         }
 
         builder.WriteLine("#pragma warning restore 1591");
-        return ($"{enumTypeSchema.FullTypeName}MatchExtension.g.cs", builder.ToString());
+        return (enumTypeSchema.FullTypeName.ToMatchExtensionFilename(), builder.ToString());
     }
 
     static void GenerateMatchMethod(CSharpBuilder builder, EnumTypeSchema enumTypeSchema, string t)
@@ -70,7 +70,7 @@ public static class Generator
         {
 	        foreach (var c in enumTypeSchema.Cases)
             {
-	            builder.WriteLine($"{c.FullTypeName} => {c.ParameterName}(),");
+	            builder.WriteLine($"{c.FullCaseName} => {c.ParameterName}(),");
             }
 
             builder.WriteLine(
@@ -91,7 +91,7 @@ public static class Generator
 		    {
 			    foreach (var c in enumTypeSchema.Cases)
 			    {
-				    builder.WriteLine($"case {c.FullTypeName}:");
+				    builder.WriteLine($"case {c.FullCaseName}:");
 				    using (builder.Indent())
 				    {
 					    var call = $"{c.ParameterName}()";
