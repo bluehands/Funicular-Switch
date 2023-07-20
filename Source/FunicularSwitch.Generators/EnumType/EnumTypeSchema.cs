@@ -1,16 +1,14 @@
 ﻿using FunicularSwitch.Generators.Generation;
 
-namespace FunicularSwitch.Generators.UnionType;
+namespace FunicularSwitch.Generators.EnumType;
 
-public sealed record UnionTypeSchema(string? Namespace, string TypeName, string FullTypeName, IReadOnlyCollection<DerivedType> Cases, bool IsInternal, bool IsEnum)
+public sealed record EnumTypeSchema(string? Namespace, string TypeName, string FullTypeName, IReadOnlyCollection<DerivedType> Cases, bool IsInternal)
 {
     public string? Namespace { get; } = Namespace;
     public string FullTypeName { get; } = FullTypeName;
     public string TypeName { get; } = TypeName;
     public IReadOnlyCollection<DerivedType> Cases { get; } = Cases;
     public bool IsInternal { get; } = IsInternal;
-    
-    public bool IsEnum { get; } = IsEnum;
 }
 
 public sealed record DerivedType
