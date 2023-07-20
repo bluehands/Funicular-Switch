@@ -73,6 +73,9 @@ public static class RoslynExtensions
 
     public static string FullTypeNameWithNamespace(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(s_FullTypeDisplayFormat);
 
+    public static string FullNamespace(this INamespaceSymbol namespaceSymbol) =>
+        namespaceSymbol.ToDisplayString(s_FullTypeDisplayFormat);
+
     public static QualifiedTypeName QualifiedName(this BaseTypeDeclarationSyntax dec)
     {
         var current = dec.Parent as BaseTypeDeclarationSyntax;
@@ -143,6 +146,29 @@ public static class RoslynExtensions
                 miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes
             )
         ) ?? typeSyntax.ToString();
+    }
+
+    public static IEnumerable<INamedTypeSymbol> GetAllTypes(this INamespaceOrTypeSymbol root)
+    {
+        foreach (var symbol in root.GetMembers())
+        {
+            switch (symbol)
+            {
+                case INamespaceSymbol namespaceSymbol:
+                    foreach (var nested in GetAllTypes(namespaceSymbol))
+                    {
+                        yield return nested;
+                    }
+                    break;
+                case INamedTypeSymbol typeSymbol:
+                    yield return typeSymbol;
+                    foreach (var nested in GetAllTypes(typeSymbol))
+                    {
+                        yield return nested;
+                    }
+                    break;
+            }
+        }
     }
 }
 

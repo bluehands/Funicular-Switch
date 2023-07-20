@@ -4,9 +4,6 @@ using FunicularSwitch.Generators.FluentAssertions;
 using FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency;
 using Xunit.Sdk;
 
-[assembly: GenerateFluentAssertionsFor(typeof(ExampleResult))]
-[assembly: GenerateFluentAssertionsFor(typeof(Result))]
-
 namespace FunicularSwitch.Generators.FluentAssertions.Consumer;
 
 public class ResultMethods
@@ -87,7 +84,8 @@ public class ResultMethods
         var result = ExampleResult.Error<string>(MyError.FirstCase(5));
 
         // ASSERT
-        result.Should().BeFirstCaseResult()
+        result.Should().BeError()
+            .Which.Should().BeFirstCase()
             .Which.Number.Should().Be(5);
     }
 
@@ -98,7 +96,8 @@ public class ResultMethods
         var result = ExampleResult.Error<string>(MyError.SecondCase("Some Error Text"));
 
         // ASSERT
-        result.Should().BeSecondCaseResult()
+        result.Should().BeError()
+            .Which.Should().BeSecondCase()
             .Which.Text.Should().Be("Some Error Text");
     }
 
@@ -120,7 +119,8 @@ public class ResultMethods
         var result = ExampleResult.Ok("Test");
 
         // ASSERT
-        Action(() => result.Should().BeFirstCaseResult())
+        Action(() => result.Should().BeError()
+                .Which.Should().BeFirstCase())
             .Should().Throw<XunitException>();
     }
 
@@ -131,7 +131,8 @@ public class ResultMethods
         var result = ExampleResult.Ok("Test");
 
         // ASSERT
-        Action(() => result.Should().BeSecondCaseResult())
+        Action(() => result.Should().BeError()
+                .Which.Should().BeSecondCase())
             .Should().Throw<XunitException>();
     }
 
@@ -153,7 +154,8 @@ public class ResultMethods
         var result = ExampleResult.Error<string>(MyError.FirstCase(5));
 
         // ASSERT
-        Action(() => result.Should().BeSecondCaseResult())
+        Action(() => result.Should().BeError()
+                .Which.Should().BeSecondCase())
             .Should().Throw<XunitException>();
     }
 
@@ -176,7 +178,8 @@ public class ResultMethods
         var result = ExampleResult.Error<string>(MyError.SecondCase("Test"));
 
         // ASSERT
-        Action(() => result.Should().BeFirstCaseResult())
+        Action(() => result.Should().BeError()
+                .Which.Should().BeFirstCase())
             .Should().Throw<XunitException>();
     }
 }

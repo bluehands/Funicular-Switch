@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections;
 using System.Diagnostics;
 using FunicularSwitch.Generators.FluentAssertions.FluentAssertionMethods;
 using Microsoft.CodeAnalysis;
@@ -11,53 +11,52 @@ public class FluentAssertionMethodsGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(
-            ctx => ctx.AddSource("Attributes.g.cs", Templates.GenerateFluentAssertionsForTemplates.StaticCode));
-
-        var generateMethodsAttributes = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: static (node, _) => node is AttributeSyntax,
-                transform: static (context, _) =>
-                    GeneratorHelper.GetSemanticTargetForGeneration(context, GenerateFluentAssertionsForAttribute)
-            )
-            .Where(static target => target is not null)
-            .Select(static (target, _) => target!);
-
-        var compilationAndClasses = context.CompilationProvider.Combine(generateMethodsAttributes.Collect());
+        var refAssemblies = context.CompilationProvider
+            .SelectMany((c, _) => c.SourceModule.ReferencedAssemblySymbols);
 
         context.RegisterSourceOutput(
-            compilationAndClasses,
-            static (sourceProductionContext, source) => Execute(source.Left, source.Right.OfType<AttributeSyntax>().ToImmutableArray(), sourceProductionContext));
+            refAssemblies,
+            static (sourceProductionContext, assembly) => Execute(assembly, sourceProductionContext));
     }
 
     private static void Execute(
-        Compilation compilation,
-        ImmutableArray<AttributeSyntax> attributes,
+        IAssemblySymbol assembly,
         SourceProductionContext context)
     {
-        if (attributes.IsDefaultOrEmpty)
+        IEnumerable<(string filename, string source)> generated;
+        if (assembly.Identity.Name == "FunicularSwitch")
         {
-            return;
-        }
-
-        var resultTypeSchemata = Parser
-            .GetResultTypes(
-                compilation,
-                attributes,
+            var resultType = assembly.GetTypeByMetadataName("FunicularSwitch.Result");
+            generated = Generator.EmitForResultType(
+                new ResultTypeSchema(resultType!, null),
                 context.ReportDiagnostic,
-                context.CancellationToken)
-            .ToImmutableArray();
-
-        var generated = resultTypeSchemata.SelectMany(
-                r => Generator.Emit(r, context.ReportDiagnostic, context.CancellationToken))
-            .ToImmutableArray();
+                context.CancellationToken);
+        }
+        else
+        {
+            var resultTypeSchemata = Parser.GetResultTypes(
+                assembly,
+                context.ReportDiagnostic,
+                context.CancellationToken);
+            var unionTypeSchemata = Parser.GetUnionTypes(
+                assembly,
+                context.ReportDiagnostic,
+                context.CancellationToken);
+            generated = resultTypeSchemata.SelectMany(
+                    r => Generator.EmitForResultType(
+                        r,
+                        context.ReportDiagnostic,
+                        context.CancellationToken))
+                .Concat(unionTypeSchemata.SelectMany(u =>
+                    Generator.EmitForUnionType(
+                        u,
+                        context.ReportDiagnostic,
+                        context.CancellationToken)));
+        }
 
         foreach (var (filename, source) in generated)
         {
             context.AddSource(filename, source);
         }
     }
-
-    internal const string GenerateMethodsForAttributeNamespace = "FunicularSwitch.Generators.FluentAssertions.";
-    internal const string GenerateFluentAssertionsForAttribute = "GenerateFluentAssertionsFor";
 }

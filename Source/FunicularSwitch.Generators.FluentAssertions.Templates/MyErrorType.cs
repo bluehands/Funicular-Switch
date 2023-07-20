@@ -1,6 +1,7 @@
-﻿namespace FunicularSwitch.Generators.FluentAssertions.Templates;
-
-public abstract class MyErrorType
+﻿namespace FunicularSwitch.Generators.FluentAssertions.Templates
 {
-    public sealed class MyDerivedErrorType : MyErrorType {}
+    public abstract class MyErrorType
+    {
+        public sealed class MyDerivedErrorType : MyErrorType {}
+    }
 }

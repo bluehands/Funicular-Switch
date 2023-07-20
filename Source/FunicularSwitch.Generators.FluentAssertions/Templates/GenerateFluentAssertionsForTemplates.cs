@@ -5,8 +5,10 @@ internal class GenerateFluentAssertionsForTemplates
     public static string MyResultFluentAssertionExtensions =>
         Resources.ReadResource("MyResultFluentAssertionExtensions.cs");
     public static string MyResultAssertions => Resources.ReadResource("MyResultAssertions.cs");
-    public static string MyResultAssertions_DerivedErrorType =>
-        Resources.ReadResource("MyResultAssertions_DerivedErrorType.cs");
+    public static string MyUnionTypeFluentAssertionExtensions =>
+        Resources.ReadResource("MyUnionTypeFluentAssertionExtensions.cs");
+    public static string MyUnionTypeAssertions => Resources.ReadResource("MyUnionTypeAssertions.cs");
+    public static string MyDerivedUnionTypeAssertions => Resources.ReadResource("MyUnionTypeAssertions_DerivedUnionType.cs");
     public static string StaticCode => Resources.ReadResource("GenerateFluentAssertionsForAttribute.cs");
 }
 
