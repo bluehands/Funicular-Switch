@@ -4,9 +4,9 @@ using FluentAssertions.Execution;
 
 namespace FunicularSwitch.Generators.FluentAssertions.Templates
 {
-    internal partial class MyUnionTypeAssertions
+    internal partial class MyAssertions_UnionType
     {
-        public AndWhichConstraint<MyUnionTypeAssertions, MyDerivedUnionType> BeFriendlyDerivedUnionTypeName(
+        public AndWhichConstraint<MyAssertions_UnionType, MyDerivedUnionType> BeFriendlyDerivedUnionTypeName(
             string because = "",
             params object[] becauseArgs)
         {

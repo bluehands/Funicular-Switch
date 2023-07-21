@@ -5,13 +5,13 @@ using FluentAssertions;
 
 namespace FunicularSwitch.Generators.FluentAssertions.Templates
 {
-    internal partial class MyResultAssertions<T> : ObjectAssertions<MyResult<T>, MyResultAssertions<T>>
+    internal partial class MyAssertions_Result<T> : ObjectAssertions<MyResult<T>, MyAssertions_Result<T>>
     {
-        public MyResultAssertions(MyResult<T> value) : base(value)
+        public MyAssertions_Result(MyResult<T> value) : base(value)
         {
         }
 
-        public AndWhichConstraint<MyResultAssertions<T>, T> BeOk(string because = "", params object[] becauseArgs)
+        public AndWhichConstraint<MyAssertions_Result<T>, T> BeOk(string because = "", params object[] becauseArgs)
         {
             Execute.Assertion
                 .ForCondition(this.Subject.IsOk)
@@ -21,7 +21,7 @@ namespace FunicularSwitch.Generators.FluentAssertions.Templates
             return new(this, this.Subject.GetValueOrDefault()!);
         }
 
-        public AndWhichConstraint<MyResultAssertions<T>, MyErrorType> BeError(string because = "",
+        public AndWhichConstraint<MyAssertions_Result<T>, MyErrorType> BeError(string because = "",
             params object[] becauseArgs)
         {
             Execute.Assertion

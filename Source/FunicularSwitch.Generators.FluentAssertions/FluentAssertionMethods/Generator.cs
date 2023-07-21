@@ -10,6 +10,10 @@ internal static class Generator
     private const string TemplateErrorTypeName = "MyErrorType";
     private const string TemplateUnionTypeName = "MyUnionType";
     private const string TemplateDerivedUnionTypeName = "MyDerivedUnionType";
+    private const string TemplateResultAssertionsTypeName = "MyAssertions_Result";
+    private const string TemplateResultAssertionExtensions = "MyAssertionExtensions_Result";
+    private const string TemplateUnionTypeAssertionsTypeName = "MyAssertions_UnionType";
+    private const string TemplateUnionTypeAssertionExtensions = "MyAssertionExtensions_UnionType";
     private const string TemplateFriendlyDerivedUnionTypeName = "FriendlyDerivedUnionTypeName";
     private const string TemplateAdditionalUsingDirectives = "//additional using directives";
 
@@ -18,19 +22,22 @@ internal static class Generator
         Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken)
     {
-        var resultTypeName = resultTypeSchema.ResultType.Name;
+        var resultTypeNameFullName = resultTypeSchema.ResultType.FullTypeName().Replace('.', '_');
+        var resultTypeFullNameWithNamespace = resultTypeSchema.ResultType.FullTypeNameWithNamespace();
         var resultTypeNamespace = resultTypeSchema.ResultType.GetFullNamespace();
 
         var errorTypeNameFullName = resultTypeSchema.ErrorType?.FullTypeNameWithNamespace() ?? typeof(string).FullName;
 
-        var generateFileHint = $"{resultTypeNamespace}.{resultTypeName}";
+        var generateFileHint = $"{resultTypeFullNameWithNamespace}";
 
         string Replace(string code, params string[] additionalNamespaces)
         {
             code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")
-                .Replace(TemplateResultTypeName, resultTypeName)
+                .Replace(TemplateResultTypeName, resultTypeFullNameWithNamespace)
                 .Replace(TemplateErrorTypeName, errorTypeNameFullName)
+                .Replace(TemplateResultAssertionsTypeName, $"{resultTypeNameFullName}Assertions")
+                .Replace(TemplateResultAssertionExtensions, $"{resultTypeNameFullName}FluentAssertionExtensions")
                 .Replace(
                     TemplateAdditionalUsingDirectives,
                         additionalNamespaces
@@ -55,16 +62,19 @@ internal static class Generator
         Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken)
     {
-        var unionTypeName = unionTypeSchema.UnionTypeBaseType.Name;
+        var unionTypeFullName = unionTypeSchema.UnionTypeBaseType.FullTypeName().Replace('.', '_');
+        var unionTypeFullNameWithNamespace = unionTypeSchema.UnionTypeBaseType.FullTypeNameWithNamespace();
         var unionTypeNamespace = unionTypeSchema.UnionTypeBaseType.GetFullNamespace();
 
-        var generateFileHint = $"{unionTypeNamespace}.{unionTypeName}";
+        var generateFileHint = $"{unionTypeFullNameWithNamespace}";
 
         string Replace(string code, params string[] additionalNamespaces)
         {
             code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {unionTypeNamespace}")
-                .Replace(TemplateUnionTypeName, unionTypeName)
+                .Replace(TemplateUnionTypeName, unionTypeFullNameWithNamespace)
+                .Replace(TemplateUnionTypeAssertionsTypeName, $"{unionTypeFullName}Assertions")
+                .Replace(TemplateUnionTypeAssertionExtensions, $"{unionTypeFullName}FluentAssertionExtensions")
                 .Replace(
                     TemplateAdditionalUsingDirectives,
                     additionalNamespaces
@@ -85,10 +95,11 @@ internal static class Generator
 
         foreach (var derivedType in unionTypeSchema.DerivedTypes)
         {
+            var derivedTypeFullNameWithNamespace = derivedType.FullTypeNameWithNamespace();
             yield return (
-                $"{generateFileHint}.{derivedType.Name}Assertions.g.cs",
+                $"{generateFileHint}_Derived_{derivedType.Name}Assertions.g.cs",
                 Replace(Templates.GenerateFluentAssertionsForTemplates.MyDerivedUnionTypeAssertions)
-                    .Replace(TemplateDerivedUnionTypeName, derivedType.FullTypeNameWithNamespace())
+                    .Replace(TemplateDerivedUnionTypeName, derivedTypeFullNameWithNamespace)
                     .Replace(TemplateFriendlyDerivedUnionTypeName, derivedType.Name.Trim('_')));
         }
     }

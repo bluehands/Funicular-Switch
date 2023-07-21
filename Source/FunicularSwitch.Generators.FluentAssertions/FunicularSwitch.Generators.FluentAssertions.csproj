@@ -46,14 +46,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyResultAssertions.cs" Link="Templates\MyResultAssertions.cs" />
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyResultFluentAssertionExtensions.cs" Link="Templates\MyResultFluentAssertionExtensions.cs" />
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyUnionTypeAssertions.cs" Link="Templates\MyUnionTypeAssertions.cs" />
+    <EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyAssertionExtensions_Result.cs" Link="Templates\MyAssertionExtensions_Result.cs" />
+    <EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyAssertionExtensions_UnionType.cs" Link="Templates\MyAssertionExtensions_UnionType.cs" />
+    <EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyAssertions_Result.cs" Link="Templates\MyAssertions_Result.cs" />
+    <EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyAssertions_UnionType.cs" Link="Templates\MyAssertions_UnionType.cs" />
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyUnionTypeAssertions_DerivedUnionType.cs" Link="Templates\MyUnionTypeAssertions_DerivedUnionType.cs" />
-    <EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyUnionTypeFluentAssertionExtensions.cs" Link="Templates\MyUnionTypeFluentAssertionExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>
+		<PackageReference Include="FluentAssertions" Version="6.11.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" PrivateAssets="all" GeneratePathProperty="true" />
 		<None Include="$(PkgMicrosoft_CodeAnalysis_CSharp_Workspaces)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
