@@ -22,14 +22,14 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>1</MajorVersion>
-		<MinorAndPatchVersion>4.2</MinorAndPatchVersion>
+		<MinorAndPatchVersion>0.0</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
 		<Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
 		<FileVersion>$(Version)</FileVersion>
 		<PackageVersion>$(Version)</PackageVersion>
-		<PackageId>FunicularSwitch.Generators</PackageId>
+		<PackageId>FunicularSwitch.Generators.FluentAssertions</PackageId>
 
 		<!-- Descriptions and information-->
 		<Titel>FunicularSwitch.Generators.FluentAssertions</Titel>

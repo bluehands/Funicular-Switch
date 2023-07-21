@@ -9,7 +9,7 @@
     <Import_RootNamespace>FunicularSwitch.Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)Content\FunicularSwitch.png" />
-    <None Include="$(MSBuildThisFileDirectory)Content\LICENSE.txt" />
+    <None Include="$(MSBuildThisFileDirectory)Content\FunicularSwitch.png" Pack="true" PackagePath="" />
+    <None Include="$(MSBuildThisFileDirectory)Content\LICENSE.txt" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
