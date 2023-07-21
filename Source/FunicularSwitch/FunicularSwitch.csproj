@@ -57,8 +57,5 @@
 		</PropertyGroup>
 	</Target>
 
-	<ItemGroup>
-		<None Include="Content\FunicularSwitch.png" Pack="true" PackagePath="" />
-		<None Include="Content\LICENSE.txt" Pack="true" PackagePath="" />
-	</ItemGroup>
+	<Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
 </Project>

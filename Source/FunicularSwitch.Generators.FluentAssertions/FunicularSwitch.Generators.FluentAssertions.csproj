@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
+  </PropertyGroup>
 
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
@@ -21,7 +21,7 @@
 		</VersionSuffixLocal>
 
 		<!--#region adapt versions here-->
-		<MajorVersion>2</MajorVersion>
+		<MajorVersion>1</MajorVersion>
 		<MinorAndPatchVersion>0.0</MinorAndPatchVersion>
 		<!--#endregion-->
 
@@ -29,13 +29,13 @@
 		<Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
 		<FileVersion>$(Version)</FileVersion>
 		<PackageVersion>$(Version)</PackageVersion>
-		<PackageId>FunicularSwitch.Generators</PackageId>
+		<PackageId>FunicularSwitch.Generators.FluentAssertions</PackageId>
 
 		<!-- Descriptions and information-->
-		<Titel>FunicularSwitch.Generators</Titel>
+		<Titel>FunicularSwitch.Generators.FluentAssertions</Titel>
 		<Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
-		<PackageDescription>Source generator emitting result types like in F# with your custom error type and Match methods (safe switches) for base types and their derived cases</PackageDescription>
-		<Copyright>Copyright 2022 bluehands GmbH &amp; C.ommunication KG</Copyright>
+		<PackageDescription>Source generator emitting unit testing methods for result types</PackageDescription>
+		<Copyright>Copyright 2023 bluehands GmbH &amp; C.ommunication KG</Copyright>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>FunicularSwitch.png</PackageIcon>
@@ -46,32 +46,23 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultType.cs" Link="Templates\ResultType.cs" />
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeWithMerge.cs" Link="Templates\ResultTypeWithMerge.cs" />
-	</ItemGroup>
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyResultAssertions.cs" Link="Templates\MyResultAssertions.cs" />
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyResultFluentAssertionExtensions.cs" Link="Templates\MyResultFluentAssertionExtensions.cs" />
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyUnionTypeAssertions.cs" Link="Templates\MyUnionTypeAssertions.cs" />
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyUnionTypeAssertions_DerivedUnionType.cs" Link="Templates\MyUnionTypeAssertions_DerivedUnionType.cs" />
+    <EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyUnionTypeFluentAssertionExtensions.cs" Link="Templates\MyUnionTypeFluentAssertionExtensions.cs" />
+  </ItemGroup>
 
-	<ItemGroup>
+  <ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" PrivateAssets="all" GeneratePathProperty="true" />
 		<None Include="$(PkgMicrosoft_CodeAnalysis_CSharp_Workspaces)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeAttributes.cs" Link="Templates\ResultTypeAttributes.cs" />
-	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\UnionTypeAttributes.cs" Link="Templates\UnionTypeAttributes.cs" />
-	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\EnumTypeAttributes.cs" Link="Templates\EnumTypeAttributes.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="UnionType\" />
-	  <Folder Include="EnumType\" />
-	</ItemGroup>
-
 	<Import Project="..\FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems" Label="Shared" />
 
 	<Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
-
 </Project>

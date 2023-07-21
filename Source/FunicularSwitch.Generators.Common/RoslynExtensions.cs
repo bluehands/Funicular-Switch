@@ -1,10 +1,9 @@
 ﻿using System.Collections.Immutable;
-using FunicularSwitch.Generators.ResultType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FunicularSwitch.Generators;
+namespace FunicularSwitch.Generators.Common;
 
 public static class RoslynExtensions
 {
@@ -55,7 +54,8 @@ public static class RoslynExtensions
         return false;
     }
 
-    public static bool Implements(this INamedTypeSymbol symbol, ITypeSymbol interfaceType) => symbol.Interfaces.Any(i => interfaceType.Equals(i, SymbolEqualityComparer.Default));
+    public static bool Implements(this INamedTypeSymbol symbol, ITypeSymbol interfaceType)
+        => symbol.Interfaces.Any(i => interfaceType.Equals(i, SymbolEqualityComparer.Default));
 
     public static string? GetFullNamespace(this INamedTypeSymbol namedType)
     {
@@ -63,13 +63,13 @@ public static class RoslynExtensions
         var current = namedType.ContainingNamespace;
         while (!current?.IsGlobalNamespace ?? false)
         {
-	        // ReSharper disable once RedundantSuppressNullableWarningExpression
-	        parentNamespaces.Add(current!.Name);
-	        current = current.ContainingNamespace;
+            // ReSharper disable once RedundantSuppressNullableWarningExpression
+            parentNamespaces.Add(current!.Name);
+            current = current.ContainingNamespace;
         }
 
         if (parentNamespaces.Count == 0)
-	        return null;
+            return null;
 
         parentNamespaces.Reverse();
         return parentNamespaces.ToSeparatedString(".");
@@ -81,6 +81,9 @@ public static class RoslynExtensions
 
     public static string FullTypeNameWithNamespace(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(s_FullTypeWithNamespaceDisplayFormat);
     public static string FullTypeName(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(s_FullTypeDisplayFormat);
+
+    public static string FullNamespace(this INamespaceSymbol namespaceSymbol) =>
+        namespaceSymbol.ToDisplayString(s_FullTypeDisplayFormat);
 
     public static QualifiedTypeName QualifiedName(this BaseTypeDeclarationSyntax dec)
     {
@@ -117,6 +120,20 @@ public static class RoslynExtensions
         return attributeFullName;
     }
 
+    public static string? GetAssemblyAttributeName(this AttributeSyntax attributeSyntax, SemanticModel semanticModel)
+    {
+        string? attributeFullName = null;
+        var typeInfo = semanticModel.GetTypeInfo(attributeSyntax);
+        if (typeInfo.Type is not null)
+        {
+            return typeInfo.Type.Name;
+        }
+        else
+        {
+            return attributeSyntax.GetAttributeFullName(semanticModel);
+        }
+    }
+
     public static bool HasModifier(this SyntaxTokenList tokens, SyntaxKind syntaxKind)
     {
         var token = SyntaxFactory.Token(syntaxKind).Text;
@@ -138,6 +155,29 @@ public static class RoslynExtensions
                 miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes
             )
         ) ?? typeSyntax.ToString();
+    }
+
+    public static IEnumerable<INamedTypeSymbol> GetAllTypes(this INamespaceOrTypeSymbol root)
+    {
+        foreach (var symbol in root.GetMembers())
+        {
+            switch (symbol)
+            {
+                case INamespaceSymbol namespaceSymbol:
+                    foreach (var nested in GetAllTypes(namespaceSymbol))
+                    {
+                        yield return nested;
+                    }
+                    break;
+                case INamedTypeSymbol typeSymbol:
+                    yield return typeSymbol;
+                    foreach (var nested in GetAllTypes(typeSymbol))
+                    {
+                        yield return nested;
+                    }
+                    break;
+            }
+        }
     }
 }
 

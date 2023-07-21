@@ -28,6 +28,20 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.Consumer.Nuget", "Tests\FunicularSwitch.Generators.Consumer.Nuget\FunicularSwitch.Generators.Consumer.Nuget.csproj", "{05DEB150-372C-4D76-856C-C7A20F7F3EA0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.FluentAssertions", "FunicularSwitch.Generators.FluentAssertions\FunicularSwitch.Generators.FluentAssertions.csproj", "{CC47AAAF-A8B4-4E03-AE78-E2011426F723}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.FluentAssertions.Test", "Tests\FunicularSwitch.Generators.FluentAssertions.Test\FunicularSwitch.Generators.FluentAssertions.Test.csproj", "{DE65F0E3-12EA-48AA-98A3-DB7D636C28D0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.FluentAssertions.Consumer", "Tests\FunicularSwitch.Generators.FluentAssertions.Consumer\FunicularSwitch.Generators.FluentAssertions.Consumer.csproj", "{672EACCA-A632-4D85-B36F-C1C83638C222}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.FluentAssertions.Templates", "FunicularSwitch.Generators.FluentAssertions.Templates\FunicularSwitch.Generators.FluentAssertions.Templates.csproj", "{BBCC9D11-FD33-4F29-9BB2-C42DF36AA28B}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FunicularSwitch.Generators.Common", "FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.shproj", "{5DBC7D41-67A3-41C2-8E6D-453CF1334627}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FunicularSwitch.Common", "FunicularSwitch.Common\FunicularSwitch.Common.shproj", "{BF664635-17E2-44EB-A99E-94D564542509}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency", "Tests\FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency\FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.csproj", "{DA09911F-FDE5-477E-BEEA-76D582844408}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +84,26 @@ Global
 		{05DEB150-372C-4D76-856C-C7A20F7F3EA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05DEB150-372C-4D76-856C-C7A20F7F3EA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05DEB150-372C-4D76-856C-C7A20F7F3EA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC47AAAF-A8B4-4E03-AE78-E2011426F723}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC47AAAF-A8B4-4E03-AE78-E2011426F723}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC47AAAF-A8B4-4E03-AE78-E2011426F723}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC47AAAF-A8B4-4E03-AE78-E2011426F723}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE65F0E3-12EA-48AA-98A3-DB7D636C28D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE65F0E3-12EA-48AA-98A3-DB7D636C28D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE65F0E3-12EA-48AA-98A3-DB7D636C28D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE65F0E3-12EA-48AA-98A3-DB7D636C28D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{672EACCA-A632-4D85-B36F-C1C83638C222}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{672EACCA-A632-4D85-B36F-C1C83638C222}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{672EACCA-A632-4D85-B36F-C1C83638C222}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{672EACCA-A632-4D85-B36F-C1C83638C222}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBCC9D11-FD33-4F29-9BB2-C42DF36AA28B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBCC9D11-FD33-4F29-9BB2-C42DF36AA28B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBCC9D11-FD33-4F29-9BB2-C42DF36AA28B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBCC9D11-FD33-4F29-9BB2-C42DF36AA28B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA09911F-FDE5-477E-BEEA-76D582844408}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA09911F-FDE5-477E-BEEA-76D582844408}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA09911F-FDE5-477E-BEEA-76D582844408}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA09911F-FDE5-477E-BEEA-76D582844408}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,8 +113,20 @@ Global
 		{9C314AEE-2FB1-458C-81F3-3DFD4309FB45} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
 		{D74DB9BC-C663-49C5-A3CF-169AC10EA9F9} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
 		{05DEB150-372C-4D76-856C-C7A20F7F3EA0} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
+		{DE65F0E3-12EA-48AA-98A3-DB7D636C28D0} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
+		{672EACCA-A632-4D85-B36F-C1C83638C222} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
+		{DA09911F-FDE5-477E-BEEA-76D582844408} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A6C53D4-8DAD-4DBF-B4A6-D02801D28BD4}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{35633310-5f61-463b-a62e-1940e2dfae7d}*SharedItemsImports = 5
+		FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems*{35633310-5f61-463b-a62e-1940e2dfae7d}*SharedItemsImports = 5
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{5cf89bde-0ae9-490c-ae0f-a8c1dd93024e}*SharedItemsImports = 5
+		FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems*{5dbc7d41-67a3-41c2-8e6d-453cf1334627}*SharedItemsImports = 13
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{bf664635-17e2-44eb-a99e-94d564542509}*SharedItemsImports = 13
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{cc47aaaf-a8b4-4e03-ae78-e2011426f723}*SharedItemsImports = 5
+		FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems*{cc47aaaf-a8b4-4e03-ae78-e2011426f723}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

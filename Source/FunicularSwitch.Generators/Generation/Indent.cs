@@ -1,4 +1,6 @@
-﻿namespace FunicularSwitch.Generators.Generation;
+﻿using FunicularSwitch.Generators.Common;
+
+namespace FunicularSwitch.Generators.Generation;
 
 public class Indent : IDisposable
 {
