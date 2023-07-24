@@ -3,9 +3,9 @@
 
 namespace FunicularSwitch.Generators.FluentAssertions.Templates
 {
-    internal partial class MyUnionTypeAssertions : ObjectAssertions<MyUnionType, MyUnionTypeAssertions>
+    internal partial class MyAssertions_UnionType : ObjectAssertions<MyUnionType, MyAssertions_UnionType>
     {
-        public MyUnionTypeAssertions(MyUnionType value) : base(value)
+        public MyAssertions_UnionType(MyUnionType value) : base(value)
         {
         
         }

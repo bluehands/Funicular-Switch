@@ -3,13 +3,12 @@
 internal class GenerateFluentAssertionsForTemplates
 {
     public static string MyResultFluentAssertionExtensions =>
-        Resources.ReadResource("MyResultFluentAssertionExtensions.cs");
-    public static string MyResultAssertions => Resources.ReadResource("MyResultAssertions.cs");
+        Resources.ReadResource($"MyAssertionExtensions_Result.cs");
+    public static string MyResultAssertions => Resources.ReadResource($"MyAssertions_Result.cs");
     public static string MyUnionTypeFluentAssertionExtensions =>
-        Resources.ReadResource("MyUnionTypeFluentAssertionExtensions.cs");
-    public static string MyUnionTypeAssertions => Resources.ReadResource("MyUnionTypeAssertions.cs");
+        Resources.ReadResource($"MyAssertionExtensions_UnionType.cs");
+    public static string MyUnionTypeAssertions => Resources.ReadResource($"MyAssertions_UnionType.cs");
     public static string MyDerivedUnionTypeAssertions => Resources.ReadResource("MyUnionTypeAssertions_DerivedUnionType.cs");
-    public static string StaticCode => Resources.ReadResource("GenerateFluentAssertionsForAttribute.cs");
 }
 
 internal static class Resources

@@ -32,3 +32,16 @@ public abstract partial class MyError
         public string Text { get; }
     }
 }
+
+public class WrapperClass
+{
+    [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+    public abstract partial record NestedUnionType
+    {
+        public static NestedUnionType Derived(int number) => new DerivedNestedUnionType_(number);
+        public static NestedUnionType Other(string message) => new OtherDerivedNestedUnionType_(message);
+
+        public sealed record DerivedNestedUnionType_(int Number) : NestedUnionType;
+        public sealed record OtherDerivedNestedUnionType_(string Message) : NestedUnionType;
+    }
+}
