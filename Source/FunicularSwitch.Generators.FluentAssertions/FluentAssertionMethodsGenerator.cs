@@ -11,6 +11,16 @@ public class FluentAssertionMethodsGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        context.RegisterPostInitializationOutput(ctx =>
+        {
+            const string FunicularSwitchFluentAssertionsNamespace = "FunicularSwitch";
+
+            var optionAssertionsText = Templates.GenerateFluentAssertionsForTemplates.OptionAssertions.Replace(Generator.TemplateNamespace, FunicularSwitchFluentAssertionsNamespace);
+            ctx.AddSource($"{FunicularSwitchFluentAssertionsNamespace}.OptionAssertions.g.cs", optionAssertionsText);
+            var optionAssertionExtensionsText = Templates.GenerateFluentAssertionsForTemplates.OptionAssertionExtensions.Replace(Generator.TemplateNamespace, FunicularSwitchFluentAssertionsNamespace);
+            ctx.AddSource($"{FunicularSwitchFluentAssertionsNamespace}.OptionAssertionExtensions.g.cs", optionAssertionExtensionsText);
+        });
+
         var refAssemblies = context.CompilationProvider
             .SelectMany((c, _) => c.SourceModule.ReferencedAssemblySymbols);
 
