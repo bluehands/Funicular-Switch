@@ -16,7 +16,7 @@ namespace FunicularSwitch.Generators.FluentAssertions.Templates
             Execute.Assertion
                 .ForCondition(this.Subject.IsOk)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context} to be Ok{reason}, bout found {0}", this.Subject);
+                .FailWith("Expected {context} to be Ok{reason}, but found {0}", this.Subject);
 
             return new(this, this.Subject.GetValueOrDefault()!);
         }

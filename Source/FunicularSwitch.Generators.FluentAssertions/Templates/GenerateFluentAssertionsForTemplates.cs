@@ -9,6 +9,8 @@ internal class GenerateFluentAssertionsForTemplates
         Resources.ReadResource($"MyAssertionExtensions_UnionType.cs");
     public static string MyUnionTypeAssertions => Resources.ReadResource($"MyAssertions_UnionType.cs");
     public static string MyDerivedUnionTypeAssertions => Resources.ReadResource("MyUnionTypeAssertions_DerivedUnionType.cs");
+    public static string OptionAssertions => Resources.ReadResource("OptionAssertions.cs");
+    public static string OptionAssertionExtensions => Resources.ReadResource("OptionAssertionExtensions.cs");
 }
 
 internal static class Resources

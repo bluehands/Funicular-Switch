@@ -5,7 +5,7 @@ namespace FunicularSwitch.Generators.FluentAssertions.FluentAssertionMethods;
 
 internal static class Generator
 {
-    private const string TemplateNamespace = "FunicularSwitch.Generators.FluentAssertions.Templates";
+    public const string TemplateNamespace = "FunicularSwitch.Generators.FluentAssertions.Templates";
     private const string TemplateResultTypeName = "MyResult";
     private const string TemplateErrorTypeName = "MyErrorType";
     private const string TemplateUnionTypeName = "MyUnionType";
