@@ -391,8 +391,18 @@ namespace FunicularSwitch.Generators.Consumer
 
         public static OperationResult<T> Validate<T>(this T item, Func<T, IEnumerable<Error>> validate)
         {
-            var errors = validate(item).ToList();
-            return errors.Count > 0 ? OperationResult.Error<T>(MergeErrors(errors)) : item;
+	        try
+	        {
+		        var errors = validate(item).ToList();
+		        return errors.Count > 0 ? OperationResult.Error<T>(MergeErrors(errors)) : item;
+	        }
+	        // ReSharper disable once RedundantCatchClause
+#pragma warning disable CS0168 // Variable is declared but never used
+	        catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+	        {
+		        return OperationResult.Error<T>(FunicularSwitch.Generators.Consumer.Error.Generic(e));
+	        }
         }
 
         public static OperationResult<T> FirstOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<Error>> validate, Func<Error> onEmpty) =>

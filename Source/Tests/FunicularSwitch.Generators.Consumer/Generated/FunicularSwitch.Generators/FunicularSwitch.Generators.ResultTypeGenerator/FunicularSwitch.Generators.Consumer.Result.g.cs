@@ -128,7 +128,17 @@ namespace FunicularSwitch.Generators.Consumer
             switch (this)
             {
                 case Ok_ ok:
-                    return bind(ok.Value);
+	                try
+	                {
+		                return bind(ok.Value);
+	                }
+	                // ReSharper disable once RedundantCatchClause
+#pragma warning disable CS0168 // Variable is declared but never used
+	                catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+	                {
+		                return Result.Error<T1>(FunicularSwitch.Generators.Consumer.ErrorExtension.UnexpectedToStringError(e));
+	                }
                 case Error_ error:
                     return error.Convert<T1>();
                 default:
@@ -141,7 +151,17 @@ namespace FunicularSwitch.Generators.Consumer
             switch (this)
             {
                 case Ok_ ok:
-                    return await bind(ok.Value).ConfigureAwait(false);
+	                try
+	                {
+		                return await bind(ok.Value).ConfigureAwait(false);
+	                }
+	                // ReSharper disable once RedundantCatchClause
+#pragma warning disable CS0168 // Variable is declared but never used
+	                catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+	                {
+		                return Result.Error<T1>(FunicularSwitch.Generators.Consumer.ErrorExtension.UnexpectedToStringError(e));
+	                }
                 case Error_ error:
                     return error.Convert<T1>();
                 default:

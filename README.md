@@ -14,7 +14,7 @@ FunicularSwitch helps you to:
 - Comfortably write async code pipelines.
 - Wrap third party library exceptions / return values into results at the code level were we really understand what is happening.
 
-## Getting Started
+# Getting Started
 
 ### Packages
 
@@ -23,9 +23,9 @@ FunicularSwitch helps you to:
 
 [**FunicularSwitch**](https://github.com/bluehands/Funicular-Switch#funicularswitch-usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
 
-[**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations). As a third thing the same Match methods are also generated for enum types annotated with the `ExtendedEnum` attribute.
+[**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the `ResultType` attribute. That means you are free represent failures in a way suitable for your needs. A second thing coming with this package are generated F#-like Match methods. They allow for compiler safe switches handling all concrete subtypes of a base class (very useful for union type implementations). As a third thing the same Match methods are also generated for enum types annotated with the `ExtendedEnum` attribute.
 
-## <a name="funicular_usage"></a>FunicularSwitch Usage
+# <a name="funicular_usage"></a>FunicularSwitch Usage
 
 *This document is created using [dotnet try](https://github.com/dotnet/try/blob/main/DotNetTryLocal.md). If you have dotnet try global tool installed, just clone the repo, type `dotnet try` on top level and play around with all code samples in your browser while reading.*
 
@@ -214,20 +214,34 @@ Stink fruit, I do not serve that
 ```
 As you can see, all errors are collected as far as possible. Feel free to play around with the cooks skill level, fruits in stock and the ingredients list to finally get your fruit salad.
 
-## <a name="generators_usage"></a>FunicularSwitch.Generators Usage
+# <a name="generators_usage"></a>FunicularSwitch.Generators Usage
 
 *DISCLAIMER*: Right now source generator support in Visual Studio is quite a new feature. Often, especially after adding or updating the generator package intellisense will show errors, even though the code actually compiles. In this cases Visual Studio needs a restart right now (Visual Studio 2022 17.0.5).
 
-### ResultType attribute
+## ResultType attribute
 
-After adding the FunicularSwitch.Generators package you can mark a class as result type using the `ResultType` attribute. Ok and Error cases, Map, Bind, Match and some other methods will be generated so you can use your Result just like the one from the FunicularSwitch package.
+After adding the FunicularSwitch.Generators package you can mark a class as result type using the `ResultType` attribute. The class has to be abstract and partial with a single generic argument. Ok and Error cases, Map, Bind, Match and some other methods will be generated so you can use your Result just like the one from the FunicularSwitch package. We recommend using a [UnionType](https://github.com/bluehands/Funicular-Switch#uniontype) as error type but you are free to use any type you want to represent failures.
 
 ``` cs
   [FunicularSwitch.Generators.ResultType(ErrorType = typeof(MyCustomError))]
   public abstract partial class Result<T> {}
 ```
 
-if your errors can be combined, write an attributed extension method
+### Exceptions
+
+To turn all exceptions that might happen during your map, bind, validate, etc. calls into Errors, write a static conversion method and mark it with the `ExceptionToError` attribute:
+``` cs
+public static class MyCustomErrorExtension
+{
+  [FunicularSwitch.Generators.ExceptionToError]
+  public static MyCustomError ToGenericError(Exception ex) => ...
+}
+```
+Having the ExceptionToError method, a call like `Ok(42).Map(i => 42 / 0)` will return an error result with an error produced by your custom method instead of throwing a DivisionByZero excpetion.  
+
+### Combine results
+
+If your errors can be combined, write an attributed extension method
 ``` cs
 public static class MyCustomErrorExtension
 {
@@ -235,9 +249,9 @@ public static class MyCustomErrorExtension
   public static MyCustomError Merge(this MyCustomError error, MyCustomError other) => ...
 }
 ```
-and a bunch of methods like `Aggregate`, `Validate`, `AllOk`, `FirstOk` and more will appear that make use of the fact that errors can be concatenated.
+and a bunch of methods like `Aggregate`, `Validate`, `AllOk`, `FirstOk` and more will appear that make use of the fact that errors can be merged.
 
-### UnionType attribute
+## <a name="uniontype"> UnionType attribute
 
 There is another useful generator coming with the package. Adding the `UnionType` attribute or to a base type or interface makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
 
@@ -301,7 +315,7 @@ public sealed class InvalidInput : Error {...}
 
 If you like union types but don't like excessive typing in C# try the [Switchyard](https://github.com/bluehands/Switchyard) Visual Studio extension, which generates the boilerplate code for you. It plays nicely with the FunicularSwitch.Generators package.
 
-### ExtendedEnum attribute
+## ExtendedEnum attribute
 
 The `ExtendedEnum` attribute works like `UnionType` but for enums:
 
@@ -344,29 +358,29 @@ To generate Match extensions for a specific type in an assembly write:
 [assembly: ExtendEnum(typeof(DateTimeKind), CaseOrder = EnumCaseOrder.Alphabetic)]
 ```
 
-#### Additional documentation
+### Additional documentation
 
 [Tutorial markdown](https://github.com/bluehands/FunicularSwitch/blob/master/TUTORIAL.md)
 
 [Tutorial source](https://github.com/bluehands/FunicularSwitch/tree/master/Source/Tutorial)
 
-## Contributing
+# Contributing
 
 We're looking forward to pull requests.
 
-## Versioning
+# Versioning
 
 We use [SemVer](http://semver.org/) for versioning.
 
-## Authors
+# Authors
 
 bluehands.de
 
-## License
+# License
 
 [MIT License](https://github.com/bluehands/FunicularSwitch/blob/master/LICENSE)
 
-## Acknowledgments
+# Acknowledgments
 
 [F# for fun and profit: Railway Oriented Programming](https://fsharpforfunandprofit.com/rop/)
 

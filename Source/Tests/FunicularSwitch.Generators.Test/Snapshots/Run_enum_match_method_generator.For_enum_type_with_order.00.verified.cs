@@ -17,4 +17,9 @@ namespace FunicularSwitch.Generators
     sealed class MergeErrorAttribute : Attribute
     {
     }
+
+    [AttributeUsage(AttributeTargets.Method, Inherited = false)]
+    sealed class GenericErrorAttribute : Attribute
+    {
+    }
 }

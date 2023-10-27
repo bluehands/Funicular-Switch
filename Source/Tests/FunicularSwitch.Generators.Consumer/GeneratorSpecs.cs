@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FunicularSwitch.Generators.Consumer.Extensions;
+using static FunicularSwitch.Generators.Consumer.OperationResult;
 
 namespace FunicularSwitch.Generators.Consumer;
 
@@ -16,7 +17,7 @@ public class When_using_generated_result_type
 	public void Then_it_feels_good()
 	{
 		static OperationResult<decimal> Divide(decimal i, decimal divisor) => divisor == 0
-			? OperationResult.Error<decimal>(Error.Generic("Division by zero"))
+			? Error<decimal>(Error.Generic("Division by zero"))
 			: i / divisor;
 
 		OperationResult<int> result = 42;
@@ -27,10 +28,10 @@ public class When_using_generated_result_type
 
 		calc.Should().BeEquivalentTo(OperationResult<string>.Error(Error.Generic("Division by zero")));
 
-		var combinedError = calc.Aggregate(OperationResult.Error<int>(Error.NotFound));
-		var combinedErrorStatic = OperationResult.Aggregate(calc, OperationResult.Error<int>(Error.NotFound), (_, i) => i);
-		var combinedOk = OperationResult.Ok(42).Aggregate(OperationResult.Ok(" is the answer"));
-		var combinedOkStatic = OperationResult.Aggregate(OperationResult.Ok(42), OperationResult.Ok(" is the answer"));
+		var combinedError = calc.Aggregate(Error<int>(Error.NotFound));
+		var combinedErrorStatic = Aggregate(calc, Error<int>(Error.NotFound), (_, i) => i);
+		var combinedOk = Ok(42).Aggregate(Ok(" is the answer"));
+		var combinedOkStatic = Aggregate(Ok(42), Ok(" is the answer"));
 
 		var transformedToInt = combinedOkStatic.As<int>(() => Error.Generic("Unexpected type"));
 
@@ -75,6 +76,31 @@ public class When_using_generated_result_type
 			aggregated: DoNothingAsync
 		);
 	}
+
+	[TestMethod]
+	public async Task ExceptionsAreTurnedIntoErrors()
+	{
+		var ok = Ok(42);
+		
+		// ReSharper disable once IntDivisionByZero
+		var result = ok.Map(i => i / 0);
+		result.IsError.Should().BeTrue();
+
+		// ReSharper disable once IntDivisionByZero
+		result = await ok.Map(async i =>
+		{
+			await Task.Delay(100);
+			return i / 0;
+		});
+		result.IsError.Should().BeTrue();
+
+		42.Validate(BuggyValidate).IsError.Should().BeTrue();
+
+		static IEnumerable<string> BuggyValidate(int number) => throw new InvalidOperationException("Boom");
+
+	}
+
+
 }
 
 [ResultType(ErrorType = typeof(string))]
@@ -94,11 +120,17 @@ public static partial class ErrorExtension
 
 	[MergeError]
 	public static string MergeErrors(this string error, string other) => $"{error}{Environment.NewLine}{other}";
+
+	[ExceptionToError]
+	public static string UnexpectedToStringError(Exception exception) => $"Unexpected error occurred: {exception}";
 }
 
 [UnionType(CaseOrder = CaseOrder.AsDeclared)]
 public abstract class Error
 {
+	[ExceptionToError]
+	public static Error Generic(Exception exception) => Generic(exception.ToString());
+
 	public static Error Generic(string message) => new Generic_(message);
 
 	public static readonly Error NotFound = new NotFound_();

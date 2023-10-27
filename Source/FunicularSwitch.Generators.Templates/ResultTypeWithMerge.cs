@@ -137,8 +137,18 @@ namespace FunicularSwitch.Generators.Templates
 
         public static MyResult<T> Validate<T>(this T item, Func<T, IEnumerable<MyError>> validate)
         {
-            var errors = validate(item).ToList();
-            return errors.Count > 0 ? MyResult.Error<T>(MergeErrors(errors)) : item;
+	        try
+	        {
+		        var errors = validate(item).ToList();
+		        return errors.Count > 0 ? MyResult.Error<T>(MergeErrors(errors)) : item;
+	        }
+	        // ReSharper disable once RedundantCatchClause
+#pragma warning disable CS0168 // Variable is declared but never used
+	        catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+	        {
+		        throw; //createGenericErrorResult
+	        }
         }
 
         public static MyResult<T> FirstOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<MyError>> validate, Func<MyError> onEmpty) =>

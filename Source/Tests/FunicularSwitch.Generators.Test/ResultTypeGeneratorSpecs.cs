@@ -140,9 +140,15 @@ public abstract partial class OperationResult<T>
 {
 }
 
+public static class ErrorFactory
+{
+	[ExceptionToError]
+	public static MyError FromException(Exception e) => MyError.Generic(e.ToString());
+}
+
 public abstract class MyError
 {
-    public static MyError Generic(string message) => new Generic_(message);
+	public static MyError Generic(string message) => new Generic_(message);
 
     public static readonly MyError NotFound = new NotFound_();
     public static readonly MyError NotAuthorized = new NotAuthorized_();

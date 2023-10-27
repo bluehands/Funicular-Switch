@@ -25,7 +25,7 @@ static class Generator
         var isValueType = resultTypeSchema.ErrorType.IsValueType;
         var errorTypeNamespace = resultTypeSchema.ErrorType.GetFullNamespace();
 
-        string Replace(string code, IReadOnlyCollection<string> additionalNamespaces)
+        string Replace(string code, IReadOnlyCollection<string> additionalNamespaces, string genericTypeParameterNameForHandleExceptions)
         {
 	        code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")
@@ -41,6 +41,13 @@ static class Generator
                 code = code
                     .Replace("//additional using directives", additionalNamespaces.Distinct().Select(a => $"using {a};").ToSeparatedString(Environment.NewLine));
 
+            var genericErrorFactoryMethod = resultTypeSchema.ExceptionToErrorMethod;
+            if (genericErrorFactoryMethod != null)
+            {
+	            code = code.Replace("throw; //createGenericErrorResult",
+		            $"return {resultTypeName}.Error<{genericTypeParameterNameForHandleExceptions}>({genericErrorFactoryMethod.FullMethodName}(e));");
+            }
+
             return code;
         }
 
@@ -50,7 +57,9 @@ static class Generator
 
         var generateFileHint = $"{resultTypeNamespace}.{resultTypeSchema.ResultType.QualifiedName()}";
 
-        yield return ($"{generateFileHint}.g.cs", Replace(Templates.ResultTypeTemplates.ResultType, additionalNamespaces));
+        var resultTypeImpl = Replace(Templates.ResultTypeTemplates.ResultType, additionalNamespaces, "T1");
+
+        yield return ($"{generateFileHint}.g.cs", resultTypeImpl);
 
         if (resultTypeSchema.MergeMethod != null)
         {
@@ -63,7 +72,8 @@ static class Generator
                     .Replace("//generated aggregate methods", GenerateAggregateMethods(10))
                     .Replace("//generated aggregate extension methods", GenerateAggregateExtensionMethods(10, isValueType))
                     .Replace("Merge__MemberOrExtensionMethod", resultTypeSchema.MergeMethod.MethodName),
-                additionalNamespaces
+                additionalNamespaces,
+                "T"
             );
 
             yield return ($"{generateFileHint}WithMerge.g.cs", mergeCode);

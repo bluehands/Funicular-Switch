@@ -11,6 +11,7 @@ static class Parser
     public static IEnumerable<ResultTypeSchema> GetResultTypes(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> resultTypeClasses, Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
     {
         var mergeMethodByErrorTypeName = FindMergeMethods(compilation, reportDiagnostic);
+        var genericErrorFactoryMethodByErrorTypeName = FindExceptionToErrorMethods(compilation, reportDiagnostic);
 
         foreach (var resultTypeClass in resultTypeClasses)
         {
@@ -30,15 +31,16 @@ static class Parser
             var fullErrorTypeName = semanticModel.GetFullTypeName(errorType);
 
             mergeMethodByErrorTypeName.TryGetValue(fullErrorTypeName, out var mergeMethod);
+            genericErrorFactoryMethodByErrorTypeName.TryGetValue(fullErrorTypeName, out var genericErrorFactoryMethod);
 
-            yield return new(resultTypeClass, errorTypeSymbol, mergeMethod);
+            yield return new(resultTypeClass, errorTypeSymbol, mergeMethod, genericErrorFactoryMethod);
         }
     }
 
     static Dictionary<string, MergeMethod> FindMergeMethods(Compilation compilation, Action<Diagnostic> reportDiagnostic)
     {
         var mergeMethodByErrorTypeName = compilation.SyntaxTrees
-            .SelectMany(t => FindMergeMethodsWalker.Get(t.GetRoot(), tree => compilation.GetSemanticModel(tree)))
+            .SelectMany(t => FindMergeMethodsWalker.Get(t.GetRoot(), tree => compilation.GetSemanticModel(tree), "MergeError", "FunicularSwitch.Generators.MergeErrorAttribute"))
             .Select(methodDeclaration =>
             {
                 var semanticModel = compilation.GetSemanticModel(methodDeclaration.SyntaxTree);
@@ -63,8 +65,7 @@ static class Parser
                     return MergeMethod.ErrorTypeMember(methodDeclaration.Identifier.ToString(), returnTypeName);
                 }
 
-                reportDiagnostic(Diagnostics.InvalidMergeMethod(
-                    $"Method {methodDeclaration.Identifier}", methodDeclaration.GetLocation()));
+                reportDiagnostic(Diagnostics.InvalidMergeMethod($"Method {methodDeclaration.Identifier}", methodDeclaration.GetLocation()));
                 return null;
             })
             .Where(m => m != null)
@@ -77,6 +78,51 @@ static class Parser
                 return methods[0]!;
             });
         return mergeMethodByErrorTypeName;
+    }
+
+    static Dictionary<string, ExceptionToErrorMethod> FindExceptionToErrorMethods(Compilation compilation, Action<Diagnostic> reportDiagnostic)
+    {
+        var factoryMethodByErrorTypeName = compilation.SyntaxTrees
+            .SelectMany(t => FindMergeMethodsWalker.Get(t.GetRoot(), tree => compilation.GetSemanticModel(tree), "ExceptionToError", "FunicularSwitch.Generators.ExceptionToError"))
+            .Select(methodDeclaration =>
+            {
+                if (methodDeclaration.Modifiers.HasModifier(SyntaxKind.StaticKeyword))
+                {
+	                var semanticModel = compilation.GetSemanticModel(methodDeclaration.SyntaxTree);
+	                var errorTypeName = semanticModel.GetFullTypeName(methodDeclaration.ReturnType);
+	                var declaringTypeSyntax = methodDeclaration.Parent;
+	                string declaringTypeFullName;
+	                if (declaringTypeSyntax != null && semanticModel.GetDeclaredSymbol(declaringTypeSyntax) is INamedTypeSymbol declaredSymbol)
+	                {
+		                declaringTypeFullName = declaredSymbol.FullTypeNameWithNamespace();
+	                }
+	                else
+	                {
+		                reportDiagnostic(Diagnostics.InvalidExceptionToErrorMethod($"Could not get declaring type name of method {methodDeclaration.Identifier}", methodDeclaration.GetLocation()));
+		                return null;
+	                }
+
+	                var parameters = methodDeclaration.ParameterList.Parameters;
+	                if (parameters.Count == 1 &&
+	                    parameters.All(p => semanticModel.GetFullTypeName(p.Type!) == "System.Exception"))
+	                {
+		                return new ExceptionToErrorMethod(errorTypeName, declaringTypeFullName, methodDeclaration.Identifier.ToString());
+                    }
+                }
+
+                reportDiagnostic(Diagnostics.InvalidExceptionToErrorMethod($"Method {methodDeclaration.Identifier}", methodDeclaration.GetLocation()));
+                return null;
+            })
+            .Where(m => m != null)
+            .GroupBy(m => m!.ErrorTypeName)
+            .ToDictionary(g => g.Key, g =>
+            {
+                var methods = g.ToList();
+                if (methods.Count > 1)
+                    reportDiagnostic(Diagnostics.AmbiguousMergeMethods(methods.Select(m => m!.MethodName)));
+                return methods[0]!;
+            });
+        return factoryMethodByErrorTypeName;
     }
 
     static TypeSyntax? TryGetErrorType(AttributeSyntax attribute, Action<Diagnostic> reportDiagnostics)
@@ -96,12 +142,19 @@ class FindMergeMethodsWalker : CSharpSyntaxWalker
 {
     readonly Func<SyntaxTree, SemanticModel> m_GetSemanticModel;
     readonly List<MethodDeclarationSyntax> m_MergeMethods = new();
+    readonly string _attributeName;
+    readonly string _fullAttributeName;
 
-    FindMergeMethodsWalker(Func<SyntaxTree, SemanticModel> getSemanticModel) => m_GetSemanticModel = getSemanticModel;
-
-    public static IEnumerable<MethodDeclarationSyntax> Get(SyntaxNode node, Func<SyntaxTree, SemanticModel> getSemanticModel)
+    FindMergeMethodsWalker(Func<SyntaxTree, SemanticModel> getSemanticModel, string attributeName, string fullAttributeName)
     {
-        var me = new FindMergeMethodsWalker(getSemanticModel);
+	    _attributeName = attributeName;
+	    m_GetSemanticModel = getSemanticModel;
+	    _fullAttributeName = fullAttributeName;
+    }
+
+    public static IEnumerable<MethodDeclarationSyntax> Get(SyntaxNode node, Func<SyntaxTree, SemanticModel> getSemanticModel, string attributeName, string fullAttributeName)
+    {
+        var me = new FindMergeMethodsWalker(getSemanticModel, attributeName, fullAttributeName);
         me.Visit(node);
         return me.m_MergeMethods;
     }
@@ -111,8 +164,8 @@ class FindMergeMethodsWalker : CSharpSyntaxWalker
         if (node.AttributeLists
             .SelectMany(a => a.Attributes)
             .Any(a =>
-                a.Name.ToString().Contains("MergeError") &&
-                a.GetAttributeFullName(m_GetSemanticModel(a.SyntaxTree)) == "FunicularSwitch.Generators.MergeErrorAttribute")
+                a.Name.ToString().Contains(_attributeName) &&
+                a.GetAttributeFullName(m_GetSemanticModel(a.SyntaxTree)) == _fullAttributeName)
             )
         {
             m_MergeMethods.Add(node);
@@ -120,6 +173,22 @@ class FindMergeMethodsWalker : CSharpSyntaxWalker
 
         base.VisitMethodDeclaration(node);
     }
+}
+
+public class ExceptionToErrorMethod
+{
+	public string ErrorTypeName { get; }
+	public string FullTypeName { get; }
+	public string MethodName { get; }
+
+	public string FullMethodName => $"{FullTypeName}.{MethodName}";
+
+	public ExceptionToErrorMethod(string errorTypeName, string fullTypeName, string methodName)
+	{
+		ErrorTypeName = errorTypeName;
+		FullTypeName = fullTypeName;
+		MethodName = methodName;
+	}
 }
 
 public abstract class MergeMethod

@@ -392,8 +392,18 @@ namespace FunicularSwitch.Test
 
         public static Result<T> Validate<T>(this T item, Func<T, IEnumerable<String>> validate)
         {
-            var errors = validate(item).ToList();
-            return errors.Count > 0 ? Result.Error<T>(MergeErrors(errors)) : item;
+	        try
+	        {
+		        var errors = validate(item).ToList();
+		        return errors.Count > 0 ? Result.Error<T>(MergeErrors(errors)) : item;
+	        }
+	        // ReSharper disable once RedundantCatchClause
+#pragma warning disable CS0168 // Variable is declared but never used
+	        catch (Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+	        {
+		        throw; //createGenericErrorResult
+	        }
         }
 
         public static Result<T> FirstOk<T>(this IEnumerable<T> candidates, Func<T, IEnumerable<String>> validate, Func<String> onEmpty) =>
