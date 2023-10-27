@@ -229,7 +229,7 @@ After adding the FunicularSwitch.Generators package you can mark a class as resu
 
 ### Exceptions
 
-To turn all exceptions that might happen during your map, bind, validate, etc. calls into Errors, write a static conversion method and mark it with the `ExceptionToError` attribute:
+To turn all exceptions that might happen during your map, bind, validate, etc. calls into error results, write a static conversion method and mark it with the `ExceptionToError` attribute:
 ``` cs
 public static class MyCustomErrorExtension
 {
@@ -241,7 +241,7 @@ Having the ExceptionToError method, a call like `Ok(42).Map(i => 42 / 0)` will r
 
 ### Combine results
 
-If your errors can be combined, write an attributed extension method
+If your errors can be combined, write an attributed extension method or a member method on your error type that combines two errors into one
 ``` cs
 public static class MyCustomErrorExtension
 {
