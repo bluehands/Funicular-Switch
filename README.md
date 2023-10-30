@@ -237,7 +237,10 @@ public static class MyCustomErrorExtension
   public static MyCustomError ToGenericError(Exception ex) => ...
 }
 ```
-Having the ExceptionToError method, a call like `Ok(42).Map(i => 42 / 0)` will return an error result with an error produced by your custom method instead of throwing a DivisionByZero excpetion.  
+Having the ExceptionToError method, a call like `Ok(42).Map(i => 42 / 0)` will return an error result with an error produced by your custom method instead of throwing a DivisionByZero exception.  
+
+##### Handle with care:
+Using the `ExceptionToError` attribute is actually a decision that points into a direction that is different from the way Result is implemented in F#, were  Result and the correspongind Error type are meant to model expected domain errors (see [fsharpforfunandprofit blog post](https://fsharpforfunandprofit.com/posts/against-railway-oriented-programming/)). You will still have to handle exceptions on the highest parts of your system and threre is no 'fail fast' because early exceptions always travel through your hole Result chain.
 
 ### Combine results
 
