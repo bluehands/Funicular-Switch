@@ -208,5 +208,17 @@ namespace FunicularSwitch
 
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
             option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
+        
+        #region query-expression pattern
+        
+        public static Option<T1> Select<T, T1>(this Option<T> result, Func<T, T1> selector) => result.Map(selector);
+        public static Task<Option<T1>> Select<T, T1>(this Task<Option<T>> result, Func<T, T1> selector) => result.Map(selector);
+        
+        public static Option<T2> SelectMany<T, T1, T2>(this Option<T> result, Func<T, Option<T1>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Task<Option<T>> result, Func<T, Task<Option<T1>>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Task<Option<T>> result, Func<T, Option<T1>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Option<T> result, Func<T, Task<Option<T1>>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+
+        #endregion
     }
 }

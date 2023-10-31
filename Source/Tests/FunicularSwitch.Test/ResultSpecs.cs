@@ -217,43 +217,43 @@ public class ResultSpecs
     [TestMethod]
     public async Task QueryExpressionSelectManyAsync()
     {
-        Task<Result<int>> ok = Task.FromResult(Result.Ok(42));
-        var error = Task.FromResult(Result.Error<int>("fail"));
+        Task<Result<int>> okAsync = Task.FromResult(Result.Ok(42));
+        var errorAsync = Task.FromResult(Result.Error<int>("fail"));
 
-        var okSync = Result.Ok(1);
+        var ok = Result.Ok(1);
 
         (await (
-            from r in ok
-            from r1 in error
+            from r in okAsync
+            from r1 in errorAsync
             select r1
-        )).Should().BeEquivalentTo(await error);
+        )).Should().BeEquivalentTo(await errorAsync);
 
         (await (
-            from r in error
-            from r1 in ok
+            from r in errorAsync
+            from r1 in okAsync
             select r1
-        )).Should().BeEquivalentTo(await error);
+        )).Should().BeEquivalentTo(await errorAsync);
 
         (await (
-            from r in ok
+            from r in okAsync
             let x = r * 2
-            from r1 in ok
+            from r1 in okAsync
             select x
-        )).Should().BeEquivalentTo(await ok.Map(r => r * 2));        
-        
-        (await (
-            from r in okSync
-            let x = r * 2
-            from r1 in ok
-            select x
-        )).Should().BeEquivalentTo( okSync.Map(r => r * 2));        
+        )).Should().BeEquivalentTo(await okAsync.Map(r => r * 2));        
         
         (await (
             from r in ok
             let x = r * 2
-            from r1 in okSync
+            from r1 in okAsync
             select x
-        )).Should().BeEquivalentTo(await ok.Map(r => r * 2));
+        )).Should().BeEquivalentTo( ok.Map(r => r * 2));        
+        
+        (await (
+            from r in okAsync
+            let x = r * 2
+            from r1 in ok
+            select x
+        )).Should().BeEquivalentTo(await okAsync.Map(r => r * 2));
     }
 }
 
