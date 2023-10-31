@@ -12,6 +12,8 @@ namespace FunicularSwitch
     {
         public static Result<T> Error<T>(string message) => new Error<T>(message);
         public static Result<T> Ok<T>(T value) => new Ok<T>(value);
+        public static async Task<Result<T>> Ok<T>(Task<T> value) => Ok(await value.ConfigureAwait(false));
+        public static Task<Result<T>> ErrorAsync<T>(string message) => Task.FromResult(Error<T>(message));
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(Error<>);
         public bool IsOk => !IsError;
         public abstract string? GetErrorOrDefault();

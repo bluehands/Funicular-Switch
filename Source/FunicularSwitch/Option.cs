@@ -11,6 +11,8 @@ namespace FunicularSwitch
     {
         public static Option<T> Some<T>(T value) => new Some<T>(value);
         public static Option<T> None<T>() => Option<T>.None;
+        public static async Task<Option<T>> Some<T>(Task<T> value) => Some(await value);
+        public static Task<Option<T>> NoneAsync<T>() => Task.FromResult(Option<T>.None);
     }
 
     public abstract class Option<T> : Option, IEnumerable<T>
@@ -68,6 +70,7 @@ namespace FunicularSwitch
             {
                 return await some(iAmSome.Value).ConfigureAwait(false);
             }
+
             return await none().ConfigureAwait(false);
         }
 
@@ -78,6 +81,7 @@ namespace FunicularSwitch
             {
                 return await some(iAmSome.Value).ConfigureAwait(false);
             }
+
             return none();
         }
 
@@ -88,6 +92,7 @@ namespace FunicularSwitch
             {
                 return await some(iAmSome.Value).ConfigureAwait(false);
             }
+
             return none;
         }
 
@@ -105,7 +110,7 @@ namespace FunicularSwitch
 
         public T GetValueOrThrow(string? errorMessage = null) => Match(v => v, () => throw new InvalidOperationException(errorMessage ?? "Cannot access value of none option"));
 
-        public Option<TOther> Convert<TOther>() => Match(s => Some((TOther) (object)s!), None<TOther>);
+        public Option<TOther> Convert<TOther>() => Match(s => Some((TOther)(object)s!), None<TOther>);
 
         public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {GetType().BeautifulName()}");
     }
@@ -208,16 +213,23 @@ namespace FunicularSwitch
 
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
             option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
-        
+
         #region query-expression pattern
-        
+
         public static Option<T1> Select<T, T1>(this Option<T> result, Func<T, T1> selector) => result.Map(selector);
         public static Task<Option<T1>> Select<T, T1>(this Task<Option<T>> result, Func<T, T1> selector) => result.Map(selector);
-        
-        public static Option<T2> SelectMany<T, T1, T2>(this Option<T> result, Func<T, Option<T1>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
-        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Task<Option<T>> result, Func<T, Task<Option<T1>>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
-        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Task<Option<T>> result, Func<T, Option<T1>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
-        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Option<T> result, Func<T, Task<Option<T1>>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+
+        public static Option<T2> SelectMany<T, T1, T2>(this Option<T> result, Func<T, Option<T1>> selector, Func<T, T1, T2> resultSelector) =>
+            result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+
+        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Task<Option<T>> result, Func<T, Task<Option<T1>>> selector, Func<T, T1, T2> resultSelector) =>
+            result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+
+        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Task<Option<T>> result, Func<T, Option<T1>> selector, Func<T, T1, T2> resultSelector) =>
+            result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+
+        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Option<T> result, Func<T, Task<Option<T1>>> selector, Func<T, T1, T2> resultSelector) =>
+            result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
         #endregion
     }
