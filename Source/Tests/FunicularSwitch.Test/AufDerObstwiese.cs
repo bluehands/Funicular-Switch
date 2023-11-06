@@ -105,7 +105,7 @@ namespace FunicularSwitch.Test
                 }
             }
 
-            return kandidaten.FirstOk(IstGeignet)
+            return kandidaten.FirstOk(IstGeignet, () => "Kein Kandidat")
                 .MapError(error => $"Kein geeigneter Baumpfleger anwesend: {error}");
         }
 
