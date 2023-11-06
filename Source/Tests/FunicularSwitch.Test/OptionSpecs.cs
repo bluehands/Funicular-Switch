@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static FunicularSwitch.Option;
 
 namespace FunicularSwitch.Test;
 
@@ -26,7 +27,7 @@ public class OptionSpecs
 		none.Equals(Option<bool>.None).Should().BeTrue();
 
 		var some = ((bool?)false).ToOption();
-		some.Equals(Option.Some(false)).Should().BeTrue();
+		some.Equals(Some(false)).Should().BeTrue();
 
 		var nullableNull = none.ToNullable();
 		nullableNull.Should().BeNull();
@@ -45,83 +46,84 @@ public class OptionSpecs
 		{
 
 		}
-		result.Equals(Result<bool>.Error("Value is missing")).Should().BeTrue();
+		result.Should().BeError().Subject.Should().Be("Value is missing");
 	}
-	
-	    [TestMethod]
-        public void QueryExpressionSelect()
-        {
-	        Option<int> subject = 42;
-            var result =
-                from r in subject
-                select r;
-            result.Should().BeEquivalentTo(Option.Some(42));
-        }
-    
-        [TestMethod]
-        public void QueryExpressionSelectMany()
-        {
-            Option<int> some = 42;
-            var none = Option.None<int>();
-    
-            (
-                from r in some
-                from r1 in none
-                select r1
-            ).Should().BeEquivalentTo(none);
-    
-            (
-                from r in none
-                from r1 in some
-                select r1
-            ).Should().BeEquivalentTo(none);
-    
-            (
-                from r in some
-                let x = r * 2
-                from r1 in some
-                select x
-            ).Should().BeEquivalentTo(some.Map(r => r * 2));
-        }
-    
-        [TestMethod]
-        public async Task QueryExpressionSelectManyAsync()
-        {
-            Task<Option<int>> someAsync = Task.FromResult(Option.Some(42));
-            var noneAsync = Task.FromResult(Option.None<int>());
-            var some = Option.Some(1);
-    
-            (await (
-                from r in someAsync
-                from r1 in noneAsync
-                select r1
-            )).Should().BeEquivalentTo(await noneAsync);
-    
-            (await (
-                from r in noneAsync
-                from r1 in someAsync
-                select r1
-            )).Should().BeEquivalentTo(await noneAsync);
-    
-            (await (
-                from r in someAsync
-                let x = r * 2
-                from r1 in someAsync
-                select x
-            )).Should().BeEquivalentTo(await someAsync.Map(r => r * 2));        
-            
-            (await (
-                from r in some
-                let x = r * 2
-                from r1 in someAsync
-                select x
-            )).Should().BeEquivalentTo( some.Map(r => r * 2));        
-            
-            (await (
-                from r in someAsync
-                let x = r * 2
-                from r1 in some
-                select x
-            )).Should().BeEquivalentTo(await someAsync.Map(r => r * 2));
-        }
+
+	[TestMethod]
+	public void QueryExpressionSelect()
+	{
+		Option<int> subject = 42;
+		var result =
+			from r in subject
+			select r + 3;
+		result.Should().BeSome()
+			.Subject.Should().Be(45);
+	}
+
+	[TestMethod]
+	public void QueryExpressionSelectMany()
+	{
+		Option<int> some = 42;
+		var none = Option.None<int>();
+
+		(
+			from r in some
+			from r1 in none
+			select r1
+		).Should().BeNone();
+
+		(
+			from r in none
+			from r1 in some
+			select r1
+		).Should().BeNone();
+
+		(
+			from r in some
+			let x = r * 2
+			from r1 in some
+			select x
+		).Should().BeEquivalentTo(some.Map(r => r * 2));
+	}
+
+	[TestMethod]
+	public async Task QueryExpressionSelectManyAsync()
+	{
+		Task<Option<int>> someAsync = Task.FromResult(Option.Some(42));
+		var noneAsync = Task.FromResult(Option.None<int>());
+		var some = Option.Some(1);
+
+		(await (
+			from r in someAsync
+			from r1 in noneAsync
+			select r1
+		)).Should().BeEquivalentTo(await noneAsync);
+
+		(await (
+			from r in noneAsync
+			from r1 in someAsync
+			select r1
+		)).Should().BeEquivalentTo(await noneAsync);
+
+		(await (
+			from r in someAsync
+			let x = r * 2
+			from r1 in someAsync
+			select x
+		)).Should().BeEquivalentTo(await someAsync.Map(r => r * 2));
+
+		(await (
+			from r in some
+			let x = r * 2
+			from r1 in someAsync
+			select x
+		)).Should().BeEquivalentTo(some.Map(r => r * 2));
+
+		(await (
+			from r in someAsync
+			let x = r * 2
+			from r1 in some
+			select x
+		)).Should().BeEquivalentTo(await someAsync.Map(r => r * 2));
+	}
 }

@@ -60,9 +60,9 @@ public class ResultSpecs
     [TestMethod]
     public void Map()
     {
-        Result.Ok(42).Map(r => r * 2).Should().Equal(Result.Ok(84));
+        Result.Ok(42).Map(r => r * 2).Should().BeOk().Which.Should().Be(84);
         var error = Result.Error<int>("oh no");
-        error.Map(r => r * 2).Should().Equal(error);
+        error.Map(r => r * 2).Should().BeEquivalentTo(error);
     }
 
     [TestMethod]
@@ -74,10 +74,10 @@ public class ResultSpecs
         static Result<int> Ok(int input) => input * 2;
         Result<int> Error(int input) => error;
 
-        ok.Bind(Ok).Should().Equal(Result.Ok(84));
-        ok.Bind(Error).Should().Equal(error);
-        error.Bind(Ok).Should().Equal(error);
-        error.Bind(Error).Should().Equal(error);
+        ok.Bind(Ok).Should().Be(Result.Ok(84));
+        ok.Bind(Error).Should().Be(error);
+        error.Bind(Ok).Should().Be(error);
+        error.Bind(Error).Should().Be(error);
     }
 
     [TestMethod]
@@ -101,20 +101,20 @@ public class ResultSpecs
     public void OptionResultConversion()
     {
         const string notThere = "it's not there";
-        Option.Some(42).ToResult(() => notThere).Should().Equal(Result.Ok(42));
-        Option.None<int>().ToResult(() => notThere).Should().Equal(Result.Error<int>(notThere));
+        Option.Some(42).ToResult(() => notThere).Should().Be(Result.Ok(42));
+        Option.None<int>().ToResult(() => notThere).Should().Be(Result.Error<int>(notThere));
 
         var something = new Something();
-        something.ToOption().Should().Equal(Option.Some(something));
-        ((Something?)null).ToOption().Should().Equal(Option.None<Something>());
+        something.ToOption().Should().Be(Option.Some(something));
+        ((Something?)null).ToOption().Should().Be(Option.None<Something>());
 
         var option = Result.Ok(something).ToOption();
-        option.Should().Equal(Option.Some(something));
-        Result.Error<Something>(notThere).ToOption().Should().Equal(Option.None<Something>());
+        option.Should().Be(Option.Some(something));
+        Result.Error<Something>(notThere).ToOption().Should().Be(Option.None<Something>());
 
         var errorLogged = false;
         void LogError(string error) => errorLogged = true;
-        Result.Error<Something>(notThere).ToOption(LogError).Should().Equal(Option.None<Something>());
+        Result.Error<Something>(notThere).ToOption(LogError).Should().Be(Option.None<Something>());
         errorLogged.Should().BeTrue();
     }
 
@@ -174,8 +174,8 @@ public class ResultSpecs
             .Select(AsyncOperation)
             .Aggregate();
 
-        result.Should().BeOfType<Ok<IReadOnlyCollection<int>>>();
-        result.GetValueOrThrow().Should().BeEquivalentTo(new[] { 0, 2, 4 });
+        result.Should().BeOk()
+	        .Subject.Should().BeEquivalentTo(new[] { 0, 2, 4 });
     }
 
     [TestMethod]
@@ -185,7 +185,7 @@ public class ResultSpecs
         var result =
             from r in subject
             select r;
-        result.Should().BeEquivalentTo(Result.Ok(42));
+        result.Should().Be(Result.Ok(42));
     }
 
     [TestMethod]
@@ -198,26 +198,26 @@ public class ResultSpecs
             from r in ok
             from r1 in error
             select r1
-        ).Should().BeEquivalentTo(error);
+        ).Should().Be(error);
 
         (
             from r in error
             from r1 in ok
             select r1
-        ).Should().BeEquivalentTo(error);
+        ).Should().Be(error);
 
         (
             from r in ok
             let x = r * 2
             from r1 in ok
             select x
-        ).Should().BeEquivalentTo(ok.Map(r => r * 2));
+        ).Should().Be(ok.Map(r => r * 2));
     }
 
     [TestMethod]
     public async Task QueryExpressionSelectManyAsync()
     {
-        Task<Result<int>> okAsync = Task.FromResult(Result.Ok(42));
+        var okAsync = Task.FromResult(Result.Ok(42));
         var errorAsync = Task.FromResult(Result.Error<int>("fail"));
 
         var ok = Result.Ok(1);
@@ -226,7 +226,7 @@ public class ResultSpecs
             from r in okAsync
             from r1 in errorAsync
             select r1
-        )).Should().BeEquivalentTo(await errorAsync);
+        )).Should().Be(await errorAsync);
 
         (await (
             from r in errorAsync
@@ -237,28 +237,21 @@ public class ResultSpecs
         (await (
             from r in okAsync
             let x = r * 2
-            from r1 in okAsync
             select x
         )).Should().BeEquivalentTo(await okAsync.Map(r => r * 2));        
         
         (await (
             from r in ok
-            let x = r * 2
             from r1 in okAsync
+            let x = r * r1
             select x
-        )).Should().BeEquivalentTo( ok.Map(r => r * 2));        
+        )).Should().BeEquivalentTo(await okAsync.Bind(r => ok.Map(r1 => r * r1)));
         
         (await (
             from r in okAsync
-            let x = r * 2
             from r1 in ok
+            let x = r * r1
             select x
-        )).Should().BeEquivalentTo(await okAsync.Map(r => r * 2));
+        )).Should().BeEquivalentTo(await okAsync.Bind(r => ok.Map(r1 => r * r1)));
     }
-}
-
-public static class CombineExtension
-{
-    public static Result<(T, T1)> BindCombine<T, T1>(this Result<T> result, Func<T, Result<T1>> operation) =>
-        result.Bind(r => operation(r).Map(r1 => (r, r1)));
 }
