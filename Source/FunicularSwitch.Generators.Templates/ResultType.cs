@@ -332,6 +332,18 @@ namespace FunicularSwitch.Generators.Templates
 
         public static MyResult<T1> As<T1>(this MyResult<object> result, Func<MyError> errorIsNotT1) =>
             result.As<object, T1>(errorIsNotT1);
+        
+        #region query-expression pattern
+        
+        public static MyResult<T1> Select<T, T1>(this MyResult<T> result, Func<T, T1> selector) => result.Map(selector);
+        public static Task<MyResult<T1>> Select<T, T1>(this Task<MyResult<T>> result, Func<T, T1> selector) => result.Map(selector);
+        
+        public static MyResult<T2> SelectMany<T, T1, T2>(this MyResult<T> result, Func<T, MyResult<T1>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static Task<MyResult<T2>> SelectMany<T, T1, T2>(this Task<MyResult<T>> result, Func<T, Task<MyResult<T1>>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static Task<MyResult<T2>> SelectMany<T, T1, T2>(this Task<MyResult<T>> result, Func<T, MyResult<T1>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static Task<MyResult<T2>> SelectMany<T, T1, T2>(this MyResult<T> result, Func<T, Task<MyResult<T1>>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+
+        #endregion
     }
 }
 
