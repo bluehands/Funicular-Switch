@@ -99,8 +99,84 @@ public class When_using_generated_result_type
 		static IEnumerable<string> BuggyValidate(int number) => throw new InvalidOperationException("Boom");
 
 	}
+    
+	[TestMethod]
+	public void QueryExpressionSelect()
+	{
+		Result<int> subject = 42;
+		var result =
+			from r in subject
+			select r;
+		result.Should().BeEquivalentTo(Result.Ok(42));
+	}
 
+	[TestMethod]
+	public void QueryExpressionSelectMany()
+	{
+		Result<int> ok = 42;
+		var error = Result.Error<int>("fail");
 
+		(
+			from r in ok
+			from r1 in error
+			select r1
+		).Should().BeEquivalentTo(error);
+
+		(
+			from r in error
+			from r1 in ok
+			select r1
+		).Should().BeEquivalentTo(error);
+
+		(
+			from r in ok
+			let x = r * 2
+			from r1 in ok
+			select x
+		).Should().BeEquivalentTo(ok.Map(r => r * 2));
+	}
+
+	[TestMethod]
+	public async Task QueryExpressionSelectManyAsync()
+	{
+		Task<Result<int>> okAsync = Task.FromResult(Result.Ok(42));
+		var errorAsync = Task.FromResult(Result.Error<int>("fail"));
+
+		var ok = Result.Ok(1);
+
+		(await (
+			from r in okAsync
+			from r1 in errorAsync
+			select r1
+		)).Should().BeEquivalentTo(await errorAsync);
+
+		(await (
+			from r in errorAsync
+			from r1 in okAsync
+			select r1
+		)).Should().BeEquivalentTo(await errorAsync);
+
+		(await (
+			from r in okAsync
+			let x = r * 2
+			from r1 in okAsync
+			select x
+		)).Should().BeEquivalentTo(await okAsync.Map(r => r * 2));        
+        
+		(await (
+			from r in ok
+			let x = r * 2
+			from r1 in okAsync
+			select x
+		)).Should().BeEquivalentTo( ok.Map(r => r * 2));        
+        
+		(await (
+			from r in okAsync
+			let x = r * 2
+			from r1 in ok
+			select x
+		)).Should().BeEquivalentTo(await okAsync.Map(r => r * 2));
+	}
 }
 
 [ResultType(ErrorType = typeof(string))]

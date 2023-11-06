@@ -12,6 +12,8 @@ namespace FunicularSwitch
     {
         public static Result<T> Error<T>(string message) => new Error<T>(message);
         public static Result<T> Ok<T>(T value) => new Ok<T>(value);
+        public static async Task<Result<T>> Ok<T>(Task<T> value) => Ok(await value.ConfigureAwait(false));
+        public static Task<Result<T>> ErrorAsync<T>(string message) => Task.FromResult(Error<T>(message));
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(Error<>);
         public bool IsOk => !IsError;
         public abstract string? GetErrorOrDefault();
@@ -728,6 +730,21 @@ namespace FunicularSwitch
             var errors = validate(item).JoinErrors(errorSeparator);
             return !string.IsNullOrEmpty(errors) ? Result.Error<T>(errors) : item;
         }
+
+        #region query-expression pattern
+        
+        public static Result<T1> Select<T, T1>(this Result<T> result, Func<T, T1> selector) => result.Map(selector);
+        public static Task<Result<T1>> Select<T, T1>(this Task<Result<T>> result, Func<T, T1> selector) => result.Map(selector);
+        
+        public static Result<T2> SelectMany<T, T1, T2>(this Result<T> result, Func<T, Result<T1>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static Task<Result<T2>> SelectMany<T, T1, T2>(this Task<Result<T>> result, Func<T, Task<Result<T1>>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static Task<Result<T2>> SelectMany<T, T1, T2>(this Task<Result<T>> result, Func<T, Result<T1>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static Task<Result<T2>> SelectMany<T, T1, T2>(this Result<T> result, Func<T, Task<Result<T1>>> selector, Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+
+        #endregion
+
+
+
     }
 
     public delegate IEnumerable<TError> Validate<in T, out TError>(T item);
