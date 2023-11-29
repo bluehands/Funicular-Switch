@@ -10,7 +10,6 @@ public sealed record UnionTypeSchema(string? Namespace,
 	string FullTypeName,
 	IReadOnlyCollection<DerivedType> Cases,
 	bool IsInternal,
-	bool IsEnum,
 	bool IsPartial,
 	bool IsRecord,
 	StaticFactoryMethodsInfo? StaticFactoryInfo);

@@ -8,83 +8,62 @@ namespace FunicularSwitch.Generators.UnionType;
 
 static class Parser
 {
-    public static IEnumerable<UnionTypeSchema> GetUnionTypes(Compilation compilation,
-        ImmutableArray<BaseTypeDeclarationSyntax> unionTypeClasses, Action<Diagnostic> reportDiagnostic,
-        CancellationToken cancellationToken) =>
-        unionTypeClasses
-	        .Select(unionTypeClass =>
-        {
-            var semanticModel = compilation.GetSemanticModel(unionTypeClass.SyntaxTree);
-            var unionTypeSymbol = semanticModel.GetDeclaredSymbol(unionTypeClass);
+	public static IEnumerable<UnionTypeSchema> GetUnionTypes(Compilation compilation,
+		ImmutableArray<BaseTypeDeclarationSyntax> unionTypeClasses, Action<Diagnostic> reportDiagnostic,
+		CancellationToken cancellationToken) =>
+		unionTypeClasses
+			.Select(unionTypeClass =>
+			{
+				var semanticModel = compilation.GetSemanticModel(unionTypeClass.SyntaxTree);
+				var unionTypeSymbol = semanticModel.GetDeclaredSymbol(unionTypeClass);
 
-            if (unionTypeSymbol == null) //TODO: report diagnostics
-	            return null;
+				if (unionTypeSymbol == null) //TODO: report diagnostics
+					return null!;
 
-            var fullTypeName = unionTypeSymbol.FullTypeNameWithNamespace();
-            var acc = unionTypeSymbol.DeclaredAccessibility;
-            if (acc is Accessibility.Private or Accessibility.Protected)
-            {
-	            reportDiagnostic(Diagnostics.UnionTypeIsNotAccessible($"{fullTypeName} needs at least internal accessibility", unionTypeClass.GetLocation()));
-	            return null;
-            }
-            
-            var attribute = unionTypeClass.AttributeLists
-                .Select(l => l.Attributes.First(a => a.GetAttributeFullName(semanticModel) == UnionTypeGenerator.UnionTypeAttribute))
-                .First();
+				var fullTypeName = unionTypeSymbol.FullTypeNameWithNamespace();
+				var acc = unionTypeSymbol.DeclaredAccessibility;
+				if (acc is Accessibility.Private or Accessibility.Protected)
+				{
+					reportDiagnostic(Diagnostics.UnionTypeIsNotAccessible(
+						$"{fullTypeName} needs at least internal accessibility", unionTypeClass.GetLocation()));
+					return null!;
+				}
 
-            var (caseOrder, staticFactoryMethods) = TryGetCaseOrder(attribute, reportDiagnostic);
+				var attribute = unionTypeClass.AttributeLists
+					.Select(l => l.Attributes.First(a =>
+						a.GetAttributeFullName(semanticModel) == UnionTypeGenerator.UnionTypeAttribute))
+					.First();
 
-            var fullNamespace = unionTypeSymbol.GetFullNamespace();
-            if (unionTypeClass is EnumDeclarationSyntax enumDeclarationSyntax)
-            {
-                var fullTypeNameWithNamespace = unionTypeSymbol.FullTypeNameWithNamespace();
-                var unionCases = enumDeclarationSyntax.Members
-                    .Select(m => new DerivedType( $"{fullTypeNameWithNamespace}.{m.Identifier.Text}", m.Identifier.Text));
-                if (caseOrder == CaseOrder.Alphabetic)
-                {
-                    unionCases = unionCases.OrderBy(m => m.FullTypeName);
-                }
-                
-                return new(
-                    Namespace: fullNamespace,
-                    TypeName: unionTypeSymbol.FullTypeName(),
-                    FullTypeName: fullTypeName,
-                    Cases:  unionCases
-                        .ToImmutableArray(),
-                    acc is Accessibility.NotApplicable or Accessibility.Internal,
-                    true,
-                    false,
-                    false,
-                    null
-                );
-            }
+				var (caseOrder, staticFactoryMethods) = TryGetCaseOrder(attribute, reportDiagnostic);
 
-            var derivedTypes = compilation.SyntaxTrees.SelectMany(t =>
-            {
-                var root = t.GetRoot(cancellationToken);
-                var treeSemanticModel = t != unionTypeClass.SyntaxTree ? compilation.GetSemanticModel(t) : semanticModel;
-                
-                return FindConcreteDerivedTypesWalker.Get(root, unionTypeSymbol, treeSemanticModel);
-            });
+				var fullNamespace = unionTypeSymbol.GetFullNamespace();
 
-            var isPartial = unionTypeClass.Modifiers.HasModifier(SyntaxKind.PartialKeyword);
-            return new UnionTypeSchema(
-	            Namespace: fullNamespace,
-	            TypeName: unionTypeSymbol.Name,
-	            FullTypeName: fullTypeName,
-	            Cases: ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic, semanticModel)
-		            .ToImmutableArray(),
-	            IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
-	            IsEnum: false,
-	            IsPartial: isPartial,
-	            IsRecord: unionTypeClass is RecordDeclarationSyntax,
-	            StaticFactoryInfo: isPartial && unionTypeClass is not InterfaceDeclarationSyntax && staticFactoryMethods
-		            ? BuildFactoryInfo(unionTypeClass, semanticModel)
-		            : null
-            );
+				var derivedTypes = compilation.SyntaxTrees.SelectMany(t =>
+				{
+					var root = t.GetRoot(cancellationToken);
+					var treeSemanticModel =
+						t != unionTypeClass.SyntaxTree ? compilation.GetSemanticModel(t) : semanticModel;
 
-        })
-	        .Where(unionTypeClass => unionTypeClass != null)!;
+					return FindConcreteDerivedTypesWalker.Get(root, unionTypeSymbol, treeSemanticModel);
+				});
+
+				var isPartial = unionTypeClass.Modifiers.HasModifier(SyntaxKind.PartialKeyword);
+				return new UnionTypeSchema(
+					Namespace: fullNamespace,
+					TypeName: unionTypeSymbol.Name,
+					FullTypeName: fullTypeName,
+					Cases: ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic, semanticModel)
+						.ToImmutableArray(),
+					IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
+					IsPartial: isPartial,
+					IsRecord: unionTypeClass is RecordDeclarationSyntax,
+					StaticFactoryInfo: isPartial && unionTypeClass is not InterfaceDeclarationSyntax &&
+					                   staticFactoryMethods
+						? BuildFactoryInfo(unionTypeClass, semanticModel)
+						: null
+				);
+			})
+			.Where(unionTypeClass => unionTypeClass != null);
 
     static StaticFactoryMethodsInfo BuildFactoryInfo(BaseTypeDeclarationSyntax unionTypeClass, SemanticModel semanticModel)
     {
