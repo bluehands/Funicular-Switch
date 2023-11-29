@@ -22,7 +22,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>3</MajorVersion>
-		<MinorAndPatchVersion>1.1</MinorAndPatchVersion>
+		<MinorAndPatchVersion>1.2</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
@@ -43,6 +43,7 @@
 		<RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
 		<RepositoryBranch>main</RepositoryBranch>
+		<DevelopmentDependency>true</DevelopmentDependency>
 	</PropertyGroup>
 
 	<ItemGroup>
