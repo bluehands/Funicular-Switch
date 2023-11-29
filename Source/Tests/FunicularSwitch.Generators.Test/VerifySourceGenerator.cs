@@ -50,6 +50,6 @@ public abstract class VerifySourceGenerator : VerifyBase
             var diagnostics = compilation.GetDiagnostics();
             var errors = string.Join(Environment.NewLine, diagnostics
                 .Where(d => d.Severity == DiagnosticSeverity.Error));
-            errors.Should().BeNullOrEmpty($"Compilation failed: {compilation.SyntaxTrees.Last()}");
+            errors.Should().BeNullOrEmpty($"Compilation failed: {compilation.SyntaxTrees.LastOrDefault(s => !s.ToString().Contains("ReSharper disable once CheckNamespace"))}");
         });
 }

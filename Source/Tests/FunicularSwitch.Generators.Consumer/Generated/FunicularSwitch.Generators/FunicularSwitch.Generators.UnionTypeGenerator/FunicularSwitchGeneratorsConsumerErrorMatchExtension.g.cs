@@ -80,5 +80,13 @@ namespace FunicularSwitch.Generators.Consumer
 		public static async Task Switch(this Task<FunicularSwitch.Generators.Consumer.Error> error, Func<FunicularSwitch.Generators.Consumer.Error.Generic_, Task> generic, Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, Task> notFound, Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, Task> notAuthorized, Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, Task> aggregated) =>
 		await (await error.ConfigureAwait(false)).Switch(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
 	}
+	
+	public abstract partial class Error
+	{
+		public static FunicularSwitch.Generators.Consumer.Error Generic(string message) => new FunicularSwitch.Generators.Consumer.Error.Generic_(message);
+		public static FunicularSwitch.Generators.Consumer.Error NotFound() => new FunicularSwitch.Generators.Consumer.Error.NotFound_();
+		public static FunicularSwitch.Generators.Consumer.Error NotAuthorized() => new FunicularSwitch.Generators.Consumer.Error.NotAuthorized_();
+		public static FunicularSwitch.Generators.Consumer.Error Aggregated(global::System.Collections.Immutable.ImmutableList<global::FunicularSwitch.Generators.Consumer.Error> errors) => new FunicularSwitch.Generators.Consumer.Error.Aggregated_(errors);
+	}
 }
 #pragma warning restore 1591

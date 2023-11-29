@@ -256,7 +256,7 @@ and a bunch of methods like `Aggregate`, `Validate`, `AllOk`, `FirstOk` and more
 
 ## <a name="uniontype"> UnionType attribute
 
-There is another useful generator coming with the package. Adding the `UnionType` attribute or to a base type or interface makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
+There is another useful generator coming with the package. Adding the `UnionType` attribute to a base record / class or interface makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
 
 ``` cs
 [FunicularSwitch.Generators.UnionType]
@@ -315,6 +315,31 @@ public sealed class Failure : Error {...}
 [UnionCase(index: 10)]
 public sealed class InvalidInput : Error {...}
 ```
+
+#### Static factory methods
+If your base type is a partial record or class, static factory methods for your derived cases are added: 
+
+``` cs
+[UnionType]
+public abstract partial record Error;
+
+public record NotFound(int Id, string? Message = "Not found") : Error;
+public record InvalidInput(string Message) : Error;
+
+class ExampleConsumer
+{
+    public static void UseGeneratedFactoryMethods()
+    {
+        var notFound = Error.NotFound(42); //default value is pulled up to factory methods.
+        var invalid = Error.InvalidInput("I don't like it");
+    }
+}
+```
+
+Those factory methods are not generated if they would conflict with an existing field, property or method on the base type. 
+So you can always decide to implement them by yourself. Generation of factory methods on a partial base type can be suppressed 
+by setting StaticFactoryMethods argument to false: `[UnionType(StaticFactoryMethods=false)]`. Currently default values in 
+constructor parameters from namespaces other than System need full qualification.
 
 If you like union types but don't like excessive typing in C# try the [Switchyard](https://github.com/bluehands/Switchyard) Visual Studio extension, which generates the boilerplate code for you. It plays nicely with the FunicularSwitch.Generators package.
 

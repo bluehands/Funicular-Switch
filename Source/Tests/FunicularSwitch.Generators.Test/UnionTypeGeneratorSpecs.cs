@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FunicularSwitch.Generators.Test;
 
 [TestClass]
-public class Run_match_method_generator : VerifySourceGenerator
+public class Run_union_type_generator : VerifySourceGenerator
 {
 	[TestMethod]
 	public Task For_record_union_type()
@@ -88,16 +88,16 @@ public record Two : Base;";
 		var code = @"
 namespace FunicularSwitch.Test;
 
-[FunicularSwitch.Generators.UnionType]
-public abstract class FieldType
+[FunicularSwitch.Generators.UnionType(StaticFactoryMethods=false)]
+public abstract partial class FieldType
 {
-    public static readonly FieldType String = new String_();
+    public static FieldType String(int maxLength) => new String_(maxLength);
     public static readonly FieldType Bool = new Bool_();
     public static readonly FieldType Enum = new Enum_();
 
-    public class String_ : FieldType
+	public class String_ : FieldType
     {
-        public String_() : base(UnionCases.String)
+        public String_(int maxLength) : base(UnionCases.String)
         {
         }
     }
@@ -261,6 +261,65 @@ internal abstract record Base;
 
 internal record One : Base;
 record Two : Base;";
+
+		return Verify(code);
+	}
+
+	[TestMethod]
+	public Task For_partial_record_union_type()
+	{
+		var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType(CaseOrder = CaseOrder.AsDeclared, StaticFactoryMethods = true)]
+internal abstract partial record Base
+{
+	public static int Five => 5;
+}
+
+internal record One(int Number) : Base;
+record Two : Base;
+
+//private constructors are handled correctly
+record Three : Base {
+	private Three() : base() {}
+}
+
+//nested case
+public static class Cases {
+	internal record Nested : Base;
+
+	//static factory would conflict with static property
+	internal record Five : Base;
+}
+
+internal record WithDefault(int Number = 42) : Base;
+
+class Consumer {
+	static Base CreateOne() => Base.One(42);
+	static Base CreateNested() => Base.Nested();
+	static Base CreateWithDefault() => Base.WithDefault();
+}
+";
+
+		return Verify(code);
+	}
+
+	[TestMethod]
+	public Task No_static_factories_for_interface_union_type()
+	{
+		var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType]
+public partial interface IBase {}
+
+public class One : IBase {}
+public record Two : IBase {}";
 
 		return Verify(code);
 	}

@@ -120,20 +120,6 @@ public static class RoslynExtensions
         return attributeFullName;
     }
 
-    public static string? GetAssemblyAttributeName(this AttributeSyntax attributeSyntax, SemanticModel semanticModel)
-    {
-        string? attributeFullName = null;
-        var typeInfo = semanticModel.GetTypeInfo(attributeSyntax);
-        if (typeInfo.Type is not null)
-        {
-            return typeInfo.Type.Name;
-        }
-        else
-        {
-            return attributeSyntax.GetAttributeFullName(semanticModel);
-        }
-    }
-
     public static bool HasModifier(this SyntaxTokenList tokens, SyntaxKind syntaxKind)
     {
         var token = SyntaxFactory.Token(syntaxKind).Text;
@@ -179,6 +165,21 @@ public static class RoslynExtensions
             }
         }
     }
+
+    public static MemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, SemanticModel semanticModel) =>
+	    new(name, 
+		    member.Modifiers,
+		    member.ParameterList.Parameters
+		    .Select(p =>
+			    ToParameterInfo(p, semanticModel))
+		    .ToImmutableList());
+
+    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, SemanticModel semanticModel) =>
+	    new(
+		    p.Identifier.Text,
+		    p.Modifiers,
+		    semanticModel.GetTypeInfo(p.Type!).Type!,
+		    p.Default);
 }
 
 public sealed class QualifiedTypeName : IEquatable<QualifiedTypeName>
@@ -207,11 +208,32 @@ public sealed class QualifiedTypeName : IEquatable<QualifiedTypeName>
         return m_FullName == other.m_FullName;
     }
 
-    public override bool Equals(object obj) => ReferenceEquals(this, obj) || obj is QualifiedTypeName other && Equals(other);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is QualifiedTypeName other && Equals(other);
 
     public override int GetHashCode() => m_FullName.GetHashCode();
 
     public static bool operator ==(QualifiedTypeName left, QualifiedTypeName right) => Equals(left, right);
 
     public static bool operator !=(QualifiedTypeName left, QualifiedTypeName right) => !Equals(left, right);
+}
+
+public sealed record MemberInfo(string Name, SyntaxTokenList Modifiers, IReadOnlyCollection<ParameterInfo> Parameters);
+
+public sealed record ParameterInfo(string Name, SyntaxTokenList Modifiers, ITypeSymbol Type, EqualsValueClauseSyntax? DefaultClause)
+{
+	public override string ToString()
+	{
+		IEnumerable<string> Parts()
+		{
+			if (Modifiers.Count > 0)
+				yield return Modifiers.ToSeparatedString(" ");
+			yield return Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+			yield return Name;
+			if (DefaultClause != null)
+				yield return DefaultClause.ToString();
+		}
+
+
+		return Parts().ToSeparatedString(" ");
+	}
 }

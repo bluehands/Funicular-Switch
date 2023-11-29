@@ -28,8 +28,8 @@ public class When_using_generated_result_type
 
 		calc.Should().BeEquivalentTo(OperationResult<string>.Error(Error.Generic("Division by zero")));
 
-		var combinedError = calc.Aggregate(Error<int>(Error.NotFound));
-		var combinedErrorStatic = Aggregate(calc, Error<int>(Error.NotFound), (_, i) => i);
+		var combinedError = calc.Aggregate(Error<int>(Error.NotFound()));
+		var combinedErrorStatic = Aggregate(calc, Error<int>(Error.NotFound()), (_, i) => i);
 		var combinedOk = Ok(42).Aggregate(Ok(" is the answer"));
 		var combinedOkStatic = Aggregate(Ok(42), Ok(" is the answer"));
 
@@ -202,17 +202,10 @@ public static partial class ErrorExtension
 }
 
 [UnionType(CaseOrder = CaseOrder.AsDeclared)]
-public abstract class Error
+public abstract partial class Error
 {
 	[ExceptionToError]
 	public static Error Generic(Exception exception) => Generic(exception.ToString());
-
-	public static Error Generic(string message) => new Generic_(message);
-
-	public static readonly Error NotFound = new NotFound_();
-	public static readonly Error NotAuthorized = new NotAuthorized_();
-
-	public static Error Aggregated(ImmutableList<Error> errors) => new Aggregated_(errors);
 
 	public Error Merge(Error other) => this is Aggregated_ a
 		? a.Add(other)

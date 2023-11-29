@@ -7,6 +7,7 @@ namespace FunicularSwitch.Generators
     sealed class UnionTypeAttribute : Attribute
     {
         public CaseOrder CaseOrder { get; set; } = CaseOrder.Alphabetic;
+        public bool StaticFactoryMethods { get; set; } = true;
     }
 
     enum CaseOrder
