@@ -41,36 +41,36 @@ static class Parser
 				var derivedTypes = compilation.SyntaxTrees.SelectMany(t =>
 				{
 					var root = t.GetRoot(cancellationToken);
-					var treeSemanticModel =
-						t != unionTypeClass.SyntaxTree ? compilation.GetSemanticModel(t) : semanticModel;
+					var treeSemanticModel = t != unionTypeClass.SyntaxTree ? compilation.GetSemanticModel(t) : semanticModel;
 
 					return FindConcreteDerivedTypesWalker.Get(root, unionTypeSymbol, treeSemanticModel);
 				});
 
 				var isPartial = unionTypeClass.Modifiers.HasModifier(SyntaxKind.PartialKeyword);
+				var generateFactoryMethods = isPartial && unionTypeClass is not InterfaceDeclarationSyntax &&
+				                             staticFactoryMethods;
 				return new UnionTypeSchema(
 					Namespace: fullNamespace,
 					TypeName: unionTypeSymbol.Name,
 					FullTypeName: fullTypeName,
-					Cases: ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic, semanticModel)
+					Cases: ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic, compilation, generateFactoryMethods)
 						.ToImmutableArray(),
 					IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
 					IsPartial: isPartial,
 					IsRecord: unionTypeClass is RecordDeclarationSyntax,
-					StaticFactoryInfo: isPartial && unionTypeClass is not InterfaceDeclarationSyntax &&
-					                   staticFactoryMethods
-						? BuildFactoryInfo(unionTypeClass, semanticModel)
+					StaticFactoryInfo: generateFactoryMethods
+						? BuildFactoryInfo(unionTypeClass, compilation)
 						: null
 				);
 			})
-			.Where(unionTypeClass => unionTypeClass != null);
+			.Where(unionTypeClass => unionTypeClass is { Cases.Count: > 0 });
 
-    static StaticFactoryMethodsInfo BuildFactoryInfo(BaseTypeDeclarationSyntax unionTypeClass, SemanticModel semanticModel)
+    static StaticFactoryMethodsInfo BuildFactoryInfo(BaseTypeDeclarationSyntax unionTypeClass, Compilation compilation)
     {
 	    var staticMethods = unionTypeClass.ChildNodes()
 		    .OfType<MethodDeclarationSyntax>()
 		    .Where(m => m.Modifiers.HasModifier(SyntaxKind.StaticKeyword))
-		    .Select(m => m.ToMemberInfo(m.Name(), semanticModel))
+		    .Select(m => m.ToMemberInfo(m.Name(), compilation))
 		    .ToImmutableList();
 
 	    var staticFields = unionTypeClass.ChildNodes()
@@ -114,7 +114,7 @@ static class Parser
         return (caseOrder, staticFactoryMethods);
     }
 
-    static IEnumerable<DerivedType> ToOrderedCases(CaseOrder caseOrder, IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int numberOfConctreteBaseTypes)> derivedTypes, Action<Diagnostic> reportDiagnostic, SemanticModel semanticModel)
+    static IEnumerable<DerivedType> ToOrderedCases(CaseOrder caseOrder, IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int numberOfConctreteBaseTypes)> derivedTypes, Action<Diagnostic> reportDiagnostic, Compilation compilation, bool getConstructors)
     {
         var ordered = derivedTypes.OrderByDescending(d => d.numberOfConctreteBaseTypes);
         ordered = caseOrder switch
@@ -161,22 +161,25 @@ static class Parser
         {
             var qualifiedTypeName = d.node.QualifiedName();
             var fullNamespace = d.symbol.GetFullNamespace();
-            var constructors = d.node.ChildNodes()
-	            .OfType<ConstructorDeclarationSyntax>()
-	            .Select(c => c.ToMemberInfo(c.Identifier.Text, semanticModel));
+            IEnumerable<MemberInfo>? constructors = null;
+            if (getConstructors)
+            {
+	            constructors = d.node.ChildNodes()
+		            .OfType<ConstructorDeclarationSyntax>()
+		            .Select(c => c.ToMemberInfo(c.Identifier.Text, compilation));
 
-            if (d.node is RecordDeclarationSyntax { ParameterList: not null } recordDeclaration)
-	            constructors = constructors.Concat(new[]
-	            {
-		            new MemberInfo(d.node.Name(), d.node.Modifiers, recordDeclaration.ParameterList.Parameters
-			            .Select(p => p.ToParameterInfo(semanticModel)).ToImmutableList())
-	            });
-
+	            if (d.node is RecordDeclarationSyntax { ParameterList: not null } recordDeclaration)
+		            constructors = constructors.Concat(new[]
+		            {
+			            new MemberInfo(d.node.Name(), d.node.Modifiers, recordDeclaration.ParameterList.Parameters
+				            .Select(p => p.ToParameterInfo(compilation)).ToImmutableList())
+		            });
+            }
 
             return new DerivedType(
                 fullTypeName: $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}",
                 typeName: qualifiedTypeName.Name,
-                constructors: constructors.ToImmutableList());
+                constructors: constructors?.ToImmutableList());
         });
     }
 }

@@ -323,4 +323,21 @@ public record Two : IBase {}";
 
 		return Verify(code);
 	}
+
+	[TestMethod]
+	public Task For_union_type_without_derived_types()
+	{
+		var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType(CaseOrder = CaseOrder.Explicit)]
+public abstract partial record NodeMessage(string NodeInstanceId)
+{
+	public string Node { get; } = NodeInstanceId.Substring(0, NodeInstanceId.IndexOf(':'));
+}";
+
+		return Verify(code);
+	}
 }

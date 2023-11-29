@@ -166,19 +166,19 @@ public static class RoslynExtensions
         }
     }
 
-    public static MemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, SemanticModel semanticModel) =>
+    public static MemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Compilation compilation) =>
 	    new(name, 
 		    member.Modifiers,
 		    member.ParameterList.Parameters
 		    .Select(p =>
-			    ToParameterInfo(p, semanticModel))
+			    ToParameterInfo(p, compilation))
 		    .ToImmutableList());
 
-    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, SemanticModel semanticModel) =>
+    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, Compilation compilation) =>
 	    new(
 		    p.Identifier.Text,
 		    p.Modifiers,
-		    semanticModel.GetTypeInfo(p.Type!).Type!,
+		    compilation.GetSemanticModel(p.SyntaxTree).GetTypeInfo(p.Type!).Type!,
 		    p.Default);
 }
 

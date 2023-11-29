@@ -9,8 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.11.0" />
-    <PackageReference Include="FunicularSwitch" Version="4.0.0" />
-    <PackageReference Include="FunicularSwitch.Generators" Version="2.1.0" />
+    <PackageReference Include="FunicularSwitch" Version="5.0.0" />
+    <PackageReference Include="FunicularSwitch.Generators" Version="3.1.0" />
     <PackageReference Include="FunicularSwitch.Generators.FluentAssertions" Version="1.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.7" />
