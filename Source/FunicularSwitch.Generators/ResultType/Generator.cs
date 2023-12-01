@@ -39,7 +39,7 @@ static class Generator
 
             if (additionalNamespaces.Count > 0)
                 code = code
-                    .Replace("//additional using directives", additionalNamespaces.Distinct().Select(a => $"using {a};").ToSeparatedString(Environment.NewLine));
+                    .Replace("//additional using directives", additionalNamespaces.Distinct().Select(a => $"using {a};").ToSeparatedString("\n"));
 
             var genericErrorFactoryMethod = resultTypeSchema.ExceptionToErrorMethod;
             if (genericErrorFactoryMethod != null)
@@ -88,7 +88,7 @@ static class Generator
         Enumerable
             .Range(2, maxParameterCount - 2)
             .Select(generateMethods)
-            .ToSeparatedString(Environment.NewLine);
+            .ToSeparatedString("\n");
 
     static string MakeAggregateExtensionMethod(int typeParameterCount, bool isValueType)
     {
