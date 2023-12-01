@@ -1,11 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FunicularSwitch.Extensions;
 using FunicularSwitch.Generators;
 
 namespace FunicularSwitch
 {
+	public abstract partial class Result
+	{
+		public static async Task<Result<Unit>> Try(Func<Task> action, Func<Exception, string> formatError)
+		{
+			try
+			{
+				await action();
+				return No.Thing;
+			}
+			catch (Exception e)
+			{
+				return Error<Unit>(formatError(e));
+			}
+		}
+	}
+
 	[ResultType(ErrorType = typeof(string))]
 	public abstract partial class Result<T>
 	{
