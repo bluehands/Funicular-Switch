@@ -253,4 +253,17 @@ public class ResultSpecs
             select x
         )).Should().BeEquivalentTo(await okAsync.Bind(r => ok.Map(r1 => r * r1)));
     }
+
+    [TestMethod]
+    public async Task AsyncTryVoidReturn()
+    {
+	    async Task MyAction()
+	    {
+		    await Task.Delay(1);
+		    throw new("broken");
+	    }
+
+	    var result = Result.Try(MyAction, ex => ex.Message);
+	    (await result).Should().BeError();
+    }
 }
