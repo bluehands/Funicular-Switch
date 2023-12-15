@@ -24,9 +24,11 @@ public class OptionMethods
         // ARRANGE
         var option = Option.Some(23);
 
+
         // ASSERT
         Action(() => option.Should().BeNone())
-            .Should().Throw<XunitException>();
+            .Should().Throw<XunitException>()
+            .Which.UserMessage.Should().Contain("23");
     }
 
     [Fact]
@@ -47,6 +49,7 @@ public class OptionMethods
 
         // ASSERT
         Action(() => option.Should().BeSome())
-            .Should().Throw<XunitException>();
+            .Should().Throw<XunitException>()
+            .Which.UserMessage.Should().Contain("None");
     }
 }

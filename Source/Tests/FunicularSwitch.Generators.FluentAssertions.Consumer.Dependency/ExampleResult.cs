@@ -20,6 +20,11 @@ public abstract partial class MyError
         }
 
         public int Number { get; }
+
+        public override string ToString()
+        {
+            return $"{nameof(FirstCase)}: {nameof(this.Number)} = {this.Number}";
+        }
     }
 
     public sealed class SecondCase_ : MyError
@@ -30,6 +35,11 @@ public abstract partial class MyError
         }
 
         public string Text { get; }
+
+        public override string ToString()
+        {
+            return $"{nameof(SecondCase)}: {nameof(this.Text)} = {this.Text}";
+        }
     }
 }
 
