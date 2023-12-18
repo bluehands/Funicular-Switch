@@ -24,7 +24,7 @@ internal static class Generator
     {
         var resultTypeNameFullName = resultTypeSchema.ResultType.FullTypeName().Replace('.', '_');
         var resultTypeFullNameWithNamespace = resultTypeSchema.ResultType.FullTypeNameWithNamespace();
-        var resultTypeNamespace = resultTypeSchema.ResultType.GetFullNamespace();
+        var resultTypeNamespace = resultTypeSchema.ResultType.GetFullNamespace()!;
 
         var errorTypeNameFullName = resultTypeSchema.ErrorType?.FullTypeNameWithNamespace() ?? typeof(string).FullName;
 
@@ -44,7 +44,7 @@ internal static class Generator
                             .Append(resultTypeNamespace)
                             .Distinct()
                             .Select(a => $"using {a};")
-                            .ToSeparatedString(Environment.NewLine));
+                            .ToSeparatedString("\n"));
             return code;
         }
 
@@ -81,7 +81,7 @@ internal static class Generator
                         .Append(unionTypeNamespace)
                         .Distinct()
                         .Select(a => $"using {a};")
-                        .ToSeparatedString(Environment.NewLine));
+                        .ToSeparatedString("\n"));
             return code;
         }
 

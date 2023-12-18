@@ -181,7 +181,8 @@ public class When_using_generated_result_type
     [TestMethod]
     public void TestFactoryMethodsForClassesWithPrimaryConstructor()
     {
-        var _ = WithPrimaryConstructor.DerivedWithPrimaryConstructor("Hallo", 42);
+        var x = WithPrimaryConstructor.DerivedWithPrimaryConstructor("Hallo", 42);
+		Console.WriteLine($"Created {x.Match(d => $"{d.Message} {d.Test}")}");
     }
 }
 
@@ -278,6 +279,12 @@ public abstract partial class Error
 }
 
 [UnionType]
-public abstract partial class WithPrimaryConstructor(int Test);
+public abstract partial class WithPrimaryConstructor(int test)
+{
+    public int Test { get; } = test;
+}
 
-public class DerivedWithPrimaryConstructor(string Blubs, int test) : WithPrimaryConstructor(test);
+public class DerivedWithPrimaryConstructor(string message, int test) : WithPrimaryConstructor(test)
+{
+    public string Message { get; } = message;
+}

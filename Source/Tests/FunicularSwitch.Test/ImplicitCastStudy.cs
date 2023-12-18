@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FunicularSwitch.Test;
 
@@ -11,16 +10,20 @@ public class ImplicitCastStudy
 	public void ImplicitCastWithNullableStruct()
 	{
 		long? l = null;
-		Option<long> converted = l;
-		converted.Should().NotBeNull();
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+        Option<long> converted = l;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+        converted.Should().NotBeNull();
 	}
 
 	[TestMethod]
 	public void ImplicitCastWithClass()
 	{
 		object? l = null;
-		Option<object> converted = l;
-		converted.Should().NotBeNull();
+#pragma warning disable CS8604 // Possible null reference argument.
+        Option<object> converted = l;
+#pragma warning restore CS8604 // Possible null reference argument.
+        converted.Should().NotBeNull();
 	}
 
 	[TestMethod]

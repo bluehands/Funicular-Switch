@@ -59,7 +59,7 @@ namespace FunicularSwitch.Generators.Consumer
 	
 	public abstract partial class WithPrimaryConstructor
 	{
-		public static FunicularSwitch.Generators.Consumer.WithPrimaryConstructor DerivedWithPrimaryConstructor(string Blubs, int test) => new FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor(Blubs, test);
+		public static FunicularSwitch.Generators.Consumer.WithPrimaryConstructor DerivedWithPrimaryConstructor(string message, int test) => new FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor(message, test);
 	}
 }
 #pragma warning restore 1591
