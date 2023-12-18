@@ -1,8 +1,5 @@
-﻿using System.Collections.Immutable;
-using FunicularSwitch.Generators.Common;
+﻿using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FunicularSwitch.Generators.FluentAssertions.FluentAssertionMethods;
 
@@ -10,11 +7,13 @@ internal static class Parser
 {
     public static IEnumerable<ResultTypeSchema> GetResultTypes(
         IAssemblySymbol assembly,
+        bool generateForInternalTypes,
         Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken)
     {
         return assembly.Modules
             .SelectMany(m => GetTypesWithAttribute(m.GlobalNamespace, ResultTypeAttribute))
+            .Where(tuple => tuple.Type.DeclaredAccessibility == Accessibility.Public || (tuple.Type.DeclaredAccessibility == Accessibility.Internal && generateForInternalTypes))
             .Select(tuple =>
             {
                 var errorTypeSymbol = TryGetErrorType(tuple.Attribute, reportDiagnostic);
@@ -24,11 +23,13 @@ internal static class Parser
 
     public static IEnumerable<UnionTypeSchema> GetUnionTypes(
         IAssemblySymbol assembly,
+        bool generateForInternalTypes,
         Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken)
     {
         var unionTypes = assembly.Modules
-            .SelectMany(m => GetTypesWithAttribute(m.GlobalNamespace, UnionTypeAttribute));
+            .SelectMany(m => GetTypesWithAttribute(m.GlobalNamespace, UnionTypeAttribute))
+            .Where(tuple => tuple.Type.DeclaredAccessibility == Accessibility.Public || (tuple.Type.DeclaredAccessibility == Accessibility.Internal && generateForInternalTypes));
 
         foreach (var (unionType, _) in unionTypes)
         {

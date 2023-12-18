@@ -55,3 +55,10 @@ public class WrapperClass
         public sealed record OtherDerivedNestedUnionType_(string Message) : NestedUnionType;
     }
 }
+
+[UnionType(CaseOrder = CaseOrder.AsDeclared)]
+internal abstract record InternalUnionType
+{
+    public sealed record First(string Text) : InternalUnionType;
+    public sealed record Second(string Text) : InternalUnionType;
+}
