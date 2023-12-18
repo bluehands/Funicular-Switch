@@ -167,20 +167,3 @@ public class EnumTypeGenerator : IIncrementalGenerator
 		return new[] { schema };
 	}
 }
-
-class FileLog
-{
-	public static void LogAccess(TimeSpan elapsed, string message)
-	{
-		var filePath = @"c:\temp\callcount.txt";
-		var line = $"{DateTime.Now:HH:mm:ss fff}: {message} ({elapsed})";
-		if (!File.Exists(filePath))
-		{
-			File.WriteAllText(filePath, line);
-		}
-		else
-		{
-			File.AppendAllLines(filePath, new[] { line });
-		}
-	}
-}
