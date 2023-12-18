@@ -168,10 +168,10 @@ static class Parser
 		            .OfType<ConstructorDeclarationSyntax>()
 		            .Select(c => c.ToMemberInfo(c.Identifier.Text, compilation));
 
-	            if (d.node is RecordDeclarationSyntax { ParameterList: not null } recordDeclaration)
+	            if (d.node is TypeDeclarationSyntax { ParameterList: not null } typeDeclaration)
 		            constructors = constructors.Concat(new[]
 		            {
-			            new MemberInfo(d.node.Name(), d.node.Modifiers, recordDeclaration.ParameterList.Parameters
+			            new MemberInfo(d.node.Name(), d.node.Modifiers, typeDeclaration.ParameterList.Parameters
 				            .Select(p => p.ToParameterInfo(compilation)).ToImmutableList())
 		            });
             }

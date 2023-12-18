@@ -39,7 +39,7 @@ public class ResultMethods
         // ASSERT
         Action(() => result.Should().BeError())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("Test");
+            .Which.Message.Should().Contain("Test");
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class ResultMethods
         // ASSERT
         Action(() => result.Should().BeOk())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("ErrorText");
+            .Which.Message.Should().Contain("ErrorText");
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public class ResultMethods
         // ASSERT
         Action(() => result.Should().BeError())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("Test");
+            .Which.Message.Should().Contain("Test");
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class ResultMethods
         Action(() => result.Should().BeError()
                 .Which.Should().BeFirstCase())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("Test");
+            .Which.Message.Should().Contain("Test");
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class ResultMethods
         Action(() => result.Should().BeError()
                 .Which.Should().BeSecondCase())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("Test");
+            .Which.Message.Should().Contain("Test");
     }
 
     [Fact]
@@ -148,7 +148,7 @@ public class ResultMethods
         // ASSERT
         Action(() => result.Should().BeOk())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("FirstCase").And.Contain("5");
+            .Which.Message.Should().Contain("FirstCase").And.Contain("5");
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public class ResultMethods
         Action(() => result.Should().BeError()
                 .Which.Should().BeSecondCase())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("FirstCase").And.Contain("5");
+            .Which.Message.Should().Contain("FirstCase").And.Contain("5");
     }
 
 
@@ -174,7 +174,7 @@ public class ResultMethods
         // ASSERT
         Action(() => result.Should().BeOk())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("SecondCase").And.Contain("Test");
+            .Which.Message.Should().Contain("SecondCase").And.Contain("Test");
     }
 
     [Fact]
@@ -187,6 +187,6 @@ public class ResultMethods
         Action(() => result.Should().BeError()
                 .Which.Should().BeFirstCase())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("SecondCase").And.Contain("Test");
+            .Which.Message.Should().Contain("SecondCase").And.Contain("Test");
     }
 }

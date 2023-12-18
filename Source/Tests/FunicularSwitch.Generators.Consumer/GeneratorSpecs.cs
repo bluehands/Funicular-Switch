@@ -177,6 +177,12 @@ public class When_using_generated_result_type
 			select x
 		)).Should().BeEquivalentTo(await okAsync.Map(r => r * 2));
 	}
+
+    [TestMethod]
+    public void TestFactoryMethodsForClassesWithPrimaryConstructor()
+    {
+        var _ = WithPrimaryConstructor.DerivedWithPrimaryConstructor("Hallo", 42);
+    }
 }
 
 [ResultType(ErrorType = typeof(string))]
@@ -270,3 +276,8 @@ public abstract partial class Error
 
 	public override int GetHashCode() => (int)UnionCase;
 }
+
+[UnionType]
+public abstract partial class WithPrimaryConstructor(int Test);
+
+public class DerivedWithPrimaryConstructor(string Blubs, int test) : WithPrimaryConstructor(test);

@@ -28,7 +28,7 @@ public class OptionMethods
         // ASSERT
         Action(() => option.Should().BeNone())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("23");
+            .Which.Message.Should().Contain("23");
     }
 
     [Fact]
@@ -50,6 +50,6 @@ public class OptionMethods
         // ASSERT
         Action(() => option.Should().BeSome())
             .Should().Throw<XunitException>()
-            .Which.UserMessage.Should().Contain("None");
+            .Which.Message.Should().Contain("None");
     }
 }
