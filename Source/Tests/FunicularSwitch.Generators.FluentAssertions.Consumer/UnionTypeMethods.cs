@@ -1,6 +1,9 @@
 ﻿using FluentAssertions;
+using FunicularSwitch;
 using FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency;
 using Xunit.Sdk;
+
+//[assembly: GenerateExtensionsForInternalTypes(typeof(ExampleResult))]
 
 namespace FunicularSwitch.Generators.FluentAssertions.Consumer;
 

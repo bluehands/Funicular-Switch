@@ -22,7 +22,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>1</MajorVersion>
-		<MinorAndPatchVersion>0.3</MinorAndPatchVersion>
+		<MinorAndPatchVersion>1.0</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
@@ -54,6 +54,7 @@
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyUnionTypeAssertions_DerivedUnionType.cs" Link="Templates\MyUnionTypeAssertions_DerivedUnionType.cs" />
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\OptionAssertions.cs" Link="Templates\OptionAssertions.cs" />
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\OptionAssertionExtensions.cs" Link="Templates\OptionAssertionExtensions.cs" />
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\GenerateExtensionsForInternalTypesAttribute.cs" Link="Templates\GenerateExtensionsForInternalTypesAttribute.cs" />
   </ItemGroup>
 
   <ItemGroup>

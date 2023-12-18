@@ -11,6 +11,7 @@ internal class GenerateFluentAssertionsForTemplates
     public static string MyDerivedUnionTypeAssertions => Resources.ReadResource("MyUnionTypeAssertions_DerivedUnionType.cs");
     public static string OptionAssertions => Resources.ReadResource("OptionAssertions.cs");
     public static string OptionAssertionExtensions => Resources.ReadResource("OptionAssertionExtensions.cs");
+    public static string GenerateExtensionsForInternalTypesAttribute => Resources.ReadResource("GenerateExtensionsForInternalTypesAttribute.cs");
 }
 
 internal static class Resources

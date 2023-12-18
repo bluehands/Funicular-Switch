@@ -16,7 +16,7 @@ internal class OptionAssertions<T> : ObjectAssertions<FunicularSwitch.Option<T>,
         Execute.Assertion
             .ForCondition(this.Subject.IsSome())
             .BecauseOf(because, becauseArgs)
-            .FailWith("Expected {content} to be Some{reason}, but found {0}", this.Subject);
+            .FailWith("Expected {content} to be Some{reason}, but found {0}", this.Subject.ToString());
 
         return new(this, this.Subject.GetValueOrDefault()!);
     }
@@ -26,7 +26,7 @@ internal class OptionAssertions<T> : ObjectAssertions<FunicularSwitch.Option<T>,
         Execute.Assertion
             .ForCondition(this.Subject.IsNone())
             .BecauseOf(because, becauseArgs)
-            .FailWith("Expected {content} to be None{reason}, but found {0}", this.Subject);
+            .FailWith("Expected {content} to be None{reason}, but found {0}", this.Subject.ToString());
 
         return new(this);
     }
