@@ -388,9 +388,9 @@ To generate Match extensions for a specific type in an assembly write:
 
 ### Additional documentation
 
-[Tutorial markdown](https://github.com/bluehands/FunicularSwitch/blob/master/TUTORIAL.md)
+[Tutorial markdown](https://github.com/bluehands/Funicular-Switch/blob/main/TUTORIAL.md)
 
-[Tutorial source](https://github.com/bluehands/FunicularSwitch/tree/master/Source/Tutorial)
+[Tutorial source](https://github.com/bluehands/Funicular-Switch/tree/main/Source/Tutorial)
 
 # Contributing
 
@@ -406,7 +406,7 @@ bluehands.de
 
 # License
 
-[MIT License](https://github.com/bluehands/FunicularSwitch/blob/master/LICENSE)
+[MIT License](https://github.com/bluehands/FunicularSwitch/blob/main/LICENSE)
 
 # Acknowledgments
 
