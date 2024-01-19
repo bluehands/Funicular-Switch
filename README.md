@@ -406,7 +406,7 @@ bluehands.de
 
 # License
 
-[MIT License](https://github.com/bluehands/FunicularSwitch/blob/main/LICENSE)
+[MIT License](https://github.com/bluehands/Funicular-Switch/blob/main/LICENSE)
 
 # Acknowledgments
 
