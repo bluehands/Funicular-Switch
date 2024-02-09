@@ -9,6 +9,19 @@ namespace FunicularSwitch
 {
 	public abstract partial class Result
 	{
+        public static Result<Unit> Try(Action action, Func<Exception, string> formatError)
+        {
+            try
+            {
+                action();
+                return No.Thing;
+            }
+            catch (Exception e)
+            {
+                return Error<Unit>(formatError(e));
+            }
+        }
+
 		public static async Task<Result<Unit>> Try(Func<Task> action, Func<Exception, string> formatError)
 		{
 			try

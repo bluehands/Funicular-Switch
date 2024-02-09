@@ -41,6 +41,30 @@ namespace FunicularSwitch.Test
                 return Error<T>(formatError(e));
             }
         }
+
+        public static OperationResult<T> Try<T>(Func<OperationResult<T>> action, Func<Exception, MyError> formatError)
+        {
+            try
+            {
+                return action();
+            }
+            catch (Exception e)
+            {
+                return Error<T>(formatError(e));
+            }
+        }
+
+        public static async Task<OperationResult<T>> Try<T>(Func<Task<OperationResult<T>>> action, Func<Exception, MyError> formatError)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (Exception e)
+            {
+                return Error<T>(formatError(e));
+            }
+        }
     }
 
     abstract partial class OperationResult<T> : OperationResult, IEnumerable<T>

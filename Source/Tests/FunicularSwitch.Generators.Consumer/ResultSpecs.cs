@@ -97,31 +97,6 @@ namespace FunicularSwitch.Generators.Consumer
                 .BeEquivalentTo(Result.Error<List<int>>(string.Join(Environment.NewLine, errorMessage)));
         }
 
-        //[TestMethod]
-        //public void OptionResultConversion()
-        //{
-        //    const string notThere = "it's not there";
-        //    Option.Some(42).ToResult(() => notThere).Should().Equal(Result.Ok(42));
-        //    Option.None<int>().ToResult(() => notThere).Should().Equal(Result.Error<int>(notThere));
-
-        //    var something = new Something();
-        //    something.ToOption().Should().Equal(Option.Some(something));
-        //    ((Something?)null).ToOption().Should().Equal(Option.None<Something>());
-
-        //    var option = Result.Ok(something).ToOption();
-        //    option.Should().Equal(Option.Some(something));
-        //    Result.Error<Something>(notThere).ToOption().Should().Equal(Option.None<Something>());
-
-        //    var errorLogged = false;
-        //    void LogError(string error) => errorLogged = true;
-        //    Result.Error<Something>(notThere).ToOption(LogError).Should().Equal(Option.None<Something>());
-        //    errorLogged.Should().BeTrue();
-        //}
-
-        class Something
-        {
-        }
-
         [TestMethod]
         public void AsTest()
         {
@@ -134,17 +109,12 @@ namespace FunicularSwitch.Generators.Consumer
             stringResult.IsError.Should().BeTrue();
         }
 
-        //[TestMethod]
-        //public void ImplicitCastTest()
-        //{
-        //    Result<int> result = 42;
-        //    result.Equals(Result.Ok(42)).Should().BeTrue();
-        //    Option<int> option = 42;
-        //    option.Equals(Option.Some(42)).Should().BeTrue();
-
-        //    var odds = Enumerable.Range(0, 10).Choose(i => i % 2 != 0 ? i * 10 : Option<int>.None).ToList();
-        //    odds.Should().BeEquivalentTo(Enumerable.Range(0, 10).Where(i => i % 2 != 0).Select(i => i * 10));
-        //}
+        [TestMethod]
+        public void ImplicitCastTest()
+        {
+            Result<int> result = 42;
+            result.Equals(Result.Ok(42)).Should().BeTrue();
+        }
 
         [TestMethod]
         public void BoolConversionTest()
@@ -176,6 +146,30 @@ namespace FunicularSwitch.Generators.Consumer
 
             result.Should().BeOfType<Result<IReadOnlyCollection<int>>.Ok_>();
             result.GetValueOrThrow().Should().BeEquivalentTo(new[] { 0, 2, 4 });
+        }
+
+        [TestMethod]
+        public async Task TryTest()
+        {
+            Result.Try(() => 42, _ => "error").Should().BeOfType<Result<int>.Ok_>();
+            Result.Try(() => Result.Ok(42), _ => "error").Should().BeOfType<Result<int>.Ok_>();
+            (await Result.Try(() => Task.FromResult(Result.Ok(42)), _ => "error")).Should().BeOfType<Result<int>.Ok_>();
+            (await Result.Try(() => Task.FromResult(42), _ => "error")).Should().BeOfType<Result<int>.Ok_>();
+
+            var zero = 0;
+            Result.Try(() => 42 / zero, e => e.Message).Should().BeOfType<Result<int>.Error_>();
+            (await Result.Try(async () =>
+            {
+                await Task.Delay(1);
+                return 42 / zero;
+            }, e => e.Message)).Should().BeOfType<Result<int>.Error_>();
+
+            Result.Try(() => Result.Ok(42 / zero), e => e.Message).Should().BeOfType<Result<int>.Error_>();
+            (await Result.Try(async () =>
+            {
+                await Task.Delay(10);
+                return Result.Ok(42 / zero);
+            }, e => e.Message)).Should().BeOfType<Result<int>.Error_>();
         }
     }
 }

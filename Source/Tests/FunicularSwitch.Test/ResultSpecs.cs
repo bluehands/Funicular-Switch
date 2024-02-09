@@ -255,6 +255,18 @@ public class ResultSpecs
     }
 
     [TestMethod]
+    public void TryVoidReturn()
+    {
+        void MyAction()
+        {
+            throw new("broken");
+        }
+
+        var result = Result.Try(MyAction, ex => ex.Message);
+        result.Should().BeError();
+    }
+
+    [TestMethod]
     public async Task AsyncTryVoidReturn()
     {
 	    async Task MyAction()
@@ -265,5 +277,29 @@ public class ResultSpecs
 
 	    var result = Result.Try(MyAction, ex => ex.Message);
 	    (await result).Should().BeError();
+    }
+
+    [TestMethod]
+    public async Task TryTest()
+    {
+        Result.Try(() => 42, _ => "error").Should().BeOfType<Result<int>.Ok_>();
+        Result.Try(() => Result.Ok(42), _ => "error").Should().BeOfType<Result<int>.Ok_>();
+        (await Result.Try(() => Task.FromResult(Result.Ok(42)), _ => "error")).Should().BeOfType<Result<int>.Ok_>();
+        (await Result.Try(() => Task.FromResult(42), _ => "error")).Should().BeOfType<Result<int>.Ok_>();
+
+        var zero = 0;
+        Result.Try(() => 42 / zero, e => e.Message).Should().BeOfType<Result<int>.Error_>();
+        (await Result.Try(async () =>
+        {
+            await Task.Delay(1);
+            return 42 / zero;
+        }, e => e.Message)).Should().BeOfType<Result<int>.Error_>();
+
+        Result.Try(() => Result.Ok(42 / zero), e => e.Message).Should().BeOfType<Result<int>.Error_>();
+        (await Result.Try(async () =>
+        {
+            await Task.Delay(10);
+            return Result.Ok(42 / zero);
+        }, e => e.Message)).Should().BeOfType<Result<int>.Error_>();
     }
 }

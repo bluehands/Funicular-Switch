@@ -40,6 +40,30 @@ namespace FunicularSwitch.Generators.Consumer
                 return Error<T>(formatError(e));
             }
         }
+
+        public static Result<T> Try<T>(Func<Result<T>> action, Func<Exception, String> formatError)
+        {
+            try
+            {
+                return action();
+            }
+            catch (Exception e)
+            {
+                return Error<T>(formatError(e));
+            }
+        }
+
+        public static async Task<Result<T>> Try<T>(Func<Task<Result<T>>> action, Func<Exception, String> formatError)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (Exception e)
+            {
+                return Error<T>(formatError(e));
+            }
+        }
     }
 
     public abstract partial class Result<T> : Result, IEnumerable<T>
