@@ -36,7 +36,7 @@
 		<Titel>FunicularSwitch.Generators.FluentAssertions</Titel>
 		<Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
 		<PackageDescription>Source generator emitting unit testing methods for result types</PackageDescription>
-		<Copyright>Copyright 2023 bluehands GmbH &amp; C.ommunication KG</Copyright>
+		<Copyright>Copyright 2024 bluehands GmbH &amp; C.ommunication KG</Copyright>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>FunicularSwitch.png</PackageIcon>

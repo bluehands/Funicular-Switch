@@ -36,7 +36,7 @@
 		<Titel>FunicularSwitch.Generators</Titel>
 		<Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
 		<PackageDescription>Source generator emitting result types like in F# with your custom error type and Match methods (safe switches) for base types and their derived cases</PackageDescription>
-		<Copyright>Copyright 2023 bluehands GmbH &amp; C.ommunication KG</Copyright>
+		<Copyright>Copyright 2024 bluehands GmbH &amp; C.ommunication KG</Copyright>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>FunicularSwitch.png</PackageIcon>
