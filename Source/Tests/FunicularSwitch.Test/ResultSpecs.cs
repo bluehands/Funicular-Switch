@@ -118,9 +118,7 @@ public class ResultSpecs
         errorLogged.Should().BeTrue();
     }
 
-    class Something
-    {
-    }
+    class Something;
 
     [TestMethod]
     public void AsTest()
@@ -301,5 +299,19 @@ public class ResultSpecs
             await Task.Delay(10);
             return Result.Ok(42 / zero);
         }, e => e.Message)).Should().BeOfType<Result<int>.Error_>();
+    }
+
+    [TestMethod]
+    public async Task MapErrorTest()
+    {
+        Result.Error<int>("error").MapError(e => e + "2").Should().BeError().Subject.Should().Be("error2");
+
+        async Task<Result<int>> ProduceError()
+        {
+            await Task.Delay(1);
+            return Result.Error<int>("error");
+        }
+
+        (await ProduceError().MapError(e => e + "2")).Should().BeError().Subject.Should().Be("error2");
     }
 }

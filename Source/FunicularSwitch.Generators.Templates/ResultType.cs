@@ -317,8 +317,14 @@ namespace FunicularSwitch.Generators.Templates
             Func<T, Task<T1>> bind)
             => Bind(result, async v => MyResult.Ok(await bind(v).ConfigureAwait(false)));
 
-        public static MyResult<T> MapError<T>(this MyResult<T> result, Func<MyError, MyError> mapError) =>
-            result.Match(ok => ok, error => MyResult.Error<T>(mapError(error)));
+        public static MyResult<T> MapError<T>(this MyResult<T> result, Func<MyError, MyError> mapError)
+        {
+            if (result is MyResult<T>.Error_ e)
+                return MyResult.Error<T>(mapError(e.Details));
+            return result;
+        }
+
+        public static async Task<MyResult<T>> MapError<T>(this Task<MyResult<T>> result, Func<MyError, MyError> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
 
         #endregion
 

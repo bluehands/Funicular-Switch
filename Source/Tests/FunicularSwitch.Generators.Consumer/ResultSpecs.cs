@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -60,9 +61,26 @@ namespace FunicularSwitch.Generators.Consumer
         [TestMethod]
         public void Map()
         {
-            Result.Ok(42).Map(r => r * 2).Should().Equal(Result.Ok(84));
+            Blubs(() => Console.Write("Hallo"));
+
+            Result.Ok(42).Map(r =>
+            {
+                return r * 2;
+            }).Should().Equal(Result.Ok(84));
             var error = Result.Error<int>("oh no");
             error.Map(r => r * 2).Should().Equal(error);
+        }
+
+        [DebuggerNonUserCode]
+        void Blubs(Action bla)
+        {
+            Blubs2([DebuggerNonUserCode]() => bla());
+        }
+
+        [DebuggerNonUserCode]
+        void Blubs2(Action bla)
+        {
+            bla();
         }
 
         [TestMethod]

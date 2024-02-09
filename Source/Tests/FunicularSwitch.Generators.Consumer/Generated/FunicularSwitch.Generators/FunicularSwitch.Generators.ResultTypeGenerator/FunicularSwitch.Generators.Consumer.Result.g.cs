@@ -317,8 +317,14 @@ namespace FunicularSwitch.Generators.Consumer
             Func<T, Task<T1>> bind)
             => Bind(result, async v => Result.Ok(await bind(v).ConfigureAwait(false)));
 
-        public static Result<T> MapError<T>(this Result<T> result, Func<String, String> mapError) =>
-            result.Match(ok => ok, error => Result.Error<T>(mapError(error)));
+        public static Result<T> MapError<T>(this Result<T> result, Func<String, String> mapError)
+        {
+            if (result is Result<T>.Error_ e)
+                return Result.Error<T>(mapError(e.Details));
+            return result;
+        }
+
+        public static async Task<Result<T>> MapError<T>(this Task<Result<T>> result, Func<String, String> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
 
         #endregion
 
