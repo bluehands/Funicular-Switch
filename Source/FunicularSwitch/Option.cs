@@ -4,34 +4,45 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FunicularSwitch.Extensions;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace FunicularSwitch
 {
-    public abstract class Option
+    public static class Option
     {
-        public static Option<T> Some<T>(T value) => new Some<T>(value);
+        public static Option<T> Some<T>(T value) => Option<T>.Some(value);
         public static Option<T> None<T>() => Option<T>.None;
         public static async Task<Option<T>> Some<T>(Task<T> value) => Some(await value);
         public static Task<Option<T>> NoneAsync<T>() => Task.FromResult(Option<T>.None);
     }
 
-    public abstract class Option<T> : Option, IEnumerable<T>
+    public readonly struct Option<T> : IEnumerable<T>
     {
-#pragma warning disable CS0109 // Member does not hide an inherited member; new keyword is not required
-        public new static readonly Option<T> None = new None<T>();
-#pragma warning restore CS0109 // Member does not hide an inherited member; new keyword is not required
+        public static readonly Option<T> None = default;
 
-        public bool IsSome() => GetType() == typeof(Some<T>);
+        public static Option<T> Some(T value) => new(value);
 
-        public bool IsNone() => !IsSome();
+        private readonly bool isSome;
 
-        public Option<T1> Map<T1>(Func<T, T1> map) => Match(t => Some(map(t)), None<T1>);
+        private readonly T value;
 
-        public Task<Option<T1>> Map<T1>(Func<T, Task<T1>> map) => Match(async t => Some(await map(t).ConfigureAwait(false)), () => Task.FromResult(None<T1>()));
+        private Option(T value)
+        {
+            isSome = true;
+            this.value = value;
+        }
 
-        public Option<T1> Bind<T1>(Func<T, Option<T1>> map) => Match(map, None<T1>);
+        public bool IsSome() => isSome;
 
-        public Task<Option<T1>> Bind<T1>(Func<T, Task<Option<T1>>> bind) => Match(bind, () => None<T1>());
+        public bool IsNone() => !isSome;
+
+        public Option<T1> Map<T1>(Func<T, T1> map) => Match(t => Option<T1>.Some(map(t)), Option<T1>.None);
+
+        public Task<Option<T1>> Map<T1>(Func<T, Task<T1>> map) => Match(async t => Option<T1>.Some(await map(t).ConfigureAwait(false)), () => Task.FromResult(Option<T1>.None));
+
+        public Option<T1> Bind<T1>(Func<T, Option<T1>> map) => Match(map, Option<T1>.None);
+
+        public Task<Option<T1>> Bind<T1>(Func<T, Task<Option<T1>>> bind) => Match(bind, () => Option<T1>.None);
 
         public void Match(Action<T> some, Action? none = null)
         {
@@ -40,10 +51,9 @@ namespace FunicularSwitch
 
         public async Task Match(Func<T, Task> some, Func<Task>? none = null)
         {
-            var iAmSome = this as Some<T>;
-            if (iAmSome != null)
+            if (isSome)
             {
-                await some(iAmSome.Value).ConfigureAwait(false);
+                await some(value).ConfigureAwait(false);
             }
             else if (none != null)
             {
@@ -53,22 +63,19 @@ namespace FunicularSwitch
 
         public TResult Match<TResult>(Func<T, TResult> some, Func<TResult> none)
         {
-            var iAmSome = this as Some<T>;
-            return iAmSome != null ? some(iAmSome.Value) : none();
+            return isSome ? some(value) : none();
         }
 
         public TResult Match<TResult>(Func<T, TResult> some, TResult none)
         {
-            var iAmSome = this as Some<T>;
-            return iAmSome != null ? some(iAmSome.Value) : none;
+            return isSome ? some(value) : none;
         }
 
         public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<Task<TResult>> none)
         {
-            var iAmSome = this as Some<T>;
-            if (iAmSome != null)
+            if (isSome)
             {
-                return await some(iAmSome.Value).ConfigureAwait(false);
+                return await some(value).ConfigureAwait(false);
             }
 
             return await none().ConfigureAwait(false);
@@ -76,10 +83,9 @@ namespace FunicularSwitch
 
         public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<TResult> none)
         {
-            var iAmSome = this as Some<T>;
-            if (iAmSome != null)
+            if (isSome)
             {
-                return await some(iAmSome.Value).ConfigureAwait(false);
+                return await some(value).ConfigureAwait(false);
             }
 
             return none();
@@ -87,10 +93,9 @@ namespace FunicularSwitch
 
         public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, TResult none)
         {
-            var iAmSome = this as Some<T>;
-            if (iAmSome != null)
+            if (isSome)
             {
-                return await some(iAmSome.Value).ConfigureAwait(false);
+                return await some(value).ConfigureAwait(false);
             }
 
             return none;
@@ -110,48 +115,9 @@ namespace FunicularSwitch
 
         public T GetValueOrThrow(string? errorMessage = null) => Match(v => v, () => throw new InvalidOperationException(errorMessage ?? "Cannot access value of none option"));
 
-        public Option<TOther> Convert<TOther>() => Match(s => Some((TOther)(object)s!), None<TOther>);
+        public Option<TOther> Convert<TOther>() => Match(s => Option<TOther>.Some((TOther)(object)s!), Option<TOther>.None);
 
-        public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {GetType().BeautifulName()}");
-    }
-
-    public sealed class Some<T> : Option<T>
-    {
-        public T Value { get; }
-
-        public Some(T value) => Value = value;
-
-        bool Equals(Some<T> other) => EqualityComparer<T>.Default.Equals(Value, other.Value);
-
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((Some<T>)obj);
-        }
-
-        public override int GetHashCode() => EqualityComparer<T>.Default.GetHashCode(Value);
-
-        public static bool operator ==(Some<T>? left, Some<T>? right) => Equals(left, right);
-
-        public static bool operator !=(Some<T>? left, Some<T>? right) => !Equals(left, right);
-    }
-
-    public sealed class None<T> : Option<T>
-    {
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType();
-        }
-
-        public override int GetHashCode() => typeof(None<T>).GetHashCode();
-
-        public static bool operator ==(None<T> left, None<T> right) => Equals(left, right);
-
-        public static bool operator !=(None<T> left, None<T> right) => !Equals(left, right);
+        public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {typeof(T).BeautifulName()}");
     }
 
     public static class OptionExtension
