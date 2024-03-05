@@ -68,7 +68,7 @@ namespace FunicularSwitch.Generators.Templates
         public override string ToString() => Enum.GetName(typeof(UnionCases), UnionCase) ?? UnionCase.ToString();
         bool Equals(MyError other) => UnionCase == other.UnionCase;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;

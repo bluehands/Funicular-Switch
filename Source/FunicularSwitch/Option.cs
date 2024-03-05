@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FunicularSwitch.Extensions;
-// ReSharper disable MemberCanBePrivate.Global
 
 namespace FunicularSwitch
 {
@@ -22,19 +21,19 @@ namespace FunicularSwitch
 
         public static Option<T> Some(T value) => new(value);
 
-        private readonly bool isSome;
+        readonly bool _isSome;
 
-        private readonly T value;
+        readonly T _value;
 
-        private Option(T value)
+        Option(T value)
         {
-            isSome = true;
-            this.value = value;
+            _isSome = true;
+            _value = value;
         }
 
-        public bool IsSome() => isSome;
+        public bool IsSome() => _isSome;
 
-        public bool IsNone() => !isSome;
+        public bool IsNone() => !_isSome;
 
         public Option<T1> Map<T1>(Func<T, T1> map) => Match(t => Option<T1>.Some(map(t)), Option<T1>.None);
 
@@ -51,9 +50,9 @@ namespace FunicularSwitch
 
         public async Task Match(Func<T, Task> some, Func<Task>? none = null)
         {
-            if (isSome)
+            if (_isSome)
             {
-                await some(value).ConfigureAwait(false);
+                await some(_value).ConfigureAwait(false);
             }
             else if (none != null)
             {
@@ -61,21 +60,15 @@ namespace FunicularSwitch
             }
         }
 
-        public TResult Match<TResult>(Func<T, TResult> some, Func<TResult> none)
-        {
-            return isSome ? some(value) : none();
-        }
+        public TResult Match<TResult>(Func<T, TResult> some, Func<TResult> none) => _isSome ? some(_value) : none();
 
-        public TResult Match<TResult>(Func<T, TResult> some, TResult none)
-        {
-            return isSome ? some(value) : none;
-        }
+        public TResult Match<TResult>(Func<T, TResult> some, TResult none) => _isSome ? some(_value) : none;
 
         public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<Task<TResult>> none)
         {
-            if (isSome)
+            if (_isSome)
             {
-                return await some(value).ConfigureAwait(false);
+                return await some(_value).ConfigureAwait(false);
             }
 
             return await none().ConfigureAwait(false);
@@ -83,9 +76,9 @@ namespace FunicularSwitch
 
         public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<TResult> none)
         {
-            if (isSome)
+            if (_isSome)
             {
-                return await some(value).ConfigureAwait(false);
+                return await some(_value).ConfigureAwait(false);
             }
 
             return none();
@@ -93,9 +86,9 @@ namespace FunicularSwitch
 
         public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, TResult none)
         {
-            if (isSome)
+            if (_isSome)
             {
-                return await some(value).ConfigureAwait(false);
+                return await some(_value).ConfigureAwait(false);
             }
 
             return none;
@@ -109,7 +102,7 @@ namespace FunicularSwitch
 
         public T? GetValueOrDefault() => Match(v => (T?)v, () => default);
 
-        public T GetValueOrDefault(Func<T> defaultValue) => Match(v => v, () => defaultValue());
+        public T GetValueOrDefault(Func<T> defaultValue) => Match(v => v, defaultValue);
 
         public T GetValueOrDefault(T defaultValue) => Match(v => v, () => defaultValue);
 
