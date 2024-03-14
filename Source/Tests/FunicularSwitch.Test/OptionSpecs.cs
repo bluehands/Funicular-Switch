@@ -14,7 +14,7 @@ public class OptionSpecs
 		bool? foo = null;
 
 		var implicitTypedOption = foo ?? Option<bool>.None;
-		implicitTypedOption.GetType().Should().Be(typeof(None<bool>));
+		implicitTypedOption.GetType().Should().Be(typeof(Option<bool>));
 
 		Option<bool> option = foo ?? Option<bool>.None;
 		option.Equals(Option<bool>.None).Should().BeTrue();
