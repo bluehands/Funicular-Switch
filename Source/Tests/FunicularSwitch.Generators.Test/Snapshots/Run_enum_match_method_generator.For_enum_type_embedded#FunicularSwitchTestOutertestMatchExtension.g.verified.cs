@@ -1,35 +1,32 @@
 ﻿//HintName: FunicularSwitchTestOutertestMatchExtension.g.cs
 #pragma warning disable 1591
-using System;
-using System.Threading.Tasks;
-
 namespace FunicularSwitch.Test
 {
 	public static partial class Outer_testMatchExtension
 	{
-		public static T Match<T>(this FunicularSwitch.Test.Outer.test test, Func<T> one, Func<T> two) =>
+		public static T Match<T>(this FunicularSwitch.Test.Outer.test test, System.Func<T> one, System.Func<T> two) =>
 		test switch
 		{
 			FunicularSwitch.Test.Outer.test.one => one(),
 			FunicularSwitch.Test.Outer.test.two => two(),
-			_ => throw new ArgumentException($"Unknown enum value from FunicularSwitch.Test.Outer.test: {test.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FunicularSwitch.Test.Outer.test: {test.GetType().Name}")
 		};
 		
-		public static Task<T> Match<T>(this FunicularSwitch.Test.Outer.test test, Func<Task<T>> one, Func<Task<T>> two) =>
+		public static System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Test.Outer.test test, System.Func<System.Threading.Tasks.Task<T>> one, System.Func<System.Threading.Tasks.Task<T>> two) =>
 		test switch
 		{
 			FunicularSwitch.Test.Outer.test.one => one(),
 			FunicularSwitch.Test.Outer.test.two => two(),
-			_ => throw new ArgumentException($"Unknown enum value from FunicularSwitch.Test.Outer.test: {test.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FunicularSwitch.Test.Outer.test: {test.GetType().Name}")
 		};
 		
-		public static async Task<T> Match<T>(this Task<FunicularSwitch.Test.Outer.test> test, Func<T> one, Func<T> two) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FunicularSwitch.Test.Outer.test> test, System.Func<T> one, System.Func<T> two) =>
 		(await test.ConfigureAwait(false)).Match(one, two);
 		
-		public static async Task<T> Match<T>(this Task<FunicularSwitch.Test.Outer.test> test, Func<Task<T>> one, Func<Task<T>> two) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FunicularSwitch.Test.Outer.test> test, System.Func<System.Threading.Tasks.Task<T>> one, System.Func<System.Threading.Tasks.Task<T>> two) =>
 		await (await test.ConfigureAwait(false)).Match(one, two).ConfigureAwait(false);
 		
-		public static void Switch(this FunicularSwitch.Test.Outer.test test, Action one, Action two)
+		public static void Switch(this FunicularSwitch.Test.Outer.test test, System.Action one, System.Action two)
 		{
 			switch (test)
 			{
@@ -40,11 +37,11 @@ namespace FunicularSwitch.Test
 					two();
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FunicularSwitch.Test.Outer.test: {test.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FunicularSwitch.Test.Outer.test: {test.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this FunicularSwitch.Test.Outer.test test, Func<Task> one, Func<Task> two)
+		public static async System.Threading.Tasks.Task Switch(this FunicularSwitch.Test.Outer.test test, System.Func<System.Threading.Tasks.Task> one, System.Func<System.Threading.Tasks.Task> two)
 		{
 			switch (test)
 			{
@@ -55,14 +52,14 @@ namespace FunicularSwitch.Test
 					await two().ConfigureAwait(false);
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FunicularSwitch.Test.Outer.test: {test.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FunicularSwitch.Test.Outer.test: {test.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this Task<FunicularSwitch.Test.Outer.test> test, Action one, Action two) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FunicularSwitch.Test.Outer.test> test, System.Action one, System.Action two) =>
 		(await test.ConfigureAwait(false)).Switch(one, two);
 		
-		public static async Task Switch(this Task<FunicularSwitch.Test.Outer.test> test, Func<Task> one, Func<Task> two) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FunicularSwitch.Test.Outer.test> test, System.Func<System.Threading.Tasks.Task> one, System.Func<System.Threading.Tasks.Task> two) =>
 		await (await test.ConfigureAwait(false)).Switch(one, two).ConfigureAwait(false);
 	}
 }

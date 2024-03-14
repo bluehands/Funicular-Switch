@@ -1,34 +1,31 @@
 ﻿#pragma warning disable 1591
-using System;
-using System.Threading.Tasks;
-
 namespace FunicularSwitch.Generators.Consumer
 {
 	internal static partial class InternalEnumParent_InternalEnumMatchExtension
 	{
-		public static T Match<T>(this FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum internalEnum, Func<T> one, Func<T> two) =>
+		public static T Match<T>(this FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum internalEnum, System.Func<T> one, System.Func<T> two) =>
 		internalEnum switch
 		{
 			FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum.One => one(),
 			FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum.Two => two(),
-			_ => throw new ArgumentException($"Unknown enum value from FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum: {internalEnum.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum: {internalEnum.GetType().Name}")
 		};
 		
-		public static Task<T> Match<T>(this FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum internalEnum, Func<Task<T>> one, Func<Task<T>> two) =>
+		public static System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum internalEnum, System.Func<System.Threading.Tasks.Task<T>> one, System.Func<System.Threading.Tasks.Task<T>> two) =>
 		internalEnum switch
 		{
 			FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum.One => one(),
 			FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum.Two => two(),
-			_ => throw new ArgumentException($"Unknown enum value from FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum: {internalEnum.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum: {internalEnum.GetType().Name}")
 		};
 		
-		public static async Task<T> Match<T>(this Task<FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum> internalEnum, Func<T> one, Func<T> two) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum> internalEnum, System.Func<T> one, System.Func<T> two) =>
 		(await internalEnum.ConfigureAwait(false)).Match(one, two);
 		
-		public static async Task<T> Match<T>(this Task<FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum> internalEnum, Func<Task<T>> one, Func<Task<T>> two) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum> internalEnum, System.Func<System.Threading.Tasks.Task<T>> one, System.Func<System.Threading.Tasks.Task<T>> two) =>
 		await (await internalEnum.ConfigureAwait(false)).Match(one, two).ConfigureAwait(false);
 		
-		public static void Switch(this FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum internalEnum, Action one, Action two)
+		public static void Switch(this FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum internalEnum, System.Action one, System.Action two)
 		{
 			switch (internalEnum)
 			{
@@ -39,11 +36,11 @@ namespace FunicularSwitch.Generators.Consumer
 					two();
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum: {internalEnum.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum: {internalEnum.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum internalEnum, Func<Task> one, Func<Task> two)
+		public static async System.Threading.Tasks.Task Switch(this FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum internalEnum, System.Func<System.Threading.Tasks.Task> one, System.Func<System.Threading.Tasks.Task> two)
 		{
 			switch (internalEnum)
 			{
@@ -54,14 +51,14 @@ namespace FunicularSwitch.Generators.Consumer
 					await two().ConfigureAwait(false);
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum: {internalEnum.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum: {internalEnum.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this Task<FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum> internalEnum, Action one, Action two) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum> internalEnum, System.Action one, System.Action two) =>
 		(await internalEnum.ConfigureAwait(false)).Switch(one, two);
 		
-		public static async Task Switch(this Task<FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum> internalEnum, Func<Task> one, Func<Task> two) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.InternalEnumParent.InternalEnum> internalEnum, System.Func<System.Threading.Tasks.Task> one, System.Func<System.Threading.Tasks.Task> two) =>
 		await (await internalEnum.ConfigureAwait(false)).Switch(one, two).ConfigureAwait(false);
 	}
 }

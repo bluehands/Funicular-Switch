@@ -1,34 +1,31 @@
 ﻿#pragma warning disable 1591
-using System;
-using System.Threading.Tasks;
-
 namespace FluentAssertions.Data
 {
 	public static partial class RowMatchModeMatchExtension
 	{
-		public static T Match<T>(this FluentAssertions.Data.RowMatchMode rowMatchMode, Func<T> index, Func<T> primaryKey) =>
+		public static T Match<T>(this FluentAssertions.Data.RowMatchMode rowMatchMode, System.Func<T> index, System.Func<T> primaryKey) =>
 		rowMatchMode switch
 		{
 			FluentAssertions.Data.RowMatchMode.Index => index(),
 			FluentAssertions.Data.RowMatchMode.PrimaryKey => primaryKey(),
-			_ => throw new ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}")
 		};
 		
-		public static Task<T> Match<T>(this FluentAssertions.Data.RowMatchMode rowMatchMode, Func<Task<T>> index, Func<Task<T>> primaryKey) =>
+		public static System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Data.RowMatchMode rowMatchMode, System.Func<System.Threading.Tasks.Task<T>> index, System.Func<System.Threading.Tasks.Task<T>> primaryKey) =>
 		rowMatchMode switch
 		{
 			FluentAssertions.Data.RowMatchMode.Index => index(),
 			FluentAssertions.Data.RowMatchMode.PrimaryKey => primaryKey(),
-			_ => throw new ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}")
 		};
 		
-		public static async Task<T> Match<T>(this Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, Func<T> index, Func<T> primaryKey) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, System.Func<T> index, System.Func<T> primaryKey) =>
 		(await rowMatchMode.ConfigureAwait(false)).Match(index, primaryKey);
 		
-		public static async Task<T> Match<T>(this Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, Func<Task<T>> index, Func<Task<T>> primaryKey) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, System.Func<System.Threading.Tasks.Task<T>> index, System.Func<System.Threading.Tasks.Task<T>> primaryKey) =>
 		await (await rowMatchMode.ConfigureAwait(false)).Match(index, primaryKey).ConfigureAwait(false);
 		
-		public static void Switch(this FluentAssertions.Data.RowMatchMode rowMatchMode, Action index, Action primaryKey)
+		public static void Switch(this FluentAssertions.Data.RowMatchMode rowMatchMode, System.Action index, System.Action primaryKey)
 		{
 			switch (rowMatchMode)
 			{
@@ -39,11 +36,11 @@ namespace FluentAssertions.Data
 					primaryKey();
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this FluentAssertions.Data.RowMatchMode rowMatchMode, Func<Task> index, Func<Task> primaryKey)
+		public static async System.Threading.Tasks.Task Switch(this FluentAssertions.Data.RowMatchMode rowMatchMode, System.Func<System.Threading.Tasks.Task> index, System.Func<System.Threading.Tasks.Task> primaryKey)
 		{
 			switch (rowMatchMode)
 			{
@@ -54,14 +51,14 @@ namespace FluentAssertions.Data
 					await primaryKey().ConfigureAwait(false);
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, Action index, Action primaryKey) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, System.Action index, System.Action primaryKey) =>
 		(await rowMatchMode.ConfigureAwait(false)).Switch(index, primaryKey);
 		
-		public static async Task Switch(this Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, Func<Task> index, Func<Task> primaryKey) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, System.Func<System.Threading.Tasks.Task> index, System.Func<System.Threading.Tasks.Task> primaryKey) =>
 		await (await rowMatchMode.ConfigureAwait(false)).Switch(index, primaryKey).ConfigureAwait(false);
 	}
 }

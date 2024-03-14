@@ -1,12 +1,9 @@
 ﻿#pragma warning disable 1591
-using System;
-using System.Threading.Tasks;
-
 namespace FluentAssertions.Common
 {
 	public static partial class CSharpAccessModifierMatchExtension
 	{
-		public static T Match<T>(this FluentAssertions.Common.CSharpAccessModifier cSharpAccessModifier, Func<T> @internal, Func<T> invalidForCSharp, Func<T> @private, Func<T> privateProtected, Func<T> @protected, Func<T> protectedInternal, Func<T> @public) =>
+		public static T Match<T>(this FluentAssertions.Common.CSharpAccessModifier cSharpAccessModifier, System.Func<T> @internal, System.Func<T> invalidForCSharp, System.Func<T> @private, System.Func<T> privateProtected, System.Func<T> @protected, System.Func<T> protectedInternal, System.Func<T> @public) =>
 		cSharpAccessModifier switch
 		{
 			FluentAssertions.Common.CSharpAccessModifier.Internal => @internal(),
@@ -16,10 +13,10 @@ namespace FluentAssertions.Common
 			FluentAssertions.Common.CSharpAccessModifier.Protected => @protected(),
 			FluentAssertions.Common.CSharpAccessModifier.ProtectedInternal => protectedInternal(),
 			FluentAssertions.Common.CSharpAccessModifier.Public => @public(),
-			_ => throw new ArgumentException($"Unknown enum value from FluentAssertions.Common.CSharpAccessModifier: {cSharpAccessModifier.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Common.CSharpAccessModifier: {cSharpAccessModifier.GetType().Name}")
 		};
 		
-		public static Task<T> Match<T>(this FluentAssertions.Common.CSharpAccessModifier cSharpAccessModifier, Func<Task<T>> @internal, Func<Task<T>> invalidForCSharp, Func<Task<T>> @private, Func<Task<T>> privateProtected, Func<Task<T>> @protected, Func<Task<T>> protectedInternal, Func<Task<T>> @public) =>
+		public static System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Common.CSharpAccessModifier cSharpAccessModifier, System.Func<System.Threading.Tasks.Task<T>> @internal, System.Func<System.Threading.Tasks.Task<T>> invalidForCSharp, System.Func<System.Threading.Tasks.Task<T>> @private, System.Func<System.Threading.Tasks.Task<T>> privateProtected, System.Func<System.Threading.Tasks.Task<T>> @protected, System.Func<System.Threading.Tasks.Task<T>> protectedInternal, System.Func<System.Threading.Tasks.Task<T>> @public) =>
 		cSharpAccessModifier switch
 		{
 			FluentAssertions.Common.CSharpAccessModifier.Internal => @internal(),
@@ -29,16 +26,16 @@ namespace FluentAssertions.Common
 			FluentAssertions.Common.CSharpAccessModifier.Protected => @protected(),
 			FluentAssertions.Common.CSharpAccessModifier.ProtectedInternal => protectedInternal(),
 			FluentAssertions.Common.CSharpAccessModifier.Public => @public(),
-			_ => throw new ArgumentException($"Unknown enum value from FluentAssertions.Common.CSharpAccessModifier: {cSharpAccessModifier.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Common.CSharpAccessModifier: {cSharpAccessModifier.GetType().Name}")
 		};
 		
-		public static async Task<T> Match<T>(this Task<FluentAssertions.Common.CSharpAccessModifier> cSharpAccessModifier, Func<T> @internal, Func<T> invalidForCSharp, Func<T> @private, Func<T> privateProtected, Func<T> @protected, Func<T> protectedInternal, Func<T> @public) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Common.CSharpAccessModifier> cSharpAccessModifier, System.Func<T> @internal, System.Func<T> invalidForCSharp, System.Func<T> @private, System.Func<T> privateProtected, System.Func<T> @protected, System.Func<T> protectedInternal, System.Func<T> @public) =>
 		(await cSharpAccessModifier.ConfigureAwait(false)).Match(@internal, invalidForCSharp, @private, privateProtected, @protected, protectedInternal, @public);
 		
-		public static async Task<T> Match<T>(this Task<FluentAssertions.Common.CSharpAccessModifier> cSharpAccessModifier, Func<Task<T>> @internal, Func<Task<T>> invalidForCSharp, Func<Task<T>> @private, Func<Task<T>> privateProtected, Func<Task<T>> @protected, Func<Task<T>> protectedInternal, Func<Task<T>> @public) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Common.CSharpAccessModifier> cSharpAccessModifier, System.Func<System.Threading.Tasks.Task<T>> @internal, System.Func<System.Threading.Tasks.Task<T>> invalidForCSharp, System.Func<System.Threading.Tasks.Task<T>> @private, System.Func<System.Threading.Tasks.Task<T>> privateProtected, System.Func<System.Threading.Tasks.Task<T>> @protected, System.Func<System.Threading.Tasks.Task<T>> protectedInternal, System.Func<System.Threading.Tasks.Task<T>> @public) =>
 		await (await cSharpAccessModifier.ConfigureAwait(false)).Match(@internal, invalidForCSharp, @private, privateProtected, @protected, protectedInternal, @public).ConfigureAwait(false);
 		
-		public static void Switch(this FluentAssertions.Common.CSharpAccessModifier cSharpAccessModifier, Action @internal, Action invalidForCSharp, Action @private, Action privateProtected, Action @protected, Action protectedInternal, Action @public)
+		public static void Switch(this FluentAssertions.Common.CSharpAccessModifier cSharpAccessModifier, System.Action @internal, System.Action invalidForCSharp, System.Action @private, System.Action privateProtected, System.Action @protected, System.Action protectedInternal, System.Action @public)
 		{
 			switch (cSharpAccessModifier)
 			{
@@ -64,11 +61,11 @@ namespace FluentAssertions.Common
 					@public();
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FluentAssertions.Common.CSharpAccessModifier: {cSharpAccessModifier.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Common.CSharpAccessModifier: {cSharpAccessModifier.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this FluentAssertions.Common.CSharpAccessModifier cSharpAccessModifier, Func<Task> @internal, Func<Task> invalidForCSharp, Func<Task> @private, Func<Task> privateProtected, Func<Task> @protected, Func<Task> protectedInternal, Func<Task> @public)
+		public static async System.Threading.Tasks.Task Switch(this FluentAssertions.Common.CSharpAccessModifier cSharpAccessModifier, System.Func<System.Threading.Tasks.Task> @internal, System.Func<System.Threading.Tasks.Task> invalidForCSharp, System.Func<System.Threading.Tasks.Task> @private, System.Func<System.Threading.Tasks.Task> privateProtected, System.Func<System.Threading.Tasks.Task> @protected, System.Func<System.Threading.Tasks.Task> protectedInternal, System.Func<System.Threading.Tasks.Task> @public)
 		{
 			switch (cSharpAccessModifier)
 			{
@@ -94,14 +91,14 @@ namespace FluentAssertions.Common
 					await @public().ConfigureAwait(false);
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FluentAssertions.Common.CSharpAccessModifier: {cSharpAccessModifier.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Common.CSharpAccessModifier: {cSharpAccessModifier.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this Task<FluentAssertions.Common.CSharpAccessModifier> cSharpAccessModifier, Action @internal, Action invalidForCSharp, Action @private, Action privateProtected, Action @protected, Action protectedInternal, Action @public) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Common.CSharpAccessModifier> cSharpAccessModifier, System.Action @internal, System.Action invalidForCSharp, System.Action @private, System.Action privateProtected, System.Action @protected, System.Action protectedInternal, System.Action @public) =>
 		(await cSharpAccessModifier.ConfigureAwait(false)).Switch(@internal, invalidForCSharp, @private, privateProtected, @protected, protectedInternal, @public);
 		
-		public static async Task Switch(this Task<FluentAssertions.Common.CSharpAccessModifier> cSharpAccessModifier, Func<Task> @internal, Func<Task> invalidForCSharp, Func<Task> @private, Func<Task> privateProtected, Func<Task> @protected, Func<Task> protectedInternal, Func<Task> @public) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Common.CSharpAccessModifier> cSharpAccessModifier, System.Func<System.Threading.Tasks.Task> @internal, System.Func<System.Threading.Tasks.Task> invalidForCSharp, System.Func<System.Threading.Tasks.Task> @private, System.Func<System.Threading.Tasks.Task> privateProtected, System.Func<System.Threading.Tasks.Task> @protected, System.Func<System.Threading.Tasks.Task> protectedInternal, System.Func<System.Threading.Tasks.Task> @public) =>
 		await (await cSharpAccessModifier.ConfigureAwait(false)).Switch(@internal, invalidForCSharp, @private, privateProtected, @protected, protectedInternal, @public).ConfigureAwait(false);
 	}
 }

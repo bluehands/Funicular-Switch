@@ -1,37 +1,34 @@
 ﻿//HintName: FunicularSwitchTestOuterBaseMatchExtension.g.cs
 #pragma warning disable 1591
-using System;
-using System.Threading.Tasks;
-
 namespace FunicularSwitch.Test
 {
 	public static partial class BaseMatchExtension
 	{
-		public static T Match<T>(this FunicularSwitch.Test.Outer.Base @base, Func<FunicularSwitch.Test.Outer.Aaa, T> aaa, Func<FunicularSwitch.Test.Outer.One, T> one, Func<FunicularSwitch.Test.Outer.Two, T> two) =>
+		public static T Match<T>(this FunicularSwitch.Test.Outer.Base @base, System.Func<FunicularSwitch.Test.Outer.Aaa, T> aaa, System.Func<FunicularSwitch.Test.Outer.One, T> one, System.Func<FunicularSwitch.Test.Outer.Two, T> two) =>
 		@base switch
 		{
 			FunicularSwitch.Test.Outer.Aaa case1 => aaa(case1),
 			FunicularSwitch.Test.Outer.One case2 => one(case2),
 			FunicularSwitch.Test.Outer.Two case3 => two(case3),
-			_ => throw new ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.Base: {@base.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.Base: {@base.GetType().Name}")
 		};
 		
-		public static Task<T> Match<T>(this FunicularSwitch.Test.Outer.Base @base, Func<FunicularSwitch.Test.Outer.Aaa, Task<T>> aaa, Func<FunicularSwitch.Test.Outer.One, Task<T>> one, Func<FunicularSwitch.Test.Outer.Two, Task<T>> two) =>
+		public static System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Test.Outer.Base @base, System.Func<FunicularSwitch.Test.Outer.Aaa, System.Threading.Tasks.Task<T>> aaa, System.Func<FunicularSwitch.Test.Outer.One, System.Threading.Tasks.Task<T>> one, System.Func<FunicularSwitch.Test.Outer.Two, System.Threading.Tasks.Task<T>> two) =>
 		@base switch
 		{
 			FunicularSwitch.Test.Outer.Aaa case1 => aaa(case1),
 			FunicularSwitch.Test.Outer.One case2 => one(case2),
 			FunicularSwitch.Test.Outer.Two case3 => two(case3),
-			_ => throw new ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.Base: {@base.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.Base: {@base.GetType().Name}")
 		};
 		
-		public static async Task<T> Match<T>(this Task<FunicularSwitch.Test.Outer.Base> @base, Func<FunicularSwitch.Test.Outer.Aaa, T> aaa, Func<FunicularSwitch.Test.Outer.One, T> one, Func<FunicularSwitch.Test.Outer.Two, T> two) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FunicularSwitch.Test.Outer.Base> @base, System.Func<FunicularSwitch.Test.Outer.Aaa, T> aaa, System.Func<FunicularSwitch.Test.Outer.One, T> one, System.Func<FunicularSwitch.Test.Outer.Two, T> two) =>
 		(await @base.ConfigureAwait(false)).Match(aaa, one, two);
 		
-		public static async Task<T> Match<T>(this Task<FunicularSwitch.Test.Outer.Base> @base, Func<FunicularSwitch.Test.Outer.Aaa, Task<T>> aaa, Func<FunicularSwitch.Test.Outer.One, Task<T>> one, Func<FunicularSwitch.Test.Outer.Two, Task<T>> two) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FunicularSwitch.Test.Outer.Base> @base, System.Func<FunicularSwitch.Test.Outer.Aaa, System.Threading.Tasks.Task<T>> aaa, System.Func<FunicularSwitch.Test.Outer.One, System.Threading.Tasks.Task<T>> one, System.Func<FunicularSwitch.Test.Outer.Two, System.Threading.Tasks.Task<T>> two) =>
 		await (await @base.ConfigureAwait(false)).Match(aaa, one, two).ConfigureAwait(false);
 		
-		public static void Switch(this FunicularSwitch.Test.Outer.Base @base, Action<FunicularSwitch.Test.Outer.Aaa> aaa, Action<FunicularSwitch.Test.Outer.One> one, Action<FunicularSwitch.Test.Outer.Two> two)
+		public static void Switch(this FunicularSwitch.Test.Outer.Base @base, System.Action<FunicularSwitch.Test.Outer.Aaa> aaa, System.Action<FunicularSwitch.Test.Outer.One> one, System.Action<FunicularSwitch.Test.Outer.Two> two)
 		{
 			switch (@base)
 			{
@@ -45,11 +42,11 @@ namespace FunicularSwitch.Test
 					two(case3);
 					break;
 				default:
-					throw new ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.Base: {@base.GetType().Name}");
+					throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.Base: {@base.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this FunicularSwitch.Test.Outer.Base @base, Func<FunicularSwitch.Test.Outer.Aaa, Task> aaa, Func<FunicularSwitch.Test.Outer.One, Task> one, Func<FunicularSwitch.Test.Outer.Two, Task> two)
+		public static async System.Threading.Tasks.Task Switch(this FunicularSwitch.Test.Outer.Base @base, System.Func<FunicularSwitch.Test.Outer.Aaa, System.Threading.Tasks.Task> aaa, System.Func<FunicularSwitch.Test.Outer.One, System.Threading.Tasks.Task> one, System.Func<FunicularSwitch.Test.Outer.Two, System.Threading.Tasks.Task> two)
 		{
 			switch (@base)
 			{
@@ -63,14 +60,14 @@ namespace FunicularSwitch.Test
 					await two(case3).ConfigureAwait(false);
 					break;
 				default:
-					throw new ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.Base: {@base.GetType().Name}");
+					throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.Base: {@base.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this Task<FunicularSwitch.Test.Outer.Base> @base, Action<FunicularSwitch.Test.Outer.Aaa> aaa, Action<FunicularSwitch.Test.Outer.One> one, Action<FunicularSwitch.Test.Outer.Two> two) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FunicularSwitch.Test.Outer.Base> @base, System.Action<FunicularSwitch.Test.Outer.Aaa> aaa, System.Action<FunicularSwitch.Test.Outer.One> one, System.Action<FunicularSwitch.Test.Outer.Two> two) =>
 		(await @base.ConfigureAwait(false)).Switch(aaa, one, two);
 		
-		public static async Task Switch(this Task<FunicularSwitch.Test.Outer.Base> @base, Func<FunicularSwitch.Test.Outer.Aaa, Task> aaa, Func<FunicularSwitch.Test.Outer.One, Task> one, Func<FunicularSwitch.Test.Outer.Two, Task> two) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FunicularSwitch.Test.Outer.Base> @base, System.Func<FunicularSwitch.Test.Outer.Aaa, System.Threading.Tasks.Task> aaa, System.Func<FunicularSwitch.Test.Outer.One, System.Threading.Tasks.Task> one, System.Func<FunicularSwitch.Test.Outer.Two, System.Threading.Tasks.Task> two) =>
 		await (await @base.ConfigureAwait(false)).Switch(aaa, one, two).ConfigureAwait(false);
 	}
 }

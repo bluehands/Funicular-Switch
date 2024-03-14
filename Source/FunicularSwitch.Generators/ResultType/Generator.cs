@@ -52,7 +52,7 @@ static class Generator
         }
 
         var additionalNamespaces = new List<string> {"FunicularSwitch"};
-        if (errorTypeNamespace != resultTypeNamespace && errorTypeNamespace != "System" && errorTypeNamespace != null)
+        if (errorTypeNamespace != resultTypeNamespace && errorTypeNamespace != null)
             additionalNamespaces.Add(errorTypeNamespace);
 
         var generateFileHint = $"{resultTypeNamespace}.{resultTypeSchema.ResultType.QualifiedName()}";
@@ -99,8 +99,8 @@ static class Generator
         var typeArgumentsWithResult = $"{typeArguments}, TResult";
 
         var parameterDeclarations = Expand(i => $"MyResult<T{i}> r{i}");
-        var taskParameterDeclarations = Expand(i => $"Task<MyResult<T{i}>> r{i}");
-        var parametersWithCombine = $"{parameterDeclarations}, Func<{typeArgumentsWithResult}> combine";
+        var taskParameterDeclarations = Expand(i => $"System.Threading.Tasks.Task<MyResult<T{i}>> r{i}");
+        var parametersWithCombine = $"{parameterDeclarations}, System.Func<{typeArgumentsWithResult}> combine";
 
         var okCheck = Expand(i => $"r{i} is MyResult<T{i}>.Ok_ ok{i}", " && ");
         var combineArguments = Expand(i => $"ok{i}.Value");
@@ -125,12 +125,12 @@ static class Generator
                 )!);
         }}
         
-        public static Task<MyResult<({typeArguments})>> Aggregate<{typeArguments}>(this {taskParameterDeclarations})
+        public static System.Threading.Tasks.Task<MyResult<({typeArguments})>> Aggregate<{typeArguments}>(this {taskParameterDeclarations})
             => Aggregate({resultArrayElements}, ({tupleArguments}) => ({tupleArguments}));
 
-        public static async Task<MyResult<TResult>> Aggregate<{typeArgumentsWithResult}>(this {taskParameterDeclarations}, Func<{typeArgumentsWithResult}> combine)            
+        public static async System.Threading.Tasks.Task<MyResult<TResult>> Aggregate<{typeArgumentsWithResult}>(this {taskParameterDeclarations}, System.Func<{typeArgumentsWithResult}> combine)            
         {{
-            await Task.WhenAll({resultArrayElements});
+            await System.Threading.Tasks.Task.WhenAll({resultArrayElements});
             return Aggregate({taskResultArrayElements}, combine);
         }}";
     }
@@ -142,16 +142,16 @@ static class Generator
 
         var typeParameters = Expand(i => $"T{i}");
         var parameterDeclarations = Expand(i => $"MyResult<T{i}> r{i}");
-        var taskParameterDeclarations = Expand(i => $"Task<MyResult<T{i}>> r{i}");
+        var taskParameterDeclarations = Expand(i => $"System.Threading.Tasks.Task<MyResult<T{i}>> r{i}");
         var parameters = Expand(i => $"r{i}");
 
         return $@"
         public static MyResult<({typeParameters})> Aggregate<{typeParameters}>({parameterDeclarations}) => MyResultExtension.Aggregate({parameters});
 
-        public static MyResult<TResult> Aggregate<{typeParameters}, TResult>({parameterDeclarations}, Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);
+        public static MyResult<TResult> Aggregate<{typeParameters}, TResult>({parameterDeclarations}, System.Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);
 
-        public static Task<MyResult<({typeParameters})>> Aggregate<{typeParameters}>({taskParameterDeclarations}) => MyResultExtension.Aggregate({parameters});
+        public static System.Threading.Tasks.Task<MyResult<({typeParameters})>> Aggregate<{typeParameters}>({taskParameterDeclarations}) => MyResultExtension.Aggregate({parameters});
 
-        public static Task<MyResult<TResult>> Aggregate<{typeParameters}, TResult>({taskParameterDeclarations}, Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);";
+        public static System.Threading.Tasks.Task<MyResult<TResult>> Aggregate<{typeParameters}, TResult>({taskParameterDeclarations}, System.Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);";
     }
 }

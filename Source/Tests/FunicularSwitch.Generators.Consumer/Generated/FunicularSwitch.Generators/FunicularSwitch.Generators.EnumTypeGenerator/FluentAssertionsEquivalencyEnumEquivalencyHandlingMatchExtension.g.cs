@@ -1,34 +1,31 @@
 ﻿#pragma warning disable 1591
-using System;
-using System.Threading.Tasks;
-
 namespace FluentAssertions.Equivalency
 {
 	public static partial class EnumEquivalencyHandlingMatchExtension
 	{
-		public static T Match<T>(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, Func<T> byName, Func<T> byValue) =>
+		public static T Match<T>(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, System.Func<T> byName, System.Func<T> byValue) =>
 		enumEquivalencyHandling switch
 		{
 			FluentAssertions.Equivalency.EnumEquivalencyHandling.ByName => byName(),
 			FluentAssertions.Equivalency.EnumEquivalencyHandling.ByValue => byValue(),
-			_ => throw new ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EnumEquivalencyHandling: {enumEquivalencyHandling.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EnumEquivalencyHandling: {enumEquivalencyHandling.GetType().Name}")
 		};
 		
-		public static Task<T> Match<T>(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, Func<Task<T>> byName, Func<Task<T>> byValue) =>
+		public static System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, System.Func<System.Threading.Tasks.Task<T>> byName, System.Func<System.Threading.Tasks.Task<T>> byValue) =>
 		enumEquivalencyHandling switch
 		{
 			FluentAssertions.Equivalency.EnumEquivalencyHandling.ByName => byName(),
 			FluentAssertions.Equivalency.EnumEquivalencyHandling.ByValue => byValue(),
-			_ => throw new ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EnumEquivalencyHandling: {enumEquivalencyHandling.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EnumEquivalencyHandling: {enumEquivalencyHandling.GetType().Name}")
 		};
 		
-		public static async Task<T> Match<T>(this Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, Func<T> byName, Func<T> byValue) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, System.Func<T> byName, System.Func<T> byValue) =>
 		(await enumEquivalencyHandling.ConfigureAwait(false)).Match(byName, byValue);
 		
-		public static async Task<T> Match<T>(this Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, Func<Task<T>> byName, Func<Task<T>> byValue) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, System.Func<System.Threading.Tasks.Task<T>> byName, System.Func<System.Threading.Tasks.Task<T>> byValue) =>
 		await (await enumEquivalencyHandling.ConfigureAwait(false)).Match(byName, byValue).ConfigureAwait(false);
 		
-		public static void Switch(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, Action byName, Action byValue)
+		public static void Switch(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, System.Action byName, System.Action byValue)
 		{
 			switch (enumEquivalencyHandling)
 			{
@@ -39,11 +36,11 @@ namespace FluentAssertions.Equivalency
 					byValue();
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EnumEquivalencyHandling: {enumEquivalencyHandling.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EnumEquivalencyHandling: {enumEquivalencyHandling.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, Func<Task> byName, Func<Task> byValue)
+		public static async System.Threading.Tasks.Task Switch(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, System.Func<System.Threading.Tasks.Task> byName, System.Func<System.Threading.Tasks.Task> byValue)
 		{
 			switch (enumEquivalencyHandling)
 			{
@@ -54,14 +51,14 @@ namespace FluentAssertions.Equivalency
 					await byValue().ConfigureAwait(false);
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EnumEquivalencyHandling: {enumEquivalencyHandling.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EnumEquivalencyHandling: {enumEquivalencyHandling.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, Action byName, Action byValue) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, System.Action byName, System.Action byValue) =>
 		(await enumEquivalencyHandling.ConfigureAwait(false)).Switch(byName, byValue);
 		
-		public static async Task Switch(this Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, Func<Task> byName, Func<Task> byValue) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, System.Func<System.Threading.Tasks.Task> byName, System.Func<System.Threading.Tasks.Task> byValue) =>
 		await (await enumEquivalencyHandling.ConfigureAwait(false)).Switch(byName, byValue).ConfigureAwait(false);
 	}
 }

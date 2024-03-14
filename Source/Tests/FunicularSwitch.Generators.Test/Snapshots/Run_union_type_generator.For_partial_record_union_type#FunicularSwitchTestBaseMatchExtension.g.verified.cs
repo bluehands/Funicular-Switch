@@ -1,13 +1,10 @@
 ﻿//HintName: FunicularSwitchTestBaseMatchExtension.g.cs
 #pragma warning disable 1591
-using System;
-using System.Threading.Tasks;
-
 namespace FunicularSwitch.Test
 {
 	internal static partial class BaseMatchExtension
 	{
-		public static T Match<T>(this FunicularSwitch.Test.Base @base, Func<FunicularSwitch.Test.One, T> one, Func<FunicularSwitch.Test.Two, T> two, Func<FunicularSwitch.Test.Three, T> three, Func<FunicularSwitch.Test.Cases.Nested, T> nested, Func<FunicularSwitch.Test.Cases.Five, T> five, Func<FunicularSwitch.Test.WithDefault, T> withDefault) =>
+		public static T Match<T>(this FunicularSwitch.Test.Base @base, System.Func<FunicularSwitch.Test.One, T> one, System.Func<FunicularSwitch.Test.Two, T> two, System.Func<FunicularSwitch.Test.Three, T> three, System.Func<FunicularSwitch.Test.Cases.Nested, T> nested, System.Func<FunicularSwitch.Test.Cases.Five, T> five, System.Func<FunicularSwitch.Test.WithDefault, T> withDefault) =>
 		@base switch
 		{
 			FunicularSwitch.Test.One case1 => one(case1),
@@ -16,10 +13,10 @@ namespace FunicularSwitch.Test
 			FunicularSwitch.Test.Cases.Nested case4 => nested(case4),
 			FunicularSwitch.Test.Cases.Five case5 => five(case5),
 			FunicularSwitch.Test.WithDefault case6 => withDefault(case6),
-			_ => throw new ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}")
 		};
 		
-		public static Task<T> Match<T>(this FunicularSwitch.Test.Base @base, Func<FunicularSwitch.Test.One, Task<T>> one, Func<FunicularSwitch.Test.Two, Task<T>> two, Func<FunicularSwitch.Test.Three, Task<T>> three, Func<FunicularSwitch.Test.Cases.Nested, Task<T>> nested, Func<FunicularSwitch.Test.Cases.Five, Task<T>> five, Func<FunicularSwitch.Test.WithDefault, Task<T>> withDefault) =>
+		public static System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Test.Base @base, System.Func<FunicularSwitch.Test.One, System.Threading.Tasks.Task<T>> one, System.Func<FunicularSwitch.Test.Two, System.Threading.Tasks.Task<T>> two, System.Func<FunicularSwitch.Test.Three, System.Threading.Tasks.Task<T>> three, System.Func<FunicularSwitch.Test.Cases.Nested, System.Threading.Tasks.Task<T>> nested, System.Func<FunicularSwitch.Test.Cases.Five, System.Threading.Tasks.Task<T>> five, System.Func<FunicularSwitch.Test.WithDefault, System.Threading.Tasks.Task<T>> withDefault) =>
 		@base switch
 		{
 			FunicularSwitch.Test.One case1 => one(case1),
@@ -28,16 +25,16 @@ namespace FunicularSwitch.Test
 			FunicularSwitch.Test.Cases.Nested case4 => nested(case4),
 			FunicularSwitch.Test.Cases.Five case5 => five(case5),
 			FunicularSwitch.Test.WithDefault case6 => withDefault(case6),
-			_ => throw new ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}")
 		};
 		
-		public static async Task<T> Match<T>(this Task<FunicularSwitch.Test.Base> @base, Func<FunicularSwitch.Test.One, T> one, Func<FunicularSwitch.Test.Two, T> two, Func<FunicularSwitch.Test.Three, T> three, Func<FunicularSwitch.Test.Cases.Nested, T> nested, Func<FunicularSwitch.Test.Cases.Five, T> five, Func<FunicularSwitch.Test.WithDefault, T> withDefault) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FunicularSwitch.Test.Base> @base, System.Func<FunicularSwitch.Test.One, T> one, System.Func<FunicularSwitch.Test.Two, T> two, System.Func<FunicularSwitch.Test.Three, T> three, System.Func<FunicularSwitch.Test.Cases.Nested, T> nested, System.Func<FunicularSwitch.Test.Cases.Five, T> five, System.Func<FunicularSwitch.Test.WithDefault, T> withDefault) =>
 		(await @base.ConfigureAwait(false)).Match(one, two, three, nested, five, withDefault);
 		
-		public static async Task<T> Match<T>(this Task<FunicularSwitch.Test.Base> @base, Func<FunicularSwitch.Test.One, Task<T>> one, Func<FunicularSwitch.Test.Two, Task<T>> two, Func<FunicularSwitch.Test.Three, Task<T>> three, Func<FunicularSwitch.Test.Cases.Nested, Task<T>> nested, Func<FunicularSwitch.Test.Cases.Five, Task<T>> five, Func<FunicularSwitch.Test.WithDefault, Task<T>> withDefault) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FunicularSwitch.Test.Base> @base, System.Func<FunicularSwitch.Test.One, System.Threading.Tasks.Task<T>> one, System.Func<FunicularSwitch.Test.Two, System.Threading.Tasks.Task<T>> two, System.Func<FunicularSwitch.Test.Three, System.Threading.Tasks.Task<T>> three, System.Func<FunicularSwitch.Test.Cases.Nested, System.Threading.Tasks.Task<T>> nested, System.Func<FunicularSwitch.Test.Cases.Five, System.Threading.Tasks.Task<T>> five, System.Func<FunicularSwitch.Test.WithDefault, System.Threading.Tasks.Task<T>> withDefault) =>
 		await (await @base.ConfigureAwait(false)).Match(one, two, three, nested, five, withDefault).ConfigureAwait(false);
 		
-		public static void Switch(this FunicularSwitch.Test.Base @base, Action<FunicularSwitch.Test.One> one, Action<FunicularSwitch.Test.Two> two, Action<FunicularSwitch.Test.Three> three, Action<FunicularSwitch.Test.Cases.Nested> nested, Action<FunicularSwitch.Test.Cases.Five> five, Action<FunicularSwitch.Test.WithDefault> withDefault)
+		public static void Switch(this FunicularSwitch.Test.Base @base, System.Action<FunicularSwitch.Test.One> one, System.Action<FunicularSwitch.Test.Two> two, System.Action<FunicularSwitch.Test.Three> three, System.Action<FunicularSwitch.Test.Cases.Nested> nested, System.Action<FunicularSwitch.Test.Cases.Five> five, System.Action<FunicularSwitch.Test.WithDefault> withDefault)
 		{
 			switch (@base)
 			{
@@ -60,11 +57,11 @@ namespace FunicularSwitch.Test
 					withDefault(case6);
 					break;
 				default:
-					throw new ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}");
+					throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this FunicularSwitch.Test.Base @base, Func<FunicularSwitch.Test.One, Task> one, Func<FunicularSwitch.Test.Two, Task> two, Func<FunicularSwitch.Test.Three, Task> three, Func<FunicularSwitch.Test.Cases.Nested, Task> nested, Func<FunicularSwitch.Test.Cases.Five, Task> five, Func<FunicularSwitch.Test.WithDefault, Task> withDefault)
+		public static async System.Threading.Tasks.Task Switch(this FunicularSwitch.Test.Base @base, System.Func<FunicularSwitch.Test.One, System.Threading.Tasks.Task> one, System.Func<FunicularSwitch.Test.Two, System.Threading.Tasks.Task> two, System.Func<FunicularSwitch.Test.Three, System.Threading.Tasks.Task> three, System.Func<FunicularSwitch.Test.Cases.Nested, System.Threading.Tasks.Task> nested, System.Func<FunicularSwitch.Test.Cases.Five, System.Threading.Tasks.Task> five, System.Func<FunicularSwitch.Test.WithDefault, System.Threading.Tasks.Task> withDefault)
 		{
 			switch (@base)
 			{
@@ -87,14 +84,14 @@ namespace FunicularSwitch.Test
 					await withDefault(case6).ConfigureAwait(false);
 					break;
 				default:
-					throw new ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}");
+					throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this Task<FunicularSwitch.Test.Base> @base, Action<FunicularSwitch.Test.One> one, Action<FunicularSwitch.Test.Two> two, Action<FunicularSwitch.Test.Three> three, Action<FunicularSwitch.Test.Cases.Nested> nested, Action<FunicularSwitch.Test.Cases.Five> five, Action<FunicularSwitch.Test.WithDefault> withDefault) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FunicularSwitch.Test.Base> @base, System.Action<FunicularSwitch.Test.One> one, System.Action<FunicularSwitch.Test.Two> two, System.Action<FunicularSwitch.Test.Three> three, System.Action<FunicularSwitch.Test.Cases.Nested> nested, System.Action<FunicularSwitch.Test.Cases.Five> five, System.Action<FunicularSwitch.Test.WithDefault> withDefault) =>
 		(await @base.ConfigureAwait(false)).Switch(one, two, three, nested, five, withDefault);
 		
-		public static async Task Switch(this Task<FunicularSwitch.Test.Base> @base, Func<FunicularSwitch.Test.One, Task> one, Func<FunicularSwitch.Test.Two, Task> two, Func<FunicularSwitch.Test.Three, Task> three, Func<FunicularSwitch.Test.Cases.Nested, Task> nested, Func<FunicularSwitch.Test.Cases.Five, Task> five, Func<FunicularSwitch.Test.WithDefault, Task> withDefault) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FunicularSwitch.Test.Base> @base, System.Func<FunicularSwitch.Test.One, System.Threading.Tasks.Task> one, System.Func<FunicularSwitch.Test.Two, System.Threading.Tasks.Task> two, System.Func<FunicularSwitch.Test.Three, System.Threading.Tasks.Task> three, System.Func<FunicularSwitch.Test.Cases.Nested, System.Threading.Tasks.Task> nested, System.Func<FunicularSwitch.Test.Cases.Five, System.Threading.Tasks.Task> five, System.Func<FunicularSwitch.Test.WithDefault, System.Threading.Tasks.Task> withDefault) =>
 		await (await @base.ConfigureAwait(false)).Switch(one, two, three, nested, five, withDefault).ConfigureAwait(false);
 	}
 	

@@ -16,7 +16,6 @@ public static class Generator
 	{
 		var builder = new CSharpBuilder();
 		builder.WriteLine("#pragma warning disable 1591");
-		builder.WriteUsings("System", "System.Threading.Tasks");
 
 		using (unionTypeSchema.Namespace != null ? builder.Namespace(unionTypeSchema.Namespace) : null)
 		{
@@ -37,7 +36,7 @@ public static class Generator
 		using (builder.StaticPartialClass($"{unionTypeSchema.TypeName.Replace(".", "_")}MatchExtension",
 				   unionTypeSchema.IsInternal ? "internal" : "public"))
 		{
-			var thisTaskParameter = ThisParameter(unionTypeSchema, $"Task<{unionTypeSchema.FullTypeName}>");
+			var thisTaskParameter = ThisParameter(unionTypeSchema, $"System.Threading.Tasks.Task<{unionTypeSchema.FullTypeName}>");
 			var caseParameters = unionTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();
 
 			void WriteBodyForTaskExtension(string matchMethodName) => builder.WriteLine(
@@ -48,13 +47,13 @@ public static class Generator
 
 			GenerateMatchMethod(builder, unionTypeSchema, "T");
 			BlankLine();
-			GenerateMatchMethod(builder, unionTypeSchema, "Task<T>");
+			GenerateMatchMethod(builder, unionTypeSchema, "System.Threading.Tasks.Task<T>");
 			BlankLine();
 
-			WriteMatchSignature(builder, unionTypeSchema, thisTaskParameter, "Task<T>", "T", "public static async");
+			WriteMatchSignature(builder, unionTypeSchema, thisTaskParameter, "System.Threading.Tasks.Task<T>", "T", "public static async");
 			WriteBodyForTaskExtension(MatchMethodName);
 			BlankLine();
-			WriteMatchSignature(builder, unionTypeSchema, thisTaskParameter, "Task<T>", handlerReturnType: "Task<T>",
+			WriteMatchSignature(builder, unionTypeSchema, thisTaskParameter, "System.Threading.Tasks.Task<T>", handlerReturnType: "System.Threading.Tasks.Task<T>",
 				"public static async");
 			WriteBodyForAsyncTaskExtension(MatchMethodName);
 			BlankLine();
@@ -145,7 +144,7 @@ public static class Generator
 			}
 
 			builder.WriteLine(
-				$"_ => throw new ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\")");
+				$"_ => throw new System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\")");
 		}
 	}
 
@@ -178,7 +177,7 @@ public static class Generator
 				builder.WriteLine("default:");
 				using (builder.Indent())
 				{
-					builder.WriteLine($"throw new ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\");");
+					builder.WriteLine($"throw new System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\");");
 				}
 			}
 		}
@@ -191,7 +190,7 @@ public static class Generator
 	{
 		handlerReturnType ??= returnType;
 		var handlerParameters = unionTypeSchema.Cases
-			.Select(c => new Parameter($"Func<{c.FullTypeName}, {handlerReturnType}>", c.ParameterName));
+			.Select(c => new Parameter($"System.Func<{c.FullTypeName}, {handlerReturnType}>", c.ParameterName));
 
 		builder.WriteMethodSignature(
 			modifiers: modifiers,
@@ -203,13 +202,13 @@ public static class Generator
 	static void WriteSwitchSignature(CSharpBuilder builder, UnionTypeSchema unionTypeSchema,
 		Parameter thisParameter, bool isAsync, bool? asyncReturn = null, bool lambda = false)
 	{
-		var returnType = asyncReturn ?? isAsync ? "async Task" : "void";
+		var returnType = asyncReturn ?? isAsync ? "async System.Threading.Tasks.Task" : "void";
 		var handlerParameters = unionTypeSchema.Cases
 			.Select(c =>
 			{
 				var parameterType = isAsync
-						? $"Func<{c.FullTypeName}, Task>"
-						: $"Action<{c.FullTypeName}>";
+						? $"System.Func<{c.FullTypeName}, System.Threading.Tasks.Task>"
+						: $"System.Action<{c.FullTypeName}>";
 				return new Parameter(
 						parameterType,
 						c.ParameterName);

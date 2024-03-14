@@ -1,34 +1,31 @@
 ﻿#pragma warning disable 1591
-using System;
-using System.Threading.Tasks;
-
 namespace FluentAssertions.Equivalency
 {
 	public static partial class CyclicReferenceHandlingMatchExtension
 	{
-		public static T Match<T>(this FluentAssertions.Equivalency.CyclicReferenceHandling cyclicReferenceHandling, Func<T> ignore, Func<T> throwException) =>
+		public static T Match<T>(this FluentAssertions.Equivalency.CyclicReferenceHandling cyclicReferenceHandling, System.Func<T> ignore, System.Func<T> throwException) =>
 		cyclicReferenceHandling switch
 		{
 			FluentAssertions.Equivalency.CyclicReferenceHandling.Ignore => ignore(),
 			FluentAssertions.Equivalency.CyclicReferenceHandling.ThrowException => throwException(),
-			_ => throw new ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.CyclicReferenceHandling: {cyclicReferenceHandling.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.CyclicReferenceHandling: {cyclicReferenceHandling.GetType().Name}")
 		};
 		
-		public static Task<T> Match<T>(this FluentAssertions.Equivalency.CyclicReferenceHandling cyclicReferenceHandling, Func<Task<T>> ignore, Func<Task<T>> throwException) =>
+		public static System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Equivalency.CyclicReferenceHandling cyclicReferenceHandling, System.Func<System.Threading.Tasks.Task<T>> ignore, System.Func<System.Threading.Tasks.Task<T>> throwException) =>
 		cyclicReferenceHandling switch
 		{
 			FluentAssertions.Equivalency.CyclicReferenceHandling.Ignore => ignore(),
 			FluentAssertions.Equivalency.CyclicReferenceHandling.ThrowException => throwException(),
-			_ => throw new ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.CyclicReferenceHandling: {cyclicReferenceHandling.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.CyclicReferenceHandling: {cyclicReferenceHandling.GetType().Name}")
 		};
 		
-		public static async Task<T> Match<T>(this Task<FluentAssertions.Equivalency.CyclicReferenceHandling> cyclicReferenceHandling, Func<T> ignore, Func<T> throwException) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Equivalency.CyclicReferenceHandling> cyclicReferenceHandling, System.Func<T> ignore, System.Func<T> throwException) =>
 		(await cyclicReferenceHandling.ConfigureAwait(false)).Match(ignore, throwException);
 		
-		public static async Task<T> Match<T>(this Task<FluentAssertions.Equivalency.CyclicReferenceHandling> cyclicReferenceHandling, Func<Task<T>> ignore, Func<Task<T>> throwException) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Equivalency.CyclicReferenceHandling> cyclicReferenceHandling, System.Func<System.Threading.Tasks.Task<T>> ignore, System.Func<System.Threading.Tasks.Task<T>> throwException) =>
 		await (await cyclicReferenceHandling.ConfigureAwait(false)).Match(ignore, throwException).ConfigureAwait(false);
 		
-		public static void Switch(this FluentAssertions.Equivalency.CyclicReferenceHandling cyclicReferenceHandling, Action ignore, Action throwException)
+		public static void Switch(this FluentAssertions.Equivalency.CyclicReferenceHandling cyclicReferenceHandling, System.Action ignore, System.Action throwException)
 		{
 			switch (cyclicReferenceHandling)
 			{
@@ -39,11 +36,11 @@ namespace FluentAssertions.Equivalency
 					throwException();
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.CyclicReferenceHandling: {cyclicReferenceHandling.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.CyclicReferenceHandling: {cyclicReferenceHandling.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this FluentAssertions.Equivalency.CyclicReferenceHandling cyclicReferenceHandling, Func<Task> ignore, Func<Task> throwException)
+		public static async System.Threading.Tasks.Task Switch(this FluentAssertions.Equivalency.CyclicReferenceHandling cyclicReferenceHandling, System.Func<System.Threading.Tasks.Task> ignore, System.Func<System.Threading.Tasks.Task> throwException)
 		{
 			switch (cyclicReferenceHandling)
 			{
@@ -54,14 +51,14 @@ namespace FluentAssertions.Equivalency
 					await throwException().ConfigureAwait(false);
 					break;
 				default:
-					throw new ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.CyclicReferenceHandling: {cyclicReferenceHandling.GetType().Name}");
+					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.CyclicReferenceHandling: {cyclicReferenceHandling.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this Task<FluentAssertions.Equivalency.CyclicReferenceHandling> cyclicReferenceHandling, Action ignore, Action throwException) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Equivalency.CyclicReferenceHandling> cyclicReferenceHandling, System.Action ignore, System.Action throwException) =>
 		(await cyclicReferenceHandling.ConfigureAwait(false)).Switch(ignore, throwException);
 		
-		public static async Task Switch(this Task<FluentAssertions.Equivalency.CyclicReferenceHandling> cyclicReferenceHandling, Func<Task> ignore, Func<Task> throwException) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Equivalency.CyclicReferenceHandling> cyclicReferenceHandling, System.Func<System.Threading.Tasks.Task> ignore, System.Func<System.Threading.Tasks.Task> throwException) =>
 		await (await cyclicReferenceHandling.ConfigureAwait(false)).Switch(ignore, throwException).ConfigureAwait(false);
 	}
 }

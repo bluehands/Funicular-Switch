@@ -14,7 +14,6 @@ public static class Generator
     {
         var builder = new CSharpBuilder();
         builder.WriteLine("#pragma warning disable 1591");
-        builder.WriteUsings("System", "System.Threading.Tasks");
 
         void BlankLine()
         {
@@ -25,20 +24,20 @@ public static class Generator
         {
             using (builder.StaticPartialClass($"{enumTypeSchema.TypeName.Replace(".", "_")}MatchExtension", enumTypeSchema.IsInternal ? "internal" : "public"))
             {
-	            var thisTaskParameter = ThisParameter(enumTypeSchema, $"Task<{enumTypeSchema.FullTypeName}>");
+	            var thisTaskParameter = ThisParameter(enumTypeSchema, $"System.Threading.Tasks.Task<{enumTypeSchema.FullTypeName}>");
 	            var caseParameters = enumTypeSchema.Cases.Select(c => c.ParameterName).ToSeparatedString();
 	            void WriteBodyForTaskExtension(string matchMethodName) => builder.WriteLine($"(await {thisTaskParameter.Name}.ConfigureAwait(false)).{matchMethodName}({caseParameters});");
 	            void WriteBodyForAsyncTaskExtension(string matchMethodName) => builder.WriteLine($"await (await {thisTaskParameter.Name}.ConfigureAwait(false)).{matchMethodName}({caseParameters}).ConfigureAwait(false);");
 
                 GenerateMatchMethod(builder, enumTypeSchema, "T");
                 BlankLine();
-                GenerateMatchMethod(builder, enumTypeSchema, "Task<T>");
+                GenerateMatchMethod(builder, enumTypeSchema, "System.Threading.Tasks.Task<T>");
                 BlankLine();
                 
-                WriteMatchSignature(builder, enumTypeSchema, thisTaskParameter, "Task<T>", "T", "public static async");
+                WriteMatchSignature(builder, enumTypeSchema, thisTaskParameter, "System.Threading.Tasks.Task<T>", "T", "public static async");
                 WriteBodyForTaskExtension(MatchMethodName);
                 BlankLine();
-                WriteMatchSignature(builder, enumTypeSchema, thisTaskParameter, "Task<T>", handlerReturnType: "Task<T>", "public static async");
+                WriteMatchSignature(builder, enumTypeSchema, thisTaskParameter, "System.Threading.Tasks.Task<T>", handlerReturnType: "System.Threading.Tasks.Task<T>", "public static async");
                 WriteBodyForAsyncTaskExtension(MatchMethodName);
                 BlankLine();
 
@@ -73,7 +72,7 @@ public static class Generator
             }
 
             builder.WriteLine(
-                $"_ => throw new ArgumentException($\"Unknown enum value from {enumTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\")");
+                $"_ => throw new System.ArgumentException($\"Unknown enum value from {enumTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\")");
         }
     }
 
@@ -104,7 +103,7 @@ public static class Generator
 			    builder.WriteLine("default:");
 			    using (builder.Indent())
 			    {
-				    builder.WriteLine($"throw new ArgumentException($\"Unknown enum value from {enumTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\");");
+				    builder.WriteLine($"throw new System.ArgumentException($\"Unknown enum value from {enumTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\");");
 			    }
 		    }
 	    }
@@ -117,7 +116,7 @@ public static class Generator
     {
         handlerReturnType ??= returnType;
         var handlerParameters = enumTypeSchema.Cases
-            .Select(c => new Parameter($"Func<{handlerReturnType}>", c.ParameterName));
+            .Select(c => new Parameter($"System.Func<{handlerReturnType}>", c.ParameterName));
 
         builder.WriteMethodSignature(
             modifiers: modifiers,
@@ -129,9 +128,9 @@ public static class Generator
     static void WriteSwitchSignature(CSharpBuilder builder, EnumTypeSchema enumTypeSchema,
 	    Parameter thisParameter, bool isAsync, bool? asyncReturn = null, bool lambda = false)
     {
-	    var returnType = asyncReturn ?? isAsync ? "async Task" : "void";
+	    var returnType = asyncReturn ?? isAsync ? "async System.Threading.Tasks.Task" : "void";
         var handlerParameters = enumTypeSchema.Cases
-		    .Select(c => new Parameter(isAsync ? "Func<Task>" : "Action", c.ParameterName));
+		    .Select(c => new Parameter(isAsync ? "System.Func<System.Threading.Tasks.Task>" : "System.Action", c.ParameterName));
 
         string modifiers = "public static";
 

@@ -1,38 +1,35 @@
 ﻿#pragma warning disable 1591
-using System;
-using System.Threading.Tasks;
-
 namespace FunicularSwitch.Generators.Consumer
 {
 	public static partial class ErrorMatchExtension
 	{
-		public static T Match<T>(this FunicularSwitch.Generators.Consumer.Error error, Func<FunicularSwitch.Generators.Consumer.Error.Generic_, T> generic, Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, T> notFound, Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, T> notAuthorized, Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, T> aggregated) =>
+		public static T Match<T>(this FunicularSwitch.Generators.Consumer.Error error, System.Func<FunicularSwitch.Generators.Consumer.Error.Generic_, T> generic, System.Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, T> notFound, System.Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, T> notAuthorized, System.Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, T> aggregated) =>
 		error switch
 		{
 			FunicularSwitch.Generators.Consumer.Error.Generic_ case1 => generic(case1),
 			FunicularSwitch.Generators.Consumer.Error.NotFound_ case2 => notFound(case2),
 			FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ case3 => notAuthorized(case3),
 			FunicularSwitch.Generators.Consumer.Error.Aggregated_ case4 => aggregated(case4),
-			_ => throw new ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}")
 		};
 		
-		public static Task<T> Match<T>(this FunicularSwitch.Generators.Consumer.Error error, Func<FunicularSwitch.Generators.Consumer.Error.Generic_, Task<T>> generic, Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, Task<T>> notFound, Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, Task<T>> notAuthorized, Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, Task<T>> aggregated) =>
+		public static System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Generators.Consumer.Error error, System.Func<FunicularSwitch.Generators.Consumer.Error.Generic_, System.Threading.Tasks.Task<T>> generic, System.Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, System.Threading.Tasks.Task<T>> notFound, System.Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, System.Threading.Tasks.Task<T>> notAuthorized, System.Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, System.Threading.Tasks.Task<T>> aggregated) =>
 		error switch
 		{
 			FunicularSwitch.Generators.Consumer.Error.Generic_ case1 => generic(case1),
 			FunicularSwitch.Generators.Consumer.Error.NotFound_ case2 => notFound(case2),
 			FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ case3 => notAuthorized(case3),
 			FunicularSwitch.Generators.Consumer.Error.Aggregated_ case4 => aggregated(case4),
-			_ => throw new ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}")
+			_ => throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}")
 		};
 		
-		public static async Task<T> Match<T>(this Task<FunicularSwitch.Generators.Consumer.Error> error, Func<FunicularSwitch.Generators.Consumer.Error.Generic_, T> generic, Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, T> notFound, Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, T> notAuthorized, Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, T> aggregated) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.Error> error, System.Func<FunicularSwitch.Generators.Consumer.Error.Generic_, T> generic, System.Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, T> notFound, System.Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, T> notAuthorized, System.Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, T> aggregated) =>
 		(await error.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated);
 		
-		public static async Task<T> Match<T>(this Task<FunicularSwitch.Generators.Consumer.Error> error, Func<FunicularSwitch.Generators.Consumer.Error.Generic_, Task<T>> generic, Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, Task<T>> notFound, Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, Task<T>> notAuthorized, Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, Task<T>> aggregated) =>
+		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.Error> error, System.Func<FunicularSwitch.Generators.Consumer.Error.Generic_, System.Threading.Tasks.Task<T>> generic, System.Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, System.Threading.Tasks.Task<T>> notFound, System.Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, System.Threading.Tasks.Task<T>> notAuthorized, System.Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, System.Threading.Tasks.Task<T>> aggregated) =>
 		await (await error.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
 		
-		public static void Switch(this FunicularSwitch.Generators.Consumer.Error error, Action<FunicularSwitch.Generators.Consumer.Error.Generic_> generic, Action<FunicularSwitch.Generators.Consumer.Error.NotFound_> notFound, Action<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_> notAuthorized, Action<FunicularSwitch.Generators.Consumer.Error.Aggregated_> aggregated)
+		public static void Switch(this FunicularSwitch.Generators.Consumer.Error error, System.Action<FunicularSwitch.Generators.Consumer.Error.Generic_> generic, System.Action<FunicularSwitch.Generators.Consumer.Error.NotFound_> notFound, System.Action<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_> notAuthorized, System.Action<FunicularSwitch.Generators.Consumer.Error.Aggregated_> aggregated)
 		{
 			switch (error)
 			{
@@ -49,11 +46,11 @@ namespace FunicularSwitch.Generators.Consumer
 					aggregated(case4);
 					break;
 				default:
-					throw new ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}");
+					throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this FunicularSwitch.Generators.Consumer.Error error, Func<FunicularSwitch.Generators.Consumer.Error.Generic_, Task> generic, Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, Task> notFound, Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, Task> notAuthorized, Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, Task> aggregated)
+		public static async System.Threading.Tasks.Task Switch(this FunicularSwitch.Generators.Consumer.Error error, System.Func<FunicularSwitch.Generators.Consumer.Error.Generic_, System.Threading.Tasks.Task> generic, System.Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, System.Threading.Tasks.Task> notFound, System.Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, System.Threading.Tasks.Task> notAuthorized, System.Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, System.Threading.Tasks.Task> aggregated)
 		{
 			switch (error)
 			{
@@ -70,14 +67,14 @@ namespace FunicularSwitch.Generators.Consumer
 					await aggregated(case4).ConfigureAwait(false);
 					break;
 				default:
-					throw new ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}");
+					throw new System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}");
 			}
 		}
 		
-		public static async Task Switch(this Task<FunicularSwitch.Generators.Consumer.Error> error, Action<FunicularSwitch.Generators.Consumer.Error.Generic_> generic, Action<FunicularSwitch.Generators.Consumer.Error.NotFound_> notFound, Action<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_> notAuthorized, Action<FunicularSwitch.Generators.Consumer.Error.Aggregated_> aggregated) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.Error> error, System.Action<FunicularSwitch.Generators.Consumer.Error.Generic_> generic, System.Action<FunicularSwitch.Generators.Consumer.Error.NotFound_> notFound, System.Action<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_> notAuthorized, System.Action<FunicularSwitch.Generators.Consumer.Error.Aggregated_> aggregated) =>
 		(await error.ConfigureAwait(false)).Switch(generic, notFound, notAuthorized, aggregated);
 		
-		public static async Task Switch(this Task<FunicularSwitch.Generators.Consumer.Error> error, Func<FunicularSwitch.Generators.Consumer.Error.Generic_, Task> generic, Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, Task> notFound, Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, Task> notAuthorized, Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, Task> aggregated) =>
+		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.Error> error, System.Func<FunicularSwitch.Generators.Consumer.Error.Generic_, System.Threading.Tasks.Task> generic, System.Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, System.Threading.Tasks.Task> notFound, System.Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, System.Threading.Tasks.Task> notAuthorized, System.Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, System.Threading.Tasks.Task> aggregated) =>
 		await (await error.ConfigureAwait(false)).Switch(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
 	}
 	

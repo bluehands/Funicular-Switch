@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace FunicularSwitch.Generators.Templates
 {
@@ -13,7 +10,7 @@ namespace FunicularSwitch.Generators.Templates
         public static readonly MyError NotFound = new NotFound_();
         public static readonly MyError NotAuthorized = new NotAuthorized_();
 
-        public static MyError Aggregated(IEnumerable<MyError> errors) => new Aggregated_(errors);
+        public static MyError Aggregated(System.Collections.Generic.IEnumerable<MyError> errors) => new Aggregated_(errors);
 
         public MyError Merge__MemberOrExtensionMethod(MyError other) => this is Aggregated_ a
             ? a.Add(other)
@@ -47,9 +44,9 @@ namespace FunicularSwitch.Generators.Templates
 
         public class Aggregated_ : MyError
         {
-            public List<MyError> Errors { get; }
+            public System.Collections.Generic.List<MyError> Errors { get; }
 
-            public Aggregated_(IEnumerable<MyError> errors) : base(UnionCases.Aggregated) => Errors = errors.ToList();
+            public Aggregated_(System.Collections.Generic.IEnumerable<MyError> errors) : base(UnionCases.Aggregated) => Errors = errors.ToList();
 
             public MyError Add(MyError other) => Aggregated(Errors.Concat(new []{other}));
         }
@@ -65,7 +62,7 @@ namespace FunicularSwitch.Generators.Templates
         internal UnionCases UnionCase { get; }
         MyError(UnionCases unionCase) => UnionCase = unionCase;
 
-        public override string ToString() => Enum.GetName(typeof(UnionCases), UnionCase) ?? UnionCase.ToString();
+        public override string ToString() => System.Enum.GetName(typeof(UnionCases), UnionCase) ?? UnionCase.ToString();
         bool Equals(MyError other) => UnionCase == other.UnionCase;
 
         public override bool Equals(object obj)
@@ -81,9 +78,9 @@ namespace FunicularSwitch.Generators.Templates
 
     public static class MyErrorExtension
     {
-        public static T Match<T>(this MyError myError, Func<MyError.Generic_, T> generic,
-            Func<MyError.NotFound_, T> notFound, Func<MyError.NotAuthorized_, T> notAuthorized,
-            Func<MyError.Aggregated_, T> aggregated)
+        public static T Match<T>(this MyError myError, System.Func<MyError.Generic_, T> generic,
+            System.Func<MyError.NotFound_, T> notFound, System.Func<MyError.NotAuthorized_, T> notAuthorized,
+            System.Func<MyError.Aggregated_, T> aggregated)
         {
             switch (myError.UnionCase)
             {
@@ -96,13 +93,13 @@ namespace FunicularSwitch.Generators.Templates
                 case MyError.UnionCases.Aggregated:
                     return aggregated((MyError.Aggregated_)myError);
                 default:
-                    throw new ArgumentException($"Unknown type derived from MyError: {myError.GetType().Name}");
+                    throw new System.ArgumentException($"Unknown type derived from MyError: {myError.GetType().Name}");
             }
         }
 
-        public static async Task<T> Match<T>(this MyError myError, Func<MyError.Generic_, Task<T>> generic,
-            Func<MyError.NotFound_, Task<T>> notFound, Func<MyError.NotAuthorized_, Task<T>> notAuthorized,
-            Func<MyError.Aggregated_, Task<T>> aggregated)
+        public static async System.Threading.Tasks.Task<T> Match<T>(this MyError myError, System.Func<MyError.Generic_, System.Threading.Tasks.Task<T>> generic,
+            System.Func<MyError.NotFound_, System.Threading.Tasks.Task<T>> notFound, System.Func<MyError.NotAuthorized_, System.Threading.Tasks.Task<T>> notAuthorized,
+            System.Func<MyError.Aggregated_, System.Threading.Tasks.Task<T>> aggregated)
         {
             switch (myError.UnionCase)
             {
@@ -115,18 +112,18 @@ namespace FunicularSwitch.Generators.Templates
                 case MyError.UnionCases.Aggregated:
                     return await aggregated((MyError.Aggregated_)myError).ConfigureAwait(false);
                 default:
-                    throw new ArgumentException($"Unknown type derived from MyError: {myError.GetType().Name}");
+                    throw new System.ArgumentException($"Unknown type derived from MyError: {myError.GetType().Name}");
             }
         }
 
-        public static async Task<T> Match<T>(this Task<MyError> myError, Func<MyError.Generic_, T> generic,
-            Func<MyError.NotFound_, T> notFound, Func<MyError.NotAuthorized_, T> notAuthorized,
-            Func<MyError.Aggregated_, T> aggregated) =>
+        public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<MyError> myError, System.Func<MyError.Generic_, T> generic,
+            System.Func<MyError.NotFound_, T> notFound, System.Func<MyError.NotAuthorized_, T> notAuthorized,
+            System.Func<MyError.Aggregated_, T> aggregated) =>
             (await myError.ConfigureAwait(false)).Match(generic, notFound, notAuthorized, aggregated);
 
-        public static async Task<T> Match<T>(this Task<MyError> myError, Func<MyError.Generic_, Task<T>> generic,
-            Func<MyError.NotFound_, Task<T>> notFound, Func<MyError.NotAuthorized_, Task<T>> notAuthorized,
-            Func<MyError.Aggregated_, Task<T>> aggregated) => await (await myError.ConfigureAwait(false))
+        public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<MyError> myError, System.Func<MyError.Generic_, System.Threading.Tasks.Task<T>> generic,
+            System.Func<MyError.NotFound_, System.Threading.Tasks.Task<T>> notFound, System.Func<MyError.NotAuthorized_, System.Threading.Tasks.Task<T>> notAuthorized,
+            System.Func<MyError.Aggregated_, System.Threading.Tasks.Task<T>> aggregated) => await (await myError.ConfigureAwait(false))
             .Match(generic, notFound, notAuthorized, aggregated).ConfigureAwait(false);
     }
 #pragma warning restore 1591
