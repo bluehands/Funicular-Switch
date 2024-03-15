@@ -1,5 +1,5 @@
 ﻿#nullable enable
-using System.Linq;
+using global::System.Linq;
 //additional using directives
 
 namespace FunicularSwitch.Generators.Templates
@@ -13,56 +13,56 @@ namespace FunicularSwitch.Generators.Templates
         public bool IsOk => !IsError;
         public abstract MyError? GetErrorOrDefault();
 
-        public static MyResult<T> Try<T>(System.Func<T> action, System.Func<System.Exception, MyError> formatError)
+        public static MyResult<T> Try<T>(global::System.Func<T> action, global::System.Func<global::System.Exception, MyError> formatError)
         {
             try
             {
                 return action();
             }
-            catch (System.Exception e)
+            catch (global::System.Exception e)
             {
                 return Error<T>(formatError(e));
             }
         }
 
-        public static async System.Threading.Tasks.Task<MyResult<T>> Try<T>(System.Func<System.Threading.Tasks.Task<T>> action, System.Func<System.Exception, MyError> formatError)
+        public static async global::System.Threading.Tasks.Task<MyResult<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<T>> action, global::System.Func<global::System.Exception, MyError> formatError)
         {
             try
             {
                 return await action();
             }
-            catch (System.Exception e)
+            catch (global::System.Exception e)
             {
                 return Error<T>(formatError(e));
             }
         }
 
-        public static MyResult<T> Try<T>(System.Func<MyResult<T>> action, System.Func<System.Exception, MyError> formatError)
+        public static MyResult<T> Try<T>(global::System.Func<MyResult<T>> action, global::System.Func<global::System.Exception, MyError> formatError)
         {
             try
             {
                 return action();
             }
-            catch (System.Exception e)
+            catch (global::System.Exception e)
             {
                 return Error<T>(formatError(e));
             }
         }
 
-        public static async System.Threading.Tasks.Task<MyResult<T>> Try<T>(System.Func<System.Threading.Tasks.Task<MyResult<T>>> action, System.Func<System.Exception, MyError> formatError)
+        public static async global::System.Threading.Tasks.Task<MyResult<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<MyResult<T>>> action, global::System.Func<global::System.Exception, MyError> formatError)
         {
             try
             {
                 return await action();
             }
-            catch (System.Exception e)
+            catch (global::System.Exception e)
             {
                 return Error<T>(formatError(e));
             }
         }
     }
 
-    public abstract partial class MyResult<T> : MyResult, System.Collections.Generic.IEnumerable<T>
+    public abstract partial class MyResult<T> : MyResult, global::System.Collections.Generic.IEnumerable<T>
     {
         public static MyResult<T> Error(MyError message) => Error<T>(message);
         public static MyResult<T> Ok(T value) => Ok<T>(value);
@@ -79,14 +79,14 @@ namespace FunicularSwitch.Generators.Templates
         {
             Ok_ ok => ok.Equals((object)other),
             Error_ error => error.Equals((object)other),
-            _ => throw new System.InvalidOperationException($"Unexpected type derived from {nameof(MyResult<T>)}")
+            _ => throw new global::System.InvalidOperationException($"Unexpected type derived from {nameof(MyResult<T>)}")
         };
 
         public override int GetHashCode() => this switch
         {
             Ok_ ok => ok.GetHashCode(),
             Error_ error => error.GetHashCode(),
-            _ => throw new System.InvalidOperationException($"Unexpected type derived from {nameof(MyResult<T>)}")
+            _ => throw new global::System.InvalidOperationException($"Unexpected type derived from {nameof(MyResult<T>)}")
         };
 
         public override bool Equals(object? obj)
@@ -101,7 +101,7 @@ namespace FunicularSwitch.Generators.Templates
 
         public static bool operator !=(MyResult<T>? left, MyResult<T>? right) => !Equals(left, right);
 
-        public void Match(System.Action<T> ok, System.Action<MyError>? error = null) => Match(
+        public void Match(global::System.Action<T> ok, global::System.Action<MyError>? error = null) => Match(
             v =>
             {
                 ok.Invoke(v);
@@ -113,37 +113,37 @@ namespace FunicularSwitch.Generators.Templates
                 return 42;
             });
 
-        public T1 Match<T1>(System.Func<T, T1> ok, System.Func<MyError, T1> error)
+        public T1 Match<T1>(global::System.Func<T, T1> ok, global::System.Func<MyError, T1> error)
         {
             return this switch
             {
                 Ok_ okMyResult => ok(okMyResult.Value),
                 Error_ errorMyResult => error(errorMyResult.Details),
-                _ => throw new System.InvalidOperationException($"Unexpected derived result type: {GetType()}")
+                _ => throw new global::System.InvalidOperationException($"Unexpected derived result type: {GetType()}")
             };
         }
 
-        public async System.Threading.Tasks.Task<T1> Match<T1>(System.Func<T, System.Threading.Tasks.Task<T1>> ok, System.Func<MyError, System.Threading.Tasks.Task<T1>> error)
+        public async global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<MyError, global::System.Threading.Tasks.Task<T1>> error)
         {
             return this switch
             {
                 Ok_ okMyResult => await ok(okMyResult.Value).ConfigureAwait(false),
                 Error_ errorMyResult => await error(errorMyResult.Details).ConfigureAwait(false),
-                _ => throw new System.InvalidOperationException($"Unexpected derived result type: {GetType()}")
+                _ => throw new global::System.InvalidOperationException($"Unexpected derived result type: {GetType()}")
             };
         }
 
-        public System.Threading.Tasks.Task<T1> Match<T1>(System.Func<T, System.Threading.Tasks.Task<T1>> ok, System.Func<MyError, T1> error) =>
-            Match(ok, e => System.Threading.Tasks.Task.FromResult(error(e)));
+        public global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<MyError, T1> error) =>
+            Match(ok, e => global::System.Threading.Tasks.Task.FromResult(error(e)));
 
-        public async System.Threading.Tasks.Task Match(System.Func<T, System.Threading.Tasks.Task> ok)
+        public async global::System.Threading.Tasks.Task Match(global::System.Func<T, global::System.Threading.Tasks.Task> ok)
         {
             if (this is Ok_ okMyResult) await ok(okMyResult.Value).ConfigureAwait(false);
         }
 
-        public T Match(System.Func<MyError, T> error) => Match(v => v, error);
+        public T Match(global::System.Func<MyError, T> error) => Match(v => v, error);
 
-        public MyResult<T1> Bind<T1>(System.Func<T, MyResult<T1>> bind)
+        public MyResult<T1> Bind<T1>(global::System.Func<T, MyResult<T1>> bind)
         {
             switch (this)
             {
@@ -154,7 +154,7 @@ namespace FunicularSwitch.Generators.Templates
 	                }
 	                // ReSharper disable once RedundantCatchClause
 #pragma warning disable CS0168 // Variable is declared but never used
-	                catch (System.Exception e)
+	                catch (global::System.Exception e)
 #pragma warning restore CS0168 // Variable is declared but never used
 	                {
 		                throw; //createGenericErrorResult
@@ -162,11 +162,11 @@ namespace FunicularSwitch.Generators.Templates
                 case Error_ error:
                     return error.Convert<T1>();
                 default:
-                    throw new System.InvalidOperationException($"Unexpected derived result type: {GetType()}");
+                    throw new global::System.InvalidOperationException($"Unexpected derived result type: {GetType()}");
             }
         }
 
-        public async System.Threading.Tasks.Task<MyResult<T1>> Bind<T1>(System.Func<T, System.Threading.Tasks.Task<MyResult<T1>>> bind)
+        public async global::System.Threading.Tasks.Task<MyResult<T1>> Bind<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<MyResult<T1>>> bind)
         {
             switch (this)
             {
@@ -177,7 +177,7 @@ namespace FunicularSwitch.Generators.Templates
 	                }
 	                // ReSharper disable once RedundantCatchClause
 #pragma warning disable CS0168 // Variable is declared but never used
-	                catch (System.Exception e)
+	                catch (global::System.Exception e)
 #pragma warning restore CS0168 // Variable is declared but never used
 	                {
 		                throw; //createGenericErrorResult
@@ -185,14 +185,14 @@ namespace FunicularSwitch.Generators.Templates
                 case Error_ error:
                     return error.Convert<T1>();
                 default:
-                    throw new System.InvalidOperationException($"Unexpected derived result type: {GetType()}");
+                    throw new global::System.InvalidOperationException($"Unexpected derived result type: {GetType()}");
             }
         }
 
-        public MyResult<T1> Map<T1>(System.Func<T, T1> map)
+        public MyResult<T1> Map<T1>(global::System.Func<T, T1> map)
             => Bind(value => Ok(map(value)));
 
-        public System.Threading.Tasks.Task<MyResult<T1>> Map<T1>(System.Func<T, System.Threading.Tasks.Task<T1>> map)
+        public global::System.Threading.Tasks.Task<MyResult<T1>> Map<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> map)
             => Bind(async value => Ok(await map(value).ConfigureAwait(false)));
 
         public T? GetValueOrDefault()
@@ -201,7 +201,7 @@ namespace FunicularSwitch.Generators.Templates
 		        _ => default
 	        );
 
-        public T GetValueOrDefault(System.Func<T> defaultValue)
+        public T GetValueOrDefault(global::System.Func<T> defaultValue)
 	        => Match(
 		        v => v,
 		        _ => defaultValue()
@@ -216,12 +216,12 @@ namespace FunicularSwitch.Generators.Templates
         public T GetValueOrThrow()
             => Match(
                 v => v,
-                details => throw new System.InvalidOperationException($"Cannot access error result value. Error: {details}"));
+                details => throw new global::System.InvalidOperationException($"Cannot access error result value. Error: {details}"));
 
-        public System.Collections.Generic.IEnumerator<T> GetEnumerator() => Match(ok => new[] { ok }, _ => Enumerable.Empty<T>()).GetEnumerator();
+        public global::System.Collections.Generic.IEnumerator<T> GetEnumerator() => Match(ok => new[] { ok }, _ => Enumerable.Empty<T>()).GetEnumerator();
 
         public override string ToString() => Match(ok => $"Ok {ok?.ToString()}", error => $"Error {error}");
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        global::System.Collections.IEnumerator global::System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 
         public sealed partial class Ok_ : MyResult<T>
         {
@@ -235,7 +235,7 @@ namespace FunicularSwitch.Generators.Templates
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return System.Collections.Generic.EqualityComparer<T>.Default.Equals(Value, other.Value);
+                return global::System.Collections.Generic.EqualityComparer<T>.Default.Equals(Value, other.Value);
             }
 
             public override bool Equals(object? obj)
@@ -245,7 +245,7 @@ namespace FunicularSwitch.Generators.Templates
                 return obj is Ok_ other && Equals(other);
             }
 
-            public override int GetHashCode() => Value == null ? 0 : System.Collections.Generic.EqualityComparer<T>.Default.GetHashCode(Value);
+            public override int GetHashCode() => Value == null ? 0 : global::System.Collections.Generic.EqualityComparer<T>.Default.GetHashCode(Value);
 
             public static bool operator ==(Ok_ left, Ok_ right) => Equals(left, right);
 
@@ -289,66 +289,66 @@ namespace FunicularSwitch.Generators.Templates
     {
         #region bind
 
-        public static async System.Threading.Tasks.Task<MyResult<T1>> Bind<T, T1>(
-            this System.Threading.Tasks.Task<MyResult<T>> result,
-            System.Func<T, MyResult<T1>> bind)
+        public static async global::System.Threading.Tasks.Task<MyResult<T1>> Bind<T, T1>(
+            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+            global::System.Func<T, MyResult<T1>> bind)
             => (await result.ConfigureAwait(false)).Bind(bind);
 
-        public static async System.Threading.Tasks.Task<MyResult<T1>> Bind<T, T1>(
-            this System.Threading.Tasks.Task<MyResult<T>> result,
-            System.Func<T, System.Threading.Tasks.Task<MyResult<T1>>> bind)
+        public static async global::System.Threading.Tasks.Task<MyResult<T1>> Bind<T, T1>(
+            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+            global::System.Func<T, global::System.Threading.Tasks.Task<MyResult<T1>>> bind)
             => await (await result.ConfigureAwait(false)).Bind(bind).ConfigureAwait(false);
 
         #endregion
 
         #region map
 
-        public static async System.Threading.Tasks.Task<MyResult<T1>> Map<T, T1>(
-            this System.Threading.Tasks.Task<MyResult<T>> result,
-            System.Func<T, T1> map)
+        public static async global::System.Threading.Tasks.Task<MyResult<T1>> Map<T, T1>(
+            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+            global::System.Func<T, T1> map)
             => (await result.ConfigureAwait(false)).Map(map);
 
-        public static System.Threading.Tasks.Task<MyResult<T1>> Map<T, T1>(
-            this System.Threading.Tasks.Task<MyResult<T>> result,
-            System.Func<T, System.Threading.Tasks.Task<T1>> bind)
+        public static global::System.Threading.Tasks.Task<MyResult<T1>> Map<T, T1>(
+            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+            global::System.Func<T, global::System.Threading.Tasks.Task<T1>> bind)
             => Bind(result, async v => MyResult.Ok(await bind(v).ConfigureAwait(false)));
 
-        public static MyResult<T> MapError<T>(this MyResult<T> result, System.Func<MyError, MyError> mapError)
+        public static MyResult<T> MapError<T>(this MyResult<T> result, global::System.Func<MyError, MyError> mapError)
         {
             if (result is MyResult<T>.Error_ e)
                 return MyResult.Error<T>(mapError(e.Details));
             return result;
         }
 
-        public static async System.Threading.Tasks.Task<MyResult<T>> MapError<T>(this System.Threading.Tasks.Task<MyResult<T>> result, System.Func<MyError, MyError> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
+        public static async global::System.Threading.Tasks.Task<MyResult<T>> MapError<T>(this global::System.Threading.Tasks.Task<MyResult<T>> result, global::System.Func<MyError, MyError> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
 
         #endregion
 
         #region match
 
-        public static async System.Threading.Tasks.Task<T1> Match<T, T1>(
-            this System.Threading.Tasks.Task<MyResult<T>> result,
-            System.Func<T, System.Threading.Tasks.Task<T1>> ok,
-            System.Func<MyError, System.Threading.Tasks.Task<T1>> error)
+        public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
+            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+            global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
+            global::System.Func<MyError, global::System.Threading.Tasks.Task<T1>> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
-        public static async System.Threading.Tasks.Task<T1> Match<T, T1>(
-            this System.Threading.Tasks.Task<MyResult<T>> result,
-            System.Func<T, System.Threading.Tasks.Task<T1>> ok,
-            System.Func<MyError, T1> error)
+        public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
+            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+            global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
+            global::System.Func<MyError, T1> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
-        public static async System.Threading.Tasks.Task<T1> Match<T, T1>(
-            this System.Threading.Tasks.Task<MyResult<T>> result,
-            System.Func<T, T1> ok,
-            System.Func<MyError, T1> error)
+        public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
+            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+            global::System.Func<T, T1> ok,
+            global::System.Func<MyError, T1> error)
             => (await result.ConfigureAwait(false)).Match(ok, error);
 
         #endregion
 
         public static MyResult<T> Flatten<T>(this MyResult<MyResult<T>> result) => result.Bind(r => r);
 
-        public static MyResult<T1> As<T, T1>(this MyResult<T> result, System.Func<MyError> errorTIsNotT1) =>
+        public static MyResult<T1> As<T, T1>(this MyResult<T> result, global::System.Func<MyError> errorTIsNotT1) =>
             result.Bind(r =>
             {
                 if (r is T1 converted)
@@ -356,18 +356,18 @@ namespace FunicularSwitch.Generators.Templates
                 return MyResult.Error<T1>(errorTIsNotT1());
             });
 
-        public static MyResult<T1> As<T1>(this MyResult<object> result, System.Func<MyError> errorIsNotT1) =>
+        public static MyResult<T1> As<T1>(this MyResult<object> result, global::System.Func<MyError> errorIsNotT1) =>
             result.As<object, T1>(errorIsNotT1);
         
         #region query-expression pattern
         
-        public static MyResult<T1> Select<T, T1>(this MyResult<T> result, System.Func<T, T1> selector) => result.Map(selector);
-        public static System.Threading.Tasks.Task<MyResult<T1>> Select<T, T1>(this System.Threading.Tasks.Task<MyResult<T>> result, System.Func<T, T1> selector) => result.Map(selector);
+        public static MyResult<T1> Select<T, T1>(this MyResult<T> result, global::System.Func<T, T1> selector) => result.Map(selector);
+        public static global::System.Threading.Tasks.Task<MyResult<T1>> Select<T, T1>(this global::System.Threading.Tasks.Task<MyResult<T>> result, global::System.Func<T, T1> selector) => result.Map(selector);
         
-        public static MyResult<T2> SelectMany<T, T1, T2>(this MyResult<T> result, System.Func<T, MyResult<T1>> selector, System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
-        public static System.Threading.Tasks.Task<MyResult<T2>> SelectMany<T, T1, T2>(this System.Threading.Tasks.Task<MyResult<T>> result, System.Func<T, System.Threading.Tasks.Task<MyResult<T1>>> selector, System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
-        public static System.Threading.Tasks.Task<MyResult<T2>> SelectMany<T, T1, T2>(this System.Threading.Tasks.Task<MyResult<T>> result, System.Func<T, MyResult<T1>> selector, System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
-        public static System.Threading.Tasks.Task<MyResult<T2>> SelectMany<T, T1, T2>(this MyResult<T> result, System.Func<T, System.Threading.Tasks.Task<MyResult<T1>>> selector, System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static MyResult<T2> SelectMany<T, T1, T2>(this MyResult<T> result, global::System.Func<T, MyResult<T1>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static global::System.Threading.Tasks.Task<MyResult<T2>> SelectMany<T, T1, T2>(this global::System.Threading.Tasks.Task<MyResult<T>> result, global::System.Func<T, global::System.Threading.Tasks.Task<MyResult<T1>>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static global::System.Threading.Tasks.Task<MyResult<T2>> SelectMany<T, T1, T2>(this global::System.Threading.Tasks.Task<MyResult<T>> result, global::System.Func<T, MyResult<T1>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static global::System.Threading.Tasks.Task<MyResult<T2>> SelectMany<T, T1, T2>(this MyResult<T> result, global::System.Func<T, global::System.Threading.Tasks.Task<MyResult<T1>>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
         #endregion
     }
@@ -377,17 +377,17 @@ namespace FunicularSwitch.Generators.Templates.Extensions
 {
     public static partial class MyResultExtension
     {
-        public static System.Collections.Generic.IEnumerable<T1> Choose<T, T1>(
-            this System.Collections.Generic.IEnumerable<T> items,
-            System.Func<T, MyResult<T1>> choose,
-            System.Action<MyError> onError)
+        public static global::System.Collections.Generic.IEnumerable<T1> Choose<T, T1>(
+            this global::System.Collections.Generic.IEnumerable<T> items,
+            global::System.Func<T, MyResult<T1>> choose,
+            global::System.Action<MyError> onError)
             => items
                 .Select(i => choose(i))
                 .Choose(onError);
 
-        public static System.Collections.Generic.IEnumerable<T> Choose<T>(
-            this System.Collections.Generic.IEnumerable<MyResult<T>> results,
-            System.Action<MyError> onError)
+        public static global::System.Collections.Generic.IEnumerable<T> Choose<T>(
+            this global::System.Collections.Generic.IEnumerable<MyResult<T>> results,
+            global::System.Action<MyError> onError)
             => results
                 .Where(r =>
                     r.Match(_ => true, error =>
@@ -397,19 +397,19 @@ namespace FunicularSwitch.Generators.Templates.Extensions
                     }))
                 .Select(r => r.GetValueOrThrow());
 
-        public static MyResult<T> As<T>(this object item, System.Func<MyError> error) =>
+        public static MyResult<T> As<T>(this object item, global::System.Func<MyError> error) =>
             !(item is T t) ? MyResult.Error<T>(error()) : t;
 
-        public static MyResult<T> NotNull<T>(this T? item, System.Func<MyError> error) =>
+        public static MyResult<T> NotNull<T>(this T? item, global::System.Func<MyError> error) =>
             item ?? MyResult.Error<T>(error());
 
-        public static MyResult<string> NotNullOrEmpty(this string? s, System.Func<MyError> error)
+        public static MyResult<string> NotNullOrEmpty(this string? s, global::System.Func<MyError> error)
             => string.IsNullOrEmpty(s) ? MyResult.Error<string>(error()) : s!;
 
-        public static MyResult<string> NotNullOrWhiteSpace(this string? s, System.Func<MyError> error)
+        public static MyResult<string> NotNullOrWhiteSpace(this string? s, global::System.Func<MyError> error)
             => string.IsNullOrWhiteSpace(s) ? MyResult.Error<string>(error()) : s!;
 
-        public static MyResult<T> First<T>(this System.Collections.Generic.IEnumerable<T> candidates, System.Func<T, bool> predicate, System.Func<MyError> noMatch) =>
+        public static MyResult<T> First<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, bool> predicate, global::System.Func<MyError> noMatch) =>
             candidates
                 .FirstOrDefault(i => predicate(i))
                 .NotNull(noMatch);

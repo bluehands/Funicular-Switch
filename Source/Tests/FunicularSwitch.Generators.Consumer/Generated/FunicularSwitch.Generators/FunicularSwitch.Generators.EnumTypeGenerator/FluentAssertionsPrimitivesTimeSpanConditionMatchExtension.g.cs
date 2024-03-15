@@ -3,7 +3,7 @@ namespace FluentAssertions.Primitives
 {
 	public static partial class TimeSpanConditionMatchExtension
 	{
-		public static T Match<T>(this FluentAssertions.Primitives.TimeSpanCondition timeSpanCondition, System.Func<T> atLeast, System.Func<T> exactly, System.Func<T> lessThan, System.Func<T> moreThan, System.Func<T> within) =>
+		public static T Match<T>(this FluentAssertions.Primitives.TimeSpanCondition timeSpanCondition, global::System.Func<T> atLeast, global::System.Func<T> exactly, global::System.Func<T> lessThan, global::System.Func<T> moreThan, global::System.Func<T> within) =>
 		timeSpanCondition switch
 		{
 			FluentAssertions.Primitives.TimeSpanCondition.AtLeast => atLeast(),
@@ -11,10 +11,10 @@ namespace FluentAssertions.Primitives
 			FluentAssertions.Primitives.TimeSpanCondition.LessThan => lessThan(),
 			FluentAssertions.Primitives.TimeSpanCondition.MoreThan => moreThan(),
 			FluentAssertions.Primitives.TimeSpanCondition.Within => within(),
-			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Primitives.TimeSpanCondition: {timeSpanCondition.GetType().Name}")
+			_ => throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Primitives.TimeSpanCondition: {timeSpanCondition.GetType().Name}")
 		};
 		
-		public static System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Primitives.TimeSpanCondition timeSpanCondition, System.Func<System.Threading.Tasks.Task<T>> atLeast, System.Func<System.Threading.Tasks.Task<T>> exactly, System.Func<System.Threading.Tasks.Task<T>> lessThan, System.Func<System.Threading.Tasks.Task<T>> moreThan, System.Func<System.Threading.Tasks.Task<T>> within) =>
+		public static global::System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Primitives.TimeSpanCondition timeSpanCondition, global::System.Func<global::System.Threading.Tasks.Task<T>> atLeast, global::System.Func<global::System.Threading.Tasks.Task<T>> exactly, global::System.Func<global::System.Threading.Tasks.Task<T>> lessThan, global::System.Func<global::System.Threading.Tasks.Task<T>> moreThan, global::System.Func<global::System.Threading.Tasks.Task<T>> within) =>
 		timeSpanCondition switch
 		{
 			FluentAssertions.Primitives.TimeSpanCondition.AtLeast => atLeast(),
@@ -22,16 +22,16 @@ namespace FluentAssertions.Primitives
 			FluentAssertions.Primitives.TimeSpanCondition.LessThan => lessThan(),
 			FluentAssertions.Primitives.TimeSpanCondition.MoreThan => moreThan(),
 			FluentAssertions.Primitives.TimeSpanCondition.Within => within(),
-			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Primitives.TimeSpanCondition: {timeSpanCondition.GetType().Name}")
+			_ => throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Primitives.TimeSpanCondition: {timeSpanCondition.GetType().Name}")
 		};
 		
-		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Primitives.TimeSpanCondition> timeSpanCondition, System.Func<T> atLeast, System.Func<T> exactly, System.Func<T> lessThan, System.Func<T> moreThan, System.Func<T> within) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FluentAssertions.Primitives.TimeSpanCondition> timeSpanCondition, global::System.Func<T> atLeast, global::System.Func<T> exactly, global::System.Func<T> lessThan, global::System.Func<T> moreThan, global::System.Func<T> within) =>
 		(await timeSpanCondition.ConfigureAwait(false)).Match(atLeast, exactly, lessThan, moreThan, within);
 		
-		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Primitives.TimeSpanCondition> timeSpanCondition, System.Func<System.Threading.Tasks.Task<T>> atLeast, System.Func<System.Threading.Tasks.Task<T>> exactly, System.Func<System.Threading.Tasks.Task<T>> lessThan, System.Func<System.Threading.Tasks.Task<T>> moreThan, System.Func<System.Threading.Tasks.Task<T>> within) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FluentAssertions.Primitives.TimeSpanCondition> timeSpanCondition, global::System.Func<global::System.Threading.Tasks.Task<T>> atLeast, global::System.Func<global::System.Threading.Tasks.Task<T>> exactly, global::System.Func<global::System.Threading.Tasks.Task<T>> lessThan, global::System.Func<global::System.Threading.Tasks.Task<T>> moreThan, global::System.Func<global::System.Threading.Tasks.Task<T>> within) =>
 		await (await timeSpanCondition.ConfigureAwait(false)).Match(atLeast, exactly, lessThan, moreThan, within).ConfigureAwait(false);
 		
-		public static void Switch(this FluentAssertions.Primitives.TimeSpanCondition timeSpanCondition, System.Action atLeast, System.Action exactly, System.Action lessThan, System.Action moreThan, System.Action within)
+		public static void Switch(this FluentAssertions.Primitives.TimeSpanCondition timeSpanCondition, global::System.Action atLeast, global::System.Action exactly, global::System.Action lessThan, global::System.Action moreThan, global::System.Action within)
 		{
 			switch (timeSpanCondition)
 			{
@@ -51,11 +51,11 @@ namespace FluentAssertions.Primitives
 					within();
 					break;
 				default:
-					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Primitives.TimeSpanCondition: {timeSpanCondition.GetType().Name}");
+					throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Primitives.TimeSpanCondition: {timeSpanCondition.GetType().Name}");
 			}
 		}
 		
-		public static async System.Threading.Tasks.Task Switch(this FluentAssertions.Primitives.TimeSpanCondition timeSpanCondition, System.Func<System.Threading.Tasks.Task> atLeast, System.Func<System.Threading.Tasks.Task> exactly, System.Func<System.Threading.Tasks.Task> lessThan, System.Func<System.Threading.Tasks.Task> moreThan, System.Func<System.Threading.Tasks.Task> within)
+		public static async global::System.Threading.Tasks.Task Switch(this FluentAssertions.Primitives.TimeSpanCondition timeSpanCondition, global::System.Func<global::System.Threading.Tasks.Task> atLeast, global::System.Func<global::System.Threading.Tasks.Task> exactly, global::System.Func<global::System.Threading.Tasks.Task> lessThan, global::System.Func<global::System.Threading.Tasks.Task> moreThan, global::System.Func<global::System.Threading.Tasks.Task> within)
 		{
 			switch (timeSpanCondition)
 			{
@@ -75,14 +75,14 @@ namespace FluentAssertions.Primitives
 					await within().ConfigureAwait(false);
 					break;
 				default:
-					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Primitives.TimeSpanCondition: {timeSpanCondition.GetType().Name}");
+					throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Primitives.TimeSpanCondition: {timeSpanCondition.GetType().Name}");
 			}
 		}
 		
-		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Primitives.TimeSpanCondition> timeSpanCondition, System.Action atLeast, System.Action exactly, System.Action lessThan, System.Action moreThan, System.Action within) =>
+		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FluentAssertions.Primitives.TimeSpanCondition> timeSpanCondition, global::System.Action atLeast, global::System.Action exactly, global::System.Action lessThan, global::System.Action moreThan, global::System.Action within) =>
 		(await timeSpanCondition.ConfigureAwait(false)).Switch(atLeast, exactly, lessThan, moreThan, within);
 		
-		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Primitives.TimeSpanCondition> timeSpanCondition, System.Func<System.Threading.Tasks.Task> atLeast, System.Func<System.Threading.Tasks.Task> exactly, System.Func<System.Threading.Tasks.Task> lessThan, System.Func<System.Threading.Tasks.Task> moreThan, System.Func<System.Threading.Tasks.Task> within) =>
+		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FluentAssertions.Primitives.TimeSpanCondition> timeSpanCondition, global::System.Func<global::System.Threading.Tasks.Task> atLeast, global::System.Func<global::System.Threading.Tasks.Task> exactly, global::System.Func<global::System.Threading.Tasks.Task> lessThan, global::System.Func<global::System.Threading.Tasks.Task> moreThan, global::System.Func<global::System.Threading.Tasks.Task> within) =>
 		await (await timeSpanCondition.ConfigureAwait(false)).Switch(atLeast, exactly, lessThan, moreThan, within).ConfigureAwait(false);
 	}
 }

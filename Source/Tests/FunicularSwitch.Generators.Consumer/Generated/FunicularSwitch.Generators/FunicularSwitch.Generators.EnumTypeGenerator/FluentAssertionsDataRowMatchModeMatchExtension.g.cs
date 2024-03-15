@@ -3,29 +3,29 @@ namespace FluentAssertions.Data
 {
 	public static partial class RowMatchModeMatchExtension
 	{
-		public static T Match<T>(this FluentAssertions.Data.RowMatchMode rowMatchMode, System.Func<T> index, System.Func<T> primaryKey) =>
+		public static T Match<T>(this FluentAssertions.Data.RowMatchMode rowMatchMode, global::System.Func<T> index, global::System.Func<T> primaryKey) =>
 		rowMatchMode switch
 		{
 			FluentAssertions.Data.RowMatchMode.Index => index(),
 			FluentAssertions.Data.RowMatchMode.PrimaryKey => primaryKey(),
-			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}")
+			_ => throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}")
 		};
 		
-		public static System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Data.RowMatchMode rowMatchMode, System.Func<System.Threading.Tasks.Task<T>> index, System.Func<System.Threading.Tasks.Task<T>> primaryKey) =>
+		public static global::System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Data.RowMatchMode rowMatchMode, global::System.Func<global::System.Threading.Tasks.Task<T>> index, global::System.Func<global::System.Threading.Tasks.Task<T>> primaryKey) =>
 		rowMatchMode switch
 		{
 			FluentAssertions.Data.RowMatchMode.Index => index(),
 			FluentAssertions.Data.RowMatchMode.PrimaryKey => primaryKey(),
-			_ => throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}")
+			_ => throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}")
 		};
 		
-		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, System.Func<T> index, System.Func<T> primaryKey) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, global::System.Func<T> index, global::System.Func<T> primaryKey) =>
 		(await rowMatchMode.ConfigureAwait(false)).Match(index, primaryKey);
 		
-		public static async System.Threading.Tasks.Task<T> Match<T>(this System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, System.Func<System.Threading.Tasks.Task<T>> index, System.Func<System.Threading.Tasks.Task<T>> primaryKey) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, global::System.Func<global::System.Threading.Tasks.Task<T>> index, global::System.Func<global::System.Threading.Tasks.Task<T>> primaryKey) =>
 		await (await rowMatchMode.ConfigureAwait(false)).Match(index, primaryKey).ConfigureAwait(false);
 		
-		public static void Switch(this FluentAssertions.Data.RowMatchMode rowMatchMode, System.Action index, System.Action primaryKey)
+		public static void Switch(this FluentAssertions.Data.RowMatchMode rowMatchMode, global::System.Action index, global::System.Action primaryKey)
 		{
 			switch (rowMatchMode)
 			{
@@ -36,11 +36,11 @@ namespace FluentAssertions.Data
 					primaryKey();
 					break;
 				default:
-					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}");
+					throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}");
 			}
 		}
 		
-		public static async System.Threading.Tasks.Task Switch(this FluentAssertions.Data.RowMatchMode rowMatchMode, System.Func<System.Threading.Tasks.Task> index, System.Func<System.Threading.Tasks.Task> primaryKey)
+		public static async global::System.Threading.Tasks.Task Switch(this FluentAssertions.Data.RowMatchMode rowMatchMode, global::System.Func<global::System.Threading.Tasks.Task> index, global::System.Func<global::System.Threading.Tasks.Task> primaryKey)
 		{
 			switch (rowMatchMode)
 			{
@@ -51,14 +51,14 @@ namespace FluentAssertions.Data
 					await primaryKey().ConfigureAwait(false);
 					break;
 				default:
-					throw new System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}");
+					throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Data.RowMatchMode: {rowMatchMode.GetType().Name}");
 			}
 		}
 		
-		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, System.Action index, System.Action primaryKey) =>
+		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, global::System.Action index, global::System.Action primaryKey) =>
 		(await rowMatchMode.ConfigureAwait(false)).Switch(index, primaryKey);
 		
-		public static async System.Threading.Tasks.Task Switch(this System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, System.Func<System.Threading.Tasks.Task> index, System.Func<System.Threading.Tasks.Task> primaryKey) =>
+		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FluentAssertions.Data.RowMatchMode> rowMatchMode, global::System.Func<global::System.Threading.Tasks.Task> index, global::System.Func<global::System.Threading.Tasks.Task> primaryKey) =>
 		await (await rowMatchMode.ConfigureAwait(false)).Switch(index, primaryKey).ConfigureAwait(false);
 	}
 }

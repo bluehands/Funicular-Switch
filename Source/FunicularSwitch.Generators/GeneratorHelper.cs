@@ -1,7 +1,6 @@
 ﻿using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using FunicularSwitch.Generators.EnumType;
 
 namespace FunicularSwitch.Generators;
 

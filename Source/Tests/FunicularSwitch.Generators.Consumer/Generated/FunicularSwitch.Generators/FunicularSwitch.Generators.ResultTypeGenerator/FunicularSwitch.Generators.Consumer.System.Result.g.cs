@@ -1,20 +1,19 @@
 ﻿#nullable enable
 using global::System.Linq;
 using FunicularSwitch;
-using System;
 
-namespace FunicularSwitch.Generators.Consumer
+namespace FunicularSwitch.Generators.Consumer.System
 {
 #pragma warning disable 1591
     public abstract partial class Result
     {
-        public static Result<T> Error<T>(String details) => new Result<T>.Error_(details);
+        public static Result<T> Error<T>(Action details) => new Result<T>.Error_(details);
         public static Result<T> Ok<T>(T value) => new Result<T>.Ok_(value);
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(Result<>.Error_);
         public bool IsOk => !IsError;
-        public abstract String? GetErrorOrDefault();
+        public abstract Action? GetErrorOrDefault();
 
-        public static Result<T> Try<T>(global::System.Func<T> action, global::System.Func<global::System.Exception, String> formatError)
+        public static Result<T> Try<T>(global::System.Func<T> action, global::System.Func<global::System.Exception, Action> formatError)
         {
             try
             {
@@ -26,7 +25,7 @@ namespace FunicularSwitch.Generators.Consumer
             }
         }
 
-        public static async global::System.Threading.Tasks.Task<Result<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<T>> action, global::System.Func<global::System.Exception, String> formatError)
+        public static async global::System.Threading.Tasks.Task<Result<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<T>> action, global::System.Func<global::System.Exception, Action> formatError)
         {
             try
             {
@@ -38,7 +37,7 @@ namespace FunicularSwitch.Generators.Consumer
             }
         }
 
-        public static Result<T> Try<T>(global::System.Func<Result<T>> action, global::System.Func<global::System.Exception, String> formatError)
+        public static Result<T> Try<T>(global::System.Func<Result<T>> action, global::System.Func<global::System.Exception, Action> formatError)
         {
             try
             {
@@ -50,7 +49,7 @@ namespace FunicularSwitch.Generators.Consumer
             }
         }
 
-        public static async global::System.Threading.Tasks.Task<Result<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<Result<T>>> action, global::System.Func<global::System.Exception, String> formatError)
+        public static async global::System.Threading.Tasks.Task<Result<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<Result<T>>> action, global::System.Func<global::System.Exception, Action> formatError)
         {
             try
             {
@@ -65,7 +64,7 @@ namespace FunicularSwitch.Generators.Consumer
 
     public abstract partial class Result<T> : Result, global::System.Collections.Generic.IEnumerable<T>
     {
-        public static Result<T> Error(String message) => Error<T>(message);
+        public static Result<T> Error(Action message) => Error<T>(message);
         public static Result<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator Result<T>(T value) => Result.Ok(value);
@@ -102,7 +101,7 @@ namespace FunicularSwitch.Generators.Consumer
 
         public static bool operator !=(Result<T>? left, Result<T>? right) => !Equals(left, right);
 
-        public void Match(global::System.Action<T> ok, global::System.Action<String>? error = null) => Match(
+        public void Match(global::System.Action<T> ok, global::System.Action<Action>? error = null) => Match(
             v =>
             {
                 ok.Invoke(v);
@@ -114,7 +113,7 @@ namespace FunicularSwitch.Generators.Consumer
                 return 42;
             });
 
-        public T1 Match<T1>(global::System.Func<T, T1> ok, global::System.Func<String, T1> error)
+        public T1 Match<T1>(global::System.Func<T, T1> ok, global::System.Func<Action, T1> error)
         {
             return this switch
             {
@@ -124,7 +123,7 @@ namespace FunicularSwitch.Generators.Consumer
             };
         }
 
-        public async global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<String, global::System.Threading.Tasks.Task<T1>> error)
+        public async global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<Action, global::System.Threading.Tasks.Task<T1>> error)
         {
             return this switch
             {
@@ -134,7 +133,7 @@ namespace FunicularSwitch.Generators.Consumer
             };
         }
 
-        public global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<String, T1> error) =>
+        public global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<Action, T1> error) =>
             Match(ok, e => global::System.Threading.Tasks.Task.FromResult(error(e)));
 
         public async global::System.Threading.Tasks.Task Match(global::System.Func<T, global::System.Threading.Tasks.Task> ok)
@@ -142,7 +141,7 @@ namespace FunicularSwitch.Generators.Consumer
             if (this is Ok_ okResult) await ok(okResult.Value).ConfigureAwait(false);
         }
 
-        public T Match(global::System.Func<String, T> error) => Match(v => v, error);
+        public T Match(global::System.Func<Action, T> error) => Match(v => v, error);
 
         public Result<T1> Bind<T1>(global::System.Func<T, Result<T1>> bind)
         {
@@ -158,7 +157,7 @@ namespace FunicularSwitch.Generators.Consumer
 	                catch (global::System.Exception e)
 #pragma warning restore CS0168 // Variable is declared but never used
 	                {
-		                return Result.Error<T1>(FunicularSwitch.Generators.Consumer.ErrorExtension.UnexpectedToStringError(e));
+		                throw; //createGenericErrorResult
 	                }
                 case Error_ error:
                     return error.Convert<T1>();
@@ -181,7 +180,7 @@ namespace FunicularSwitch.Generators.Consumer
 	                catch (global::System.Exception e)
 #pragma warning restore CS0168 // Variable is declared but never used
 	                {
-		                return Result.Error<T1>(FunicularSwitch.Generators.Consumer.ErrorExtension.UnexpectedToStringError(e));
+		                throw; //createGenericErrorResult
 	                }
                 case Error_ error:
                     return error.Convert<T1>();
@@ -230,7 +229,7 @@ namespace FunicularSwitch.Generators.Consumer
 
             public Ok_(T value) => Value = value;
 
-            public override String? GetErrorOrDefault() => null;
+            public override Action? GetErrorOrDefault() => null;
 
             public bool Equals(Ok_? other)
             {
@@ -255,13 +254,13 @@ namespace FunicularSwitch.Generators.Consumer
 
         public sealed partial class Error_ : Result<T>
         {
-            public String Details { get; }
+            public Action Details { get; }
 
-            public Error_(String details) => Details = details;
+            public Error_(Action details) => Details = details;
 
             public Result<T1>.Error_ Convert<T1>() => new Result<T1>.Error_(Details);
 
-            public override String? GetErrorOrDefault() => Details;
+            public override Action? GetErrorOrDefault() => Details;
 
             public bool Equals(Error_? other)
             {
@@ -314,14 +313,14 @@ namespace FunicularSwitch.Generators.Consumer
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> bind)
             => Bind(result, async v => Result.Ok(await bind(v).ConfigureAwait(false)));
 
-        public static Result<T> MapError<T>(this Result<T> result, global::System.Func<String, String> mapError)
+        public static Result<T> MapError<T>(this Result<T> result, global::System.Func<Action, Action> mapError)
         {
             if (result is Result<T>.Error_ e)
                 return Result.Error<T>(mapError(e.Details));
             return result;
         }
 
-        public static async global::System.Threading.Tasks.Task<Result<T>> MapError<T>(this global::System.Threading.Tasks.Task<Result<T>> result, global::System.Func<String, String> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
+        public static async global::System.Threading.Tasks.Task<Result<T>> MapError<T>(this global::System.Threading.Tasks.Task<Result<T>> result, global::System.Func<Action, Action> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
 
         #endregion
 
@@ -330,26 +329,26 @@ namespace FunicularSwitch.Generators.Consumer
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
             this global::System.Threading.Tasks.Task<Result<T>> result,
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
-            global::System.Func<String, global::System.Threading.Tasks.Task<T1>> error)
+            global::System.Func<Action, global::System.Threading.Tasks.Task<T1>> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
             this global::System.Threading.Tasks.Task<Result<T>> result,
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
-            global::System.Func<String, T1> error)
+            global::System.Func<Action, T1> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
             this global::System.Threading.Tasks.Task<Result<T>> result,
             global::System.Func<T, T1> ok,
-            global::System.Func<String, T1> error)
+            global::System.Func<Action, T1> error)
             => (await result.ConfigureAwait(false)).Match(ok, error);
 
         #endregion
 
         public static Result<T> Flatten<T>(this Result<Result<T>> result) => result.Bind(r => r);
 
-        public static Result<T1> As<T, T1>(this Result<T> result, global::System.Func<String> errorTIsNotT1) =>
+        public static Result<T1> As<T, T1>(this Result<T> result, global::System.Func<Action> errorTIsNotT1) =>
             result.Bind(r =>
             {
                 if (r is T1 converted)
@@ -357,7 +356,7 @@ namespace FunicularSwitch.Generators.Consumer
                 return Result.Error<T1>(errorTIsNotT1());
             });
 
-        public static Result<T1> As<T1>(this Result<object> result, global::System.Func<String> errorIsNotT1) =>
+        public static Result<T1> As<T1>(this Result<object> result, global::System.Func<Action> errorIsNotT1) =>
             result.As<object, T1>(errorIsNotT1);
         
         #region query-expression pattern
@@ -374,21 +373,21 @@ namespace FunicularSwitch.Generators.Consumer
     }
 }
 
-namespace FunicularSwitch.Generators.Consumer.Extensions
+namespace FunicularSwitch.Generators.Consumer.System.Extensions
 {
     public static partial class ResultExtension
     {
         public static global::System.Collections.Generic.IEnumerable<T1> Choose<T, T1>(
             this global::System.Collections.Generic.IEnumerable<T> items,
             global::System.Func<T, Result<T1>> choose,
-            global::System.Action<String> onError)
+            global::System.Action<Action> onError)
             => items
                 .Select(i => choose(i))
                 .Choose(onError);
 
         public static global::System.Collections.Generic.IEnumerable<T> Choose<T>(
             this global::System.Collections.Generic.IEnumerable<Result<T>> results,
-            global::System.Action<String> onError)
+            global::System.Action<Action> onError)
             => results
                 .Where(r =>
                     r.Match(_ => true, error =>
@@ -398,19 +397,19 @@ namespace FunicularSwitch.Generators.Consumer.Extensions
                     }))
                 .Select(r => r.GetValueOrThrow());
 
-        public static Result<T> As<T>(this object item, global::System.Func<String> error) =>
+        public static Result<T> As<T>(this object item, global::System.Func<Action> error) =>
             !(item is T t) ? Result.Error<T>(error()) : t;
 
-        public static Result<T> NotNull<T>(this T? item, global::System.Func<String> error) =>
+        public static Result<T> NotNull<T>(this T? item, global::System.Func<Action> error) =>
             item ?? Result.Error<T>(error());
 
-        public static Result<string> NotNullOrEmpty(this string? s, global::System.Func<String> error)
+        public static Result<string> NotNullOrEmpty(this string? s, global::System.Func<Action> error)
             => string.IsNullOrEmpty(s) ? Result.Error<string>(error()) : s!;
 
-        public static Result<string> NotNullOrWhiteSpace(this string? s, global::System.Func<String> error)
+        public static Result<string> NotNullOrWhiteSpace(this string? s, global::System.Func<Action> error)
             => string.IsNullOrWhiteSpace(s) ? Result.Error<string>(error()) : s!;
 
-        public static Result<T> First<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, bool> predicate, global::System.Func<String> noMatch) =>
+        public static Result<T> First<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, bool> predicate, global::System.Func<Action> noMatch) =>
             candidates
                 .FirstOrDefault(i => predicate(i))
                 .NotNull(noMatch);

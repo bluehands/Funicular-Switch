@@ -99,8 +99,8 @@ static class Generator
         var typeArgumentsWithResult = $"{typeArguments}, TResult";
 
         var parameterDeclarations = Expand(i => $"MyResult<T{i}> r{i}");
-        var taskParameterDeclarations = Expand(i => $"System.Threading.Tasks.Task<MyResult<T{i}>> r{i}");
-        var parametersWithCombine = $"{parameterDeclarations}, System.Func<{typeArgumentsWithResult}> combine";
+        var taskParameterDeclarations = Expand(i => $"global::System.Threading.Tasks.Task<MyResult<T{i}>> r{i}");
+        var parametersWithCombine = $"{parameterDeclarations}, global::System.Func<{typeArgumentsWithResult}> combine";
 
         var okCheck = Expand(i => $"r{i} is MyResult<T{i}>.Ok_ ok{i}", " && ");
         var combineArguments = Expand(i => $"ok{i}.Value");
@@ -125,12 +125,12 @@ static class Generator
                 )!);
         }}
         
-        public static System.Threading.Tasks.Task<MyResult<({typeArguments})>> Aggregate<{typeArguments}>(this {taskParameterDeclarations})
+        public static global::System.Threading.Tasks.Task<MyResult<({typeArguments})>> Aggregate<{typeArguments}>(this {taskParameterDeclarations})
             => Aggregate({resultArrayElements}, ({tupleArguments}) => ({tupleArguments}));
 
-        public static async System.Threading.Tasks.Task<MyResult<TResult>> Aggregate<{typeArgumentsWithResult}>(this {taskParameterDeclarations}, System.Func<{typeArgumentsWithResult}> combine)            
+        public static async global::System.Threading.Tasks.Task<MyResult<TResult>> Aggregate<{typeArgumentsWithResult}>(this {taskParameterDeclarations}, global::System.Func<{typeArgumentsWithResult}> combine)            
         {{
-            await System.Threading.Tasks.Task.WhenAll({resultArrayElements});
+            await global::System.Threading.Tasks.Task.WhenAll({resultArrayElements});
             return Aggregate({taskResultArrayElements}, combine);
         }}";
     }
@@ -142,16 +142,16 @@ static class Generator
 
         var typeParameters = Expand(i => $"T{i}");
         var parameterDeclarations = Expand(i => $"MyResult<T{i}> r{i}");
-        var taskParameterDeclarations = Expand(i => $"System.Threading.Tasks.Task<MyResult<T{i}>> r{i}");
+        var taskParameterDeclarations = Expand(i => $"global::System.Threading.Tasks.Task<MyResult<T{i}>> r{i}");
         var parameters = Expand(i => $"r{i}");
 
         return $@"
         public static MyResult<({typeParameters})> Aggregate<{typeParameters}>({parameterDeclarations}) => MyResultExtension.Aggregate({parameters});
 
-        public static MyResult<TResult> Aggregate<{typeParameters}, TResult>({parameterDeclarations}, System.Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);
+        public static MyResult<TResult> Aggregate<{typeParameters}, TResult>({parameterDeclarations}, global::System.Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);
 
-        public static System.Threading.Tasks.Task<MyResult<({typeParameters})>> Aggregate<{typeParameters}>({taskParameterDeclarations}) => MyResultExtension.Aggregate({parameters});
+        public static global::System.Threading.Tasks.Task<MyResult<({typeParameters})>> Aggregate<{typeParameters}>({taskParameterDeclarations}) => MyResultExtension.Aggregate({parameters});
 
-        public static System.Threading.Tasks.Task<MyResult<TResult>> Aggregate<{typeParameters}, TResult>({taskParameterDeclarations}, System.Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);";
+        public static global::System.Threading.Tasks.Task<MyResult<TResult>> Aggregate<{typeParameters}, TResult>({taskParameterDeclarations}, global::System.Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);";
     }
 }
