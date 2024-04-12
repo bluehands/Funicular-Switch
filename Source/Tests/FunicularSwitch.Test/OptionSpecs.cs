@@ -126,4 +126,44 @@ public class OptionSpecs
 			select x
 		)).Should().BeEquivalentTo(await someAsync.Map(r => r * 2));
 	}
+
+	[TestMethod]
+	public void ShouldHaveDifferentHashCodeIfBothValuesAreDifferent()
+	{
+		var hashcode1 = Some(1).GetHashCode();
+		var hashcode2 = Some(2).GetHashCode();
+		hashcode1.Should().NotBe(hashcode2);
+	}
+	
+	[TestMethod]
+	public void ShouldHaveSameHashCodeIfBothValueAreSame()
+	{
+		var hashcode1 = Some(1).GetHashCode();
+		var hashcode2 = Some(1).GetHashCode();
+		hashcode1.Should().Be(hashcode2);
+	}
+	
+	[TestMethod]
+	public void ShouldHaveDifferentHashCodeIfOneIsNone()
+	{
+		var hashcode1 = Some(1).GetHashCode();
+		var hashcode2 = None<int>().GetHashCode();
+		hashcode1.Should().NotBe(hashcode2);
+	}
+	
+	[TestMethod]
+	public void ShouldBeEqualIfBothValuesAreEqual()
+	{
+		var some1 = Some(1);
+		var some2 = Some(1);
+		some1.Equals(some2).Should().BeTrue();
+	}
+	
+	[TestMethod]
+	public void ShouldNotBeEqualIfOneIsNone()
+	{
+		var some1 = Some(1);
+		var some2 = None<int>();
+		some1.Equals(some2).Should().BeFalse();
+	}
 }

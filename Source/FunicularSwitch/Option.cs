@@ -15,7 +15,7 @@ namespace FunicularSwitch
         public static Task<Option<T>> NoneAsync<T>() => Task.FromResult(Option<T>.None);
     }
 
-    public readonly struct Option<T> : IEnumerable<T>
+    public readonly struct Option<T> : IEnumerable<T>, IEquatable<Option<T>>
     {
         public static readonly Option<T> None = default;
 
@@ -111,6 +111,34 @@ namespace FunicularSwitch
         public Option<TOther> Convert<TOther>() => Match(s => Option<TOther>.Some((TOther)(object)s!), Option<TOther>.None);
 
         public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {typeof(T).BeautifulName()}");
+
+        public bool Equals(Option<T> other)
+        {
+            return _isSome == other._isSome && EqualityComparer<T>.Default.Equals(_value, other._value);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Option<T> other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (_isSome.GetHashCode() * 397) ^ EqualityComparer<T>.Default.GetHashCode(_value);
+            }
+        }
+
+        public static bool operator ==(Option<T> left, Option<T> right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Option<T> left, Option<T> right)
+        {
+            return !left.Equals(right);
+        }
     }
 
     public static class OptionExtension
@@ -191,5 +219,7 @@ namespace FunicularSwitch
             result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
         #endregion
+        
+        
     }
 }
