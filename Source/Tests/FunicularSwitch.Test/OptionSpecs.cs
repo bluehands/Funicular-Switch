@@ -209,10 +209,15 @@ public class OptionSpecs
     public void NullOptionsWork()
     {
         var nullOption = Option<MyClass?>.Some(null);
-		nullOption.GetHashCode().Should().Be(0);
+        var nullOption2 = Option<MyOtherClass?>.Some(null);
+		nullOption.GetHashCode().Should().NotBe(nullOption2.GetHashCode());
         nullOption.Equals(Option<MyClass?>.Some(new())).Should().BeFalse();
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        nullOption.Equals(nullOption2).Should().BeFalse();
         nullOption.Equals(Option<MyClass?>.Some(null)).Should().BeTrue();
     }
 
     class MyClass;
+
+    class MyOtherClass;
 }
