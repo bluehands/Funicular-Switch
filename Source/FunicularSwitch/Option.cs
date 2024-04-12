@@ -112,15 +112,9 @@ namespace FunicularSwitch
 
         public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {typeof(T).BeautifulName()}");
 
-        public bool Equals(Option<T> other)
-        {
-            return _isSome == other._isSome && EqualityComparer<T>.Default.Equals(_value, other._value);
-        }
+        public bool Equals(Option<T> other) => _isSome == other._isSome && EqualityComparer<T>.Default.Equals(_value, other._value);
 
-        public override bool Equals(object? obj)
-        {
-            return obj is Option<T> other && Equals(other);
-        }
+        public override bool Equals(object? obj) => obj is Option<T> other && Equals(other);
 
         public override int GetHashCode()
         {
@@ -130,15 +124,9 @@ namespace FunicularSwitch
             }
         }
 
-        public static bool operator ==(Option<T> left, Option<T> right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(Option<T> left, Option<T> right) => left.Equals(right);
 
-        public static bool operator !=(Option<T> left, Option<T> right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(Option<T> left, Option<T> right) => !left.Equals(right);
     }
 
     public static class OptionExtension
