@@ -219,7 +219,5 @@ namespace FunicularSwitch
             result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
         #endregion
-        
-        
     }
 }
