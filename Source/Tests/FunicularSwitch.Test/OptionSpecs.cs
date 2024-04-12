@@ -166,4 +166,17 @@ public class OptionSpecs
 		var some2 = None<int>();
 		some1.Equals(some2).Should().BeFalse();
 	}
+
+    [TestMethod]
+    public void ShouldBeEqualIfBothAreNoneOfSameType()
+    {
+        None<int>().Equals(None<int>()).Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void ShouldNotBeEqualIfBothAreNoneOfDifferentTypes()
+    {
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        None<int>().Equals(None<string>()).Should().BeFalse();
+    }
 }
