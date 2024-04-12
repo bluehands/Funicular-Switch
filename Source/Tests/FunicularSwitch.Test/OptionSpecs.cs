@@ -162,9 +162,9 @@ public class OptionSpecs
 	[TestMethod]
 	public void ShouldNotBeEqualIfOneIsNone()
 	{
-		var some1 = Some(1);
-		var some2 = None<int>();
-		some1.Equals(some2).Should().BeFalse();
+		var some = Some(1);
+		var none = None<int>();
+		some.Equals(none).Should().BeFalse();
 	}
 
     [TestMethod]
