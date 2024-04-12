@@ -134,6 +134,16 @@ public class OptionSpecs
 		var hashcode2 = Some(2).GetHashCode();
 		hashcode1.Should().NotBe(hashcode2);
 	}
+
+    [TestMethod]
+    public void ShouldNotBeEqualIfValuesDifferent()
+    {
+        var some1 = Some(1);
+        var some2 = Some(2);
+        some1.Equals(some2).Should().BeFalse();
+        (some1 == some2).Should().BeFalse();
+        (some1 != some2).Should().BeTrue();
+    }
 	
 	[TestMethod]
 	public void ShouldHaveSameHashCodeIfBothValueAreSame()
@@ -157,7 +167,9 @@ public class OptionSpecs
 		var some1 = Some(1);
 		var some2 = Some(1);
 		some1.Equals(some2).Should().BeTrue();
-	}
+        (some1 == some2).Should().BeTrue();
+        (some1 != some2).Should().BeFalse();
+    }
 	
 	[TestMethod]
 	public void ShouldNotBeEqualIfOneIsNone()
@@ -174,9 +186,33 @@ public class OptionSpecs
     }
 
     [TestMethod]
+    public void ShouldHaveSameHashCodeIfBothAreNoneOfSameTypes()
+    {
+        None<string>().GetHashCode().Equals(None<string>().GetHashCode()).Should().BeTrue();
+    }
+
+    [TestMethod]
     public void ShouldNotBeEqualIfBothAreNoneOfDifferentTypes()
     {
         // ReSharper disable once SuspiciousTypeConversion.Global
         None<int>().Equals(None<string>()).Should().BeFalse();
     }
+
+    [TestMethod]
+    public void ShouldNotHaveSameHashCodeIfBothAreNoneOfDifferentTypes()
+    {
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        None<int>().GetHashCode().Equals(None<string>().GetHashCode()).Should().BeFalse();
+    }
+
+    [TestMethod]
+    public void NullOptionsWork()
+    {
+        var nullOption = Option<MyClass?>.Some(null);
+		nullOption.GetHashCode().Should().Be(0);
+        nullOption.Equals(Option<MyClass?>.Some(new())).Should().BeFalse();
+        nullOption.Equals(Option<MyClass?>.Some(null)).Should().BeTrue();
+    }
+
+    class MyClass;
 }

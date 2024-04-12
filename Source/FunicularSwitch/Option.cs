@@ -116,13 +116,7 @@ namespace FunicularSwitch
 
         public override bool Equals(object? obj) => obj is Option<T> other && Equals(other);
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (_isSome.GetHashCode() * 397) ^ EqualityComparer<T>.Default.GetHashCode(_value);
-            }
-        }
+        public override int GetHashCode() => _isSome ? EqualityComparer<T>.Default.GetHashCode(_value) : typeof(T).GetHashCode();
 
         public static bool operator ==(Option<T> left, Option<T> right) => left.Equals(right);
 
