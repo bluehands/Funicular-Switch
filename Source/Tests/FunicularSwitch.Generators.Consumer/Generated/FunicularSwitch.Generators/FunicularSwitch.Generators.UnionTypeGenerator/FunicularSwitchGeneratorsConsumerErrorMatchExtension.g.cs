@@ -6,20 +6,20 @@ namespace FunicularSwitch.Generators.Consumer
 		public static T Match<T>(this FunicularSwitch.Generators.Consumer.Error error, global::System.Func<FunicularSwitch.Generators.Consumer.Error.Generic_, T> generic, global::System.Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, T> notFound, global::System.Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, T> notAuthorized, global::System.Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, T> aggregated) =>
 		error switch
 		{
-			FunicularSwitch.Generators.Consumer.Error.Generic_ case1 => generic(case1),
-			FunicularSwitch.Generators.Consumer.Error.NotFound_ case2 => notFound(case2),
-			FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ case3 => notAuthorized(case3),
-			FunicularSwitch.Generators.Consumer.Error.Aggregated_ case4 => aggregated(case4),
+			FunicularSwitch.Generators.Consumer.Error.Generic_ generic1 => generic(generic1),
+			FunicularSwitch.Generators.Consumer.Error.NotFound_ notFound2 => notFound(notFound2),
+			FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ notAuthorized3 => notAuthorized(notAuthorized3),
+			FunicularSwitch.Generators.Consumer.Error.Aggregated_ aggregated4 => aggregated(aggregated4),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}")
 		};
 		
 		public static global::System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Generators.Consumer.Error error, global::System.Func<FunicularSwitch.Generators.Consumer.Error.Generic_, global::System.Threading.Tasks.Task<T>> generic, global::System.Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, global::System.Threading.Tasks.Task<T>> notFound, global::System.Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, global::System.Threading.Tasks.Task<T>> notAuthorized, global::System.Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, global::System.Threading.Tasks.Task<T>> aggregated) =>
 		error switch
 		{
-			FunicularSwitch.Generators.Consumer.Error.Generic_ case1 => generic(case1),
-			FunicularSwitch.Generators.Consumer.Error.NotFound_ case2 => notFound(case2),
-			FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ case3 => notAuthorized(case3),
-			FunicularSwitch.Generators.Consumer.Error.Aggregated_ case4 => aggregated(case4),
+			FunicularSwitch.Generators.Consumer.Error.Generic_ generic1 => generic(generic1),
+			FunicularSwitch.Generators.Consumer.Error.NotFound_ notFound2 => notFound(notFound2),
+			FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ notAuthorized3 => notAuthorized(notAuthorized3),
+			FunicularSwitch.Generators.Consumer.Error.Aggregated_ aggregated4 => aggregated(aggregated4),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}")
 		};
 		
@@ -33,17 +33,17 @@ namespace FunicularSwitch.Generators.Consumer
 		{
 			switch (error)
 			{
-				case FunicularSwitch.Generators.Consumer.Error.Generic_ case1:
-					generic(case1);
+				case FunicularSwitch.Generators.Consumer.Error.Generic_ generic1:
+					generic(generic1);
 					break;
-				case FunicularSwitch.Generators.Consumer.Error.NotFound_ case2:
-					notFound(case2);
+				case FunicularSwitch.Generators.Consumer.Error.NotFound_ notFound2:
+					notFound(notFound2);
 					break;
-				case FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ case3:
-					notAuthorized(case3);
+				case FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ notAuthorized3:
+					notAuthorized(notAuthorized3);
 					break;
-				case FunicularSwitch.Generators.Consumer.Error.Aggregated_ case4:
-					aggregated(case4);
+				case FunicularSwitch.Generators.Consumer.Error.Aggregated_ aggregated4:
+					aggregated(aggregated4);
 					break;
 				default:
 					throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}");
@@ -54,17 +54,17 @@ namespace FunicularSwitch.Generators.Consumer
 		{
 			switch (error)
 			{
-				case FunicularSwitch.Generators.Consumer.Error.Generic_ case1:
-					await generic(case1).ConfigureAwait(false);
+				case FunicularSwitch.Generators.Consumer.Error.Generic_ generic1:
+					await generic(generic1).ConfigureAwait(false);
 					break;
-				case FunicularSwitch.Generators.Consumer.Error.NotFound_ case2:
-					await notFound(case2).ConfigureAwait(false);
+				case FunicularSwitch.Generators.Consumer.Error.NotFound_ notFound2:
+					await notFound(notFound2).ConfigureAwait(false);
 					break;
-				case FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ case3:
-					await notAuthorized(case3).ConfigureAwait(false);
+				case FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ notAuthorized3:
+					await notAuthorized(notAuthorized3).ConfigureAwait(false);
 					break;
-				case FunicularSwitch.Generators.Consumer.Error.Aggregated_ case4:
-					await aggregated(case4).ConfigureAwait(false);
+				case FunicularSwitch.Generators.Consumer.Error.Aggregated_ aggregated4:
+					await aggregated(aggregated4).ConfigureAwait(false);
 					break;
 				default:
 					throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}");

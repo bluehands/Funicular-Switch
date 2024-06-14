@@ -7,18 +7,18 @@ namespace FunicularSwitch.Test
 		public static T Match<T>(this FunicularSwitch.Test.FieldType fieldType, global::System.Func<FunicularSwitch.Test.FieldType.Bool_, T> @bool, global::System.Func<FunicularSwitch.Test.FieldType.Enum_, T> @enum, global::System.Func<FunicularSwitch.Test.FieldType.String_, T> @string) =>
 		fieldType switch
 		{
-			FunicularSwitch.Test.FieldType.Bool_ case1 => @bool(case1),
-			FunicularSwitch.Test.FieldType.Enum_ case2 => @enum(case2),
-			FunicularSwitch.Test.FieldType.String_ case3 => @string(case3),
+			FunicularSwitch.Test.FieldType.Bool_ @bool1 => @bool(@bool1),
+			FunicularSwitch.Test.FieldType.Enum_ @enum2 => @enum(@enum2),
+			FunicularSwitch.Test.FieldType.String_ @string3 => @string(@string3),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.FieldType: {fieldType.GetType().Name}")
 		};
 		
 		public static global::System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Test.FieldType fieldType, global::System.Func<FunicularSwitch.Test.FieldType.Bool_, global::System.Threading.Tasks.Task<T>> @bool, global::System.Func<FunicularSwitch.Test.FieldType.Enum_, global::System.Threading.Tasks.Task<T>> @enum, global::System.Func<FunicularSwitch.Test.FieldType.String_, global::System.Threading.Tasks.Task<T>> @string) =>
 		fieldType switch
 		{
-			FunicularSwitch.Test.FieldType.Bool_ case1 => @bool(case1),
-			FunicularSwitch.Test.FieldType.Enum_ case2 => @enum(case2),
-			FunicularSwitch.Test.FieldType.String_ case3 => @string(case3),
+			FunicularSwitch.Test.FieldType.Bool_ @bool1 => @bool(@bool1),
+			FunicularSwitch.Test.FieldType.Enum_ @enum2 => @enum(@enum2),
+			FunicularSwitch.Test.FieldType.String_ @string3 => @string(@string3),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.FieldType: {fieldType.GetType().Name}")
 		};
 		
@@ -32,14 +32,14 @@ namespace FunicularSwitch.Test
 		{
 			switch (fieldType)
 			{
-				case FunicularSwitch.Test.FieldType.Bool_ case1:
-					@bool(case1);
+				case FunicularSwitch.Test.FieldType.Bool_ @bool1:
+					@bool(@bool1);
 					break;
-				case FunicularSwitch.Test.FieldType.Enum_ case2:
-					@enum(case2);
+				case FunicularSwitch.Test.FieldType.Enum_ @enum2:
+					@enum(@enum2);
 					break;
-				case FunicularSwitch.Test.FieldType.String_ case3:
-					@string(case3);
+				case FunicularSwitch.Test.FieldType.String_ @string3:
+					@string(@string3);
 					break;
 				default:
 					throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.FieldType: {fieldType.GetType().Name}");
@@ -50,14 +50,14 @@ namespace FunicularSwitch.Test
 		{
 			switch (fieldType)
 			{
-				case FunicularSwitch.Test.FieldType.Bool_ case1:
-					await @bool(case1).ConfigureAwait(false);
+				case FunicularSwitch.Test.FieldType.Bool_ @bool1:
+					await @bool(@bool1).ConfigureAwait(false);
 					break;
-				case FunicularSwitch.Test.FieldType.Enum_ case2:
-					await @enum(case2).ConfigureAwait(false);
+				case FunicularSwitch.Test.FieldType.Enum_ @enum2:
+					await @enum(@enum2).ConfigureAwait(false);
 					break;
-				case FunicularSwitch.Test.FieldType.String_ case3:
-					await @string(case3).ConfigureAwait(false);
+				case FunicularSwitch.Test.FieldType.String_ @string3:
+					await @string(@string3).ConfigureAwait(false);
 					break;
 				default:
 					throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.FieldType: {fieldType.GetType().Name}");

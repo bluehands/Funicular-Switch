@@ -340,6 +340,26 @@ Those factory methods are not generated if they would conflict with an existing 
 So you can always decide to implement them by yourself. Generation of factory methods on a partial base type can be suppressed 
 by setting StaticFactoryMethods argument to false: `[UnionType(StaticFactoryMethods=false)]`. Currently default values in 
 constructor parameters from namespaces other than System need full qualification.
+If you like to declare your cases as nested types of your base types you can use an underscore prefix or postfix with your nested type name to avoid conflicts with factory methods. Static factory method will then be generated without the underscore. This also works if you use the base type name as prefix or postfix.
+
+``` cs
+[UnionType]
+public abstract partial record Failure
+{
+    public record NotFound_(int Id) : Failure;
+}
+
+public record InvalidInputFailure(string Message) : Failure;
+
+class ExampleConsumer
+{
+    public static void UseGeneratedFactoryMethods()
+    {
+        var notFound = Failure.NotFound(42); //static factory method generated without underscore used in typename NotFound_ 
+        var invalid = Failure.InvalidInput("I don't like it"); //static factory method generated without base typename postfix 
+    }
+}
+```
 
 If you like union types but don't like excessive typing in C# try the [Switchyard](https://github.com/bluehands/Switchyard) Visual Studio extension, which generates the boilerplate code for you. It plays nicely with the FunicularSwitch.Generators package.
 

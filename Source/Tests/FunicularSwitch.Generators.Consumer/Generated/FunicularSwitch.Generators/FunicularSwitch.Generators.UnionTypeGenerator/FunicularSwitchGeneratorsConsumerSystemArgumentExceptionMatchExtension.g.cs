@@ -6,16 +6,16 @@ namespace FunicularSwitch.Generators.Consumer.System
 		public static T Match<T>(this FunicularSwitch.Generators.Consumer.System.ArgumentException argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_, T> action, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_, T> func) =>
 		argumentException switch
 		{
-			FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_ case1 => action(case1),
-			FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_ case2 => func(case2),
+			FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_ action1 => action(action1),
+			FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_ func2 => func(func2),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.System.ArgumentException: {argumentException.GetType().Name}")
 		};
 		
 		public static global::System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Generators.Consumer.System.ArgumentException argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_, global::System.Threading.Tasks.Task<T>> action, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_, global::System.Threading.Tasks.Task<T>> func) =>
 		argumentException switch
 		{
-			FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_ case1 => action(case1),
-			FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_ case2 => func(case2),
+			FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_ action1 => action(action1),
+			FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_ func2 => func(func2),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.System.ArgumentException: {argumentException.GetType().Name}")
 		};
 		
@@ -29,11 +29,11 @@ namespace FunicularSwitch.Generators.Consumer.System
 		{
 			switch (argumentException)
 			{
-				case FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_ case1:
-					action(case1);
+				case FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_ action1:
+					action(action1);
 					break;
-				case FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_ case2:
-					func(case2);
+				case FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_ func2:
+					func(func2);
 					break;
 				default:
 					throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.System.ArgumentException: {argumentException.GetType().Name}");
@@ -44,11 +44,11 @@ namespace FunicularSwitch.Generators.Consumer.System
 		{
 			switch (argumentException)
 			{
-				case FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_ case1:
-					await action(case1).ConfigureAwait(false);
+				case FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_ action1:
+					await action(action1).ConfigureAwait(false);
 					break;
-				case FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_ case2:
-					await func(case2).ConfigureAwait(false);
+				case FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_ func2:
+					await func(func2).ConfigureAwait(false);
 					break;
 				default:
 					throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.System.ArgumentException: {argumentException.GetType().Name}");

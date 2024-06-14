@@ -225,7 +225,21 @@ public static class BuildExtensions
     {
 	    var typeNameWithoutOuter = name.Split('.').Last();
         var parameterName = typeNameWithoutOuter.FirstToLower();
-        return parameterName.IsAnyKeyWord() ? $"@{parameterName}" : parameterName;
+        return PrefixAtIfKeyword(parameterName);
+    }
+
+    public static string PrefixAtIfKeyword(this string parameterName) => parameterName.IsAnyKeyWord() ? $"@{parameterName}" : parameterName;
+
+    public static string TrimBaseTypeName(this string value, string baseTypeName)
+    {
+        if (value.Length <= baseTypeName.Length)
+            return value;
+
+        if (value.EndsWith(baseTypeName))
+            value = value.Substring(0, value.Length - baseTypeName.Length);
+        else if (value.StartsWith(baseTypeName))
+            value = value.Substring(baseTypeName.Length);
+        return value;
     }
 
     public static string ToMatchExtensionFilename(this string fullTypeName) => $"{fullTypeName.Replace(".", "")}MatchExtension.g.cs";

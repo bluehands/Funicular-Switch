@@ -81,14 +81,15 @@ public static class Generator
 	{
 		var info = unionTypeSchema.StaticFactoryInfo!;
 
-		builder.WriteLine($"{(info.Modifiers.Select(m => m.Text).ToSeparatedString(" "))} {(unionTypeSchema.IsRecord ? "record" : "class")} {unionTypeSchema.TypeName}");
+        var typeKind = unionTypeSchema.TypeKind switch { UnionTypeTypeKind.Class => "class", UnionTypeTypeKind.Interface => "interface", UnionTypeTypeKind.Record => "record", _ => throw new ArgumentException($"Unknown type kind: {unionTypeSchema.TypeKind}") };
+        builder.WriteLine($"{(info.Modifiers.Select(m => m.Text).ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}");
 		using (builder.Scope())
 		{
 			foreach (var derivedType in unionTypeSchema.Cases)
 			{
 				var nameParts = derivedType.FullTypeName.Split('.');
 				var derivedTypeName = nameParts[nameParts.Length - 1];
-				var methodName = derivedTypeName.Trim('_');
+				var methodName = derivedType.StaticFactoryMethodName;
 
 				if ($"{unionTypeSchema.FullTypeName}.{methodName}" == derivedType.FullTypeName) //union case is nested type without underscores, so factory method name would conflict with type name
 					continue;
@@ -127,7 +128,7 @@ public static class Generator
 		}
 	}
 
-	static void GenerateMatchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, string t)
+    static void GenerateMatchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, string t)
 	{
 		var thisParameterType = unionTypeSchema.FullTypeName;
 		var thisParameter = ThisParameter(unionTypeSchema, thisParameterType);
@@ -140,7 +141,8 @@ public static class Generator
 			foreach (var c in unionTypeSchema.Cases)
 			{
 				caseIndex++;
-				builder.WriteLine($"{c.FullTypeName} case{caseIndex} => {c.ParameterName}(case{caseIndex}),");
+                var caseVariableName = $"{c.ParameterName}{caseIndex}";
+				builder.WriteLine($"{c.FullTypeName} {caseVariableName} => {c.ParameterName}({caseVariableName}),");
 			}
 
 			builder.WriteLine(
@@ -163,10 +165,11 @@ public static class Generator
 				foreach (var c in unionTypeSchema.Cases)
 				{
 					caseIndex++;
-					builder.WriteLine($"case {c.FullTypeName} case{caseIndex}:");
+                    var caseVariableName = $"{c.ParameterName}{caseIndex}";
+					builder.WriteLine($"case {c.FullTypeName} {caseVariableName}:");
 					using (builder.Indent())
 					{
-						var call = $"{c.ParameterName}(case{caseIndex})";
+						var call = $"{c.ParameterName}({caseVariableName})";
 						if (isAsync)
 							call = $"await {call}.ConfigureAwait(false)";
 						builder.WriteLine($"{call};");

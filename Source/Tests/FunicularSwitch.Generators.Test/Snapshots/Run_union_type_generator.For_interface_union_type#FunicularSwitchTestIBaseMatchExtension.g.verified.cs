@@ -7,16 +7,16 @@ namespace FunicularSwitch.Test
 		public static T Match<T>(this FunicularSwitch.Test.IBase iBase, global::System.Func<FunicularSwitch.Test.One, T> one, global::System.Func<FunicularSwitch.Test.Two, T> two) =>
 		iBase switch
 		{
-			FunicularSwitch.Test.One case1 => one(case1),
-			FunicularSwitch.Test.Two case2 => two(case2),
+			FunicularSwitch.Test.One one1 => one(one1),
+			FunicularSwitch.Test.Two two2 => two(two2),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.IBase: {iBase.GetType().Name}")
 		};
 		
 		public static global::System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Test.IBase iBase, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two) =>
 		iBase switch
 		{
-			FunicularSwitch.Test.One case1 => one(case1),
-			FunicularSwitch.Test.Two case2 => two(case2),
+			FunicularSwitch.Test.One one1 => one(one1),
+			FunicularSwitch.Test.Two two2 => two(two2),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.IBase: {iBase.GetType().Name}")
 		};
 		
@@ -30,11 +30,11 @@ namespace FunicularSwitch.Test
 		{
 			switch (iBase)
 			{
-				case FunicularSwitch.Test.One case1:
-					one(case1);
+				case FunicularSwitch.Test.One one1:
+					one(one1);
 					break;
-				case FunicularSwitch.Test.Two case2:
-					two(case2);
+				case FunicularSwitch.Test.Two two2:
+					two(two2);
 					break;
 				default:
 					throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.IBase: {iBase.GetType().Name}");
@@ -45,11 +45,11 @@ namespace FunicularSwitch.Test
 		{
 			switch (iBase)
 			{
-				case FunicularSwitch.Test.One case1:
-					await one(case1).ConfigureAwait(false);
+				case FunicularSwitch.Test.One one1:
+					await one(one1).ConfigureAwait(false);
 					break;
-				case FunicularSwitch.Test.Two case2:
-					await two(case2).ConfigureAwait(false);
+				case FunicularSwitch.Test.Two two2:
+					await two(two2).ConfigureAwait(false);
 					break;
 				default:
 					throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.IBase: {iBase.GetType().Name}");

@@ -297,10 +297,35 @@ public static class Cases {
 
 internal record WithDefault(int Number = 42) : Base;
 
+[UnionType(CaseOrder = CaseOrder.AsDeclared, StaticFactoryMethods = true)]
+abstract partial record Base2
+{
+    //nested case with base type as prefix, that is removed in static factory method
+    internal record Base2Prefix : Base2;	
+
+    //nested case with base type as postfix, that is removed in static factory method
+    internal record PostfixBase2 : Base2;   
+
+    //nested case with underscore postfix, that is removed in static factory method
+    internal record UnderscorePostfix_ : Base2;   
+
+    //nested case with underscore prefix, that is removed in static factory method
+    internal record _UnderscorePrefix : Base2;   
+
+    //would result in invalid static factory method name
+    internal record Base22Invalid : Base2;    
+}
+
+
 class Consumer {
 	static Base CreateOne() => Base.One(42);
 	static Base CreateNested() => Base.Nested();
 	static Base CreateWithDefault() => Base.WithDefault();
+
+    static Base2 CreatePrefix() => Base2.Prefix();
+    static Base2 CreatePostfix() => Base2.Postfix();
+    static Base2 CreateUnderscorePostfix() => Base2.UnderscorePostfix();
+    static Base2 CreateUnderscorePrefix() => Base2.UnderscorePrefix();
 }
 ";
 

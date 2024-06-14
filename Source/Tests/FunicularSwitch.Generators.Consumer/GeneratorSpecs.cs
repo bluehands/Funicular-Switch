@@ -181,8 +181,14 @@ public class When_using_generated_result_type
     [TestMethod]
     public void TestFactoryMethodsForClassesWithPrimaryConstructor()
     {
-        var x = WithPrimaryConstructor.DerivedWithPrimaryConstructor("Hallo", 42);
+        var x = WithPrimaryConstructor.Derived("Hallo", 42);
 		Console.WriteLine($"Created {x.Match(d => $"{d.Message} {d.Test}")}");
+    }
+
+    [TestMethod]
+    public void TestFactoryMethodsForInterfaceUnion()
+    {
+        var x = IUnion.Case1();
     }
 }
 
@@ -287,4 +293,28 @@ public abstract partial class WithPrimaryConstructor(int test)
 public class DerivedWithPrimaryConstructor(string message, int test) : WithPrimaryConstructor(test)
 {
     public string Message { get; } = message;
+}
+
+[UnionType] //if you are on .net standard use StaticFactoryMethods=false because default interface implementations are not supported
+public partial interface IUnion
+{
+    public record Case1_ : IUnion;
+    public record Case2_ : IUnion;
+}
+
+[UnionType]
+public abstract partial record Failure
+{
+    public record NotFound_(int Id) : Failure;
+}
+
+public record InvalidInputFailure(string Message) : Failure;
+
+class ExampleConsumer
+{
+    public static void UseGeneratedFactoryMethods()
+    {
+        var notFound = Failure.NotFound(42); //static factory method generated without underscore used in typename NotFound_ 
+        var invalid = Failure.InvalidInput("I don't like it"); //static factory method generated without base typename postfix 
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using FunicularSwitch.Generators.Common;
+using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -47,23 +48,55 @@ static class Parser
 				});
 
 				var isPartial = unionTypeClass.Modifiers.HasModifier(SyntaxKind.PartialKeyword);
-				var generateFactoryMethods = isPartial && unionTypeClass is not InterfaceDeclarationSyntax &&
+				var generateFactoryMethods = isPartial /*&& unionTypeClass is not InterfaceDeclarationSyntax*/ &&
 				                             staticFactoryMethods;
-				return new UnionTypeSchema(
+                var cases = 
+                    ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic, compilation, generateFactoryMethods, unionTypeSymbol.Name)
+                    .ToImmutableArray();
+
+                return new UnionTypeSchema(
 					Namespace: fullNamespace,
 					TypeName: unionTypeSymbol.Name,
 					FullTypeName: fullTypeName,
-					Cases: ToOrderedCases(caseOrder, derivedTypes, reportDiagnostic, compilation, generateFactoryMethods)
-						.ToImmutableArray(),
+					Cases: cases,
 					IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
 					IsPartial: isPartial,
-					IsRecord: unionTypeClass is RecordDeclarationSyntax,
-					StaticFactoryInfo: generateFactoryMethods
+					TypeKind: unionTypeClass switch
+                    {
+                        RecordDeclarationSyntax => UnionTypeTypeKind.Record,
+                        InterfaceDeclarationSyntax => UnionTypeTypeKind.Interface,
+                        _ => UnionTypeTypeKind.Class
+                    },
+                    StaticFactoryInfo: generateFactoryMethods
 						? BuildFactoryInfo(unionTypeClass, compilation)
 						: null
 				);
 			})
 			.Where(unionTypeClass => unionTypeClass is { Cases.Count: > 0 });
+
+    static (string parameterName, string methodName) DeriveParameterAndStaticMethodName(string typeName,
+        string baseTypeName)
+    {
+        var candidates = ImmutableList<string>.Empty;
+        candidates = AddIfDiffersAndValid(typeName.TrimBaseTypeName(baseTypeName));
+        candidates = AddIfDiffersAndValid(typeName.Trim('_'));
+        candidates = candidates.Add(typeName);
+
+        var parameterName = candidates[0].FirstToLower().PrefixAtIfKeyword();
+        var methodName = candidates[0].FirstToUpper().PrefixAtIfKeyword();
+
+        return (parameterName, methodName);
+
+        ImmutableList<string> AddIfDiffersAndValid(string candidate) =>
+            DiffersAndValid(typeName, candidate)
+                ? candidates.Add(candidate)
+                : candidates;
+    }
+
+    static bool DiffersAndValid(string typeName, string candidate) =>
+        candidate != typeName
+        && !string.IsNullOrEmpty(candidate)
+        && char.IsLetter(candidate[0]);
 
     static StaticFactoryMethodsInfo BuildFactoryInfo(BaseTypeDeclarationSyntax unionTypeClass, Compilation compilation)
     {
@@ -114,7 +147,10 @@ static class Parser
         return (caseOrder, staticFactoryMethods);
     }
 
-    static IEnumerable<DerivedType> ToOrderedCases(CaseOrder caseOrder, IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int numberOfConctreteBaseTypes)> derivedTypes, Action<Diagnostic> reportDiagnostic, Compilation compilation, bool getConstructors)
+    static IEnumerable<DerivedType> ToOrderedCases(CaseOrder caseOrder,
+        IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int
+            numberOfConctreteBaseTypes)> derivedTypes, Action<Diagnostic> reportDiagnostic, Compilation compilation,
+        bool getConstructors, string baseTypeName)
     {
         var ordered = derivedTypes.OrderByDescending(d => d.numberOfConctreteBaseTypes);
         ordered = caseOrder switch
@@ -176,10 +212,14 @@ static class Parser
 		            });
             }
 
+            var (parameterName, staticMethodName) =
+                DeriveParameterAndStaticMethodName(qualifiedTypeName.Name, baseTypeName);
+
             return new DerivedType(
                 fullTypeName: $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}",
-                typeName: qualifiedTypeName.Name,
-                constructors: constructors?.ToImmutableList());
+                constructors: constructors?.ToImmutableList(),
+                parameterName: parameterName,
+                staticFactoryMethodName: staticMethodName);
         });
     }
 }

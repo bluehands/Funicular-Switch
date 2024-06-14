@@ -5,16 +5,16 @@ public static partial class BaseMatchExtension
 	public static T Match<T>(this Outer.Base @base, global::System.Func<Outer.One, T> one, global::System.Func<Outer.Two, T> two) =>
 	@base switch
 	{
-		Outer.One case1 => one(case1),
-		Outer.Two case2 => two(case2),
+		Outer.One one1 => one(one1),
+		Outer.Two two2 => two(two2),
 		_ => throw new global::System.ArgumentException($"Unknown type derived from Outer.Base: {@base.GetType().Name}")
 	};
 	
 	public static global::System.Threading.Tasks.Task<T> Match<T>(this Outer.Base @base, global::System.Func<Outer.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<Outer.Two, global::System.Threading.Tasks.Task<T>> two) =>
 	@base switch
 	{
-		Outer.One case1 => one(case1),
-		Outer.Two case2 => two(case2),
+		Outer.One one1 => one(one1),
+		Outer.Two two2 => two(two2),
 		_ => throw new global::System.ArgumentException($"Unknown type derived from Outer.Base: {@base.GetType().Name}")
 	};
 	
@@ -28,11 +28,11 @@ public static partial class BaseMatchExtension
 	{
 		switch (@base)
 		{
-			case Outer.One case1:
-				one(case1);
+			case Outer.One one1:
+				one(one1);
 				break;
-			case Outer.Two case2:
-				two(case2);
+			case Outer.Two two2:
+				two(two2);
 				break;
 			default:
 				throw new global::System.ArgumentException($"Unknown type derived from Outer.Base: {@base.GetType().Name}");
@@ -43,11 +43,11 @@ public static partial class BaseMatchExtension
 	{
 		switch (@base)
 		{
-			case Outer.One case1:
-				await one(case1).ConfigureAwait(false);
+			case Outer.One one1:
+				await one(one1).ConfigureAwait(false);
 				break;
-			case Outer.Two case2:
-				await two(case2).ConfigureAwait(false);
+			case Outer.Two two2:
+				await two(two2).ConfigureAwait(false);
 				break;
 			default:
 				throw new global::System.ArgumentException($"Unknown type derived from Outer.Base: {@base.GetType().Name}");

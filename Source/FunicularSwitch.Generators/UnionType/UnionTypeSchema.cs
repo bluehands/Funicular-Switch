@@ -11,8 +11,15 @@ public sealed record UnionTypeSchema(string? Namespace,
 	IReadOnlyCollection<DerivedType> Cases,
 	bool IsInternal,
 	bool IsPartial,
-	bool IsRecord,
+	UnionTypeTypeKind TypeKind,
 	StaticFactoryMethodsInfo? StaticFactoryInfo);
+
+public enum UnionTypeTypeKind
+{
+	Class,
+	Record,
+	Interface
+}
 
 public record StaticFactoryMethodsInfo(
 	IReadOnlyCollection<MemberInfo> ExistingStaticMethods, 
@@ -23,14 +30,15 @@ public record StaticFactoryMethodsInfo(
 public sealed record DerivedType
 {
 	public string FullTypeName { get; }
+    public IReadOnlyCollection<MemberInfo> Constructors { get; }
     public string ParameterName { get; }
-
-	public IReadOnlyCollection<MemberInfo> Constructors { get; }
-
-    public DerivedType(string fullTypeName, string typeName, IReadOnlyCollection<MemberInfo>? constructors = null)
+	public string StaticFactoryMethodName { get; }
+	
+    public DerivedType(string fullTypeName, string parameterName, string staticFactoryMethodName, IReadOnlyCollection<MemberInfo>? constructors = null)
     {
         FullTypeName = fullTypeName;
-        Constructors = constructors ?? ImmutableList<MemberInfo>.Empty;
-        ParameterName = (typeName.Any(c => c != '_') ? typeName.TrimEnd('_') : typeName).ToParameterName();
+        ParameterName = parameterName;
+        StaticFactoryMethodName = staticFactoryMethodName;
+        Constructors = constructors ?? [];
     }
 }
