@@ -15,7 +15,13 @@ namespace FunicularSwitch
         public static Task<Option<T>> NoneAsync<T>() => Task.FromResult(Option<T>.None);
     }
 
-    public readonly struct Option<T> : IEnumerable<T>, IEquatable<Option<T>>
+    public interface IOption
+    {
+        bool IsSome();
+        bool IsNone();
+    }
+
+    public readonly struct Option<T> : IEnumerable<T>, IEquatable<Option<T>>, IOption
     {
         public static readonly Option<T> None = default;
 
