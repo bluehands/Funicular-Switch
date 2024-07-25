@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -75,15 +76,15 @@ public static class RoslynExtensions
         return parentNamespaces.ToSeparatedString(".");
     }
 
-    static readonly SymbolDisplayFormat s_FullTypeWithNamespaceDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
-    static readonly SymbolDisplayFormat s_FullTypeDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes);
+    static readonly SymbolDisplayFormat FullTypeWithNamespaceDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
+    static readonly SymbolDisplayFormat FullTypeDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes);
 
 
-    public static string FullTypeNameWithNamespace(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(s_FullTypeWithNamespaceDisplayFormat);
-    public static string FullTypeName(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(s_FullTypeDisplayFormat);
+    public static string FullTypeNameWithNamespace(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(FullTypeWithNamespaceDisplayFormat);
+    public static string FullTypeName(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(FullTypeDisplayFormat);
 
     public static string FullNamespace(this INamespaceSymbol namespaceSymbol) =>
-        namespaceSymbol.ToDisplayString(s_FullTypeDisplayFormat);
+        namespaceSymbol.ToDisplayString(FullTypeDisplayFormat);
 
     public static QualifiedTypeName QualifiedName(this BaseTypeDeclarationSyntax dec)
     {
@@ -126,6 +127,12 @@ public static class RoslynExtensions
         return tokens.Any(t => t.Text == token);
     }
 
+    public static bool HasModifier(this IEnumerable<string> tokens, SyntaxKind syntaxKind)
+    {
+        var token = SyntaxFactory.Token(syntaxKind).Text;
+        return tokens.Contains(token);
+    }
+
     public static string GetFullTypeName(this Compilation compilation, SyntaxNode typeSyntax)
     {
         var semanticModel = compilation.GetSemanticModel(typeSyntax.SyntaxTree);
@@ -166,25 +173,30 @@ public static class RoslynExtensions
         }
     }
 
-    public static MemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Compilation compilation) =>
-	    new(name, 
-		    member.Modifiers,
-		    member.ParameterList.Parameters
-		    .Select(p =>
-			    ToParameterInfo(p, compilation))
-		    .ToImmutableList());
+    public static MemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Compilation compilation)
+    {
+        var modifiers = member.Modifiers;
+        return new(name,
+            ToEquatableModifiers(modifiers),
+            member.ParameterList.Parameters
+                .Select(p =>
+                    ToParameterInfo(p, compilation))
+                .ToImmutableArray());
+    }
+
+    public static ImmutableArray<string> ToEquatableModifiers(this SyntaxTokenList modifiers) => modifiers.Select(m => m.Text).ToImmutableArray();
 
     public static ParameterInfo ToParameterInfo(this ParameterSyntax p, Compilation compilation) =>
 	    new(
 		    p.Identifier.Text,
-		    p.Modifiers,
+		    p.Modifiers.ToEquatableModifiers(),
 		    compilation.GetSemanticModel(p.SyntaxTree).GetTypeInfo(p.Type!).Type!,
-		    p.Default);
+		    p.Default?.ToString());
 }
 
 public sealed class QualifiedTypeName : IEquatable<QualifiedTypeName>
 {
-    public static QualifiedTypeName NoParents(string name) => new QualifiedTypeName(name, Enumerable.Empty<string>());
+    public static QualifiedTypeName NoParents(string name) => new(name, []);
 
     readonly string m_FullName;
     public ImmutableArray<string> NestingParents { get; }
@@ -217,23 +229,58 @@ public sealed class QualifiedTypeName : IEquatable<QualifiedTypeName>
     public static bool operator !=(QualifiedTypeName left, QualifiedTypeName right) => !Equals(left, right);
 }
 
-public sealed record MemberInfo(string Name, SyntaxTokenList Modifiers, IReadOnlyCollection<ParameterInfo> Parameters);
+public sealed record MemberInfo(string Name, EquatableArray<string> Modifiers, EquatableArray<ParameterInfo> Parameters);
 
-public sealed record ParameterInfo(string Name, SyntaxTokenList Modifiers, ITypeSymbol Type, EqualsValueClauseSyntax? DefaultClause)
+public sealed record ParameterInfo
 {
-	public override string ToString()
+    readonly string _typeName;
+
+    public string Name { get; }
+    public EquatableArray<string> Modifiers { get; }
+    public ITypeSymbol Type { get; }
+    public string? DefaultClause { get; }
+
+    public ParameterInfo(string name, EquatableArray<string> modifiers, ITypeSymbol type, string? defaultClause)
+    {
+        Name = name;
+        Modifiers = modifiers;
+        Type = type;
+        DefaultClause = defaultClause;
+
+        _typeName = Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+    }
+
+    public override string ToString()
 	{
-		IEnumerable<string> Parts()
-		{
-			if (Modifiers.Count > 0)
-				yield return Modifiers.ToSeparatedString(" ");
-			yield return Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-			yield return Name;
-			if (DefaultClause != null)
-				yield return DefaultClause.ToString();
-		}
+        return Parts().ToSeparatedString(" ");
 
+        IEnumerable<string> Parts()
+        {
+            if (Modifiers.Length > 0)
+                yield return Modifiers.ToSeparatedString(" ");
+            yield return _typeName;
+            yield return Name;
+            if (DefaultClause != null)
+                yield return DefaultClause;
+        }
+    }
 
-		return Parts().ToSeparatedString(" ");
-	}
+    public bool Equals(ParameterInfo? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return _typeName == other._typeName && Name == other.Name && Modifiers.Equals(other.Modifiers) && DefaultClause == other.DefaultClause;
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hashCode = _typeName.GetHashCode();
+            hashCode = (hashCode * 397) ^ Name.GetHashCode();
+            hashCode = (hashCode * 397) ^ Modifiers.GetHashCode();
+            hashCode = (hashCode * 397) ^ (DefaultClause != null ? DefaultClause.GetHashCode() : 0);
+            return hashCode;
+        }
+    }
 }

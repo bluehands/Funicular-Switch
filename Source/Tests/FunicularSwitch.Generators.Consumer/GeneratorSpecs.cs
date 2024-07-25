@@ -10,6 +10,10 @@ using static FunicularSwitch.Generators.Consumer.OperationResult;
 
 namespace FunicularSwitch.Generators.Consumer;
 
+
+
+
+
 [TestClass]
 public class When_using_generated_result_type
 {
@@ -316,5 +320,34 @@ class ExampleConsumer
     {
         var notFound = Failure.NotFound(42); //static factory method generated without underscore used in typename NotFound_ 
         var invalid = Failure.InvalidInput("I don't like it"); //static factory method generated without base typename postfix 
+    }
+}
+
+[FunicularSwitch.Generators.UnionType]
+abstract partial record CardType //declare partial to allow source generator to add static factory methods
+{
+    public record MaleCardType(int Age) : CardType;
+    public record FemaleCardType : CardType;
+}
+
+[TestClass]
+public class Try
+{
+    [TestMethod]
+    public void It()
+    {
+        var male = CardType.Male(42); //static factories added by source generator
+        var female = CardType.Female();
+
+        Console.WriteLine(Print(male));
+        Console.WriteLine(Print(female));
+        return;
+
+        static string Print(CardType cardType) =>
+            cardType
+                .Match( //exhaustive pattern matching
+                    female: _ => "Female",
+                    male: m => $"Male with age {m.Age}"
+                );
     }
 }

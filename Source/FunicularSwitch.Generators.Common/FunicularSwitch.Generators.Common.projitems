@@ -9,7 +9,11 @@
     <Import_RootNamespace>FunicularSwitch.Generators.Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)EquatableArray.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HashCode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Result.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RoslynExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SourceProductionContextExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StringExtensions.cs" />
   </ItemGroup>
 </Project>

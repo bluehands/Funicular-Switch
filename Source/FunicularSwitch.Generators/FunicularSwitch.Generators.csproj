@@ -23,7 +23,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>4</MajorVersion>
-		<MinorAndPatchVersion>0.0</MinorAndPatchVersion>
+		<MinorAndPatchVersion>1.0</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
@@ -66,11 +66,6 @@
 
 	<ItemGroup>
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="UnionType\" />
-	  <Folder Include="EnumType\" />
 	</ItemGroup>
 
 	<Import Project="..\FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems" Label="Shared" />

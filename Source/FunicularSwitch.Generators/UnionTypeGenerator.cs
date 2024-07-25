@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.UnionType;
 using Microsoft.CodeAnalysis;
@@ -20,31 +20,28 @@ public class UnionTypeGenerator : IIncrementalGenerator
 
         var unionTypeClasses =
             context.SyntaxProvider
-                .CreateSyntaxProvider(
-                    predicate: static (s, _) => s.IsTypeDeclarationWithAttributes(),
-                    transform: static (ctx, _) => GeneratorHelper.GetSemanticTargetForGeneration(ctx, UnionTypeAttribute)
-                )
-                .Where(static target => target != null)
-                .Select(static (target, _) => target!);
+                .ForAttributeWithMetadataName(
+                    UnionTypeAttribute,
+                    predicate: static (_, _) => true,
+                    transform: static (ctx, cancellationToken) => 
+                        Parser.GetUnionTypeSchema(ctx.SemanticModel.Compilation, cancellationToken, (BaseTypeDeclarationSyntax)ctx.TargetNode))
+                .Select(static (target, _) => target);
 
-        var compilationAndClasses = context.CompilationProvider.Combine(unionTypeClasses.Collect());
+        var compilationAndClasses = unionTypeClasses;
 
         context.RegisterSourceOutput(
             compilationAndClasses, 
-            static (spc, source) => Execute(source.Left, source.Right, spc));
+            static (spc, source) => Execute(source, spc));
     }
 
-    static void Execute(Compilation compilation, ImmutableArray<BaseTypeDeclarationSyntax> unionTypeClasses, SourceProductionContext context)
+    static void Execute(GenerationResult<UnionTypeSchema> target, SourceProductionContext context)
     {
-        if (unionTypeClasses.IsDefaultOrEmpty) return;
+        var (unionTypeSchema, errors, hasValue) = target;
+        foreach (var error in errors) context.ReportDiagnostic(error);
+        
+        if (!hasValue || unionTypeSchema!.Cases.IsEmpty) return;
 
-        var resultTypeSchemata = 
-            Parser.GetUnionTypes(compilation, unionTypeClasses, context.ReportDiagnostic, context.CancellationToken)
-                .ToImmutableArray();
-
-        var generation =
-            resultTypeSchemata.Select(r => Generator.Emit(r, context.ReportDiagnostic, context.CancellationToken));
-
-        foreach (var (filename, source)  in generation) context.AddSource(filename, source);
+        var (filename, source) = Generator.Emit(unionTypeSchema!, context.ReportDiagnostic, context.CancellationToken);
+        context.AddSource(filename, source);
     }
 }

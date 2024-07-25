@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace FunicularSwitch.Generators.EnumType;
 
-public static class Generator
+static class Generator
 {
 	const string VoidMatchMethodName = "Switch";
 	const string MatchMethodName = "Match";
@@ -15,6 +15,7 @@ public static class Generator
         var builder = new CSharpBuilder();
         builder.WriteLine("#pragma warning disable 1591");
 
+        //builder.WriteLine($"//Generator runs: {RunCount.Increase(enumTypeSchema.FullTypeName)}");
         void BlankLine()
         {
 	        builder.WriteLine("");

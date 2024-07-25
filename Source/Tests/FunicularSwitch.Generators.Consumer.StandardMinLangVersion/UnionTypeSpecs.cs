@@ -37,7 +37,6 @@ namespace StandardMinLangVersion
         public class MyUnionCase2 : MyUnion {}
     }
 
-
     [ResultType(ErrorType = typeof(string))]
     public abstract partial class Result<T>
     {

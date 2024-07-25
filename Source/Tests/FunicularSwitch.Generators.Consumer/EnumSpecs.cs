@@ -4,7 +4,7 @@ using FunicularSwitch.Generators;
 using FluentAssertions.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-[assembly: ExtendEnums(typeof(FluentAssertions.AtLeast), CaseOrder = EnumCaseOrder.Alphabetic, Accessibility = ExtensionAccessibility.Internal)]
+[assembly: ExtendEnums(typeof(AtLeast), CaseOrder = EnumCaseOrder.Alphabetic, Accessibility = ExtensionAccessibility.Internal)]
 [assembly: ExtendEnums]
 [assembly: ExtendEnum(typeof(DateTimeKind), CaseOrder = EnumCaseOrder.Alphabetic)]
 
@@ -14,7 +14,8 @@ namespace FunicularSwitch.Generators.Consumer;
 public class EnumSpecs
 {
 	[ExtendedEnum(CaseOrder = EnumCaseOrder.Alphabetic)] //direct EnumType attribute should have higher precedence compared to ExtendEnumTypes attribute,
-													 //so case oder should be Alphabetic for Match methods of PlatformIdentifier
+			
+	//so case oder should be Alphabetic for Match methods of PlatformIdentifier
 	public enum PlatformIdentifier
 	{
 		LinuxDevice,

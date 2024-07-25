@@ -17,6 +17,8 @@ public static class Generator
 		var builder = new CSharpBuilder();
 		builder.WriteLine("#pragma warning disable 1591");
 
+		//builder.WriteLine($"//Generator runs: {RunCount.Increase(unionTypeSchema.FullTypeName)}");
+
 		using (unionTypeSchema.Namespace != null ? builder.Namespace(unionTypeSchema.Namespace) : null)
 		{
 			WriteMatchExtension(unionTypeSchema, builder);
@@ -82,7 +84,7 @@ public static class Generator
 		var info = unionTypeSchema.StaticFactoryInfo!;
 
         var typeKind = unionTypeSchema.TypeKind switch { UnionTypeTypeKind.Class => "class", UnionTypeTypeKind.Interface => "interface", UnionTypeTypeKind.Record => "record", _ => throw new ArgumentException($"Unknown type kind: {unionTypeSchema.TypeKind}") };
-        builder.WriteLine($"{(info.Modifiers.Select(m => m.Text).ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}");
+        builder.WriteLine($"{(info.Modifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}");
 		using (builder.Scope())
 		{
 			foreach (var derivedType in unionTypeSchema.Cases)
@@ -95,13 +97,13 @@ public static class Generator
 					continue;
 
 				var constructors = derivedType.Constructors;
-				if (constructors.Count == 0)
+				if (constructors.Length == 0)
 					constructors = new[]
 					{
 						new MemberInfo($"{derivedTypeName}",
-							SyntaxTokenList.Create(SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
-							ImmutableList<ParameterInfo>.Empty)
-					};
+							ImmutableArray<string>.Empty.Add("public"),
+							ImmutableArray<ParameterInfo>.Empty)
+					}.ToImmutableArray();
 
 				foreach (var constructor in constructors)
 				{

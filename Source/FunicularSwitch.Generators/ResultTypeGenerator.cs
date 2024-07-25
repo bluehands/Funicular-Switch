@@ -23,7 +23,6 @@ public class ResultTypeGenerator : IIncrementalGenerator
                 .CreateSyntaxProvider(
                     predicate: static (s, _) => s.IsTypeDeclarationWithAttributes(),
                     transform: static (ctx, _) => GeneratorHelper.GetSemanticTargetForGeneration(ctx, ResultTypeAttribute)
-
                 )
                 .Where(static target => target != null)
                 .Select(static (target, _) => target!);
