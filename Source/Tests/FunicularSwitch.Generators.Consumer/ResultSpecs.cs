@@ -82,7 +82,7 @@ namespace FunicularSwitch.Generators.Consumer
         {
             bla();
         }
-
+        
         [TestMethod]
         public void Bind()
         {

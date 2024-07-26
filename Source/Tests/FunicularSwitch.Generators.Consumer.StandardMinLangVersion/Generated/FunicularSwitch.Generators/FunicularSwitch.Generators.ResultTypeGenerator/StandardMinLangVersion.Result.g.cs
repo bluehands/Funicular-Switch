@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿//Generator runs: 1
+#nullable enable
 using global::System.Linq;
 using FunicularSwitch;
 using System;

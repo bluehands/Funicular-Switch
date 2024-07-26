@@ -68,6 +68,8 @@ internal static class Generator
 
         var generateFileHint = $"{unionTypeFullNameWithNamespace}";
 
+        //var generatorRuns = RunCount.Increase(unionTypeSchema.UnionTypeBaseType.FullTypeNameWithNamespace());
+        
         string Replace(string code, params string[] additionalNamespaces)
         {
             code = code
@@ -82,6 +84,8 @@ internal static class Generator
                         .Distinct()
                         .Select(a => $"using {a};")
                         .ToSeparatedString("\n"));
+            //code = $"//Generator runs: {generatorRuns}\r\n" + code;
+            
             return code;
         }
 

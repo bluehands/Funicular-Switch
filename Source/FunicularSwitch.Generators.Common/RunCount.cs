@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace FunicularSwitch.Generators;
+namespace FunicularSwitch.Generators.Common;
 
 static class RunCount
 {

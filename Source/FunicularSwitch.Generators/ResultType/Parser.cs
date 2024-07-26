@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using FunicularSwitch.Generators.Common;
+﻿using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -8,36 +7,26 @@ namespace FunicularSwitch.Generators.ResultType;
 
 static class Parser
 {
-    public static IEnumerable<ResultTypeSchema> GetResultTypes(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> resultTypeClasses, Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
+    public static GenerationResult<ResultTypeSchema> GetResultTypeSchema(ClassDeclarationSyntax resultTypeClass, Compilation compilation, CancellationToken cancellationToken)
     {
-        var mergeMethodByErrorTypeName = FindMergeMethods(compilation, reportDiagnostic);
-        var genericErrorFactoryMethodByErrorTypeName = FindExceptionToErrorMethods(compilation, reportDiagnostic);
+        var semanticModel = compilation.GetSemanticModel(resultTypeClass.SyntaxTree);
 
-        foreach (var resultTypeClass in resultTypeClasses)
-        {
-            var semanticModel = compilation.GetSemanticModel(resultTypeClass.SyntaxTree);
+        var attribute = resultTypeClass.AttributeLists
+            .Select(l => l.Attributes.First(a => a.GetAttributeFullName(semanticModel) == ResultTypeGenerator.ResultTypeAttribute))
+            .First();
 
-            var attribute = resultTypeClass.AttributeLists
-                .Select(l => l.Attributes.First(a => a.GetAttributeFullName(semanticModel) == ResultTypeGenerator.ResultTypeAttribute))
-                .First();
+        return TryGetErrorType(attribute)
+            .Bind(errorType =>
+            {
+                if (semanticModel.GetSymbolInfo(errorType, cancellationToken).Symbol is not INamedTypeSymbol errorTypeSymbol)
+                    return GenerationResult<ResultTypeSchema>.Empty;
 
-            var errorType = TryGetErrorType(attribute, reportDiagnostic);
-            if (errorType == null)
-                continue;
-
-            if (semanticModel.GetSymbolInfo(errorType, cancellationToken).Symbol is not INamedTypeSymbol errorTypeSymbol)
-                continue;
-
-            var fullErrorTypeName = semanticModel.GetFullTypeName(errorType);
-
-            mergeMethodByErrorTypeName.TryGetValue(fullErrorTypeName, out var mergeMethod);
-            genericErrorFactoryMethodByErrorTypeName.TryGetValue(fullErrorTypeName, out var genericErrorFactoryMethod);
-
-            yield return new(resultTypeClass, errorTypeSymbol, mergeMethod, genericErrorFactoryMethod);
-        }
+                var resultTypeSchema = new ResultTypeSchema(resultTypeClass, errorTypeSymbol);
+                return resultTypeSchema;
+            });
     }
 
-    static Dictionary<string, MergeMethod> FindMergeMethods(Compilation compilation, Action<Diagnostic> reportDiagnostic)
+    public static Dictionary<string, MergeMethod> FindMergeMethods(Compilation compilation, Action<Diagnostic> reportDiagnostic)
     {
         var mergeMethodByErrorTypeName = compilation.SyntaxTrees
             .SelectMany(t => FindMergeMethodsWalker.Get(t.GetRoot(), tree => compilation.GetSemanticModel(tree), "MergeError", "FunicularSwitch.Generators.MergeErrorAttribute"))
@@ -80,7 +69,7 @@ static class Parser
         return mergeMethodByErrorTypeName;
     }
 
-    static Dictionary<string, ExceptionToErrorMethod> FindExceptionToErrorMethods(Compilation compilation, Action<Diagnostic> reportDiagnostic)
+    public static Dictionary<string, ExceptionToErrorMethod> FindExceptionToErrorMethods(Compilation compilation, Action<Diagnostic> reportDiagnostic)
     {
         var factoryMethodByErrorTypeName = compilation.SyntaxTrees
             .SelectMany(t => FindMergeMethodsWalker.Get(t.GetRoot(), tree => compilation.GetSemanticModel(tree), "ExceptionToError", "FunicularSwitch.Generators.ExceptionToError"))
@@ -88,25 +77,25 @@ static class Parser
             {
                 if (methodDeclaration.Modifiers.HasModifier(SyntaxKind.StaticKeyword))
                 {
-	                var semanticModel = compilation.GetSemanticModel(methodDeclaration.SyntaxTree);
-	                var errorTypeName = semanticModel.GetFullTypeName(methodDeclaration.ReturnType);
-	                var declaringTypeSyntax = methodDeclaration.Parent;
-	                string declaringTypeFullName;
-	                if (declaringTypeSyntax != null && semanticModel.GetDeclaredSymbol(declaringTypeSyntax) is INamedTypeSymbol declaredSymbol)
-	                {
-		                declaringTypeFullName = declaredSymbol.FullTypeNameWithNamespace();
-	                }
-	                else
-	                {
-		                reportDiagnostic(Diagnostics.InvalidExceptionToErrorMethod($"Could not get declaring type name of method {methodDeclaration.Identifier}", methodDeclaration.GetLocation()));
-		                return null;
-	                }
+                    var semanticModel = compilation.GetSemanticModel(methodDeclaration.SyntaxTree);
+                    var errorTypeName = semanticModel.GetFullTypeName(methodDeclaration.ReturnType);
+                    var declaringTypeSyntax = methodDeclaration.Parent;
+                    string declaringTypeFullName;
+                    if (declaringTypeSyntax != null && semanticModel.GetDeclaredSymbol(declaringTypeSyntax) is INamedTypeSymbol declaredSymbol)
+                    {
+                        declaringTypeFullName = declaredSymbol.FullTypeNameWithNamespace();
+                    }
+                    else
+                    {
+                        reportDiagnostic(Diagnostics.InvalidExceptionToErrorMethod($"Could not get declaring type name of method {methodDeclaration.Identifier}", methodDeclaration.GetLocation()));
+                        return null;
+                    }
 
-	                var parameters = methodDeclaration.ParameterList.Parameters;
-	                if (parameters.Count == 1 &&
-	                    parameters.All(p => semanticModel.GetFullTypeName(p.Type!) == "System.Exception"))
-	                {
-		                return new ExceptionToErrorMethod(errorTypeName, declaringTypeFullName, methodDeclaration.Identifier.ToString());
+                    var parameters = methodDeclaration.ParameterList.Parameters;
+                    if (parameters.Count == 1 &&
+                        parameters.All(p => semanticModel.GetFullTypeName(p.Type!) == "System.Exception"))
+                    {
+                        return new ExceptionToErrorMethod(errorTypeName, declaringTypeFullName, methodDeclaration.Identifier.ToString());
                     }
                 }
 
@@ -125,13 +114,12 @@ static class Parser
         return factoryMethodByErrorTypeName;
     }
 
-    static TypeSyntax? TryGetErrorType(AttributeSyntax attribute, Action<Diagnostic> reportDiagnostics)
+    static GenerationResult<TypeSyntax> TryGetErrorType(AttributeSyntax attribute)
     {
         var expressionSyntax = attribute.ArgumentList!.Arguments[0].Expression;
         if (expressionSyntax is not TypeOfExpressionSyntax es)
         {
-            reportDiagnostics(Diagnostics.InvalidResultTypeAttributeUsage("Expected typeof expression for error type parameter", attribute.GetLocation()));
-            return null;
+            return new DiagnosticInfo(Diagnostics.InvalidResultTypeAttributeUsage("Expected typeof expression for error type parameter", attribute.GetLocation()));
         }
 
         return es.Type;
@@ -147,9 +135,9 @@ class FindMergeMethodsWalker : CSharpSyntaxWalker
 
     FindMergeMethodsWalker(Func<SyntaxTree, SemanticModel> getSemanticModel, string attributeName, string fullAttributeName)
     {
-	    _attributeName = attributeName;
-	    m_GetSemanticModel = getSemanticModel;
-	    _fullAttributeName = fullAttributeName;
+        _attributeName = attributeName;
+        m_GetSemanticModel = getSemanticModel;
+        _fullAttributeName = fullAttributeName;
     }
 
     public static IEnumerable<MethodDeclarationSyntax> Get(SyntaxNode node, Func<SyntaxTree, SemanticModel> getSemanticModel, string attributeName, string fullAttributeName)
@@ -166,7 +154,7 @@ class FindMergeMethodsWalker : CSharpSyntaxWalker
             .Any(a =>
                 a.Name.ToString().Contains(_attributeName) &&
                 a.GetAttributeFullName(m_GetSemanticModel(a.SyntaxTree)) == _fullAttributeName)
-            )
+           )
         {
             m_MergeMethods.Add(node);
         }
@@ -175,23 +163,12 @@ class FindMergeMethodsWalker : CSharpSyntaxWalker
     }
 }
 
-public class ExceptionToErrorMethod
+public sealed record ExceptionToErrorMethod(string ErrorTypeName, string FullTypeName, string MethodName)
 {
-	public string ErrorTypeName { get; }
-	public string FullTypeName { get; }
-	public string MethodName { get; }
-
-	public string FullMethodName => $"{FullTypeName}.{MethodName}";
-
-	public ExceptionToErrorMethod(string errorTypeName, string fullTypeName, string methodName)
-	{
-		ErrorTypeName = errorTypeName;
-		FullTypeName = fullTypeName;
-		MethodName = methodName;
-	}
+    public string FullMethodName => $"{FullTypeName}.{MethodName}";
 }
 
-public abstract class MergeMethod
+public abstract record MergeMethod
 {
     public static MergeMethod ErrorTypeMember(string methodName, string errorTypeName) => new ErrorTypeMember_(methodName, errorTypeName);
     public static MergeMethod StaticMerge(string methodName, string? @namespace, string errorTypeName) => new StaticMerge_(methodName, @namespace, errorTypeName);
@@ -199,14 +176,14 @@ public abstract class MergeMethod
     public string FullErrorTypeName { get; }
     public string MethodName { get; }
 
-    public class ErrorTypeMember_ : MergeMethod
+    public record ErrorTypeMember_ : MergeMethod
     {
         public ErrorTypeMember_(string methodName, string fullErrorTypeName) : base(UnionCases.ErrorTypeMember, methodName, fullErrorTypeName)
         {
         }
     }
 
-    public class StaticMerge_ : MergeMethod
+    public record StaticMerge_ : MergeMethod
     {
         public string? Namespace { get; }
 
@@ -220,6 +197,7 @@ public abstract class MergeMethod
     }
 
     internal UnionCases UnionCase { get; }
+
     MergeMethod(UnionCases unionCase, string methodName, string fullErrorTypeName)
     {
         UnionCase = unionCase;
@@ -228,17 +206,6 @@ public abstract class MergeMethod
     }
 
     public override string ToString() => Enum.GetName(typeof(UnionCases), UnionCase) ?? UnionCase.ToString();
-    bool Equals(MergeMethod other) => UnionCase == other.UnionCase;
-
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
-        return Equals((MergeMethod)obj);
-    }
-
-    public override int GetHashCode() => (int)UnionCase;
 }
 
 public static class MergeMethodExtension
@@ -269,6 +236,9 @@ public static class MergeMethodExtension
         }
     }
 
-    public static async Task<T> Match<T>(this Task<MergeMethod> mergeMethod, Func<MergeMethod.ErrorTypeMember_, T> errorTypeMember, Func<MergeMethod.StaticMerge_, T> staticMerge) => (await mergeMethod.ConfigureAwait(false)).Match(errorTypeMember, staticMerge);
-    public static async Task<T> Match<T>(this Task<MergeMethod> mergeMethod, Func<MergeMethod.ErrorTypeMember_, Task<T>> errorTypeMember, Func<MergeMethod.StaticMerge_, Task<T>> staticMerge) => await (await mergeMethod.ConfigureAwait(false)).Match(errorTypeMember, staticMerge).ConfigureAwait(false);
+    public static async Task<T> Match<T>(this Task<MergeMethod> mergeMethod, Func<MergeMethod.ErrorTypeMember_, T> errorTypeMember, Func<MergeMethod.StaticMerge_, T> staticMerge) =>
+        (await mergeMethod.ConfigureAwait(false)).Match(errorTypeMember, staticMerge);
+
+    public static async Task<T> Match<T>(this Task<MergeMethod> mergeMethod, Func<MergeMethod.ErrorTypeMember_, Task<T>> errorTypeMember, Func<MergeMethod.StaticMerge_, Task<T>> staticMerge) =>
+        await (await mergeMethod.ConfigureAwait(false)).Match(errorTypeMember, staticMerge).ConfigureAwait(false);
 }

@@ -5,6 +5,13 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace FunicularSwitch.Generators.Common;
 
+public static class GenerationResult
+
+{
+    public static GenerationResult<T> Create<T>(T? value, EquatableArray<DiagnosticInfo> diagnostics, bool hasValue)
+        => new(value, diagnostics, hasValue);
+}
+    
 public readonly record struct GenerationResult<T>(T? Value, EquatableArray<DiagnosticInfo> Diagnostics, bool HasValue)
 {
     public static readonly GenerationResult<T> Empty = new(default, ImmutableArray<DiagnosticInfo>.Empty, false); 

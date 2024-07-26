@@ -1,23 +1,39 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using FunicularSwitch.Generators.Common;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FunicularSwitch.Generators.ResultType;
 
-class ResultTypeSchema
+sealed class ResultTypeSchema(
+    ClassDeclarationSyntax resultType,
+    INamedTypeSymbol errorType)
 {
-    public ClassDeclarationSyntax ResultType { get; }
-    public INamedTypeSymbol ErrorType { get; }
-    public MergeMethod? MergeMethod { get; }
-    public ExceptionToErrorMethod? ExceptionToErrorMethod { get; }
+    public SymbolWrapper<INamedTypeSymbol> ErrorType { get; } = new (errorType);
+    public LocationInfo? ResultTypeLocation { get; } = LocationInfo.CreateFrom(resultType.GetLocation());
+    public bool IsInternal { get; } = !resultType.Modifiers.HasModifier(SyntaxKind.PublicKeyword);
+    public QualifiedTypeName ResultTypeName { get; } = resultType.QualifiedName();
+    public string? ResultTypeNamespace { get; } = resultType.GetContainingNamespace();
 
-    public ResultTypeSchema(ClassDeclarationSyntax resultType, INamedTypeSymbol errorType, MergeMethod? mergeMethod,
-	    ExceptionToErrorMethod? exceptionToErrorMethod)
+    bool Equals(ResultTypeSchema other) => ErrorType.Equals(other.ErrorType) && IsInternal == other.IsInternal && ResultTypeName == other.ResultTypeName && ResultTypeNamespace == other.ResultTypeNamespace;
+
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ResultTypeSchema other && Equals(other);
+
+    public override int GetHashCode()
     {
-        ResultType = resultType;
-        ErrorType = errorType;
-        MergeMethod = mergeMethod;
-        ExceptionToErrorMethod = exceptionToErrorMethod;
+        unchecked
+        {
+            var hashCode = ErrorType.GetHashCode();
+            hashCode = (hashCode * 397) ^ IsInternal.GetHashCode();
+            hashCode = (hashCode * 397) ^ ResultTypeName.GetHashCode();
+            hashCode = (hashCode * 397) ^ (ResultTypeNamespace != null ? ResultTypeNamespace.GetHashCode() : 0);
+            return hashCode;
+        }
     }
 
-    public override string ToString() => $"{nameof(ResultType)}: {ResultType}, {nameof(ErrorType)}: {ErrorType}, {nameof(MergeMethod)}: {MergeMethod}";
+    public static bool operator ==(ResultTypeSchema? left, ResultTypeSchema? right) => Equals(left, right);
+
+    public static bool operator !=(ResultTypeSchema? left, ResultTypeSchema? right) => !Equals(left, right);
+
+    public override string ToString() => $"{nameof(ResultType)}: {ResultTypeName}, {nameof(ErrorType)}: {ErrorType}";
 }

@@ -76,7 +76,7 @@ public static class RoslynExtensions
         return parentNamespaces.ToSeparatedString(".");
     }
 
-    static readonly SymbolDisplayFormat FullTypeWithNamespaceDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
+    static readonly SymbolDisplayFormat FullTypeWithNamespaceDisplayFormat = SymbolWrapper.FullTypeWithNamespaceDisplayFormat;
     static readonly SymbolDisplayFormat FullTypeDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes);
 
 
@@ -144,8 +144,7 @@ public static class RoslynExtensions
         var typeInfo = semanticModel.GetTypeInfo(typeSyntax);
         return typeInfo.Type?.ToDisplayString(
             new SymbolDisplayFormat(
-                typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
-                miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes
+                typeQualificationStyle: SymbolWrapper.FullTypeWithNamespaceDisplayFormat.TypeQualificationStyle
             )
         ) ?? typeSyntax.ToString();
     }

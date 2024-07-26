@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace FunicularSwitch.Generators.ResultType;
 
@@ -11,28 +10,32 @@ static class Generator
     const string TemplateResultTypeName = "MyResult";
     const string TemplateErrorTypeName = "MyError";
 
-    public static IEnumerable<(string filename, string source)> Emit(ResultTypeSchema resultTypeSchema, Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
+    public static IEnumerable<(string filename, string source)> Emit(
+        ResultTypeSchema resultTypeSchema, 
+        MergeMethod? mergeErrorMethod,
+        ExceptionToErrorMethod? exceptionToErrorMethod,
+        Action<Diagnostic> reportDiagnostic, 
+        CancellationToken cancellationToken)
     {
-	    var resultTypeName = resultTypeSchema.ResultType.Identifier.ToString();
-        var resultTypeNamespace = resultTypeSchema.ResultType.GetContainingNamespace();
+	    var resultTypeName = resultTypeSchema.ResultTypeName.Name;
+        var resultTypeNamespace = resultTypeSchema.ResultTypeNamespace;
         if (resultTypeNamespace == null)
         {
-	        reportDiagnostic(Diagnostics.ResultTypeInGlobalNamespace($"Result type {resultTypeName} is placed in global namespace, this is not supported. Please put {resultTypeName} into non empty namespace.", resultTypeSchema.ResultType.GetLocation()));
+	        reportDiagnostic(Diagnostics.ResultTypeInGlobalNamespace($"Result type {resultTypeName} is placed in global namespace, this is not supported. Please put {resultTypeName} into non empty namespace.", resultTypeSchema.ResultTypeLocation?.ToLocation() ?? Location.None));
 	        yield break;
         }
         
-        var publicModifier = resultTypeSchema.ResultType.Modifiers.FirstOrDefault(t => t.Text == SyntaxFactory.Token(SyntaxKind.PublicKeyword).Text);
-        var isValueType = resultTypeSchema.ErrorType.IsValueType;
-        var errorTypeNamespace = resultTypeSchema.ErrorType.GetFullNamespace();
+        var isValueType = resultTypeSchema.ErrorType.Symbol.IsValueType;
+        var errorTypeNamespace = resultTypeSchema.ErrorType.Symbol.GetFullNamespace();
 
         string Replace(string code, IReadOnlyCollection<string> additionalNamespaces, string genericTypeParameterNameForHandleExceptions)
         {
 	        code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")
                 .Replace(TemplateResultTypeName, resultTypeName)
-                .Replace(TemplateErrorTypeName, resultTypeSchema.ErrorType.Name);
+                .Replace(TemplateErrorTypeName, resultTypeSchema.ErrorType.Symbol.Name);
 
-            if (publicModifier == default)
+            if (resultTypeSchema.IsInternal)
                 code = code
                     .Replace("public abstract partial", "abstract partial")
                     .Replace("public static partial", "static partial");
@@ -41,11 +44,10 @@ static class Generator
                 code = code
                     .Replace("//additional using directives", additionalNamespaces.Distinct().Select(a => $"using {a};").ToSeparatedString("\n"));
 
-            var genericErrorFactoryMethod = resultTypeSchema.ExceptionToErrorMethod;
-            if (genericErrorFactoryMethod != null)
+            if (exceptionToErrorMethod != null)
             {
 	            code = code.Replace("throw; //createGenericErrorResult",
-		            $"return {resultTypeName}.Error<{genericTypeParameterNameForHandleExceptions}>({genericErrorFactoryMethod.FullMethodName}(e));");
+		            $"return {resultTypeName}.Error<{genericTypeParameterNameForHandleExceptions}>({exceptionToErrorMethod.FullMethodName}(e));");
             }
 
             return code;
@@ -55,15 +57,17 @@ static class Generator
         if (errorTypeNamespace != resultTypeNamespace && errorTypeNamespace != null)
             additionalNamespaces.Add(errorTypeNamespace);
 
-        var generateFileHint = $"{resultTypeNamespace}.{resultTypeSchema.ResultType.QualifiedName()}";
+        var generateFileHint = $"{resultTypeNamespace}.{resultTypeSchema.ResultTypeName}";
 
         var resultTypeImpl = Replace(Templates.ResultTypeTemplates.ResultType, additionalNamespaces, "T1");
 
+        //resultTypeImpl = $"//Generator runs: {RunCount.Increase(generateFileHint)}\r\n" + resultTypeImpl;
+        
         yield return ($"{generateFileHint}.g.cs", resultTypeImpl);
 
-        if (resultTypeSchema.MergeMethod != null)
+        if (mergeErrorMethod != null)
         {
-            var mergeMethodNamespace = resultTypeSchema.MergeMethod.Match(staticMerge: m => m.Namespace, errorTypeMember: _ => "");
+            var mergeMethodNamespace = mergeErrorMethod.Match(staticMerge: m => m.Namespace, errorTypeMember: _ => "");
             if (!string.IsNullOrEmpty(mergeMethodNamespace) && mergeMethodNamespace != resultTypeNamespace)
                 additionalNamespaces.Add(mergeMethodNamespace!);
 
@@ -71,7 +75,7 @@ static class Generator
                 Templates.ResultTypeTemplates.ResultTypeWithMerge
                     .Replace("//generated aggregate methods", GenerateAggregateMethods(10))
                     .Replace("//generated aggregate extension methods", GenerateAggregateExtensionMethods(10, isValueType))
-                    .Replace("Merge__MemberOrExtensionMethod", resultTypeSchema.MergeMethod.MethodName),
+                    .Replace("Merge__MemberOrExtensionMethod", mergeErrorMethod.MethodName),
                 additionalNamespaces,
                 "T"
             );

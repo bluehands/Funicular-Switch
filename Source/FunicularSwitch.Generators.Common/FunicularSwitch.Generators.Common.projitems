@@ -13,7 +13,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)HashCode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Result.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RoslynExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RunCount.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SourceProductionContextExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StringExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SymbolWrapper.cs" />
   </ItemGroup>
 </Project>

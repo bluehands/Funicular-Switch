@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.ResultType;
 using Microsoft.CodeAnalysis;
@@ -22,26 +23,60 @@ public class ResultTypeGenerator : IIncrementalGenerator
             context.SyntaxProvider
                 .CreateSyntaxProvider(
                     predicate: static (s, _) => s.IsTypeDeclarationWithAttributes(),
-                    transform: static (ctx, _) => GeneratorHelper.GetSemanticTargetForGeneration(ctx, ResultTypeAttribute)
-                )
-                .Where(static target => target != null)
-                .Select(static (target, _) => target!);
+                    transform: static (ctx, cancellationToken) =>
+                    {
+                        //TODO: support record result types one day
+                        if (GeneratorHelper.GetSemanticTargetForGeneration(ctx, ResultTypeAttribute) is not ClassDeclarationSyntax resultTypeClass)
+                            return GenerationResult<ResultTypeSchema>.Empty;
 
-        var compilationAndClasses = context.CompilationProvider.Combine(resultTypeClasses.Collect());
+                        var schema = Parser.GetResultTypeSchema(resultTypeClass
+                            , ctx.SemanticModel.Compilation, cancellationToken);
+                        return schema;
+                    });
+
+        var compilationAndClasses = context.CompilationProvider
+            .Select((compilation, _) => 
+            {
+                List<Diagnostic> diagnostics = new();
+                var mergeMethods = Parser.FindMergeMethods(compilation, diagnostics.Add);
+                var exceptionToErrorMethods = Parser.FindExceptionToErrorMethods(compilation, diagnostics.Add);
+
+                return GenerationResult.Create(
+                    (
+                        mergeMetdhods: mergeMethods.Values.ToImmutableArray().AsEquatableArray(),
+                        exceptionToErrorMethods: exceptionToErrorMethods.Values.ToImmutableArray().AsEquatableArray()
+                    ),
+                    diagnostics.Select(d => new DiagnosticInfo(d)).ToImmutableArray(), true
+                );
+            })
+            .Combine(resultTypeClasses.Collect());
 
         context.RegisterSourceOutput(
-            compilationAndClasses, 
-            //TODO: support record result types one day
-            static (spc, source) => Execute(source.Left, source.Right.OfType<ClassDeclarationSyntax>().ToImmutableArray(), spc));
+            compilationAndClasses,
+            static (spc, source) => Execute(source.Left, source.Right, spc));
     }
 
-    static void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> resultTypeClasses, SourceProductionContext context)
+    static void Execute(
+        GenerationResult<(EquatableArray<MergeMethod> mergeMethods, EquatableArray<ExceptionToErrorMethod> exceptionToErrorMethods)> resultTypeMethods, 
+        ImmutableArray<GenerationResult<ResultTypeSchema>> resultTypeClassesResult, SourceProductionContext context)
     {
-        if (resultTypeClasses.IsDefaultOrEmpty) return;
+        foreach (var diagnosticInfo in resultTypeClassesResult
+                     .SelectMany(r => r.Diagnostics)
+                     .Concat(resultTypeMethods.Diagnostics)) 
+            context.ReportDiagnostic(diagnosticInfo);
 
-        var resultTypeSchemata = Parser.GetResultTypes(compilation, resultTypeClasses, context.ReportDiagnostic, context.CancellationToken).ToImmutableArray();
+        ImmutableArray<ResultTypeSchema> resultTypeSchemata = resultTypeClassesResult
+            .Select(r => r.Value)
+            .Where(r => r != null)
+            .ToImmutableArray()!;
+        
+        if (resultTypeSchemata.IsDefaultOrEmpty) return;
 
-        var generated = resultTypeSchemata.SelectMany(r => Generator.Emit(r, context.ReportDiagnostic, context.CancellationToken)).ToImmutableArray();
+        var generated = resultTypeSchemata
+            .SelectMany(r => Generator.Emit(r, 
+                resultTypeMethods.Value.mergeMethods.FirstOrDefault(m => m.FullErrorTypeName == r.ErrorType.FullNameWithNamespace),
+                resultTypeMethods.Value.exceptionToErrorMethods.FirstOrDefault(e => e.ErrorTypeName == r.ErrorType.FullNameWithNamespace),
+                context.ReportDiagnostic, context.CancellationToken)).ToImmutableArray();
 
         foreach (var (filename, source) in generated) context.AddSource(filename, source);
     }
