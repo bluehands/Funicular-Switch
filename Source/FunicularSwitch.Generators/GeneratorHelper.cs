@@ -26,17 +26,29 @@ static class GeneratorHelper
         return hasAttribute ? classDeclarationSyntax : null;
     }
 
-    public static T GetNamedEnumAttributeArgument<T>(this AttributeSyntax attribute, string name, T defaultValue) where T : struct
+    public static T GetEnumNamedArgument<T>(this AttributeData attributeData, string name, T defaultValue) where T : struct
     {
-        var memberAccess = attribute.ArgumentList?.Arguments
-            .Where(a => a.NameEquals?.Name.ToString() == name)
-            .Select(a => a.Expression)
-            .OfType<MemberAccessExpressionSyntax>()
-            .FirstOrDefault();
+        foreach (var kv in attributeData.NamedArguments)
+        {
+            if (kv.Key != name)
+                continue;
 
+            return (T)(object)((int)kv.Value.Value!);
+        }
 
-        if (memberAccess == null) return defaultValue;
+        return defaultValue;
+    }
 
-        return (T)Enum.Parse(typeof(T), memberAccess.Name.ToString());
+    public static T GetNamedArgument<T>(this AttributeData attributeData, string name, T defaultValue)
+    {
+        foreach (var kv in attributeData.NamedArguments)
+        {
+            if (kv.Key != name)
+                continue;
+
+            return (T)kv.Value.Value!;
+        }
+
+        return defaultValue;
     }
 }

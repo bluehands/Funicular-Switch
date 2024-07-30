@@ -130,22 +130,9 @@ public class EnumTypeGenerator : IIncrementalGenerator
     static (EnumCaseOrder caseOrder, ExtensionAccessibility visibility) GetAttributeNamedArguments(
         AttributeData extendEnumTypesAttribute)
     {
-        var caseOrder = GetEnumNamedArgument(extendEnumTypesAttribute, "CaseOrder", EnumCaseOrder.AsDeclared);
-        var visibility = GetEnumNamedArgument(extendEnumTypesAttribute, "Accessibility", ExtensionAccessibility.Public);
+        var caseOrder = extendEnumTypesAttribute.GetEnumNamedArgument("CaseOrder", EnumCaseOrder.AsDeclared);
+        var visibility = extendEnumTypesAttribute.GetEnumNamedArgument("Accessibility", ExtensionAccessibility.Public);
         return (caseOrder, visibility);
-    }
-
-    static T GetEnumNamedArgument<T>(AttributeData attributeData, string name, T defaultValue) where T : struct
-    {
-        foreach (var kv in attributeData.NamedArguments)
-        {
-            if (kv.Key != name)
-                continue;
-
-            return (T)(object)((int)kv.Value.Value!);
-        }
-
-        return defaultValue;
     }
 
     static IEnumerable<EnumSymbolInfo> GetSymbolInfosForExtendEnumTypesAttribute(AttributeData extendEnumTypesAttribute)

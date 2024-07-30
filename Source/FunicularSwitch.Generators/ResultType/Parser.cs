@@ -7,7 +7,8 @@ namespace FunicularSwitch.Generators.ResultType;
 
 static class Parser
 {
-    public static GenerationResult<ResultTypeSchema> GetResultTypeSchema(ClassDeclarationSyntax resultTypeClass, Compilation compilation, CancellationToken cancellationToken)
+    public static GenerationResult<ResultTypeSchema> GetResultTypeSchema(
+        ClassDeclarationSyntax resultTypeClass, Compilation compilation, CancellationToken cancellationToken)
     {
         var semanticModel = compilation.GetSemanticModel(resultTypeClass.SyntaxTree);
 

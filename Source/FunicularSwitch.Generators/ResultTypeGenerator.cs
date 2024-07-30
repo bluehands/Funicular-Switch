@@ -21,17 +21,23 @@ public class ResultTypeGenerator : IIncrementalGenerator
 
         var resultTypeClasses =
             context.SyntaxProvider
-                .CreateSyntaxProvider(
-                    predicate: static (s, _) => s.IsTypeDeclarationWithAttributes(),
+                .ForAttributeWithMetadataName(
+                    ResultTypeAttribute,
+                    predicate: static (s, _) => true,
                     transform: static (ctx, cancellationToken) =>
                     {
                         //TODO: support record result types one day
-                        if (GeneratorHelper.GetSemanticTargetForGeneration(ctx, ResultTypeAttribute) is not ClassDeclarationSyntax resultTypeClass)
+                        if (ctx.TargetSymbol is not INamedTypeSymbol n || n.IsRecord)
                             return GenerationResult<ResultTypeSchema>.Empty;
 
-                        var schema = Parser.GetResultTypeSchema(resultTypeClass
-                            , ctx.SemanticModel.Compilation, cancellationToken);
-                        return schema;
+                        var resultClass = (ClassDeclarationSyntax)ctx.TargetNode;
+                        var errorTypeSymbol = (INamedTypeSymbol?)(!ctx.Attributes[0].NamedArguments.IsEmpty
+                            ? ctx.Attributes[0].NamedArguments[0].Value.Value!
+                            : !ctx.Attributes[0].ConstructorArguments.IsEmpty
+                                ? ctx.Attributes[0].ConstructorArguments[0].Value
+                                : null);
+
+                        return new ResultTypeSchema(resultClass, errorTypeSymbol);
                     });
 
         var compilationAndClasses = context.CompilationProvider
@@ -43,8 +49,9 @@ public class ResultTypeGenerator : IIncrementalGenerator
 
                 return GenerationResult.Create(
                     (
-                        mergeMetdhods: mergeMethods.Values.ToImmutableArray().AsEquatableArray(),
-                        exceptionToErrorMethods: exceptionToErrorMethods.Values.ToImmutableArray().AsEquatableArray()
+                        mergeMethods: mergeMethods.Values.ToImmutableArray().AsEquatableArray(),
+                        exceptionToErrorMethods: exceptionToErrorMethods.Values.ToImmutableArray().AsEquatableArray(),
+                        stringSymbol: SymbolWrapper.Create(compilation.GetTypeByMetadataName("System.String")!)
                     ),
                     diagnostics.Select(d => new DiagnosticInfo(d)).ToImmutableArray(), true
                 );
@@ -57,7 +64,7 @@ public class ResultTypeGenerator : IIncrementalGenerator
     }
 
     static void Execute(
-        GenerationResult<(EquatableArray<MergeMethod> mergeMethods, EquatableArray<ExceptionToErrorMethod> exceptionToErrorMethods)> resultTypeMethods, 
+        GenerationResult<(EquatableArray<MergeMethod> mergeMethods, EquatableArray<ExceptionToErrorMethod> exceptionToErrorMethods, SymbolWrapper<INamedTypeSymbol> stringSymbol)> resultTypeMethods, 
         ImmutableArray<GenerationResult<ResultTypeSchema>> resultTypeClassesResult, SourceProductionContext context)
     {
         foreach (var diagnosticInfo in resultTypeClassesResult
@@ -73,10 +80,19 @@ public class ResultTypeGenerator : IIncrementalGenerator
         if (resultTypeSchemata.IsDefaultOrEmpty) return;
 
         var generated = resultTypeSchemata
-            .SelectMany(r => Generator.Emit(r, 
-                resultTypeMethods.Value.mergeMethods.FirstOrDefault(m => m.FullErrorTypeName == r.ErrorType.FullNameWithNamespace),
-                resultTypeMethods.Value.exceptionToErrorMethods.FirstOrDefault(e => e.ErrorTypeName == r.ErrorType.FullNameWithNamespace),
-                context.ReportDiagnostic, context.CancellationToken)).ToImmutableArray();
+            .SelectMany(r =>
+            {
+                var defaultErrorType = resultTypeMethods.Value.stringSymbol;
+                var errorTypeSymbol = r.ErrorType ?? defaultErrorType;
+
+                return Generator.Emit(r,
+                    defaultErrorType,
+                    resultTypeMethods.Value.mergeMethods.FirstOrDefault(m =>
+                        m.FullErrorTypeName == errorTypeSymbol.FullNameWithNamespace),
+                    resultTypeMethods.Value.exceptionToErrorMethods.FirstOrDefault(e =>
+                        e.ErrorTypeName == errorTypeSymbol.FullNameWithNamespace),
+                    context.ReportDiagnostic, context.CancellationToken);
+            }).ToImmutableArray();
 
         foreach (var (filename, source) in generated) context.AddSource(filename, source);
     }

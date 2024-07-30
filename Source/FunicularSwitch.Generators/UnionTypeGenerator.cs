@@ -22,14 +22,18 @@ public class UnionTypeGenerator : IIncrementalGenerator
                 .ForAttributeWithMetadataName(
                     UnionTypeAttribute,
                     predicate: static (_, _) => true,
-                    transform: static (ctx, cancellationToken) => 
-                        Parser.GetUnionTypeSchema(ctx.SemanticModel.Compilation, cancellationToken, (BaseTypeDeclarationSyntax)ctx.TargetNode))
-                .Select(static (target, _) => target);
-
-        var compilationAndClasses = unionTypeClasses;
+                    transform: static (context, cancellationToken) => 
+                        Parser.GetUnionTypeSchema(
+                            context.SemanticModel.Compilation, 
+                            cancellationToken, 
+                            (BaseTypeDeclarationSyntax)context.TargetNode,
+                            (INamedTypeSymbol)context.TargetSymbol,
+                            context.Attributes[0]
+                            )
+                        );
 
         context.RegisterSourceOutput(
-            compilationAndClasses, 
+            unionTypeClasses, 
             static (spc, source) => Execute(source, spc));
     }
 

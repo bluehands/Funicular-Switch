@@ -12,6 +12,7 @@ static class Generator
 
     public static IEnumerable<(string filename, string source)> Emit(
         ResultTypeSchema resultTypeSchema, 
+        SymbolWrapper<INamedTypeSymbol> defaultErrorType,
         MergeMethod? mergeErrorMethod,
         ExceptionToErrorMethod? exceptionToErrorMethod,
         Action<Diagnostic> reportDiagnostic, 
@@ -24,16 +25,17 @@ static class Generator
 	        reportDiagnostic(Diagnostics.ResultTypeInGlobalNamespace($"Result type {resultTypeName} is placed in global namespace, this is not supported. Please put {resultTypeName} into non empty namespace.", resultTypeSchema.ResultTypeLocation?.ToLocation() ?? Location.None));
 	        yield break;
         }
-        
-        var isValueType = resultTypeSchema.ErrorType.Symbol.IsValueType;
-        var errorTypeNamespace = resultTypeSchema.ErrorType.Symbol.GetFullNamespace();
+
+        var errorTypeSymbol = resultTypeSchema.ErrorType ?? defaultErrorType;
+        var isValueType = errorTypeSymbol.Symbol.IsValueType;
+        var errorTypeNamespace = errorTypeSymbol.Symbol.GetFullNamespace();
 
         string Replace(string code, IReadOnlyCollection<string> additionalNamespaces, string genericTypeParameterNameForHandleExceptions)
         {
 	        code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")
                 .Replace(TemplateResultTypeName, resultTypeName)
-                .Replace(TemplateErrorTypeName, resultTypeSchema.ErrorType.Symbol.Name);
+                .Replace(TemplateErrorTypeName, errorTypeSymbol.Symbol.Name);
 
             if (resultTypeSchema.IsInternal)
                 code = code
