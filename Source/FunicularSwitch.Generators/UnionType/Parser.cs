@@ -27,9 +27,8 @@ static class Parser
         }
 
         var attribute = unionTypeClass.AttributeLists
-            .Select(l => l.Attributes.First(a =>
-                a.GetAttributeFullName(semanticModel) == UnionTypeGenerator.UnionTypeAttribute))
-            .First();
+            .SelectMany(l => l.Attributes)
+            .First(a => a.GetAttributeFullName(semanticModel) == UnionTypeGenerator.UnionTypeAttribute);
 
         var caseOrderResult = TryGetCaseOrder(attribute);
 
@@ -277,8 +276,8 @@ class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
             if (symbol != null && (symbol.InheritsFrom(m_BaseClass) || symbol.Implements(m_BaseClass)))
             {
                 var attribute = node.AttributeLists
-                    .Select(l => l.Attributes.First(a => a.GetAttributeFullName(m_SemanticModel) == UnionTypeGenerator.UnionCaseAttribute))
-                    .FirstOrDefault();
+                    .SelectMany(l => l.Attributes)
+                    .FirstOrDefault(a => a.GetAttributeFullName(m_SemanticModel) == UnionTypeGenerator.UnionCaseAttribute);
                 
                 var caseIndex = TryGetCaseIndex(attribute);
 

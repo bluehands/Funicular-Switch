@@ -273,6 +273,11 @@ using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test;
 
+public class OtherAttribute : System.Attribute
+{
+}
+
+[Other]
 [UnionType(CaseOrder = CaseOrder.AsDeclared, StaticFactoryMethods = true)]
 internal abstract partial record Base
 {

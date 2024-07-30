@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
-using FunicularSwitch.Generators.Common;
+﻿using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.UnionType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -41,7 +40,7 @@ public class UnionTypeGenerator : IIncrementalGenerator
         
         if (!hasValue || unionTypeSchema!.Cases.IsEmpty) return;
 
-        var (filename, source) = Generator.Emit(unionTypeSchema!, context.ReportDiagnostic, context.CancellationToken);
+        var (filename, source) = Generator.Emit(unionTypeSchema, context.ReportDiagnostic, context.CancellationToken);
         context.AddSource(filename, source);
     }
 }

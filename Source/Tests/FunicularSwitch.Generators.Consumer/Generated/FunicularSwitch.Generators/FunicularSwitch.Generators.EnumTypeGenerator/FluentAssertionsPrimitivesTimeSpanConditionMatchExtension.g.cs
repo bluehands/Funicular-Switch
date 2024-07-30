@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 1591
 namespace FluentAssertions.Primitives
 {
-	public static partial class TimeSpanConditionMatchExtension
+	internal static partial class TimeSpanConditionMatchExtension
 	{
 		public static T Match<T>(this FluentAssertions.Primitives.TimeSpanCondition timeSpanCondition, global::System.Func<T> atLeast, global::System.Func<T> exactly, global::System.Func<T> lessThan, global::System.Func<T> moreThan, global::System.Func<T> within) =>
 		timeSpanCondition switch

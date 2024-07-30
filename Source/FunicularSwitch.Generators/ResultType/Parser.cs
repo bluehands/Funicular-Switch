@@ -12,8 +12,8 @@ static class Parser
         var semanticModel = compilation.GetSemanticModel(resultTypeClass.SyntaxTree);
 
         var attribute = resultTypeClass.AttributeLists
-            .Select(l => l.Attributes.First(a => a.GetAttributeFullName(semanticModel) == ResultTypeGenerator.ResultTypeAttribute))
-            .First();
+            .SelectMany(l => l.Attributes)
+            .First(a => a.GetAttributeFullName(semanticModel) == ResultTypeGenerator.ResultTypeAttribute);
 
         return TryGetErrorType(attribute)
             .Bind(errorType =>

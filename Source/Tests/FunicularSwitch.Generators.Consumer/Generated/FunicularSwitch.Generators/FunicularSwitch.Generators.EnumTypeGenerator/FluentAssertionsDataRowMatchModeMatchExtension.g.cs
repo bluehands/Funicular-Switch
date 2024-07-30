@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 1591
 namespace FluentAssertions.Data
 {
-	public static partial class RowMatchModeMatchExtension
+	internal static partial class RowMatchModeMatchExtension
 	{
 		public static T Match<T>(this FluentAssertions.Data.RowMatchMode rowMatchMode, global::System.Func<T> index, global::System.Func<T> primaryKey) =>
 		rowMatchMode switch

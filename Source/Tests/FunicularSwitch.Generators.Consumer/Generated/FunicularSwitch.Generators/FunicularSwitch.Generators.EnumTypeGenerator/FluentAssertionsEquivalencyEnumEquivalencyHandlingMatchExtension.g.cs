@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 1591
 namespace FluentAssertions.Equivalency
 {
-	public static partial class EnumEquivalencyHandlingMatchExtension
+	internal static partial class EnumEquivalencyHandlingMatchExtension
 	{
 		public static T Match<T>(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, global::System.Func<T> byName, global::System.Func<T> byValue) =>
 		enumEquivalencyHandling switch

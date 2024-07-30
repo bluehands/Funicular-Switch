@@ -14,6 +14,11 @@ using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test;
 
+public class OtherAttribute : System.Attribute
+{
+}
+
+[Other]
 [ResultType(ErrorType = typeof(MyError))]
 public abstract partial class OperationResult<T>
 {
@@ -33,6 +38,7 @@ public abstract partial class Result<T>
 
 public static class MyErrorExtension
 {
+    [Other]
     [MergeError]
     public static MyError MergeErrors(this MyError error, MyError other) => other;
 
@@ -135,6 +141,10 @@ using System.Linq;
 
 namespace FunicularSwitch.Test;
 
+public class OtherAttribute : System.Attribute
+{
+}
+
 [ResultType(errorType: typeof(MyError))]
 public abstract partial class OperationResult<T>
 {
@@ -142,6 +152,7 @@ public abstract partial class OperationResult<T>
 
 public static class ErrorFactory
 {
+    [Other]
 	[ExceptionToError]
 	public static MyError FromException(Exception e) => MyError.Generic(e.ToString());
 }

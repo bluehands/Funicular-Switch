@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 1591
 namespace FluentAssertions.Equivalency
 {
-	public static partial class EqualityStrategyMatchExtension
+	internal static partial class EqualityStrategyMatchExtension
 	{
 		public static T Match<T>(this FluentAssertions.Equivalency.EqualityStrategy equalityStrategy, global::System.Func<T> @equals, global::System.Func<T> forceEquals, global::System.Func<T> forceMembers, global::System.Func<T> members) =>
 		equalityStrategy switch

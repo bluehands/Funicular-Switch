@@ -12,6 +12,9 @@ public class Run_enum_match_method_generator : VerifySourceGenerator
 		var code = @"
 using FunicularSwitch.Generators;
 
+[assembly: ExtendEnums(typeof(FunicularSwitch.Test.test), CaseOrder = EnumCaseOrder.Alphabetic, Accessibility = ExtensionAccessibility.Internal)]
+[assembly: ExtendEnum(typeof(FunicularSwitch.Test.test), CaseOrder = EnumCaseOrder.AsDeclared, Accessibility = ExtensionAccessibility.Internal)]
+
 namespace FunicularSwitch.Test;
 
 [ExtendedEnum]
@@ -32,6 +35,11 @@ using FunicularSwitch.Generators;
 
 namespace FunicularSwitch.Test;
 
+public class OtherAttribute : System.Attribute
+{
+}
+
+[Other]
 [ExtendedEnum(CaseOrder = EnumCaseOrder.Alphabetic)]
 public enum test {
 	one,

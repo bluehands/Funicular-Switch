@@ -14,7 +14,6 @@ namespace FunicularSwitch.Generators.Consumer;
 public class EnumSpecs
 {
 	[ExtendedEnum(CaseOrder = EnumCaseOrder.Alphabetic)] //direct EnumType attribute should have higher precedence compared to ExtendEnumTypes attribute,
-			
 	//so case oder should be Alphabetic for Match methods of PlatformIdentifier
 	public enum PlatformIdentifier
 	{

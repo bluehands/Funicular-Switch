@@ -1,24 +1,11 @@
 ﻿using System.Collections.Immutable;
 using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FunicularSwitch.Generators.EnumType;
 
 static class Parser
 {
-    public static EnumSymbolInfo? GetEnumSymbolInfo(EnumDeclarationSyntax enumTypeClass, AttributeSyntax attribute, SemanticModel semanticModel)
-    {
-        var enumTypeSymbol = semanticModel.GetDeclaredSymbol(enumTypeClass);
-        if (enumTypeSymbol == null)
-            return null;
-
-        var (enumCaseOrder, visibility) = GetAttributeParameters(attribute);
-
-        return new(SymbolWrapper.Create(enumTypeSymbol), visibility, enumCaseOrder, AttributePrecedence.High);
-    }
-
     static IEnumerable<EnumCase> OrderEnumCases(IEnumerable<EnumCase> enumCases, EnumCaseOrder enumCaseOrder) =>
         (enumCaseOrder == EnumCaseOrder.AsDeclared
             ? enumCases
@@ -86,13 +73,6 @@ static class Parser
             extensionAccessibility == ExtensionAccessibility.Internal,
             symbolInfo.Precedence
         );
-    }
-
-    public static (EnumCaseOrder caseOrder, ExtensionAccessibility visibility) GetAttributeParameters(AttributeSyntax attribute)
-    {
-        var caseOrder = attribute.GetNamedEnumAttributeArgument("CaseOrder", EnumCaseOrder.AsDeclared);
-        var visibility = attribute.GetNamedEnumAttributeArgument("Visibility", ExtensionAccessibility.Public);
-        return (caseOrder, visibility);
     }
 }
 

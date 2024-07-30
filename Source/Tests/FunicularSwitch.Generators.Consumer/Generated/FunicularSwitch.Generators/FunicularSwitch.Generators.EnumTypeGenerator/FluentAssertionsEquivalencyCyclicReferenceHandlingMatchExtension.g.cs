@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 1591
 namespace FluentAssertions.Equivalency
 {
-	public static partial class CyclicReferenceHandlingMatchExtension
+	internal static partial class CyclicReferenceHandlingMatchExtension
 	{
 		public static T Match<T>(this FluentAssertions.Equivalency.CyclicReferenceHandling cyclicReferenceHandling, global::System.Func<T> ignore, global::System.Func<T> throwException) =>
 		cyclicReferenceHandling switch

@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 1591
 namespace FluentAssertions.Common
 {
-	public static partial class ValueFormatterDetectionModeMatchExtension
+	internal static partial class ValueFormatterDetectionModeMatchExtension
 	{
 		public static T Match<T>(this FluentAssertions.Common.ValueFormatterDetectionMode valueFormatterDetectionMode, global::System.Func<T> disabled, global::System.Func<T> scan, global::System.Func<T> specific) =>
 		valueFormatterDetectionMode switch

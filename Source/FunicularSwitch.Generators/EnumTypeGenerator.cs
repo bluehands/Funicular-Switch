@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.EnumType;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FunicularSwitch.Generators;
 
@@ -22,21 +21,34 @@ public class EnumTypeGenerator : IIncrementalGenerator
             "Attributes.g.cs",
             Templates.EnumTypeTemplates.StaticCode));
 
-        var enumTypeClasses =
+        var attributedEnums = GetEnumSymbols(ExtendedEnumAttribute);
+        var enumsFromExtendEnumAttribute = GetEnumSymbols(ExtendEnumAttribute);
+        var enumsFromExtendEnumsAttribute = GetEnumSymbols(ExtendEnumsAttribute);
+
+        var enumSymbols = attributedEnums
+            .Combine(enumsFromExtendEnumsAttribute)
+            .Combine(enumsFromExtendEnumAttribute)
+            .SelectMany((t, _) => t.Left.Left
+                .SelectMany(l => l)
+                .Concat(t.Left.Right.SelectMany(l => l))
+                .Concat(t.Right.SelectMany(l => l)));
+
+        context.RegisterSourceOutput(
+            enumSymbols.Collect(),
+            static (spc, source) =>
+                Execute(source, spc));
+
+        IncrementalValueProvider<ImmutableArray<EquatableArray<(EnumTypeSchema? enumTypeSchema, DiagnosticInfo? error)>>> GetEnumSymbols(string attributeName) =>
             context.SyntaxProvider
-                .CreateSyntaxProvider(
-                    predicate: static (s, _) => s is EnumDeclarationSyntax && s.IsTypeDeclarationWithAttributes()
-                                                || s.IsAssemblyAttribute(),
+                .ForAttributeWithMetadataName(attributeName,
+                    predicate: static (s, _) => true,
                     transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx)
                         .Select(ToEnumTypeSchema)
                         .ToImmutableArray()
                         .AsEquatableArray()
-                );
-
-        context.RegisterSourceOutput(
-            enumTypeClasses.Collect(),
-            static (spc, source) =>
-                Execute(source.SelectMany(s => s).ToImmutableArray(), spc));
+                )
+                .Collect()
+            ;
     }
 
     static (EnumTypeSchema? enumTypeSchema, DiagnosticInfo? error) ToEnumTypeSchema(EnumSymbolInfo enumSymbolInfo)
@@ -91,64 +103,61 @@ public class EnumTypeGenerator : IIncrementalGenerator
         }
     }
 
-    static IEnumerable<EnumSymbolInfo> GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
-    {
-        switch (context.Node)
+    static IEnumerable<EnumSymbolInfo> GetSemanticTargetForGeneration(GeneratorAttributeSyntaxContext context) =>
+        context.Attributes.SelectMany(attributeData =>
         {
-            case EnumDeclarationSyntax enumDeclarationSyntax:
+            var attributeFullName = attributeData.AttributeClass?.FullTypeNameWithNamespace();
+            return attributeFullName switch
             {
-                return GetSymbolInfoFromEnumDeclaration(context, enumDeclarationSyntax);
-            }
-            case AttributeSyntax extendEnumTypesAttribute:
-            {
-                var semanticModel = context.SemanticModel;
-                var attributeFullName = extendEnumTypesAttribute.GetAttributeFullName(semanticModel);
+                ExtendedEnumAttribute => GetSymbolInfoFromEnumDeclaration(attributeData, context.TargetSymbol as INamedTypeSymbol),
+                ExtendEnumsAttribute => GetSymbolInfosForExtendEnumTypesAttribute(attributeData),
+                ExtendEnumAttribute => GetSymbolInfosForExtendEnumTypeAttribute(attributeData),
+                _ => []
+            };
+        });
 
-                return attributeFullName switch
-                {
-                    ExtendEnumsAttribute => GetSymbolInfosForExtendEnumTypesAttribute(extendEnumTypesAttribute, semanticModel),
-                    ExtendEnumAttribute => GetSymbolInfosForExtendEnumTypeAttribute(extendEnumTypesAttribute, semanticModel),
-                    _ => []
-                };
-            }
-            default:
-                throw new ArgumentException($"Unexpected node of type {context.Node.GetType()}");
+    static IEnumerable<EnumSymbolInfo> GetSymbolInfosForExtendEnumTypeAttribute(AttributeData extendEnumTypesAttribute)
+    {
+        if (extendEnumTypesAttribute.ConstructorArguments[0].Value 
+                is not INamedTypeSymbol typeSymbol || typeSymbol.EnumUnderlyingType == null)
+            yield break;
+
+        var (caseOrder, visibility) = GetAttributeNamedArguments(extendEnumTypesAttribute);
+
+        yield return new(SymbolWrapper.Create(typeSymbol), visibility, caseOrder, AttributePrecedence.Medium);
+    }
+
+    static (EnumCaseOrder caseOrder, ExtensionAccessibility visibility) GetAttributeNamedArguments(
+        AttributeData extendEnumTypesAttribute)
+    {
+        var caseOrder = GetEnumNamedArgument(extendEnumTypesAttribute, "CaseOrder", EnumCaseOrder.AsDeclared);
+        var visibility = GetEnumNamedArgument(extendEnumTypesAttribute, "Accessibility", ExtensionAccessibility.Public);
+        return (caseOrder, visibility);
+    }
+
+    static T GetEnumNamedArgument<T>(AttributeData attributeData, string name, T defaultValue) where T : struct
+    {
+        foreach (var kv in attributeData.NamedArguments)
+        {
+            if (kv.Key != name)
+                continue;
+
+            return (T)(object)((int)kv.Value.Value!);
         }
+
+        return defaultValue;
     }
 
-    static IEnumerable<EnumSymbolInfo> GetSymbolInfosForExtendEnumTypeAttribute(AttributeSyntax extendEnumTypesAttribute, SemanticModel semanticModel)
+    static IEnumerable<EnumSymbolInfo> GetSymbolInfosForExtendEnumTypesAttribute(AttributeData extendEnumTypesAttribute)
     {
-        var typeofExpression = extendEnumTypesAttribute.ArgumentList?.Arguments
-            .Select(a => a.Expression)
-            .OfType<TypeOfExpressionSyntax>()
-            .FirstOrDefault();
+        var attributeSymbol = extendEnumTypesAttribute.AttributeClass!;
 
-        if (typeofExpression == null)
-            return [];
-
-        if (semanticModel.GetSymbolInfo(typeofExpression.Type).Symbol is not INamedTypeSymbol typeSymbol)
-            return [];
-
-        if (typeSymbol.EnumUnderlyingType == null)
-            return [];
-
-        var (caseOrder, visibility) = Parser.GetAttributeParameters(extendEnumTypesAttribute);
-        return new[] { new EnumSymbolInfo(SymbolWrapper.Create(typeSymbol), visibility, caseOrder, AttributePrecedence.Medium) };
-    }
-
-    static IEnumerable<EnumSymbolInfo> GetSymbolInfosForExtendEnumTypesAttribute(AttributeSyntax extendEnumTypesAttribute, SemanticModel semanticModel)
-    {
-        var typeofExpression = extendEnumTypesAttribute.ArgumentList?.Arguments
-            .Select(a => a.Expression)
-            .OfType<TypeOfExpressionSyntax>()
-            .FirstOrDefault();
-
-        var attributeSymbol = semanticModel.GetSymbolInfo(extendEnumTypesAttribute).Symbol!;
-        var enumFromAssembly = typeofExpression != null
-            ? semanticModel.GetSymbolInfo(typeofExpression.Type).Symbol!.ContainingAssembly
+        var enumFromAssembly = extendEnumTypesAttribute.ConstructorArguments.FirstOrDefault().Value 
+            is INamedTypeSymbol typeFromAssembly
+            ? typeFromAssembly.ContainingAssembly
             : attributeSymbol.ContainingAssembly;
 
-        var (caseOrder, visibility) = Parser.GetAttributeParameters(extendEnumTypesAttribute);
+        var (caseOrder, visibility) = GetAttributeNamedArguments(extendEnumTypesAttribute);
 
         return Parser.GetAccessibleEnumTypeSymbols(enumFromAssembly.GlobalNamespace,
                 SymbolEqualityComparer.Default.Equals(attributeSymbol.ContainingAssembly, enumFromAssembly))
@@ -159,28 +168,14 @@ public class EnumTypeGenerator : IIncrementalGenerator
             .Select(e => new EnumSymbolInfo(SymbolWrapper.Create(e), visibility, caseOrder, AttributePrecedence.Low));
     }
 
-    static IEnumerable<EnumSymbolInfo> GetSymbolInfoFromEnumDeclaration(GeneratorSyntaxContext context,
-        EnumDeclarationSyntax enumDeclarationSyntax)
+    static IEnumerable<EnumSymbolInfo> GetSymbolInfoFromEnumDeclaration(AttributeData extendedEnum, INamedTypeSymbol? targetSymbol)
     {
-        AttributeSyntax? enumTypeAttribute = null;
-        foreach (var attributeListSyntax in enumDeclarationSyntax.AttributeLists)
-        {
-            foreach (var attributeSyntax in attributeListSyntax.Attributes)
-            {
-                var semanticModel = context.SemanticModel;
-                var attributeFullName = attributeSyntax.GetAttributeFullName(semanticModel);
-                if (attributeFullName != ExtendedEnumAttribute) continue;
-                enumTypeAttribute = attributeSyntax;
-                goto Return;
-            }
-        }
+        var enumDeclarationSyntax = extendedEnum.ApplicationSyntaxReference?.GetSyntax();
+        if (enumDeclarationSyntax == null || targetSymbol == null)
+            yield break;
 
-        Return:
-        if (enumTypeAttribute == null)
-            return [];
+        var (enumCaseOrder, visibility) = GetAttributeNamedArguments(extendedEnum);
 
-        var schema = Parser.GetEnumSymbolInfo(enumDeclarationSyntax, enumTypeAttribute, context.SemanticModel);
-
-        return schema == null ? Enumerable.Empty<EnumSymbolInfo>() : new[] { schema };
+        yield return new(SymbolWrapper.Create(targetSymbol), visibility, enumCaseOrder, AttributePrecedence.High);
     }
 }

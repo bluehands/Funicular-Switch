@@ -1,7 +1,7 @@
 ﻿#pragma warning disable 1591
 namespace FluentAssertions.Common
 {
-	public static partial class CSharpAccessModifierMatchExtension
+	internal static partial class CSharpAccessModifierMatchExtension
 	{
 		public static T Match<T>(this FluentAssertions.Common.CSharpAccessModifier cSharpAccessModifier, global::System.Func<T> @internal, global::System.Func<T> invalidForCSharp, global::System.Func<T> @private, global::System.Func<T> privateProtected, global::System.Func<T> @protected, global::System.Func<T> protectedInternal, global::System.Func<T> @public) =>
 		cSharpAccessModifier switch
