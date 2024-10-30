@@ -235,6 +235,12 @@ class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
         base.VisitRecordDeclaration(node);
     }
 
+    public override void VisitStructDeclaration(StructDeclarationSyntax node)
+    {
+        CheckIsConcreteDerived(node);
+        base.VisitStructDeclaration(node);
+    }
+
     void CheckIsConcreteDerived(BaseTypeDeclarationSyntax node)
     {
         var isAbstract = node.Modifiers.Any(m => m.Text.ToString() == "abstract");

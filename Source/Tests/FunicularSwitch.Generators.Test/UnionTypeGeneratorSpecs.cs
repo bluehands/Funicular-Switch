@@ -354,6 +354,58 @@ public record Two : IBase {}";
 		return Verify(code);
 	}
 
+    [TestMethod]
+    public Task Support_structs_derived_from_interface()
+    {
+        var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType]
+public partial interface IBase {}
+
+public class One : IBase {}
+public struct Two : IBase {}
+public readonly partial record struct Three : IBase {}
+
+public class Consumer
+{
+    public int Handle(IBase @base) => @base.Match(one: _ => 1, two: _ => 2, three: _ => 3);
+}
+";
+
+        return Verify(code);
+    }
+
+    [TestMethod]
+    public Task Support_structs_derived_from_derived_interface()
+    {
+        var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType]
+public partial interface IBaseBase {}
+
+public partial interface IBase : IBaseBase {}
+
+public class One : IBase {}
+public record Two : IBase {}
+public struct Three : IBase {}
+
+public class Consumer
+{
+    public int Handle(IBaseBase @base) => @base.Match(one: _ => 1, two: _ => 2, three: _ => 3);
+}
+";
+
+        return Verify(code);
+    }
+
+    public readonly partial record struct X;
+
 	[TestMethod]
 	public Task For_union_type_without_derived_types()
 	{

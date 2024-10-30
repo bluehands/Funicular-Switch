@@ -56,7 +56,7 @@ public static class RoslynExtensions
     }
 
     public static bool Implements(this INamedTypeSymbol symbol, ITypeSymbol interfaceType)
-        => symbol.Interfaces.Any(i => interfaceType.Equals(i, SymbolEqualityComparer.Default));
+        => symbol.AllInterfaces.Any(i => interfaceType.Equals(i, SymbolEqualityComparer.Default));
 
     public static string? GetFullNamespace(this INamedTypeSymbol namedType)
     {
