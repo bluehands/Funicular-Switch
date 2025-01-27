@@ -44,6 +44,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generators.Consumer.StandardMinLangVersion", "Tests\FunicularSwitch.Generators.Consumer.StandardMinLangVersion\FunicularSwitch.Generators.Consumer.StandardMinLangVersion.csproj", "{18D4F137-98AF-47CF-88FE-313C4BEA4215}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1EA7B0C8-17DB-4ED9-A7B8-90CACA398BC3}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\dotnet-ci.yml = ..\.github\workflows\dotnet-ci.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
