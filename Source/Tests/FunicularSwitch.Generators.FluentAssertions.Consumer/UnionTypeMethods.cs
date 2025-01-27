@@ -94,4 +94,18 @@ public class UnionTypeMethods
         Action(() => result.Should().BeDerivedNestedUnionType())
             .Should().Throw<XunitException>();
     }
+
+    [Fact]
+    public void GenericUnionType_FirstCase_IsCase()
+    {
+        // ARRANGE
+        var union = GenericUnionType<int>.First(5);
+
+        // ASSERT
+        union.Match(
+                first => first.Value,
+                second => -1)
+            .Should()
+            .Be(5);
+    }
 }

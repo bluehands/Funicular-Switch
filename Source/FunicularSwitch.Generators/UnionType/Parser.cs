@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -17,7 +18,10 @@ static class Parser
     {
         var semanticModel = compilation.GetSemanticModel(unionTypeClass.SyntaxTree);
 
+        var typeParameters = unionTypeClass.GetTypeParameterList();
+
         var fullTypeName = unionTypeSymbol.FullTypeNameWithNamespace();
+        var fullTypeNameWithTypeParameters = fullTypeName + RoslynExtensions.FormatTypeParameters(typeParameters);
         var acc = unionTypeSymbol.DeclaredAccessibility;
         if (acc is Accessibility.Private or Accessibility.Protected)
         {
@@ -45,30 +49,32 @@ static class Parser
 
         return
             ToOrderedCases(caseOrder, derivedTypes, compilation, generateFactoryMethods, unionTypeSymbol.Name)
-                .Map(cases =>
-                    new UnionTypeSchema(
-                        Namespace: fullNamespace,
-                        TypeName: unionTypeSymbol.Name,
-                        FullTypeName: fullTypeName,
-                        Cases: cases,
-                        IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
-                        IsPartial: isPartial,
-                        TypeKind: unionTypeClass switch
-                        {
-                            RecordDeclarationSyntax => UnionTypeTypeKind.Record,
-                            InterfaceDeclarationSyntax => UnionTypeTypeKind.Interface,
-                            _ => UnionTypeTypeKind.Class
-                        },
-                        StaticFactoryInfo: generateFactoryMethods
-                            ? BuildFactoryInfo(unionTypeClass, compilation)
-                            : null
-                    ));
+                .Map(cases => new UnionTypeSchema(
+                    Namespace: fullNamespace,
+                    TypeName: unionTypeSymbol.Name,
+                    FullTypeName: fullTypeName,
+                    FullTypeNameWithTypeParameters: fullTypeNameWithTypeParameters,
+                    Cases: cases,
+                    TypeParameters: typeParameters,
+                    IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
+                    IsPartial: isPartial,
+                    TypeKind: unionTypeClass switch
+                    {
+                        RecordDeclarationSyntax => UnionTypeTypeKind.Record,
+                        InterfaceDeclarationSyntax => UnionTypeTypeKind.Interface,
+                        _ => UnionTypeTypeKind.Class
+                    },
+                    Modifiers: unionTypeClass.Modifiers.ToEquatableModifiers(),
+                    StaticFactoryInfo: generateFactoryMethods
+                        ? BuildFactoryInfo(unionTypeClass, compilation)
+                        : null
+                ));
 
 
         static GenerationResult<UnionTypeSchema> Error(Diagnostic diagnostic) => GenerationResult<UnionTypeSchema>.Empty.AddDiagnostics(diagnostic);
     }
 
-    static (string parameterName, string methodName) DeriveParameterAndStaticMethodName(string typeName,
+    private static (string parameterName, string methodName) DeriveParameterAndStaticMethodName(string typeName,
         string baseTypeName)
     {
         var candidates = ImmutableList<string>.Empty;
@@ -113,7 +119,7 @@ static class Parser
             })
             .ToImmutableArray();
 
-        return new(staticMethods, staticFields, unionTypeClass.Modifiers.ToEquatableModifiers());
+        return new(staticMethods, staticFields);
     }
 
     static GenerationResult<ImmutableArray<DerivedType>> ToOrderedCases(CaseOrder caseOrder,
@@ -123,7 +129,7 @@ static class Parser
         var ordered = derivedTypes.OrderByDescending(d => d.numberOfConctreteBaseTypes);
         ordered = caseOrder switch
         {
-            CaseOrder.Alphabetic => ordered.ThenBy(d => d.node.QualifiedName().Name),
+            CaseOrder.Alphabetic => ordered.ThenBy(d => d.node.QualifiedNameWithGenerics().Name),
             CaseOrder.AsDeclared => ordered.ThenBy(d => d.node.SyntaxTree.FilePath)
                 .ThenBy(d => d.node.Span.Start),
             CaseOrder.Explicit => ordered.ThenBy(d => d.caseIndex),
@@ -166,7 +172,7 @@ static class Parser
 
         var derived = result.Select(d =>
         {
-            var qualifiedTypeName = d.node.QualifiedName();
+            var qualifiedTypeName = d.node.QualifiedNameWithGenerics();
             var fullNamespace = d.symbol.GetFullNamespace();
             IEnumerable<MemberInfo>? constructors = null;
             if (getConstructors)

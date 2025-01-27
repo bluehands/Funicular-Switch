@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -21,19 +22,30 @@ public static class Generator
 
 		using (unionTypeSchema.Namespace != null ? builder.Namespace(unionTypeSchema.Namespace) : null)
 		{
-			WriteMatchExtension(unionTypeSchema, builder);
-			if (unionTypeSchema is { IsPartial: true, StaticFactoryInfo: not null })
-			{
-				builder.WriteLine("");
-				WritePartialWithStaticFactories(unionTypeSchema, builder);
-			}
-		}
+            if (unionTypeSchema.TypeParameters.Length > 0)
+            {
+                if (unionTypeSchema.IsPartial)
+                {
+                    WritePartialWithMatchMethods(unionTypeSchema, builder);
+                }
+            }
+            else
+            {
+                WriteMatchExtension(unionTypeSchema, builder);
+            }
+
+            if (unionTypeSchema is { IsPartial: true, StaticFactoryInfo: not null })
+            {
+                builder.WriteLine("");
+                WritePartialWithStaticFactories(unionTypeSchema, builder);
+            }
+        }
 
 		builder.WriteLine("#pragma warning restore 1591");
-		return (unionTypeSchema.FullTypeName.ToMatchExtensionFilename(), builder.ToString());
+		return (unionTypeSchema.FullTypeName.ToMatchExtensionFilename(unionTypeSchema.TypeParameters), builder.ToString());
 	}
 
-	static void WriteMatchExtension(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
+    private static void WriteMatchExtension(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
 	{
 		using (builder.StaticPartialClass($"{unionTypeSchema.TypeName.Replace(".", "_")}MatchExtension",
 				   unionTypeSchema.IsInternal ? "internal" : "public"))
@@ -73,18 +85,45 @@ public static class Generator
 			WriteBodyForAsyncTaskExtension(VoidMatchMethodName);
 		}
 
+        return;
+
 		void BlankLine()
 		{
 			builder.WriteLine("");
 		}
 	}
 
-	static void WritePartialWithStaticFactories(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
+    private static void WritePartialWithMatchMethods(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
+    {
+        var typeParameters = RoslynExtensions.FormatTypeParameters(unionTypeSchema.TypeParameters);
+        var unusedTypeParameter = GetUnusedTypeParameter(unionTypeSchema.TypeParameters);
+        var typeKind = GetTypeKind(unionTypeSchema);
+		builder.WriteLine($"{(unionTypeSchema.Modifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");
+        using (builder.Scope())
+        {
+			GenerateMatchMethod(builder, unionTypeSchema, returnType: unusedTypeParameter, t: unusedTypeParameter, asExtension: false);
+            BlankLine();
+
+			GenerateSwitchMethod(builder, unionTypeSchema, isAsync: false, asExtension: false);
+            BlankLine();
+			GenerateSwitchMethod(builder, unionTypeSchema, isAsync: true, asExtension: false);
+        }
+
+        return;
+
+        void BlankLine()
+        {
+			builder.WriteLine("");
+        }
+    }
+
+    private static void WritePartialWithStaticFactories(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
 	{
 		var info = unionTypeSchema.StaticFactoryInfo!;
+        var typeParameters = RoslynExtensions.FormatTypeParameters(unionTypeSchema.TypeParameters);
 
-        var typeKind = unionTypeSchema.TypeKind switch { UnionTypeTypeKind.Class => "class", UnionTypeTypeKind.Interface => "interface", UnionTypeTypeKind.Record => "record", _ => throw new ArgumentException($"Unknown type kind: {unionTypeSchema.TypeKind}") };
-        builder.WriteLine($"{(info.Modifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}");
+        var typeKind = GetTypeKind(unionTypeSchema);
+        builder.WriteLine($"{(unionTypeSchema.Modifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");
 		using (builder.Scope())
 		{
 			foreach (var derivedType in unionTypeSchema.Cases)
@@ -93,7 +132,7 @@ public static class Generator
 				var derivedTypeName = nameParts[nameParts.Length - 1];
 				var methodName = derivedType.StaticFactoryMethodName;
 
-				if ($"{unionTypeSchema.FullTypeName}.{methodName}" == derivedType.FullTypeName) //union case is nested type without underscores, so factory method name would conflict with type name
+				if ($"{unionTypeSchema.FullTypeNameWithTypeParameters}.{methodName}" == derivedType.FullTypeName) //union case is nested type without underscores, so factory method name would conflict with type name
 					continue;
 
 				var constructors = derivedType.Constructors;
@@ -124,19 +163,32 @@ public static class Generator
 
 					var arguments = constructor.Parameters.ToSeparatedString();
 					var constructorInvocation = $"new {derivedType.FullTypeName}({(constructor.Parameters.Select(p => p.Name).ToSeparatedString())})";
-					builder.WriteLine($"{(isInternal ? "internal" : "public")} static {unionTypeSchema.FullTypeName} {methodName}({arguments}) => {constructorInvocation};");
+					builder.WriteLine($"{(isInternal ? "internal" : "public")} static {unionTypeSchema.FullTypeName}{typeParameters} {methodName}({arguments}) => {constructorInvocation};");
 				}
 			}
 		}
 	}
 
-    static void GenerateMatchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, string t)
+    private static string GetTypeKind(UnionTypeSchema unionTypeSchema)
+    {
+        var typeKind = unionTypeSchema.TypeKind switch { UnionTypeTypeKind.Class => "class", UnionTypeTypeKind.Interface => "interface", UnionTypeTypeKind.Record => "record", _ => throw new ArgumentException($"Unknown type kind: {unionTypeSchema.TypeKind}") };
+        return typeKind;
+    }
+
+    static void GenerateMatchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, string returnType, string t = "T", bool asExtension = true)
 	{
 		var thisParameterType = unionTypeSchema.FullTypeName;
 		var thisParameter = ThisParameter(unionTypeSchema, thisParameterType);
 		var thisParameterName = thisParameter.Name;
-		WriteMatchSignature(builder, unionTypeSchema, thisParameter, t);
-		builder.WriteLine($"{thisParameterName} switch");
+        var thisStatement = asExtension ? thisParameterName : "this";
+		WriteMatchSignature(
+            builder: builder,
+            unionTypeSchema: unionTypeSchema,
+            thisParameter: asExtension ? thisParameter : null,
+            returnType: returnType,
+			t: t,
+            modifiers: asExtension ? "public static" : "public");
+		builder.WriteLine($"{thisStatement} switch");
 		using (builder.ScopeWithSemicolon())
 		{
 			var caseIndex = 0;
@@ -148,19 +200,20 @@ public static class Generator
 			}
 
 			builder.WriteLine(
-				$"_ => throw new global::System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\")");
+				$"_ => throw new global::System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisStatement}.GetType().Name}}\")");
 		}
 	}
 
-	static void GenerateSwitchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, bool isAsync)
+	static void GenerateSwitchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, bool isAsync, bool asExtension = true)
 	{
 		var thisParameterType = unionTypeSchema.FullTypeName;
 		var thisParameter = ThisParameter(unionTypeSchema, thisParameterType);
 		var thisParameterName = thisParameter.Name;
-		WriteSwitchSignature(builder, unionTypeSchema, thisParameter, isAsync);
+        var thisStatement = asExtension ? thisParameterName : "this";
+        WriteSwitchSignature(builder, unionTypeSchema, asExtension ? thisParameter : null, isAsync, modifiers: asExtension ? "public static" : "public");
 		using (builder.Scope())
 		{
-			builder.WriteLine($"switch ({thisParameterName})");
+			builder.WriteLine($"switch ({thisStatement})");
 			using (builder.Scope())
 			{
 				var caseIndex = 0;
@@ -182,30 +235,51 @@ public static class Generator
 				builder.WriteLine("default:");
 				using (builder.Indent())
 				{
-					builder.WriteLine($"throw new global::System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\");");
+					builder.WriteLine($"throw new global::System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisStatement}.GetType().Name}}\");");
 				}
 			}
 		}
-	}
+    }
 
-	static Parameter ThisParameter(UnionTypeSchema unionTypeSchema, string thisParameterType) => new($"this {thisParameterType}", unionTypeSchema.TypeName.ToParameterName());
+    private static string GetUnusedTypeParameter(EquatableArray<string> typeParameters)
+    {
+        return Enumerable.Range(0, 20)
+            .Select(i => Check(new string('_', i) + "TMatchResult"))
+            .FirstOrDefault(s => s is not null) ?? "T" + Guid.NewGuid().ToString("N");
+
+        string? Check(string typeName)
+        {
+            if (!typeParameters.Contains(typeName))
+            {
+                return typeName;
+            }
+
+            return null;
+        }
+    }
+
+    static Parameter ThisParameter(UnionTypeSchema unionTypeSchema, string thisParameterType) => new($"this {thisParameterType}", unionTypeSchema.TypeName.ToParameterName());
 
 	static void WriteMatchSignature(CSharpBuilder builder, UnionTypeSchema unionTypeSchema,
-		Parameter thisParameter, string returnType, string? handlerReturnType = null, string modifiers = "public static")
+		Parameter? thisParameter, string returnType, string? handlerReturnType = null, string modifiers = "public static", string t = "T")
 	{
 		handlerReturnType ??= returnType;
 		var handlerParameters = unionTypeSchema.Cases
 			.Select(c => new Parameter($"global::System.Func<{c.FullTypeName}, {handlerReturnType}>", c.ParameterName));
 
-		builder.WriteMethodSignature(
+        if (thisParameter is not null)
+        {
+            handlerParameters = handlerParameters.Prepend(thisParameter);
+        }
+        builder.WriteMethodSignature(
 			modifiers: modifiers,
 			returnType: returnType,
-			methodName: "Match<T>", parameters: new[] { thisParameter }.Concat(handlerParameters),
+			methodName: "Match<" + t + ">", parameters: handlerParameters,
 			lambda: true);
 	}
 
 	static void WriteSwitchSignature(CSharpBuilder builder, UnionTypeSchema unionTypeSchema,
-		Parameter thisParameter, bool isAsync, bool? asyncReturn = null, bool lambda = false)
+		Parameter? thisParameter, bool isAsync, string modifiers = "public static", bool? asyncReturn = null, bool lambda = false)
 	{
 		var returnType = asyncReturn ?? isAsync ? "async global::System.Threading.Tasks.Task" : "void";
 		var handlerParameters = unionTypeSchema.Cases
@@ -218,13 +292,15 @@ public static class Generator
 						parameterType,
 						c.ParameterName);
 			});
+        if (thisParameter is not null)
+        {
+            handlerParameters = handlerParameters.Prepend(thisParameter);
+        }
 
-		string modifiers = "public static";
-
-		builder.WriteMethodSignature(
+        builder.WriteMethodSignature(
 			modifiers: modifiers,
 			returnType: returnType,
-			methodName: VoidMatchMethodName, parameters: new[] { thisParameter }.Concat(handlerParameters),
+			methodName: VoidMatchMethodName, parameters: handlerParameters,
 			lambda: lambda);
 	}
 }
