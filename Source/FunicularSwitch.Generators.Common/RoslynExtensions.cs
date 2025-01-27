@@ -77,10 +77,12 @@ public static class RoslynExtensions
     }
 
     static readonly SymbolDisplayFormat FullTypeWithNamespaceDisplayFormat = SymbolWrapper.FullTypeWithNamespaceDisplayFormat;
+    static readonly SymbolDisplayFormat FullTypeWithNamespaceAndGenericsDisplayFormat = SymbolWrapper.FullTypeWithNamespaceAndGenericsDisplayFormat;
     static readonly SymbolDisplayFormat FullTypeDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes);
 
 
     public static string FullTypeNameWithNamespace(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(FullTypeWithNamespaceDisplayFormat);
+    public static string FullTypeNameWithNamespaceAndGenerics(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(FullTypeWithNamespaceAndGenericsDisplayFormat);
     public static string FullTypeName(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(FullTypeDisplayFormat);
 
     public static string FullNamespace(this INamespaceSymbol namespaceSymbol) =>
@@ -130,6 +132,16 @@ public static class RoslynExtensions
         }
 
         return "<" + string.Join(", ", typeParameters) + ">";
+    }
+
+    public static string FormatTypeParameterForFileName(EquatableArray<string> typeParameters)
+    {
+        if (typeParameters.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        return "Of" + string.Join("_", typeParameters);
     }
 
     public static string Name(this BaseTypeDeclarationSyntax declaration) => declaration.Identifier.ToString();

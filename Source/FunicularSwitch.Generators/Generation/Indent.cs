@@ -243,15 +243,7 @@ public static class BuildExtensions
         return value;
     }
 
-    public static string ToMatchExtensionFilename(this string fullTypeName, EquatableArray<string> typeParameters) => $"{fullTypeName.Replace(".", "")}{FormatTypeParameterForFileName(typeParameters)}MatchExtension.g.cs";
+    public static string ToMatchExtensionFilename(this string fullTypeName, EquatableArray<string> typeParameters) => $"{fullTypeName.Replace(".", "")}{RoslynExtensions.FormatTypeParameterForFileName(typeParameters)}MatchExtension.g.cs";
 
-    public static string FormatTypeParameterForFileName(EquatableArray<string> typeParameters)
-    {
-        if (typeParameters.Length == 0)
-        {
-            return string.Empty;
-        }
-
-        return "Of" + string.Join("_", typeParameters);
-    }
+    
 }

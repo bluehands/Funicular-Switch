@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Globalization;
+using FluentAssertions;
 using FunicularSwitch;
 using FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency;
 using Xunit.Sdk;
@@ -96,16 +97,88 @@ public class UnionTypeMethods
     }
 
     [Fact]
-    public void GenericUnionType_FirstCase_IsCase()
+    public void GenericUnionType_Match_WorksCorrectly()
     {
         // ARRANGE
-        var union = GenericUnionType<int>.First(5);
+        var first = GenericUnionType<int>.First(5);
 
         // ASSERT
-        union.Match(
-                first => first.Value,
-                second => -1)
+        first.Match(
+                first: f => f.Value,
+                second: _ => -1)
             .Should()
             .Be(5);
+
+        // ARRANGE
+        var second = GenericUnionType<int>.Second();
+
+        // ASSERT
+        second.Match(
+                first: f => -1,
+                second: _ => 42)
+            .Should()
+            .Be(42);
+    }
+
+    [Fact]
+    public void GenericUnionType_Should_Be_X()
+    {
+        // ARRANGE
+        var first = GenericUnionType<int>.First(5);
+
+        // ASSERT
+        first.Should().BeFirst().Which.Value.Should().Be(5);
+        var firstShouldBeSecond = () => first.Should().BeSecond();
+        firstShouldBeSecond.Should().Throw<XunitException>();
+
+        // ARRANGE
+        var second = GenericUnionType<int>.Second();
+        second.Should().BeSecond().Which.Should().BeSameAs(second);
+        var secondShouldBeFirst = () => second.Should().BeFirst();
+        secondShouldBeFirst.Should().Throw<XunitException>();
+    }
+
+    [Fact]
+    public void MultiGenericUnionType_Match_WorksCorrectly()
+    {
+        // ARRANGE
+        var one = MultiGenericUnionType<int, string, float>.One(5, "Test");
+
+        // ASSERT
+        one.Match(
+                one: o => o.First + o.Second,
+                two: t => "Two")
+            .Should()
+            .Be("5Test");
+
+        // ARRANGE
+        var two = MultiGenericUnionType<int, string, float>.Two(3.14f);
+
+        // ASSERT
+        two.Match(
+                one: o => "One",
+                two: t => t.Third.ToString("0.00", CultureInfo.InvariantCulture))
+            .Should()
+            .Be("3.14");
+    }
+
+    [Fact]
+    public void MultiGenericUnionType_Should_Be_X()
+    {
+        // ARRANGE
+        var one = MultiGenericUnionType<int, string, float>.One(5, "Test");
+
+        // ASSERT
+        one.Should().BeOne().Which.First.Should().Be(5);
+        var oneShouldBeTwo = () => one.Should().BeTwo();
+        oneShouldBeTwo.Should().Throw<XunitException>();
+
+        // ARRANGE
+        var two = MultiGenericUnionType<int, string, float>.Two(3.14f);
+
+        // ASSERT
+        two.Should().BeTwo().Which.Third.Should().BeApproximately(3.14f, float.Epsilon);
+        var twoShouldBeOne = () => two.Should().BeOne();
+        twoShouldBeOne.Should().Throw<XunitException>();
     }
 }
