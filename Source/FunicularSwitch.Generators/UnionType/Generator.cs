@@ -93,7 +93,7 @@ public static class Generator
 
         var typeKind = GetTypeKind(unionTypeSchema);
         var actualModifiers = unionTypeSchema.Modifiers
-            .Select(m => m == "public" ? unionTypeSchema.IsInternal ? "internal" : "public" : m);
+            .Select(m => m == "public" ? (unionTypeSchema.IsInternal ? "internal" : "public") : m);
 
         builder.WriteLine($"{(actualModifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");
         using (builder.Scope())
