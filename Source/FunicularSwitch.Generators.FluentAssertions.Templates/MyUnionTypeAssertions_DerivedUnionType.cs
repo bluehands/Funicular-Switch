@@ -13,7 +13,7 @@ namespace FunicularSwitch.Generators.FluentAssertions.Templates
             Execute.Assertion
                 .ForCondition(this.Subject is MyDerivedUnionType)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context} to be Error with MyDerivedErrorType MyErrorType{reason}, but found {0}",
+                .FailWith("Expected {context} to be MyDerivedUnionType{reason}, but found {0}",
                     this.Subject);
 
             return new(this, (this.Subject as MyDerivedUnionType)!);

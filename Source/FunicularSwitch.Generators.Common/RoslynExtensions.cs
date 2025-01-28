@@ -77,10 +77,12 @@ public static class RoslynExtensions
     }
 
     static readonly SymbolDisplayFormat FullTypeWithNamespaceDisplayFormat = SymbolWrapper.FullTypeWithNamespaceDisplayFormat;
+    static readonly SymbolDisplayFormat FullTypeWithNamespaceAndGenericsDisplayFormat = SymbolWrapper.FullTypeWithNamespaceAndGenericsDisplayFormat;
     static readonly SymbolDisplayFormat FullTypeDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes);
 
 
     public static string FullTypeNameWithNamespace(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(FullTypeWithNamespaceDisplayFormat);
+    public static string FullTypeNameWithNamespaceAndGenerics(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(FullTypeWithNamespaceAndGenericsDisplayFormat);
     public static string FullTypeName(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(FullTypeDisplayFormat);
 
     public static string FullNamespace(this INamespaceSymbol namespaceSymbol) =>
@@ -99,6 +101,48 @@ public static class RoslynExtensions
         return new(dec.Name(), typeNames);
     }
 
+    public static QualifiedTypeName QualifiedNameWithGenerics(this BaseTypeDeclarationSyntax dec)
+    {
+        var current = dec.Parent as BaseTypeDeclarationSyntax;
+        var typeNames = new Stack<string>();
+        while (current != null)
+        {
+            typeNames.Push(current.Name() + FormatTypeParameters(current.GetTypeParameterList()));
+            current = current.Parent as BaseTypeDeclarationSyntax;
+        }
+
+        return new(dec.Name() + FormatTypeParameters(dec.GetTypeParameterList()), typeNames);
+    }
+
+    public static EquatableArray<string> GetTypeParameterList(this BaseTypeDeclarationSyntax dec)
+    {
+        if (dec is not TypeDeclarationSyntax tds)
+        {
+            return [];
+        }
+
+        return tds.TypeParameterList?.Parameters.Select(tps => tps.Identifier.Text).ToImmutableArray() ?? ImmutableArray<string>.Empty;
+    }
+
+    public static string FormatTypeParameters(EquatableArray<string> typeParameters)
+    {
+        if (typeParameters.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        return "<" + string.Join(", ", typeParameters) + ">";
+    }
+
+    public static string FormatTypeParameterForFileName(EquatableArray<string> typeParameters)
+    {
+        if (typeParameters.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        return "Of" + string.Join("_", typeParameters);
+    }
 
     public static string Name(this BaseTypeDeclarationSyntax declaration) => declaration.Identifier.ToString();
 

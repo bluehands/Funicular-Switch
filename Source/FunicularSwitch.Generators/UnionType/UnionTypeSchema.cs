@@ -6,10 +6,13 @@ namespace FunicularSwitch.Generators.UnionType;
 public sealed record UnionTypeSchema(string? Namespace,
 	string TypeName,
 	string FullTypeName,
+	string FullTypeNameWithTypeParameters,
 	EquatableArray<DerivedType> Cases,
+	EquatableArray<string> TypeParameters,
 	bool IsInternal,
 	bool IsPartial,
 	UnionTypeTypeKind TypeKind,
+	EquatableArray<string> Modifiers,
 	StaticFactoryMethodsInfo? StaticFactoryInfo);
 
 public enum UnionTypeTypeKind
@@ -21,8 +24,7 @@ public enum UnionTypeTypeKind
 
 public record StaticFactoryMethodsInfo(
     EquatableArray<MemberInfo> ExistingStaticMethods, 
-    EquatableArray<string> ExistingStaticFields,
-    EquatableArray<string> Modifiers
+    EquatableArray<string> ExistingStaticFields
 );
 
 public sealed record DerivedType

@@ -110,12 +110,12 @@ namespace DocSamples
             }
 
             var salad =
-                await ingredients
-                    .Select(ingredient =>
+                await ingredients.Select(ingredient =>
                         stock
                             .Where(fruit => fruit.Name == ingredient)
                             .FirstOk(CheckFruit, onEmpty: () => $"No {ingredient} in stock")
-                        )
+                    )
+                    .Aggregate()
                     .Bind(fruits => CutIntoPieces(fruits, cookSkillLevel))
                     .Map(Serve);
 

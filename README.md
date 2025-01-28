@@ -361,6 +361,8 @@ class ExampleConsumer
 }
 ```
 
+Base types of unions may also be generic types with arbitrary number of type parameters. Case types with generic arguments are not yet supported.
+
 If you like union types but don't like excessive typing in C# try the [Switchyard](https://github.com/bluehands/Switchyard) Visual Studio extension, which generates the boilerplate code for you. It plays nicely with the FunicularSwitch.Generators package.
 
 ## ExtendedEnum attribute

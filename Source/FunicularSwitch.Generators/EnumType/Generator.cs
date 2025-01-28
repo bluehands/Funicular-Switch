@@ -1,4 +1,5 @@
-﻿using FunicularSwitch.Generators.Common;
+﻿using System.Collections.Immutable;
+using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
 
@@ -55,7 +56,7 @@ static class Generator
         }
 
         builder.WriteLine("#pragma warning restore 1591");
-        return (enumTypeSchema.FullTypeName.ToMatchExtensionFilename(), builder.ToString());
+        return (enumTypeSchema.FullTypeName.ToMatchExtensionFilename(ImmutableArray<string>.Empty), builder.ToString());
     }
 
     static void GenerateMatchMethod(CSharpBuilder builder, EnumTypeSchema enumTypeSchema, string t)

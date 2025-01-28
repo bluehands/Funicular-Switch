@@ -1,4 +1,5 @@
-﻿using FunicularSwitch.Generators.Common;
+﻿using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
+using FunicularSwitch.Generators.Common;
 
 namespace FunicularSwitch.Generators.Generation;
 
@@ -242,5 +243,7 @@ public static class BuildExtensions
         return value;
     }
 
-    public static string ToMatchExtensionFilename(this string fullTypeName) => $"{fullTypeName.Replace(".", "")}MatchExtension.g.cs";
+    public static string ToMatchExtensionFilename(this string fullTypeName, EquatableArray<string> typeParameters) => $"{fullTypeName.Replace(".", "")}{RoslynExtensions.FormatTypeParameterForFileName(typeParameters)}MatchExtension.g.cs";
+
+    
 }

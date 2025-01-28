@@ -62,3 +62,19 @@ internal abstract record InternalUnionType
     public sealed record First(string Text) : InternalUnionType;
     public sealed record Second(string Text) : InternalUnionType;
 }
+
+[UnionType(CaseOrder = CaseOrder.AsDeclared)]
+public abstract partial record GenericUnionType<T>
+{
+    public sealed record First_(T Value) : GenericUnionType<T>;
+
+    public sealed record Second_ : GenericUnionType<T>;
+}
+
+[UnionType(CaseOrder = CaseOrder.AsDeclared)]
+public abstract partial record MultiGenericUnionType<TFirst, TSecond, TThird>
+{
+    public sealed record One_(TFirst First, TSecond Second) : MultiGenericUnionType<TFirst, TSecond, TThird>;
+
+    public sealed record Two_(TThird Third) : MultiGenericUnionType<TFirst, TSecond, TThird>;
+}

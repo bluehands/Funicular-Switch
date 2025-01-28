@@ -2,14 +2,13 @@
 
 namespace FunicularSwitch.Generators.FluentAssertions.FluentAssertionMethods;
 
-public class UnionTypeSchema
+public record UnionTypeSchema(
+    INamedTypeSymbol UnionTypeBaseType,
+    IEnumerable<INamedTypeSymbol> DerivedTypes)
 {
-    public UnionTypeSchema(INamedTypeSymbol unionTypeBaseType, IEnumerable<INamedTypeSymbol> derivedTypes)
+    public override string ToString()
     {
-        UnionTypeBaseType = unionTypeBaseType;
-        DerivedTypes = derivedTypes.ToList();
+        var derivedTypes = string.Join(", ", DerivedTypes.Select(d => d.ToString()));
+        return $"{nameof(UnionTypeBaseType)}: {UnionTypeBaseType}, {nameof(DerivedTypes)}, {derivedTypes}";
     }
-
-    public INamedTypeSymbol UnionTypeBaseType { get; }
-    public IReadOnlyList<INamedTypeSymbol> DerivedTypes { get; }
 }
