@@ -22,7 +22,7 @@ static class Parser
 
         var fullTypeName = unionTypeSymbol.FullTypeNameWithNamespace();
         var fullTypeNameWithTypeParameters = fullTypeName + RoslynExtensions.FormatTypeParameters(typeParameters);
-        var acc = unionTypeSymbol.DeclaredAccessibility;
+        var acc = unionTypeSymbol.GetActualAccessibility();
         if (acc is Accessibility.Private or Accessibility.Protected)
         {
             var diag = Diagnostics.UnionTypeIsNotAccessible($"{fullTypeName} needs at least internal accessibility", unionTypeClass.GetLocation());
@@ -44,7 +44,8 @@ static class Parser
         });
 
 
-        var isPartial = unionTypeClass.Modifiers.HasModifier(SyntaxKind.PartialKeyword);
+        var isPartial = unionTypeClass.Modifiers.HasModifier(SyntaxKind.PartialKeyword)
+            && unionTypeSymbol.ContainingType == null; //for now do not generate factory methods for nested types, we could support that is all containing types are partial
         var generateFactoryMethods = isPartial && staticFactoryMethods;
 
         return

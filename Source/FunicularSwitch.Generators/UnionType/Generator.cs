@@ -92,7 +92,10 @@ public static class Generator
         var typeParameters = RoslynExtensions.FormatTypeParameters(unionTypeSchema.TypeParameters);
 
         var typeKind = GetTypeKind(unionTypeSchema);
-        builder.WriteLine($"{(unionTypeSchema.Modifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");
+        var actualModifiers = unionTypeSchema.Modifiers
+            .Select(m => m == "public" ? unionTypeSchema.IsInternal ? "internal" : "public" : m);
+
+        builder.WriteLine($"{(actualModifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");
         using (builder.Scope())
         {
             foreach (var derivedType in unionTypeSchema.Cases)
