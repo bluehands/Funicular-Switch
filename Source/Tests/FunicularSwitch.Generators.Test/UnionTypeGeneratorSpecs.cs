@@ -434,9 +434,9 @@ public abstract partial record NodeMessage(string NodeInstanceId)
                    [UnionType(CaseOrder = CaseOrder.AsDeclared)]
                    public abstract partial record BaseType<T>(string Value)
                    {
-                       public sealed record Deriving(string Value, T Other) : BaseType<T>(Value);
+                       public sealed record Deriving_(string Value, T Other) : BaseType<T>(Value);
                        
-                       public sealed record Deriving2(string Value) : BaseType<T>(Value);
+                       public sealed record Deriving2_(string Value) : BaseType<T>(Value);
                    }
                    """;
 
