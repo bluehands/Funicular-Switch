@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -45,7 +44,7 @@ static class Parser
 
 
         var isPartial = unionTypeClass.Modifiers.HasModifier(SyntaxKind.PartialKeyword)
-            && unionTypeSymbol.ContainingType == null; //for now do not generate factory methods for nested types, we could support that is all containing types are partial
+            && unionTypeSymbol.ContainingType == null; //for now do not generate factory methods for nested types, we could support that if all containing types are partial
         var generateFactoryMethods = isPartial && staticFactoryMethods;
 
         return
