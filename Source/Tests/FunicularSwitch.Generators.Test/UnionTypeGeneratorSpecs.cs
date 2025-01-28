@@ -337,8 +337,31 @@ class Consumer {
 		return Verify(code);
 	}
 
+    [TestMethod]
+    public Task Static_factories_for_nested_internal_union_type()
+    {
+        var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+static class Outer
+{
+ [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+ public partial record InitResult
+ {
+   public record Sync_ : InitResult;
+   public record OneTimeSync_(string TempRepoFolder) : InitResult;
+   public record NoSync_() : InitResult;
+ }
+}";
+
+        return Verify(code);
+    }
+
+
 	[TestMethod]
-	public Task No_static_factories_for_interface_union_type()
+	public Task Static_factories_for_interface_union_type()
 	{
 		var code = @"
 using FunicularSwitch.Generators;
