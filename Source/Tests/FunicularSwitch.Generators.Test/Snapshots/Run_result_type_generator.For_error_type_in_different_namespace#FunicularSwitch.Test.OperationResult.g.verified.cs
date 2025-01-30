@@ -1,7 +1,6 @@
 ﻿//HintName: FunicularSwitch.Test.OperationResult.g.cs
 #nullable enable
 using global::System.Linq;
-using FunicularSwitch;
 using FunicularSwitch.Test.Errors;
 
 namespace FunicularSwitch.Test

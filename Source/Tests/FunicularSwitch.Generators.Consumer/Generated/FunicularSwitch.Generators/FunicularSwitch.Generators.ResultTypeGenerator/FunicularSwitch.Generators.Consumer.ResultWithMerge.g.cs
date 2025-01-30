@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using global::System.Linq;
-using FunicularSwitch;
 using System;
 
 namespace FunicularSwitch.Generators.Consumer

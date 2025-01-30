@@ -1,7 +1,6 @@
 ﻿//HintName: FunicularSwitch.Test.OperationResultWithMerge.g.cs
 #nullable enable
 using global::System.Linq;
-using FunicularSwitch;
 using FunicularSwitch.Test.Errors;
 using FunicularSwitch.Test.Extensions;
 

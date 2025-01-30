@@ -1,8 +1,8 @@
 ﻿#nullable enable
 using global::System.Linq;
-using System;
+using MyNamespace2;
 
-namespace FunicularSwitch
+namespace MyNamespace
 {
 #pragma warning disable 1591
     public abstract partial class Result
@@ -94,7 +94,7 @@ namespace FunicularSwitch
         public static Result<global::System.Collections.Generic.IReadOnlyCollection<T>> Aggregate<T>(this global::System.Collections.Generic.IEnumerable<Result<T>> results)
         {
             var isError = false;
-            String aggregated = default!;
+            ErrorInNamespaceWithDifferentResult aggregated = default!;
             var oks = new global::System.Collections.Generic.List<T>();
             foreach (var result in results)
             {
@@ -322,9 +322,9 @@ namespace FunicularSwitch
             return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, r5.Result, r6.Result, r7.Result, r8.Result, r9.Result, combine);
         }
 
-        public static Result<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<Result<T>> results, global::System.Func<String> onEmpty)
+        public static Result<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<Result<T>> results, global::System.Func<ErrorInNamespaceWithDifferentResult> onEmpty)
         {
-            var errors = new global::System.Collections.Generic.List<String>();
+            var errors = new global::System.Collections.Generic.List<ErrorInNamespaceWithDifferentResult>();
             foreach (var result in results)
             {
                 if (result is Result<T>.Error_ e)
@@ -373,19 +373,19 @@ namespace FunicularSwitch
             }
         }
 
-        public static Result<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate) =>
+        public static Result<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, global::System.Collections.Generic.IEnumerable<ErrorInNamespaceWithDifferentResult>> validate) =>
             candidates
                 .Select(c => c.Validate(validate))
                 .Aggregate();
 
         public static Result<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<Result<T>> candidates,
-            global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate) =>
+            global::System.Func<T, global::System.Collections.Generic.IEnumerable<ErrorInNamespaceWithDifferentResult>> validate) =>
             candidates
                 .Bind(items => items.AllOk(validate));
 
-        public static Result<T> Validate<T>(this Result<T> item, global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate) => item.Bind(i => i.Validate(validate));
+        public static Result<T> Validate<T>(this Result<T> item, global::System.Func<T, global::System.Collections.Generic.IEnumerable<ErrorInNamespaceWithDifferentResult>> validate) => item.Bind(i => i.Validate(validate));
 
-        public static Result<T> Validate<T>(this T item, global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate)
+        public static Result<T> Validate<T>(this T item, global::System.Func<T, global::System.Collections.Generic.IEnumerable<ErrorInNamespaceWithDifferentResult>> validate)
         {
 	        try
 	        {
@@ -401,17 +401,17 @@ namespace FunicularSwitch
 	        }
         }
 
-        public static Result<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate, global::System.Func<String> onEmpty) =>
+        public static Result<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, global::System.Collections.Generic.IEnumerable<ErrorInNamespaceWithDifferentResult>> validate, global::System.Func<ErrorInNamespaceWithDifferentResult> onEmpty) =>
             candidates
                 .Select(r => r.Validate(validate))
                 .FirstOk(onEmpty);
 
         #region helpers
 
-        static String MergeErrors(global::System.Collections.Generic.IEnumerable<String> errors)
+        static ErrorInNamespaceWithDifferentResult MergeErrors(global::System.Collections.Generic.IEnumerable<ErrorInNamespaceWithDifferentResult> errors)
         {
             var first = true;
-            String aggregated = default!;
+            ErrorInNamespaceWithDifferentResult aggregated = default!;
             foreach (var myError in errors)
             {
                 if (first)
@@ -428,7 +428,7 @@ namespace FunicularSwitch
             return aggregated;
         }
 
-        static String MergeErrors(String aggregated, String error) => aggregated.JoinErrors(error);
+        static ErrorInNamespaceWithDifferentResult MergeErrors(ErrorInNamespaceWithDifferentResult aggregated, ErrorInNamespaceWithDifferentResult error) => aggregated.Merge(error);
 
         #endregion
     }

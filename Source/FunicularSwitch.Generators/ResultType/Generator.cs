@@ -42,9 +42,8 @@ static class Generator
                     .Replace("public abstract partial", "abstract partial")
                     .Replace("public static partial", "static partial");
 
-            if (additionalNamespaces.Count > 0)
-                code = code
-                    .Replace("//additional using directives", additionalNamespaces.Distinct().Select(a => $"using {a};").ToSeparatedString("\n"));
+            code = code
+                .Replace("//additional using directives", additionalNamespaces.Distinct().Select(a => $"using {a};").ToSeparatedString("\n"));
 
             if (exceptionToErrorMethod != null)
             {
@@ -55,7 +54,7 @@ static class Generator
             return code;
         }
 
-        var additionalNamespaces = new List<string> {"FunicularSwitch"};
+        var additionalNamespaces = new List<string>();
         if (errorTypeNamespace != resultTypeNamespace && errorTypeNamespace != null)
             additionalNamespaces.Add(errorTypeNamespace);
 
