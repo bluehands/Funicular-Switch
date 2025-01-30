@@ -23,22 +23,24 @@ public enum UnionTypeTypeKind
 }
 
 public record StaticFactoryMethodsInfo(
-    EquatableArray<MemberInfo> ExistingStaticMethods, 
+    EquatableArray<CallableMemberInfo> ExistingStaticMethods, 
     EquatableArray<string> ExistingStaticFields
 );
 
 public sealed record DerivedType
 {
 	public string FullTypeName { get; }
-    public EquatableArray<MemberInfo> Constructors { get; }
+    public EquatableArray<CallableMemberInfo> Constructors { get; }
+    public EquatableArray<PropertyOrFieldInfo> RequiredMembers { get; }
     public string ParameterName { get; }
 	public string StaticFactoryMethodName { get; }
 	
-    public DerivedType(string fullTypeName, string parameterName, string staticFactoryMethodName, EquatableArray<MemberInfo>? constructors = null)
+    public DerivedType(string fullTypeName, string parameterName, string staticFactoryMethodName, EquatableArray<CallableMemberInfo>? constructors = null, EquatableArray<PropertyOrFieldInfo>? requiredMembers = null)
     {
         FullTypeName = fullTypeName;
         ParameterName = parameterName;
         StaticFactoryMethodName = staticFactoryMethodName;
+        RequiredMembers = requiredMembers ?? [];
         Constructors = constructors ?? [];
     }
 }

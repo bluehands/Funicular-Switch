@@ -111,7 +111,7 @@ public static class Generator
                 if (constructors.Length == 0)
                     constructors = new[]
                     {
-                        new MemberInfo($"{derivedTypeName}",
+                        new CallableMemberInfo($"{derivedTypeName}",
                             ImmutableArray<string>.Empty.Add("public"),
                             ImmutableArray<ParameterInfo>.Empty)
                     }.ToImmutableArray();
@@ -133,13 +133,62 @@ public static class Generator
                                 .SequenceEqual(constructor.Parameters.Select(p => p.Type), SymbolEqualityComparer.Default)))
                         continue; //static method already exists
 
-                    var arguments = constructor.Parameters.ToSeparatedString();
+                    var requiredParametersToAdd = GetRequiredParameters(derivedType, constructor);
+
+                    var arguments = constructor.Parameters
+                        .Concat(requiredParametersToAdd
+                            .Select(p => new ParameterInfo(p.parameterName, ImmutableArray<string>.Empty, p.requiredProperty.Type, null))
+                        ).ToSeparatedString();
                     var constructorInvocation = $"new {derivedType.FullTypeName}({(constructor.Parameters.Select(p => p.Name).ToSeparatedString())})";
-                    builder.WriteLine($"{(isInternal ? "internal" : "public")} static {unionTypeSchema.FullTypeName}{typeParameters} {methodName}({arguments}) => {constructorInvocation};");
+                    builder.Write($"{(isInternal ? "internal" : "public")} static {unionTypeSchema.FullTypeName}{typeParameters} {methodName}({arguments}) => {constructorInvocation}");
+
+                    if (requiredParametersToAdd.Count > 0)
+                    {
+                        builder.NewLine();
+                        using var _ = builder.ScopeWithSemicolon();
+
+                        for (var i = 0; i < requiredParametersToAdd.Count; i++)
+                        {
+                            var required = requiredParametersToAdd[i];
+                            builder.Write($"{required.requiredProperty.Name} = {required.parameterName}");
+                            builder.Append(i < requiredParametersToAdd.Count - 1 ? "," : "");
+                            builder.NewLine();
+                        }
+                    }
+                    else
+                    {
+                        builder.Content.Append(";");
+                        builder.Content.AppendLine();    
+                    }
                 }
             }
         }
     }
+
+    static ImmutableList<(string parameterName, PropertyOrFieldInfo requiredProperty)> GetRequiredParameters(DerivedType derivedType, CallableMemberInfo constructor) =>
+        derivedType.RequiredMembers
+            .Aggregate(ImmutableList<(string parameterName, PropertyOrFieldInfo requiredProperty)>.Empty,
+                (addedRequiredParams, r) =>
+                {
+                    var existingParameterNames = constructor.Parameters.Select(p => p.Name)
+                        .Concat(addedRequiredParams.Select(p => p.parameterName))
+                        .ToImmutableHashSet();
+
+                    var parameterName = Candidates().First(c => !existingParameterNames.Contains(c));
+                    if (parameterName.IsAnyKeyWord())
+                        parameterName = $"@{parameterName}";
+
+                    return addedRequiredParams.Add((parameterName, r));
+
+                    IEnumerable<string> Candidates()
+                    {
+                        var candidate = r.Name.FirstToLower();
+                        for (var i = 0; i < 50; i++)
+                        {
+                            yield return new string('_', i) + candidate;
+                        }
+                    }
+                });
 
     private static string GetTypeKind(UnionTypeSchema unionTypeSchema)
     {

@@ -174,19 +174,32 @@ static class Parser
         {
             var qualifiedTypeName = d.node.QualifiedNameWithGenerics();
             var fullNamespace = d.symbol.GetFullNamespace();
-            IEnumerable<MemberInfo>? constructors = null;
+            IEnumerable<CallableMemberInfo>? constructors = null;
+            IEnumerable<PropertyOrFieldInfo>? requiredMembers = null;
+
             if (getConstructors)
             {
-                constructors = d.node.ChildNodes()
+                constructors = d.node
+                    .ChildNodes()
                     .OfType<ConstructorDeclarationSyntax>()
                     .Select(c => c.ToMemberInfo(c.Identifier.Text, compilation));
 
+                //primary constructors
                 if (d.node is TypeDeclarationSyntax { ParameterList: not null } typeDeclaration)
-                    constructors = constructors.Concat(new[]
-                    {
-                        new MemberInfo(d.node.Name(), d.node.Modifiers.ToEquatableModifiers(), typeDeclaration.ParameterList.Parameters
-                            .Select(p => p.ToParameterInfo(compilation)).ToImmutableArray())
-                    });
+                    constructors = constructors.Concat([
+                        new(
+                            Name: d.node.Name(),
+                            Modifiers: d.node.Modifiers.ToEquatableModifiers(),
+                            Parameters: typeDeclaration.ParameterList.Parameters
+                                .Select(p => p.ToParameterInfo(compilation))
+                                .ToImmutableArray())
+                    ]);
+
+                requiredMembers = d.node.ChildNodes()
+                    .OfType<MemberDeclarationSyntax>()
+                    .Where(m => m.Modifiers.Any(token => token.ToString() == "required"))
+                    .Select(m => m.ToPropertyOrFieldInfo(compilation))
+                    .ToList();
             }
 
             var (parameterName, staticMethodName) =
@@ -195,6 +208,7 @@ static class Parser
             return new DerivedType(
                 fullTypeName: $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}",
                 constructors: constructors?.ToImmutableArray(),
+                requiredMembers: requiredMembers?.ToImmutableArray(),
                 parameterName: parameterName,
                 staticFactoryMethodName: staticMethodName);
         }).ToImmutableArray();

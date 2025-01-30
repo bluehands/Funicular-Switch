@@ -216,7 +216,7 @@ public static class RoslynExtensions
         }
     }
 
-    public static MemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Compilation compilation)
+    public static CallableMemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Compilation compilation)
     {
         var modifiers = member.Modifiers;
         return new(name,
@@ -235,6 +235,20 @@ public static class RoslynExtensions
 		    p.Modifiers.ToEquatableModifiers(),
 		    compilation.GetSemanticModel(p.SyntaxTree).GetTypeInfo(p.Type!).Type!,
 		    p.Default?.ToString());
+
+    public static PropertyOrFieldInfo ToPropertyOrFieldInfo(this MemberDeclarationSyntax m, Compilation compilation)
+    {
+        var (memberName, type) = m switch
+        {
+            PropertyDeclarationSyntax p => (p.Name(), p.Type),
+            FieldDeclarationSyntax f => (f.Declaration.Variables[0].Identifier.Text, f.Declaration.Type),
+            _ => throw new InvalidOperationException($"Cannot extract parameter info from member of type {m.GetType()}")
+        };
+
+        return new(
+            memberName,
+            compilation.GetSemanticModel(m.SyntaxTree).GetTypeInfo(type).Type!);
+    }
 }
 
 public sealed class QualifiedTypeName : IEquatable<QualifiedTypeName>
@@ -272,7 +286,9 @@ public sealed class QualifiedTypeName : IEquatable<QualifiedTypeName>
     public static bool operator !=(QualifiedTypeName left, QualifiedTypeName right) => !Equals(left, right);
 }
 
-public sealed record MemberInfo(string Name, EquatableArray<string> Modifiers, EquatableArray<ParameterInfo> Parameters);
+public sealed record CallableMemberInfo(string Name, EquatableArray<string> Modifiers, EquatableArray<ParameterInfo> Parameters);
+
+public sealed record PropertyOrFieldInfo(string Name, ITypeSymbol Type);
 
 public sealed record ParameterInfo
 {
