@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FunicularSwitch.Generators;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FunicularSwitch.Generators.Consumer
