@@ -54,10 +54,7 @@ namespace FunicularSwitch
         public Task<Option<T>> OrElse(Task<Option<T>> other) => OrElse(() => other);
         public Task<Option<T>> OrElse(Func<Task<Option<T>>> other) => Match(Option.Some, other);
 
-        public void Match(Action<T> some, Action? none = null)
-        {
-            Match(some.ToFunc(), none?.ToFunc<int>() ?? (() => 42));
-        }
+        public void Match(Action<T> some, Action? none = null) => Match(some.ToFunc(), none?.ToFunc<int>() ?? (() => 42));
 
         public async Task Match(Func<T, Task> some, Func<Task>? none = null)
         {
@@ -119,23 +116,15 @@ namespace FunicularSwitch
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<T> GetEnumerator() => Match(v => new[] { v }, Enumerable.Empty<T>).GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => Match(v => [v], Enumerable.Empty<T>).GetEnumerator();
 
-        public T? GetValueOrDefault()
-        {
-            return Match(v => (T?)v, Default);
-            T? Default() => default;
-        }
+        public T? GetValueOrDefault() => Match(v => v, default(T?));
 
         public T GetValueOrDefault(Func<T> defaultValue) => Match(v => v, defaultValue);
 
         public T GetValueOrDefault(T defaultValue) => Match(v => v, () => defaultValue);
 
-        public T GetValueOrThrow(string? errorMessage = null)
-        {
-            return Match(v => v, Throw);
-            T Throw() => throw new InvalidOperationException(errorMessage ?? "Cannot access value of none option");
-        }
+        public T GetValueOrThrow(string? errorMessage = null) => Match(v => v, T () => throw new InvalidOperationException(errorMessage ?? "Cannot access value of none option"));
 
         public Option<TOther> Convert<TOther>() => Match(s => Option<TOther>.Some((TOther)(object)s!), Option<TOther>.None);
 
