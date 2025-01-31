@@ -30,10 +30,10 @@ public static class RoslynExtensions
         };
 
     public static bool IsAssemblyAttribute(this SyntaxNode s) =>
-	    s is AttributeSyntax
-	    {
-		    Parent: AttributeListSyntax l
-	    } && (l.Target?.Identifier.IsKind(SyntaxKind.AssemblyKeyword)).GetValueOrDefault();
+        s is AttributeSyntax
+        {
+            Parent: AttributeListSyntax l
+        } && (l.Target?.Identifier.IsKind(SyntaxKind.AssemblyKeyword)).GetValueOrDefault();
 
     public static bool IsAnyKeyWord(this string identifier) =>
         SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None
@@ -165,6 +165,9 @@ public static class RoslynExtensions
         return attributeFullName;
     }
 
+    public static bool HasRequiredModifier(this SyntaxTokenList tokens) =>
+        tokens.Any(token => token.Text == "required");
+
     public static bool HasModifier(this SyntaxTokenList tokens, SyntaxKind syntaxKind)
     {
         var token = SyntaxFactory.Token(syntaxKind).Text;
@@ -216,7 +219,7 @@ public static class RoslynExtensions
         }
     }
 
-    public static MemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Compilation compilation)
+    public static CallableMemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Compilation compilation)
     {
         var modifiers = member.Modifiers;
         return new(name,
@@ -230,11 +233,53 @@ public static class RoslynExtensions
     public static ImmutableArray<string> ToEquatableModifiers(this SyntaxTokenList modifiers) => modifiers.Select(m => m.Text).ToImmutableArray();
 
     public static ParameterInfo ToParameterInfo(this ParameterSyntax p, Compilation compilation) =>
-	    new(
-		    p.Identifier.Text,
-		    p.Modifiers.ToEquatableModifiers(),
-		    compilation.GetSemanticModel(p.SyntaxTree).GetTypeInfo(p.Type!).Type!,
-		    p.Default?.ToString());
+        new(
+            p.Identifier.Text,
+            p.Modifiers.ToEquatableModifiers(),
+            compilation.GetSemanticModel(p.SyntaxTree).GetTypeInfo(p.Type!).Type!,
+            p.Default?.ToString());
+
+    public static PropertyOrFieldInfo ToPropertyOrFieldInfo(this MemberDeclarationSyntax m, Compilation compilation)
+    {
+        var (memberName, type) = m switch
+        {
+            PropertyDeclarationSyntax p => (p.Name(), p.Type),
+            FieldDeclarationSyntax f => (f.Declaration.Variables[0].Identifier.Text, f.Declaration.Type),
+            _ => throw new InvalidOperationException($"Cannot extract parameter info from member of type {m.GetType()}")
+        };
+
+        return new(
+            memberName,
+            compilation.GetSemanticModel(m.SyntaxTree).GetTypeInfo(type).Type!);
+    }
+
+
+    public static IEnumerable<string> GetUnusedNames(this ImmutableList<string> usedNames,
+        IEnumerable<string> preferredNames) =>
+        preferredNames
+            .Aggregate(usedNames, (names, preferredName) => names.Add(names.GetUnusedName(preferredName)))
+            .Skip(usedNames.Count);
+
+    public static string GetUnusedName(this IReadOnlyCollection<string> usedNames, string preferredName, string? secondChoiceAndPrefix = null)
+    {
+        return Candidates()
+            .Select(Check)
+            .First(s => s is not null)!;
+
+        IEnumerable<string> Candidates()
+        {
+            if (secondChoiceAndPrefix != null)
+                yield return preferredName;
+
+            var postfix = secondChoiceAndPrefix ?? preferredName;
+            foreach (var i in Enumerable.Range(0, 20))
+                yield return new string('_', i) + postfix;
+
+            yield return postfix + Guid.NewGuid().ToString("N");
+        }
+
+        string? Check(string typeName) => !usedNames.Contains(typeName) ? typeName : null;
+    }
 }
 
 public sealed class QualifiedTypeName : IEquatable<QualifiedTypeName>
@@ -272,7 +317,9 @@ public sealed class QualifiedTypeName : IEquatable<QualifiedTypeName>
     public static bool operator !=(QualifiedTypeName left, QualifiedTypeName right) => !Equals(left, right);
 }
 
-public sealed record MemberInfo(string Name, EquatableArray<string> Modifiers, EquatableArray<ParameterInfo> Parameters);
+public sealed record CallableMemberInfo(string Name, EquatableArray<string> Modifiers, EquatableArray<ParameterInfo> Parameters);
+
+public sealed record PropertyOrFieldInfo(string Name, ITypeSymbol Type);
 
 public sealed record ParameterInfo
 {
@@ -294,7 +341,7 @@ public sealed record ParameterInfo
     }
 
     public override string ToString()
-	{
+    {
         return Parts().ToSeparatedString(" ");
 
         IEnumerable<string> Parts()
