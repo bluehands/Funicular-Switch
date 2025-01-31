@@ -59,6 +59,11 @@ namespace FunicularSwitch
         public Option<T1> Bind<T1>(Func<T, Option<T1>> map) => Match(map, Option<T1>.None);
 
         public Task<Option<T1>> Bind<T1>(Func<T, Task<Option<T1>>> bind) => Match(bind, () => Option<T1>.None);
+        
+        public Option<T> OrElse(Option<T> other) => _isSome ? this : other;
+        public Option<T> OrElse(Func<Option<T>> other) => _isSome ? this : other();
+        public Task<Option<T>> OrElse(Task<Option<T>> other) => OrElse(() => other);
+        public async Task<Option<T>> OrElse(Func<Task<Option<T>>> other) => _isSome ? this : await other().ConfigureAwait(false);
 
         public void Match(Action<T> some, Action? none = null)
         {
@@ -90,6 +95,8 @@ namespace FunicularSwitch
 
             return await none().ConfigureAwait(false);
         }
+        
+        
 
         public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<TResult> none)
         {
@@ -202,15 +209,39 @@ namespace FunicularSwitch
             var result = await bind.ConfigureAwait(false);
             return await result.Bind(convert).ConfigureAwait(false);
         }
+        
+        public static async Task<Option<T>> OrElse<T>(this Task<Option<T>> option, Option<T> other)
+        {
+            var result = await option.ConfigureAwait(false);
+            return result.OrElse(other);
+        }
+        
+        public static async Task<Option<T>> OrElse<T>(this Task<Option<T>> option, Func<Option<T>> other)
+        {
+            var result = await option.ConfigureAwait(false);
+            return result.OrElse(other);
+        }
+        
+        public static async Task<Option<T>> OrElse<T>(this Task<Option<T>> option, Task<Option<T>> other)
+        {
+            var result = await option.ConfigureAwait(false);
+            return await result.OrElse(other).ConfigureAwait(false);
+        }
+        
+        public static async Task<Option<T>> OrElse<T>(this Task<Option<T>> option, Func<Task<Option<T>>> other)
+        {
+            var result = await option.ConfigureAwait(false);
+            return await result.OrElse(other).ConfigureAwait(false);
+        }
 
         public static IEnumerable<TOut> Choose<T, TOut>(this IEnumerable<T> items, Func<T, Option<TOut>> choose) =>
-            items.SelectMany(i => choose(i));
+            items.SelectMany(i => choose(i));        
 
         public static Option<T> ToOption<T>(this Result<T> result) => result.ToOption(logError: null);
 
         public static Option<T> ToOption<T>(this Result<T> result, Action<string>? logError) =>
             result.Match(
-                ok => Option.Some(ok),
+                Option.Some,
                 error =>
                 {
                     logError?.Invoke(error);
@@ -218,7 +249,7 @@ namespace FunicularSwitch
                 });
 
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
-            option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
+            option.Match(Result.Ok, () => Result.Error<T>(errorIfNone()));
 
         public static Option<string> NoneIfEmpty(this string? text)
             => text.ToOption(x => !string.IsNullOrEmpty(x));
