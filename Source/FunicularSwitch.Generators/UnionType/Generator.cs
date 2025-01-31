@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -35,7 +34,7 @@ public static class Generator
         return (unionTypeSchema.FullTypeName.ToMatchExtensionFilename(unionTypeSchema.TypeParameters), builder.ToString());
     }
 
-    private static void WriteMatchExtension(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
+    static void WriteMatchExtension(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
     {
         using (builder.StaticPartialClass($"{unionTypeSchema.TypeName.Replace(".", "_")}MatchExtension",
                    unionTypeSchema.IsInternal ? "internal" : "public"))
@@ -49,7 +48,7 @@ public static class Generator
             void WriteBodyForAsyncTaskExtension(string matchMethodName) => builder.WriteLine(
                 $"await (await {thisTaskParameter.Name}.ConfigureAwait(false)).{matchMethodName}({caseParameters}).ConfigureAwait(false);");
 
-            var typeParameter = GetUnusedTypeParameter(unionTypeSchema.TypeParameters);
+            var typeParameter = unionTypeSchema.TypeParameters.AsImmutableArray().GetUnusedName("T", "TMatchResult");
             var taskOfTypeParameter = $"global::System.Threading.Tasks.Task<{typeParameter}>";
 
             GenerateMatchMethod(builder, unionTypeSchema, typeParameter, typeParameter);
@@ -165,32 +164,19 @@ public static class Generator
         }
     }
 
-    static ImmutableList<(string parameterName, PropertyOrFieldInfo requiredProperty)> GetRequiredParameters(DerivedType derivedType, CallableMemberInfo constructor) =>
-        derivedType.RequiredMembers
-            .Aggregate(ImmutableList<(string parameterName, PropertyOrFieldInfo requiredProperty)>.Empty,
-                (addedRequiredParams, r) =>
-                {
-                    var existingParameterNames = constructor.Parameters.Select(p => p.Name)
-                        .Concat(addedRequiredParams.Select(p => p.parameterName))
-                        .ToImmutableHashSet();
+    static ImmutableList<(string parameterName, PropertyOrFieldInfo requiredProperty)> GetRequiredParameters(DerivedType derivedType, CallableMemberInfo constructor)
+    {
+        var parameterNames = constructor.Parameters
+            .Select(p => p.Name)
+            .ToImmutableList()
+            .GetUnusedNames(derivedType.RequiredMembers.Select(r => r.Name.FirstToLower()))
+            .Select(parameterName => parameterName.IsAnyKeyWord() ? $"@{parameterName}" : parameterName);
 
-                    var parameterName = Candidates().First(c => !existingParameterNames.Contains(c));
-                    if (parameterName.IsAnyKeyWord())
-                        parameterName = $"@{parameterName}";
+        return derivedType.RequiredMembers.Zip(parameterNames, (info, s) => (s, info))
+            .ToImmutableList();
+    }
 
-                    return addedRequiredParams.Add((parameterName, r));
-
-                    IEnumerable<string> Candidates()
-                    {
-                        var candidate = r.Name.FirstToLower();
-                        for (var i = 0; i < 50; i++)
-                        {
-                            yield return new string('_', i) + candidate;
-                        }
-                    }
-                });
-
-    private static string GetTypeKind(UnionTypeSchema unionTypeSchema)
+    static string GetTypeKind(UnionTypeSchema unionTypeSchema)
     {
         var typeKind = unionTypeSchema.TypeKind switch { UnionTypeTypeKind.Class => "class", UnionTypeTypeKind.Interface => "interface", UnionTypeTypeKind.Record => "record", _ => throw new ArgumentException($"Unknown type kind: {unionTypeSchema.TypeKind}") };
         return typeKind;
@@ -258,28 +244,6 @@ public static class Generator
                     builder.WriteLine($"throw new global::System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\");");
                 }
             }
-        }
-    }
-
-    static string GetUnusedTypeParameter(EquatableArray<string> typeParameters)
-    {
-        return
-            new[] { "T" }
-                .Concat(
-                Enumerable.Range(0, 20)
-                    .Select(i => new string('_', i) + "TMatchResult")
-                )
-                .Select(Check)
-                .FirstOrDefault(s => s is not null) ?? "T" + Guid.NewGuid().ToString("N");
-
-        string? Check(string typeName)
-        {
-            if (!typeParameters.Contains(typeName))
-            {
-                return typeName;
-            }
-
-            return null;
         }
     }
 
