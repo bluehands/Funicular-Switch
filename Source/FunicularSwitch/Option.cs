@@ -48,6 +48,11 @@ namespace FunicularSwitch
         public Option<T1> Bind<T1>(Func<T, Option<T1>> map) => Match(map, Option<T1>.None);
 
         public Task<Option<T1>> Bind<T1>(Func<T, Task<Option<T1>>> bind) => Match(bind, () => Option<T1>.None);
+        
+        public Option<T> OrElse(Option<T> other) => OrElse(() => other);
+        public Option<T> OrElse(Func<Option<T>> other) => Match(Option.Some, other);
+        public Task<Option<T>> OrElse(Task<Option<T>> other) => OrElse(() => other);
+        public Task<Option<T>> OrElse(Func<Task<Option<T>>> other) => Match(Option.Some, other);
 
         public void Match(Action<T> some, Action? none = null)
         {
@@ -79,6 +84,16 @@ namespace FunicularSwitch
 
             return await none().ConfigureAwait(false);
         }
+        
+        public async Task<TResult> Match<TResult>(Func<T, TResult> some, Func<Task<TResult>> none)
+        {
+            if (_isSome)
+            {
+                return some(_value);
+            }
+
+            return await none().ConfigureAwait(false);
+        }
 
         public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<TResult> none)
         {
@@ -106,13 +121,21 @@ namespace FunicularSwitch
 
         public IEnumerator<T> GetEnumerator() => Match(v => new[] { v }, Enumerable.Empty<T>).GetEnumerator();
 
-        public T? GetValueOrDefault() => Match(v => (T?)v, () => default);
+        public T? GetValueOrDefault()
+        {
+            return Match(v => (T?)v, Default);
+            T? Default() => default;
+        }
 
         public T GetValueOrDefault(Func<T> defaultValue) => Match(v => v, defaultValue);
 
         public T GetValueOrDefault(T defaultValue) => Match(v => v, () => defaultValue);
 
-        public T GetValueOrThrow(string? errorMessage = null) => Match(v => v, () => throw new InvalidOperationException(errorMessage ?? "Cannot access value of none option"));
+        public T GetValueOrThrow(string? errorMessage = null)
+        {
+            return Match(v => v, Throw);
+            T Throw() => throw new InvalidOperationException(errorMessage ?? "Cannot access value of none option");
+        }
 
         public Option<TOther> Convert<TOther>() => Match(s => Option<TOther>.Some((TOther)(object)s!), Option<TOther>.None);
 
@@ -181,6 +204,30 @@ namespace FunicularSwitch
             var result = await bind.ConfigureAwait(false);
             return await result.Bind(convert).ConfigureAwait(false);
         }
+        
+        public static async Task<Option<T>> OrElse<T>(this Task<Option<T>> option, Option<T> other)
+        {
+            var result = await option.ConfigureAwait(false);
+            return result.OrElse(other);
+        }
+        
+        public static async Task<Option<T>> OrElse<T>(this Task<Option<T>> option, Func<Option<T>> other)
+        {
+            var result = await option.ConfigureAwait(false);
+            return result.OrElse(other);
+        }
+        
+        public static async Task<Option<T>> OrElse<T>(this Task<Option<T>> option, Task<Option<T>> other)
+        {
+            var result = await option.ConfigureAwait(false);
+            return await result.OrElse(other).ConfigureAwait(false);
+        }
+        
+        public static async Task<Option<T>> OrElse<T>(this Task<Option<T>> option, Func<Task<Option<T>>> other)
+        {
+            var result = await option.ConfigureAwait(false);
+            return await result.OrElse(other).ConfigureAwait(false);
+        }
 
         public static IEnumerable<TOut> Choose<T, TOut>(this IEnumerable<T> items, Func<T, Option<TOut>> choose) => items.SelectMany(i => choose(i));
 
@@ -188,7 +235,7 @@ namespace FunicularSwitch
 
         public static Option<T> ToOption<T>(this Result<T> result, Action<string>? logError) =>
             result.Match(
-                ok => Option.Some(ok),
+                Option.Some,
                 error =>
                 {
                     logError?.Invoke(error);
@@ -196,7 +243,7 @@ namespace FunicularSwitch
                 });
 
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
-            option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
+            option.Match(Result.Ok, () => Result.Error<T>(errorIfNone()));
 
         #region query-expression pattern
 
