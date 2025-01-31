@@ -11,7 +11,7 @@ namespace FunicularSwitch
     {
         public static Option<T> Some<T>(T value) => Option<T>.Some(value);
         public static OptionNone None() => default;
-        public static Option<T> None<T>() => None();
+        public static Option<T> None<T>() => Option<T>.None;
         public static async Task<Option<T>> Some<T>(Task<T> value) => Some(await value);
         public static Task<Option<T>> NoneAsync<T>() => Task.FromResult(Option<T>.None);
     }

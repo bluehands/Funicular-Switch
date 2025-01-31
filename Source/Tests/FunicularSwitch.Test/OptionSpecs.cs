@@ -220,4 +220,15 @@ public class OptionSpecs
     class MyClass;
 
     class MyOtherClass;
+
+    [TestMethod]
+    public void SimpleNone()
+    {
+        Option<int> opt = Some(0);
+        // ReSharper disable UnusedVariable
+        Option<int> maybeOne = opt.Bind(one => one == 1 ? Some(one) : None());
+        Option<int> noneInt = None();
+        Option<string> noneString = None();
+        // ReSharper restore UnusedVariable
+    }
 }
