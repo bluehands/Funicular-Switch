@@ -40,43 +40,17 @@ public readonly partial record struct GenRes<TOk, TError>
     public static implicit operator GenRes<TOk, TError>(GenOk<TOk> ok) => Ok(ok.Value);
     public static implicit operator GenRes<TOk, TError>(GenError<TError> error) => Error(error.Value);
 
-    public TReturn Match<TReturn>(Func<TOk, TReturn> ok, Func<TError, TReturn> error)
+    public TReturn Match<TReturn>(
+        Func<TOk, TReturn> ok, 
+        Func<TError, TReturn> error)
     {
         if (_value.IsSome()) return ok(_value.GetValueOrThrow());
         if (_error.IsSome()) return error(_error.GetValueOrThrow());
         throw new InvalidOperationException("Neither Ok nor Error");
     }
     
-    public GenRes<TOkReturn, TError> Bind<TOkReturn>(Func<TOk, GenRes<TOkReturn, TError>> bind)
-    {
-        if (_value.IsSome()) return bind(_value.GetValueOrThrow());
-        if (_error.IsSome()) return GenRes<TOkReturn, TError>.Error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-    
-    public GenRes<TOkReturn, TError> Map<TOkReturn>(Func<TOk, TOkReturn> map)
-    {
-        if (_value.IsSome()) return GenRes<TOkReturn, TError>.Ok(map(_value.GetValueOrThrow()));
-        if (_error.IsSome()) return GenRes<TOkReturn, TError>.Error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-    
-    public GenRes<TOk, TErrorReturn> MapError<TErrorReturn>(Func<TError, TErrorReturn> map)
-    {
-        if (_value.IsSome()) return GenRes<TOk, TErrorReturn>.Ok(_value.GetValueOrThrow());
-        if (_error.IsSome()) return GenRes<TOk, TErrorReturn>.Error(map(_error.GetValueOrThrow()));
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-
-    public async Task<TReturn> Match<TReturn>(Func<TOk, Task<TReturn>> ok, Func<TError, Task<TReturn>> error)
-    {
-        if (_value.IsSome()) return await ok(_value.GetValueOrThrow()).ConfigureAwait(false);
-        if (_error.IsSome()) return await error(_error.GetValueOrThrow()).ConfigureAwait(false);
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-
     public async Task<TReturn> Match<TReturn>(
-        Func<TOk, Task<TReturn>> ok,
+        Func<TOk, Task<TReturn>> ok, 
         Func<TError, TReturn> error)
     {
         if (_value.IsSome()) return await ok(_value.GetValueOrThrow()).ConfigureAwait(false);
@@ -85,30 +59,66 @@ public readonly partial record struct GenRes<TOk, TError>
     }
 
     public async Task<TReturn> Match<TReturn>(
-        Func<TOk, TReturn> ok,
+        Func<TOk, TReturn> ok, 
         Func<TError, Task<TReturn>> error)
     {
         if (_value.IsSome()) return ok(_value.GetValueOrThrow());
         if (_error.IsSome()) return await error(_error.GetValueOrThrow()).ConfigureAwait(false);
         throw new InvalidOperationException("Neither Ok nor Error");
     }
-
-    public async Task<GenRes<TOkReturn, TError>> Bind<TOkReturn>(Func<TOk, Task<GenRes<TOkReturn, TError>>> bind)
+    
+    public async Task<TReturn> Match<TReturn>(
+        Func<TOk, Task<TReturn>> ok, 
+        Func<TError, Task<TReturn>> error)
+    {
+        if (_value.IsSome()) return await ok(_value.GetValueOrThrow()).ConfigureAwait(false);
+        if (_error.IsSome()) return await error(_error.GetValueOrThrow()).ConfigureAwait(false);
+        throw new InvalidOperationException("Neither Ok nor Error");
+    }
+    
+    public GenRes<TOkReturn, TError> Bind<TOkReturn>(
+        Func<TOk, GenRes<TOkReturn, TError>> bind)
+    {
+        if (_value.IsSome()) return bind(_value.GetValueOrThrow());
+        if (_error.IsSome()) return GenRes<TOkReturn, TError>.Error(_error.GetValueOrThrow());
+        throw new InvalidOperationException("Neither Ok nor Error");
+    }
+    
+    public async Task<GenRes<TOkReturn, TError>> Bind<TOkReturn>(
+        Func<TOk, Task<GenRes<TOkReturn, TError>>> bind)
     {
         if (_value.IsSome()) return await bind(_value.GetValueOrThrow()).ConfigureAwait(false);
         if (_error.IsSome()) return GenRes<TOkReturn, TError>.Error(_error.GetValueOrThrow());
         throw new InvalidOperationException("Neither Ok nor Error");
     }
-
-    public async Task<GenRes<TOkReturn, TError>> Map<TOkReturn>(Func<TOk, Task<TOkReturn>> map)
+    
+    public GenRes<TOkReturn, TError> Map<TOkReturn>(
+        Func<TOk, TOkReturn> map)
+    {
+        if (_value.IsSome()) return GenRes<TOkReturn, TError>.Ok(map(_value.GetValueOrThrow()));
+        if (_error.IsSome()) return GenRes<TOkReturn, TError>.Error(_error.GetValueOrThrow());
+        throw new InvalidOperationException("Neither Ok nor Error");
+    }
+    
+    public async Task<GenRes<TOkReturn, TError>> Map<TOkReturn>(
+        Func<TOk, Task<TOkReturn>> map)
     {
         if (_value.IsSome())
             return GenRes<TOkReturn, TError>.Ok(await map(_value.GetValueOrThrow()).ConfigureAwait(false));
         if (_error.IsSome()) return GenRes<TOkReturn, TError>.Error(_error.GetValueOrThrow());
         throw new InvalidOperationException("Neither Ok nor Error");
     }
-
-    public async Task<GenRes<TOk, TErrorReturn>> MapError<TErrorReturn>(Func<TError, Task<TErrorReturn>> map)
+    
+    public GenRes<TOk, TErrorReturn> MapError<TErrorReturn>(
+        Func<TError, TErrorReturn> map)
+    {
+        if (_value.IsSome()) return GenRes<TOk, TErrorReturn>.Ok(_value.GetValueOrThrow());
+        if (_error.IsSome()) return GenRes<TOk, TErrorReturn>.Error(map(_error.GetValueOrThrow()));
+        throw new InvalidOperationException("Neither Ok nor Error");
+    }
+    
+    public async Task<GenRes<TOk, TErrorReturn>> MapError<TErrorReturn>(
+        Func<TError, Task<TErrorReturn>> map)
     {
         if (_value.IsSome()) return GenRes<TOk, TErrorReturn>.Ok(_value.GetValueOrThrow());
         if (_error.IsSome())
@@ -116,9 +126,11 @@ public readonly partial record struct GenRes<TOk, TError>
         throw new InvalidOperationException("Neither Ok nor Error");
     }
     
-    public GenRes<TOkReturn, TError> Select<TOkReturn>(Func<TOk, TOkReturn> selector) => Map(selector);
+    public GenRes<TOkReturn, TError> Select<TOkReturn>(
+        Func<TOk, TOkReturn> selector) => Map(selector);
 
-    public GenRes<TOkReturn, TError> SelectMany<TOkReturn>(Func<TOk, GenRes<TOkReturn, TError>> selector) => Bind(selector);
+    public GenRes<TOkReturn, TError> SelectMany<TOkReturn>(
+        Func<TOk, GenRes<TOkReturn, TError>> selector) => Bind(selector);
 
     public GenRes<TSelect, TError> SelectMany<TOkReturn, TSelect>(
         Func<TOk, GenRes<TOkReturn, TError>> selector,
@@ -142,7 +154,8 @@ public readonly partial record struct GenRes<TOk, TError>
         throw new InvalidOperationException("Neither Ok nor Error");
     }
     
-     public Task<GenRes<TOkReturn, TError>> SelectMany<TOkReturn>(Func<TOk, Task<GenRes<TOkReturn, TError>>> selector) => Bind(selector);
+     public Task<GenRes<TOkReturn, TError>> SelectMany<TOkReturn>(
+         Func<TOk, Task<GenRes<TOkReturn, TError>>> selector) => Bind(selector);
 
      public async Task<GenRes<TSelect, TError>> SelectMany<TOkReturn, TSelect>(
         Func<TOk, Task<GenRes<TOkReturn, TError>>> selector,
@@ -296,7 +309,6 @@ public static class GenResTaskExtensions
         var genRes = await genResTask.ConfigureAwait(false);
         return await genRes.MapError(map).ConfigureAwait(false);
     }
-    
     
     public static async Task<GenRes<TOkReturn, TError>> Select<TOk, TError, TOkReturn>(
         this Task<GenRes<TOk, TError>> genResTask,
