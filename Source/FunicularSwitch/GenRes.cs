@@ -40,92 +40,88 @@ public readonly partial record struct GenRes<TOk, TError>
     public static implicit operator GenRes<TOk, TError>(GenOk<TOk> ok) => Ok(ok.Value);
     public static implicit operator GenRes<TOk, TError>(GenError<TError> error) => Error(error.Value);
 
-    public TReturn Match<TReturn>(
-        Func<TOk, TReturn> ok, 
-        Func<TError, TReturn> error)
+    public bool IsOk()
     {
-        if (_value.IsSome()) return ok(_value.GetValueOrThrow());
-        if (_error.IsSome()) return error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-    
-    public async Task<TReturn> Match<TReturn>(
-        Func<TOk, Task<TReturn>> ok, 
-        Func<TError, TReturn> error)
-    {
-        if (_value.IsSome()) return await ok(_value.GetValueOrThrow()).ConfigureAwait(false);
-        if (_error.IsSome()) return error(_error.GetValueOrThrow());
+        if (_value.IsSome()) return true;
+        if (_error.IsSome()) return false;
         throw new InvalidOperationException("Neither Ok nor Error");
     }
 
-    public async Task<TReturn> Match<TReturn>(
-        Func<TOk, TReturn> ok, 
-        Func<TError, Task<TReturn>> error)
+    public bool IsError()
     {
-        if (_value.IsSome()) return ok(_value.GetValueOrThrow());
-        if (_error.IsSome()) return await error(_error.GetValueOrThrow()).ConfigureAwait(false);
+        if (_error.IsSome()) return true;
+        if (_value.IsSome()) return false;
         throw new InvalidOperationException("Neither Ok nor Error");
     }
-    
+
+    public TOk GetValueOrThrow() => _value.GetValueOrThrow();
+
+    public TError GetErrorOrThrow() => _error.GetValueOrThrow();
+
+    public TReturn Match<TReturn>(
+        Func<TOk, TReturn> ok,
+        Func<TError, TReturn> error) =>
+        IsOk()
+            ? ok(GetValueOrThrow())
+            : error(GetErrorOrThrow());
+
     public async Task<TReturn> Match<TReturn>(
-        Func<TOk, Task<TReturn>> ok, 
-        Func<TError, Task<TReturn>> error)
-    {
-        if (_value.IsSome()) return await ok(_value.GetValueOrThrow()).ConfigureAwait(false);
-        if (_error.IsSome()) return await error(_error.GetValueOrThrow()).ConfigureAwait(false);
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-    
+        Func<TOk, Task<TReturn>> ok,
+        Func<TError, TReturn> error) =>
+        IsOk()
+            ? await ok(GetValueOrThrow()).ConfigureAwait(false)
+            : error(GetErrorOrThrow());
+
+    public async Task<TReturn> Match<TReturn>(
+        Func<TOk, TReturn> ok,
+        Func<TError, Task<TReturn>> error) =>
+        IsOk()
+            ? ok(GetValueOrThrow())
+            : await error(GetErrorOrThrow()).ConfigureAwait(false);
+
+    public async Task<TReturn> Match<TReturn>(
+        Func<TOk, Task<TReturn>> ok,
+        Func<TError, Task<TReturn>> error) =>
+        IsOk()
+            ? await ok(GetValueOrThrow()).ConfigureAwait(false)
+            : await error(GetErrorOrThrow()).ConfigureAwait(false);
+
     public GenRes<TOkReturn, TError> Bind<TOkReturn>(
-        Func<TOk, GenRes<TOkReturn, TError>> bind)
-    {
-        if (_value.IsSome()) return bind(_value.GetValueOrThrow());
-        if (_error.IsSome()) return GenRes<TOkReturn, TError>.Error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-    
+        Func<TOk, GenRes<TOkReturn, TError>> bind) =>
+        IsOk()
+            ? bind(GetValueOrThrow())
+            : GenRes<TOkReturn, TError>.Error(GetErrorOrThrow());
+
     public async Task<GenRes<TOkReturn, TError>> Bind<TOkReturn>(
-        Func<TOk, Task<GenRes<TOkReturn, TError>>> bind)
-    {
-        if (_value.IsSome()) return await bind(_value.GetValueOrThrow()).ConfigureAwait(false);
-        if (_error.IsSome()) return GenRes<TOkReturn, TError>.Error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-    
+        Func<TOk, Task<GenRes<TOkReturn, TError>>> bind) =>
+        IsOk()
+            ? await bind(GetValueOrThrow()).ConfigureAwait(false)
+            : GenRes<TOkReturn, TError>.Error(GetErrorOrThrow());
+
     public GenRes<TOkReturn, TError> Map<TOkReturn>(
-        Func<TOk, TOkReturn> map)
-    {
-        if (_value.IsSome()) return GenRes<TOkReturn, TError>.Ok(map(_value.GetValueOrThrow()));
-        if (_error.IsSome()) return GenRes<TOkReturn, TError>.Error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-    
+        Func<TOk, TOkReturn> map) =>
+        IsOk()
+            ? GenRes<TOkReturn, TError>.Ok(map(GetValueOrThrow()))
+            : GenRes<TOkReturn, TError>.Error(GetErrorOrThrow());
+
     public async Task<GenRes<TOkReturn, TError>> Map<TOkReturn>(
-        Func<TOk, Task<TOkReturn>> map)
-    {
-        if (_value.IsSome())
-            return GenRes<TOkReturn, TError>.Ok(await map(_value.GetValueOrThrow()).ConfigureAwait(false));
-        if (_error.IsSome()) return GenRes<TOkReturn, TError>.Error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-    
+        Func<TOk, Task<TOkReturn>> map) =>
+        IsOk()
+            ? GenRes<TOkReturn, TError>.Ok(await map(GetValueOrThrow()).ConfigureAwait(false))
+            : GenRes<TOkReturn, TError>.Error(GetErrorOrThrow());
+
     public GenRes<TOk, TErrorReturn> MapError<TErrorReturn>(
-        Func<TError, TErrorReturn> map)
-    {
-        if (_value.IsSome()) return GenRes<TOk, TErrorReturn>.Ok(_value.GetValueOrThrow());
-        if (_error.IsSome()) return GenRes<TOk, TErrorReturn>.Error(map(_error.GetValueOrThrow()));
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-    
+        Func<TError, TErrorReturn> map) =>
+        IsOk()
+            ? GenRes<TOk, TErrorReturn>.Ok(GetValueOrThrow())
+            : GenRes<TOk, TErrorReturn>.Error(map(GetErrorOrThrow()));
+
     public async Task<GenRes<TOk, TErrorReturn>> MapError<TErrorReturn>(
-        Func<TError, Task<TErrorReturn>> map)
-    {
-        if (_value.IsSome()) return GenRes<TOk, TErrorReturn>.Ok(_value.GetValueOrThrow());
-        if (_error.IsSome())
-            return GenRes<TOk, TErrorReturn>.Error(await map(_error.GetValueOrThrow()).ConfigureAwait(false));
-        throw new InvalidOperationException("Neither Ok nor Error");
-    }
-    
+        Func<TError, Task<TErrorReturn>> map) =>
+        IsOk()
+            ? GenRes<TOk, TErrorReturn>.Ok(GetValueOrThrow())
+            : GenRes<TOk, TErrorReturn>.Error(await map(GetErrorOrThrow()).ConfigureAwait(false));
+
     public GenRes<TOkReturn, TError> Select<TOkReturn>(
         Func<TOk, TOkReturn> selector) => Map(selector);
 
@@ -136,91 +132,55 @@ public readonly partial record struct GenRes<TOk, TError>
         Func<TOk, GenRes<TOkReturn, TError>> selector,
         Func<TOk, TOkReturn, TSelect> resultSelector)
     {
-        if (_value.IsSome())
-        {
-            var okValue = _value.GetValueOrThrow();
-            var intermediateResult = selector(okValue);
-            if (intermediateResult._value.IsSome())
-            {
-                var intermediateValue = intermediateResult._value.GetValueOrThrow();
-                return GenRes<TSelect, TError>.Ok(resultSelector(okValue, intermediateValue));
-            }
-            if (intermediateResult._error.IsSome())
-            {
-                return GenRes<TSelect, TError>.Error(intermediateResult._error.GetValueOrThrow());
-            }
-        }
-        if (_error.IsSome()) return GenRes<TSelect, TError>.Error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
+        if (IsError()) return GenRes<TSelect, TError>.Error(GetErrorOrThrow());
+        var okValue = GetValueOrThrow();
+        var intermediateResult = selector(okValue);
+        if (intermediateResult.IsError())
+            return GenRes<TSelect, TError>.Error(intermediateResult.GetErrorOrThrow());
+        var intermediateValue = intermediateResult.GetValueOrThrow();
+        return GenRes<TSelect, TError>.Ok(resultSelector(okValue, intermediateValue));
     }
-    
-     public Task<GenRes<TOkReturn, TError>> SelectMany<TOkReturn>(
-         Func<TOk, Task<GenRes<TOkReturn, TError>>> selector) => Bind(selector);
 
-     public async Task<GenRes<TSelect, TError>> SelectMany<TOkReturn, TSelect>(
+    public Task<GenRes<TOkReturn, TError>> SelectMany<TOkReturn>(
+        Func<TOk, Task<GenRes<TOkReturn, TError>>> selector) => Bind(selector);
+
+    public async Task<GenRes<TSelect, TError>> SelectMany<TOkReturn, TSelect>(
         Func<TOk, Task<GenRes<TOkReturn, TError>>> selector,
         Func<TOk, TOkReturn, TSelect> resultSelector)
     {
-        if (_value.IsSome())
-        {
-            var okValue = _value.GetValueOrThrow();
-            var intermediateResult = await selector(okValue).ConfigureAwait(false);
-            if (intermediateResult._value.IsSome())
-            {
-                var intermediateValue = intermediateResult._value.GetValueOrThrow();
-                return GenRes<TSelect, TError>.Ok(resultSelector(okValue, intermediateValue));
-            }
-            if (intermediateResult._error.IsSome())
-            {
-                return GenRes<TSelect, TError>.Error(intermediateResult._error.GetValueOrThrow());
-            }
-        }
-        if (_error.IsSome()) return GenRes<TSelect, TError>.Error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
+        if (IsError()) return GenRes<TSelect, TError>.Error(GetErrorOrThrow());
+        var okValue = GetValueOrThrow();
+        var intermediateResult = await selector(okValue).ConfigureAwait(false);
+        if (intermediateResult.IsError())
+            return GenRes<TSelect, TError>.Error(intermediateResult.GetErrorOrThrow());
+        var intermediateValue = intermediateResult.GetValueOrThrow();
+        return GenRes<TSelect, TError>.Ok(resultSelector(okValue, intermediateValue));
     }
 
     public async Task<GenRes<TSelect, TError>> SelectMany<TOkReturn, TSelect>(
         Func<TOk, GenRes<TOkReturn, TError>> selector,
         Func<TOk, TOkReturn, Task<TSelect>> resultSelector)
     {
-        if (_value.IsSome())
-        {
-            var okValue = _value.GetValueOrThrow();
-            var intermediateResult = selector(okValue);
-            if (intermediateResult._value.IsSome())
-            {
-                var intermediateValue = intermediateResult._value.GetValueOrThrow();
-                return GenRes<TSelect, TError>.Ok(await resultSelector(okValue, intermediateValue).ConfigureAwait(false));
-            }
-            if (intermediateResult._error.IsSome())
-            {
-                return GenRes<TSelect, TError>.Error(intermediateResult._error.GetValueOrThrow());
-            }
-        }
-        if (_error.IsSome()) return GenRes<TSelect, TError>.Error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
+        if (IsError()) return GenRes<TSelect, TError>.Error(GetErrorOrThrow());
+        var okValue = GetValueOrThrow();
+        var intermediateResult = selector(okValue);
+        if (intermediateResult.IsError())
+            return GenRes<TSelect, TError>.Error(intermediateResult.GetErrorOrThrow());
+        var intermediateValue = intermediateResult.GetValueOrThrow();
+        return GenRes<TSelect, TError>.Ok(await resultSelector(okValue, intermediateValue));
     }
 
     public async Task<GenRes<TSelect, TError>> SelectMany<TOkReturn, TSelect>(
         Func<TOk, Task<GenRes<TOkReturn, TError>>> selector,
         Func<TOk, TOkReturn, Task<TSelect>> resultSelector)
     {
-        if (_value.IsSome())
-        {
-            var okValue = _value.GetValueOrThrow();
-            var intermediateResult = await selector(okValue).ConfigureAwait(false);
-            if (intermediateResult._value.IsSome())
-            {
-                var intermediateValue = intermediateResult._value.GetValueOrThrow();
-                return GenRes<TSelect, TError>.Ok(await resultSelector(okValue, intermediateValue).ConfigureAwait(false));
-            }
-            if (intermediateResult._error.IsSome())
-            {
-                return GenRes<TSelect, TError>.Error(intermediateResult._error.GetValueOrThrow());
-            }
-        }
-        if (_error.IsSome()) return GenRes<TSelect, TError>.Error(_error.GetValueOrThrow());
-        throw new InvalidOperationException("Neither Ok nor Error");
+        if (IsError()) return GenRes<TSelect, TError>.Error(GetErrorOrThrow());
+        var okValue = GetValueOrThrow();
+        var intermediateResult = await selector(okValue).ConfigureAwait(false);
+        if (intermediateResult.IsError())
+            return GenRes<TSelect, TError>.Error(intermediateResult.GetErrorOrThrow());
+        var intermediateValue = intermediateResult.GetValueOrThrow();
+        return GenRes<TSelect, TError>.Ok(await resultSelector(okValue, intermediateValue));
     }
 }
 
@@ -309,7 +269,7 @@ public static class GenResTaskExtensions
         var genRes = await genResTask.ConfigureAwait(false);
         return await genRes.MapError(map).ConfigureAwait(false);
     }
-    
+
     public static async Task<GenRes<TOkReturn, TError>> Select<TOk, TError, TOkReturn>(
         this Task<GenRes<TOk, TError>> genResTask,
         Func<TOk, TOkReturn> selector)
@@ -350,7 +310,7 @@ public static class GenResTaskExtensions
         var genRes = await genResTask.ConfigureAwait(false);
         return genRes.SelectMany(selector, resultSelector);
     }
-    
+
     public static async Task<GenRes<TSelect, TError>> SelectMany<TOk, TError, TOkReturn, TSelect>(
         this Task<GenRes<TOk, TError>> genResTask,
         Func<TOk, Task<GenRes<TOkReturn, TError>>> selector,
@@ -359,7 +319,7 @@ public static class GenResTaskExtensions
         var genRes = await genResTask.ConfigureAwait(false);
         return await genRes.SelectMany(selector, resultSelector).ConfigureAwait(false);
     }
-    
+
     public static async Task<GenRes<TSelect, TError>> SelectMany<TOk, TError, TOkReturn, TSelect>(
         this Task<GenRes<TOk, TError>> genResTask,
         Func<TOk, GenRes<TOkReturn, TError>> selector,
@@ -368,7 +328,7 @@ public static class GenResTaskExtensions
         var genRes = await genResTask.ConfigureAwait(false);
         return await genRes.SelectMany(selector, resultSelector).ConfigureAwait(false);
     }
-    
+
     public static async Task<GenRes<TSelect, TError>> SelectMany<TOk, TError, TOkReturn, TSelect>(
         this Task<GenRes<TOk, TError>> genResTask,
         Func<TOk, Task<GenRes<TOkReturn, TError>>> selector,
