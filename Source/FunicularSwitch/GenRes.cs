@@ -28,17 +28,21 @@ public readonly partial record struct GenRes<TOk, TError>
     private readonly Option<TOk> _value;
     private readonly Option<TError> _error;
 
+
     private GenRes(Option<TOk> value, Option<TError> error)
     {
         _value = value;
         _error = error;
     }
 
+
     public static GenRes<TOk, TError> Ok(TOk value) => new(Option.Some(value), Option.None<TError>());
     public static GenRes<TOk, TError> Error(TError error) => new(Option.None<TOk>(), Option.Some(error));
 
+
     public static implicit operator GenRes<TOk, TError>(GenOk<TOk> ok) => Ok(ok.Value);
     public static implicit operator GenRes<TOk, TError>(GenError<TError> error) => Error(error.Value);
+
 
     public bool IsOk()
     {
@@ -55,8 +59,57 @@ public readonly partial record struct GenRes<TOk, TError>
     }
 
     public TOk GetValueOrThrow() => _value.GetValueOrThrow();
-
     public TError GetErrorOrThrow() => _error.GetValueOrThrow();
+
+
+    public TOk GetValueOrDefault(TOk defaultValue) => _value.GetValueOrDefault(defaultValue);
+    public TOk GetValueOrDefault(Func<TOk> defaultValue) => _value.GetValueOrDefault(defaultValue);
+    public Task<TOk> GetValueOrDefaultAsync(Func<Task<TOk>> defaultValue) => _value.GetValueOrDefault(defaultValue);
+
+
+    public TError GetErrorOrDefault(TError defaultValue) => _error.GetValueOrDefault(defaultValue);
+    public TError GetErrorOrDefault(Func<TError> defaultValue) => _error.GetValueOrDefault(defaultValue);
+
+    public Task<TError> GetErrorOrDefaultAsync(Func<Task<TError>> defaultValue) =>
+        _error.GetValueOrDefault(defaultValue);
+
+
+    #region Option interop
+
+    public Option<TOk> ToOption() => _value;
+    public Option<TError> ToErrorOption() => _error;
+    public (Option<TOk>, Option<TError>) ToOptions() => (_value, _error);
+
+    #endregion
+
+
+    public Task<GenRes<TOk, TError>> ToTask() => Task.FromResult(this);
+
+
+    public GenRes<TOk, TError> Do(Action<TOk> action)
+    {
+        if (IsOk()) action(GetValueOrThrow());
+        return this;
+    }
+
+    public async Task<GenRes<TOk, TError>> DoAsync(Func<TOk, Task> action)
+    {
+        if (IsOk()) await action(GetValueOrThrow());
+        return this;
+    }
+
+    public GenRes<TOk, TError> DoOnError(Action<TError> action)
+    {
+        if (IsError()) action(GetErrorOrThrow());
+        return this;
+    }
+
+    public async Task<GenRes<TOk, TError>> DoOnErrorAsync(Func<TError, Task> action)
+    {
+        if (IsError()) await action(GetErrorOrThrow());
+        return this;
+    }
+
 
     public TReturn Match<TReturn>(
         Func<TOk, TReturn> ok,
@@ -184,8 +237,132 @@ public readonly partial record struct GenRes<TOk, TError>
     }
 }
 
+public static class OptionInteropExtensions
+{
+    public static GenRes<TOk, TError> ToGenRes<TOk, TError>(
+        this Option<TOk> option,
+        Func<TError> onNone) =>
+        option.IsSome()
+            ? GenRes<TOk, TError>.Ok(option.GetValueOrThrow())
+            : GenRes<TOk, TError>.Error(onNone());
+
+    public static async Task<GenRes<TOk, TError>> ToGenRes<TOk, TError>(
+        this Task<Option<TOk>> option,
+        Func<TError> onNone) =>
+        (await option.ConfigureAwait(false)).ToGenRes(onNone);
+
+    public static async Task<GenRes<TOk, TError>> ToGenResAsync<TOk, TError>(
+        this Option<TOk> option,
+        Func<Task<TError>> onNone) =>
+        option.IsSome()
+            ? GenRes<TOk, TError>.Ok(option.GetValueOrThrow())
+            : GenRes<TOk, TError>.Error(await onNone().ConfigureAwait(false));
+
+    public static async Task<GenRes<TOk, TError>> ToGenResAsync<TOk, TError>(
+        this Task<Option<TOk>> option,
+        Func<Task<TError>> onNone) =>
+        await (await option.ConfigureAwait(false)).ToGenResAsync(onNone).ConfigureAwait(false);
+}
+
 public static class GenResTaskExtensions
 {
+    public static async Task<bool> IsOk<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask)
+    {
+        var genRes = await genResTask.ConfigureAwait(false);
+        return genRes.IsOk();
+    }
+
+    public static async Task<bool> IsError<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask)
+    {
+        var genRes = await genResTask.ConfigureAwait(false);
+        return genRes.IsError();
+    }
+
+    public static async Task<TOk> GetValueOrThrow<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask) =>
+        (await genResTask.ConfigureAwait(false)).GetValueOrThrow();
+
+    public static async Task<TError> GetErrorOrThrow<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask) =>
+        (await genResTask.ConfigureAwait(false)).GetErrorOrThrow();
+
+    public static async Task<TOk> GetValueOrDefault<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask,
+        TOk defaultValue) =>
+        (await genResTask.ConfigureAwait(false)).GetValueOrDefault(defaultValue);
+
+    public static async Task<TOk> GetValueOrDefault<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask,
+        Func<TOk> defaultValue) =>
+        (await genResTask.ConfigureAwait(false)).GetValueOrDefault(defaultValue);
+
+    public static async Task<TOk> GetValueOrDefaultAsync<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask,
+        Func<Task<TOk>> defaultValue) =>
+        await (await genResTask.ConfigureAwait(false)).GetValueOrDefaultAsync(defaultValue).ConfigureAwait(false);
+
+    public static async Task<TError> GetErrorOrDefault<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask,
+        TError defaultValue) =>
+        (await genResTask.ConfigureAwait(false)).GetErrorOrDefault(defaultValue);
+
+    public static async Task<TError> GetErrorOrDefault<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask,
+        Func<TError> defaultValue) =>
+        (await genResTask.ConfigureAwait(false)).GetErrorOrDefault(defaultValue);
+
+    public static async Task<TError> GetErrorOrDefaultAsync<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask,
+        Func<Task<TError>> defaultValue) =>
+        await (await genResTask.ConfigureAwait(false)).GetErrorOrDefaultAsync(defaultValue).ConfigureAwait(false);
+
+    public static async Task<Option<TOk>> ToOption<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask) =>
+        (await genResTask.ConfigureAwait(false)).ToOption();
+
+    public static async Task<Option<TError>> ToErrorOption<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask) =>
+        (await genResTask.ConfigureAwait(false)).ToErrorOption();
+
+    public static async Task<(Option<TOk>, Option<TError>)> ToOptions<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask) =>
+        (await genResTask.ConfigureAwait(false)).ToOptions();
+
+    public static async Task<GenRes<TOk, TError>> Do<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask,
+        Action<TOk> action)
+    {
+        var genRes = await genResTask.ConfigureAwait(false);
+        return genRes.Do(action);
+    }
+
+    public static async Task<GenRes<TOk, TError>> DoAsync<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask,
+        Func<TOk, Task> action)
+    {
+        var genRes = await genResTask.ConfigureAwait(false);
+        return await genRes.DoAsync(action).ConfigureAwait(false);
+    }
+
+    public static async Task<GenRes<TOk, TError>> DoOnError<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask,
+        Action<TError> action)
+    {
+        var genRes = await genResTask.ConfigureAwait(false);
+        return genRes.DoOnError(action);
+    }
+
+    public static async Task<GenRes<TOk, TError>> DoOnErrorAsync<TOk, TError>(
+        this Task<GenRes<TOk, TError>> genResTask,
+        Func<TError, Task> action)
+    {
+        var genRes = await genResTask.ConfigureAwait(false);
+        return await genRes.DoOnErrorAsync(action).ConfigureAwait(false);
+    }
+
+
     public static async Task<TReturn> Match<TOk, TError, TReturn>(
         this Task<GenRes<TOk, TError>> genResTask,
         Func<TOk, TReturn> ok,
@@ -222,6 +399,7 @@ public static class GenResTaskExtensions
         return await genRes.Match(ok, error).ConfigureAwait(false);
     }
 
+
     public static async Task<GenRes<TOkReturn, TError>> Bind<TOk, TError, TOkReturn>(
         this Task<GenRes<TOk, TError>> genResTask,
         Func<TOk, GenRes<TOkReturn, TError>> bind)
@@ -237,6 +415,7 @@ public static class GenResTaskExtensions
         var genRes = await genResTask.ConfigureAwait(false);
         return await genRes.Bind(bind).ConfigureAwait(false);
     }
+
 
     public static async Task<GenRes<TOkReturn, TError>> Map<TOk, TError, TOkReturn>(
         this Task<GenRes<TOk, TError>> genResTask,
@@ -254,6 +433,7 @@ public static class GenResTaskExtensions
         return await genRes.Map(map).ConfigureAwait(false);
     }
 
+
     public static async Task<GenRes<TOk, TErrorReturn>> MapError<TOk, TError, TErrorReturn>(
         this Task<GenRes<TOk, TError>> genResTask,
         Func<TError, TErrorReturn> map)
@@ -269,6 +449,7 @@ public static class GenResTaskExtensions
         var genRes = await genResTask.ConfigureAwait(false);
         return await genRes.MapError(map).ConfigureAwait(false);
     }
+
 
     public static async Task<GenRes<TOkReturn, TError>> Select<TOk, TError, TOkReturn>(
         this Task<GenRes<TOk, TError>> genResTask,
