@@ -19,11 +19,6 @@ variables:
 
 steps:
 
-- task: UseDotNet@2
-  displayName: 'Use .NET Core sdk 8.0.x'
-  inputs:
-    version: 8.0.x
-
 - task: NuGetToolInstaller@1
 
 - task: Cache@2
@@ -48,11 +43,6 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-# - task: VSTest@2
-  # inputs:
-    # platform: '$(buildPlatform)'
-    # configuration: '$(buildConfiguration)'
-
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
@@ -67,12 +57,40 @@ steps:
     TreatNotIndexedAsWarning: true
 
 - task: DotNetCoreCLI@2
+  displayName: 'dotnet pack funicular switch'
   inputs:
     command: pack
     nobuild: true
-    versioningScheme: off
-    packagesToPack: '**/*.csproj'
-    packDirectory: '$(Build.ArtifactStagingDirectory)'
+    packagesToPack: Source/FunicularSwitch/FunicularSwitch.csproj
+    includesymbols: true
+    includesource: true
+    verbosityPack: Detailed
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack funicular generators'
+  inputs:
+    command: pack
+    nobuild: true
+    packagesToPack: Source/FunicularSwitch.Generators/FunicularSwitch.Generators.csproj
+    packDirectory: '$(Build.ArtifactStagingDirectory)/Generators'
+    verbosityPack: Detailed
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack funicular generators fluent assertions'
+  inputs:
+    command: pack
+    nobuild: true
+    packagesToPack: Source/FunicularSwitch.Generators.FluentAssertions/FunicularSwitch.Generators.FluentAssertions.csproj
+    packDirectory: '$(Build.ArtifactStagingDirectory)/Generators.FluentAssertions'
+    verbosityPack: Detailed
+
+# - task: DotNetCoreCLI@2
+  # inputs:
+    # command: pack
+    # nobuild: true
+    # versioningScheme: off
+    # packagesToPack: '**/*.csproj'
+    # packDirectory: '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
   inputs:
