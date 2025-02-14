@@ -48,10 +48,17 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
+# - task: VSTest@2
+  # inputs:
+    # platform: '$(buildPlatform)'
+    # configuration: '$(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Test
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: test
+    projects: '**/*.Test.csproj'
+    arguments: '--configuration $(BuildConfiguration)'
 
 - task: PublishSymbols@2
   displayName: 'Publish symbols path'
