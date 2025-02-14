@@ -15,37 +15,36 @@
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 
+		<!--#region adapt versions here-->
+		<MajorVersion>4</MajorVersion>
+		<MinorAndPatchVersion>2.2</MinorAndPatchVersion>
+		<!--#endregion-->
+
 		<VersionSuffixLocal />
 		<!--When variable is set we are building a prerelease package-->
 		<VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
 			$(VersionSuffix)
 		</VersionSuffixLocal>
 
-		<!--#region adapt versions here-->
-		<MajorVersion>4</MajorVersion>
-		<MinorAndPatchVersion>2.1</MinorAndPatchVersion>
-		<!--#endregion-->
-
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
 		<Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
 		<FileVersion>$(Version)</FileVersion>
 		<PackageVersion>$(Version)</PackageVersion>
+
 		<PackageId>FunicularSwitch.Generators</PackageId>
 
 		<!-- Descriptions and information-->
 		<Titel>FunicularSwitch.Generators</Titel>
-		<Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
 		<PackageDescription>Source generator emitting result types like in F# with your custom error type and Match methods (safe switches) for base types and their derived cases</PackageDescription>
-		<Copyright>Copyright 2024 bluehands GmbH &amp; C.ommunication KG</Copyright>
-		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>FunicularSwitch.png</PackageIcon>
-		<PackageTags>F# Result, Result, Match, UnionTypes, Map, Bind, Railway oriented programming, Railway oriented, Railway, Source Generator</PackageTags>
-		<RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
-		<RepositoryType>Git</RepositoryType>
-		<RepositoryBranch>main</RepositoryBranch>
+		<PackageTags>bluehands, F#Result, Result, Match, UnionTypes, Map, Bind, RailwayOrientedProgramming, SourceGenerator</PackageTags>
 		<DevelopmentDependency>true</DevelopmentDependency>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="../../README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultType.cs" Link="Templates\ResultType.cs" />
