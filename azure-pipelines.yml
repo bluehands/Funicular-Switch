@@ -47,7 +47,7 @@ steps:
   displayName: Test
   inputs:
     command: test
-    projects: '**/*.Test.csproj'
+    projects: '**/*.Test.csproj;**/FunicularSwitch.Generators.Consumer.csproj;**/FunicularSwitch.Generators.Consumer.Nuget.csproj;**/FunicularSwitch.Generators.Consumer.StandardMinLangVersion.csproj;**/FunicularSwitch.Generators.FluentAssertions.Consumer.csproj'
     arguments: '--configuration $(BuildConfiguration)'
 
 - task: PublishSymbols@2
