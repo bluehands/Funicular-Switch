@@ -89,14 +89,6 @@ steps:
     packDirectory: '$(Build.ArtifactStagingDirectory)/Generators.FluentAssertions'
     verbosityPack: Detailed
 
-# - task: DotNetCoreCLI@2
-  # inputs:
-    # command: pack
-    # nobuild: true
-    # versioningScheme: off
-    # packagesToPack: '**/*.csproj'
-    # packDirectory: '$(Build.ArtifactStagingDirectory)'
-
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)'
