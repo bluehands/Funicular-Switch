@@ -17,7 +17,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>4</MajorVersion>
-		<MinorAndPatchVersion>2.1</MinorAndPatchVersion>
+		<MinorAndPatchVersion>2.2</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<VersionSuffixLocal />

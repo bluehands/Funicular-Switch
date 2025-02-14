@@ -18,6 +18,12 @@ variables:
   NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
 
 steps:
+
+- task: UseDotNet@2
+  displayName: 'Use .NET Core sdk 8.0.x'
+  inputs:
+    version: 8.0.x
+
 - task: NuGetToolInstaller@1
 
 - task: Cache@2
