@@ -1,0 +1,23 @@
+<Project>
+
+<PropertyGroup>
+  <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  
+  <Authors>Implemented with 💙 by bluehands</Authors>
+  <Company>bluehands GmbH &amp; Co.mmunication KG</Company>
+  <Copyright>bluehands GmbH &amp; Co.mmunication KG</Copyright>
+  
+  <PackageTags>bluehands; Carbon Aware Computing; Grid Carbon Intensity; Sustainability; Green Software</PackageTags>  
+  <PackageLicenseExpression>MIT</PackageLicenseExpression>  
+  <RepositoryUrl>https://github.com/bluehands/Funicular-Switch.git</RepositoryUrl>
+  <RepositoryType>Git</RepositoryType>
+  <RepositoryBranch>main</RepositoryBranch>
+  <PackageProjectUrl>https://github.com/bluehands/Funicular-Switch</PackageProjectUrl>  
+
+  <!-- Package specific settings -->
+  <PackageOutputPath>$(OutputPath)</PackageOutputPath>  
+  <ContentTargetFolders>content</ContentTargetFolders>  
+  <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+</PropertyGroup>
+
+</Project>
