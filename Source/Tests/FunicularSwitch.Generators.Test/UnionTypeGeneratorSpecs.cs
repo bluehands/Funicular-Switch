@@ -503,4 +503,27 @@ public abstract partial record NodeMessage(string NodeInstanceId)
 
         return Verify(code);
     }
+
+	[TestMethod]
+	public Task For_union_type_with_generic_base_class_and_type_constraints()
+    {
+        var code = """
+                   using System.Collections.Generic;
+                   using FunicularSwitch.Generators;
+
+                   namespace FunicularSwitch.Test;
+
+                   [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+                   public abstract partial record BaseType<T1, T2>(string Value)
+                     where T1 : notnull, new()
+                     where T2 : class, IEnumerable<int>
+                   {
+                       public sealed record Deriving_(string Value, T1 Other, T2 List) : BaseType<T1, T2>(Value);
+                       
+                       public sealed record Deriving2_(string Value) : BaseType<T1, T2>(Value);
+                   }
+                   """;
+
+        return Verify(code);
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -18,6 +19,7 @@ static class Parser
         var semanticModel = compilation.GetSemanticModel(unionTypeClass.SyntaxTree);
 
         var typeParameters = unionTypeClass.GetTypeParameterList();
+        var typeConstraints = unionTypeClass.GetTypeConstraints(semanticModel);
 
         var fullTypeName = unionTypeSymbol.FullTypeNameWithNamespace();
         var fullTypeNameWithTypeParameters = fullTypeName + RoslynExtensions.FormatTypeParameters(typeParameters);
@@ -56,6 +58,7 @@ static class Parser
                     FullTypeNameWithTypeParameters: fullTypeNameWithTypeParameters,
                     Cases: cases,
                     TypeParameters: typeParameters,
+                    TypeConstraints: typeConstraints,
                     IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
                     IsPartial: isPartial,
                     TypeKind: unionTypeClass switch

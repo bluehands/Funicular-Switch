@@ -124,6 +124,7 @@ static class Generator
             modifiers: modifiers,
             returnType: returnType,
             methodName: "Match<T>", parameters: new[] { thisParameter }.Concat(handlerParameters),
+            typeConstraints: [],
             lambda: true);
     }
 
@@ -140,6 +141,7 @@ static class Generator
 		    modifiers: modifiers,
 		    returnType: returnType,
 		    methodName: VoidMatchMethodName, parameters: new[] { thisParameter }.Concat(handlerParameters),
+            typeConstraints: [],
 		    lambda: lambda);
     }
 }

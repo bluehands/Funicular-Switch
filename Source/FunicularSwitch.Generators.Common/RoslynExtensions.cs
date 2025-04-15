@@ -124,6 +124,34 @@ public static class RoslynExtensions
         return tds.TypeParameterList?.Parameters.Select(tps => tps.Identifier.Text).ToImmutableArray() ?? ImmutableArray<string>.Empty;
     }
 
+    public static EquatableArray<string> GetTypeConstraints(this BaseTypeDeclarationSyntax dec, SemanticModel model)
+    {
+        if (dec is not TypeDeclarationSyntax tds)
+        {
+            return [];
+        }
+
+        return tds.ConstraintClauses.Select(cc =>
+        {
+            var constraints = string.Join(
+                ", ",
+                cc.Constraints
+                    .Select(
+                        c => c switch
+                        {
+                            TypeConstraintSyntax tcs => Format(tcs.Type),
+                            _ => c.ToFullString(),
+                        }));
+            return $"{cc.WhereKeyword.Text} {cc.Name.Identifier.ValueText} {cc.ColonToken.Text} {constraints}";
+
+            string Format(TypeSyntax ts)
+            {
+                var typeInfo = model.GetTypeInfo(ts);
+                return typeInfo.Type!.ToDisplayString(FullTypeWithNamespaceAndGenericsDisplayFormat);
+            }
+        }).ToImmutableArray();
+    }
+
     public static string FormatTypeParameters(EquatableArray<string> typeParameters)
     {
         if (typeParameters.Length == 0)
