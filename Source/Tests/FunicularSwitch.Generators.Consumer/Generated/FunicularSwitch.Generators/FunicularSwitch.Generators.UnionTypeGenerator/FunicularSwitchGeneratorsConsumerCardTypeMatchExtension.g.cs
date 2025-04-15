@@ -1,4 +1,5 @@
 ﻿#pragma warning disable 1591
+#nullable enable
 namespace FunicularSwitch.Generators.Consumer
 {
 	internal static partial class CardTypeMatchExtension
