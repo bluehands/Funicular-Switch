@@ -1,5 +1,6 @@
 ﻿//HintName: OuterBaseMatchExtension.g.cs
 #pragma warning disable 1591
+#nullable enable
 public static partial class BaseMatchExtension
 {
 	public static T Match<T>(this Outer.Base @base, global::System.Func<Outer.One, T> one, global::System.Func<Outer.Two, T> two) =>

@@ -1,4 +1,5 @@
-﻿namespace FunicularSwitch.Generators.FluentAssertions.Templates
+﻿#nullable enable
+namespace FunicularSwitch.Generators.FluentAssertions.Templates
 {
     public abstract class MyErrorType
     {

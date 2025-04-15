@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿#nullable enable
+using System.Linq;
 
 namespace FunicularSwitch.Generators.Templates
 {

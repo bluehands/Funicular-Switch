@@ -16,6 +16,7 @@ public static class Generator
     {
         var builder = new CSharpBuilder();
         builder.WriteLine("#pragma warning disable 1591");
+        builder.WriteLine("#nullable enable");
 
         //builder.WriteLine($"//Generator runs: {RunCount.Increase(unionTypeSchema.FullTypeName)}");
 

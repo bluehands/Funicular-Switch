@@ -1,4 +1,5 @@
 ﻿#pragma warning disable 1591
+#nullable enable
 namespace StandardMinLangVersion
 {
 	public static partial class MyUnionMatchExtension

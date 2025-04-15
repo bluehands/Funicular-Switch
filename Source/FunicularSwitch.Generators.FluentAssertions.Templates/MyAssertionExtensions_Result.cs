@@ -1,4 +1,5 @@
-﻿//additional using directives
+﻿#nullable enable
+//additional using directives
 
 namespace FunicularSwitch.Generators.FluentAssertions.Templates
 {

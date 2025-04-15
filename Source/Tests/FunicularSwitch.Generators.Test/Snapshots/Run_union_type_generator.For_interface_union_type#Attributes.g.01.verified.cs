@@ -1,4 +1,5 @@
 ﻿//HintName: Attributes.g.cs
+#nullable enable
 using System;
 
 // ReSharper disable once CheckNamespace

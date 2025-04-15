@@ -1,5 +1,6 @@
 ﻿//HintName: FunicularSwitchTestBaseMatchExtension.g.cs
 #pragma warning disable 1591
+#nullable enable
 namespace FunicularSwitch.Test
 {
 	public static partial class BaseMatchExtension
