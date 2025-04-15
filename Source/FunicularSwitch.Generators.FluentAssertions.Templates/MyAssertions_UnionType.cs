@@ -1,4 +1,5 @@
-﻿using FluentAssertions.Primitives;
+﻿#nullable enable
+using FluentAssertions.Primitives;
 //additional using directives
 
 namespace FunicularSwitch.Generators.FluentAssertions.Templates

@@ -1,4 +1,5 @@
-﻿using FluentAssertions.Execution;
+﻿#nullable enable
+using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using FluentAssertions;
 //additional using directives
