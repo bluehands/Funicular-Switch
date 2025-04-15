@@ -1,4 +1,6 @@
-﻿namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency;
+﻿using System.Collections.Generic;
+
+namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency;
 
 [ResultType(ErrorType = typeof(MyError))]
 public partial class ExampleResult
@@ -77,4 +79,14 @@ public abstract partial record MultiGenericUnionType<TFirst, TSecond, TThird>
     public sealed record One_(TFirst First, TSecond Second) : MultiGenericUnionType<TFirst, TSecond, TThird>;
 
     public sealed record Two_(TThird Third) : MultiGenericUnionType<TFirst, TSecond, TThird>;
+}
+
+[UnionType(CaseOrder = CaseOrder.AsDeclared)]
+public abstract partial record GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>
+    where TFirst : struct, IEnumerable<int>
+    where TSecond : class, new()
+    where TThird : WrapperClass
+    where TFourth : notnull
+{
+    public sealed record Derived : GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>;
 }

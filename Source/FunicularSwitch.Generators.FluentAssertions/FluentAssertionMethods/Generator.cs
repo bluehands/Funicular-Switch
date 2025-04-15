@@ -17,6 +17,7 @@ internal static class Generator
     private const string TemplateUnionTypeAssertionsTypeName = "MyAssertions_UnionType";
     private const string TemplateUnionTypeAssertionExtensions = "MyAssertionExtensions_UnionType";
     private const string TemplateUnionTypeTypeParameterList = "<TTypeParameters>";
+    private const string TemplateUnionTypeTypeConstraints = "/*TypeContraints*/";
     private const string TemplateFriendlyDerivedUnionTypeName = "FriendlyDerivedUnionTypeName";
     private const string TemplateAdditionalUsingDirectives = "//additional using directives";
 
@@ -70,6 +71,8 @@ internal static class Generator
         var unionTypeFullNameWithNamespaceAndGenerics = unionTypeSchema.UnionTypeBaseType.FullTypeNameWithNamespaceAndGenerics();
         EquatableArray<string> typeParameters = unionTypeSchema.UnionTypeBaseType.TypeParameters
             .Select(t => t.Name).ToImmutableArray();
+        EquatableArray<string> typeConstraints = unionTypeSchema.UnionTypeBaseType.TypeParameters
+            .Select(t => t.FormatTypeConstraints()).ToImmutableArray();
         var unionTypeNamespace = unionTypeSchema.UnionTypeBaseType.GetFullNamespace();
         var typeParametersText = RoslynExtensions.FormatTypeParameters(typeParameters);
 
@@ -86,6 +89,7 @@ internal static class Generator
                 .Replace(TemplateUnionTypeAssertionsTypeName, $"{unionTypeFullName}Assertions{typeParametersText}")
                 .Replace(TemplateUnionTypeAssertionExtensions, $"{unionTypeFullName}FluentAssertionExtensions")
                 .Replace(TemplateUnionTypeTypeParameterList, typeParametersText)
+                .Replace(TemplateUnionTypeTypeConstraints, string.Join("", typeConstraints))
                 .Replace(
                     TemplateAdditionalUsingDirectives,
                     additionalNamespaces

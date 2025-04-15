@@ -152,6 +152,35 @@ public static class RoslynExtensions
         }).ToImmutableArray();
     }
 
+    public static string FormatTypeConstraints(this ITypeParameterSymbol tps)
+    {
+        var primaryConstraint = tps.HasValueTypeConstraint
+            ? "struct"
+            : tps.HasReferenceTypeConstraint
+                ? (tps.ReferenceTypeConstraintNullableAnnotation == NullableAnnotation.Annotated ? "class?" : "class")
+                : tps.HasNotNullConstraint
+                    ? "notnull"
+                    : tps.HasUnmanagedTypeConstraint
+                        ? "unmanaged"
+                        : "";
+        var constructorConstraint = tps.HasConstructorConstraint ? "new()" : "";
+        var typeConstraints = tps.ConstraintTypes
+            .Zip(tps.ConstraintNullableAnnotations, ValueTuple.Create)
+            .Select(tuple =>
+                tuple.Item1.ToDisplayString(FullTypeWithNamespaceAndGenericsDisplayFormat)
+                + (tuple.Item2 == NullableAnnotation.Annotated ? "?" : ""));
+        var constraints = string.Join(
+            ", ",
+            typeConstraints.Prepend(primaryConstraint).Append(constructorConstraint)
+                .Where(x => !string.IsNullOrEmpty(x)));
+        if (string.IsNullOrEmpty(constraints))
+        {
+            return "";
+        }
+        var result = $" where {tps.Name} : {constraints}";
+        return result;
+    }
+
     public static string FormatTypeParameters(EquatableArray<string> typeParameters)
     {
         if (typeParameters.Length == 0)
