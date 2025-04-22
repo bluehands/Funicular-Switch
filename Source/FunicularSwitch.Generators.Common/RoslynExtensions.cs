@@ -246,11 +246,7 @@ public static class RoslynExtensions
     public static string GetFullTypeName(this SemanticModel semanticModel, SyntaxNode typeSyntax)
     {
         var typeInfo = semanticModel.GetTypeInfo(typeSyntax);
-        return typeInfo.Type?.ToDisplayString(
-            new SymbolDisplayFormat(
-                typeQualificationStyle: SymbolWrapper.FullTypeWithNamespaceDisplayFormat.TypeQualificationStyle
-            )
-        ) ?? typeSyntax.ToString();
+        return typeInfo.Type?.ToDisplayString(SymbolWrapper.FullTypeWithNamespaceDisplayFormat) ?? typeSyntax.ToString();
     }
 
     public static IEnumerable<INamedTypeSymbol> GetAllTypes(this INamespaceOrTypeSymbol root)
