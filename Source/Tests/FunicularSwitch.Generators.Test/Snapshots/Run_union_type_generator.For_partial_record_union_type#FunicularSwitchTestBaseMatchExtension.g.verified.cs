@@ -5,7 +5,7 @@ namespace FunicularSwitch.Test
 {
 	internal static partial class BaseMatchExtension
 	{
-		public static T Match<T>(this FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.One, T> one, global::System.Func<FunicularSwitch.Test.Two, T> two, global::System.Func<FunicularSwitch.Test.Three, T> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, T> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, T> five, global::System.Func<FunicularSwitch.Test.WithDefault, T> withDefault) =>
+		public static T Match<T>(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.One, T> one, global::System.Func<FunicularSwitch.Test.Two, T> two, global::System.Func<FunicularSwitch.Test.Three, T> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, T> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, T> five, global::System.Func<FunicularSwitch.Test.WithDefault, T> withDefault) =>
 		@base switch
 		{
 			FunicularSwitch.Test.One one1 => one(one1),
@@ -17,7 +17,7 @@ namespace FunicularSwitch.Test
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}")
 		};
 		
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two, global::System.Func<FunicularSwitch.Test.Three, global::System.Threading.Tasks.Task<T>> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, global::System.Threading.Tasks.Task<T>> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, global::System.Threading.Tasks.Task<T>> five, global::System.Func<FunicularSwitch.Test.WithDefault, global::System.Threading.Tasks.Task<T>> withDefault) =>
+		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two, global::System.Func<FunicularSwitch.Test.Three, global::System.Threading.Tasks.Task<T>> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, global::System.Threading.Tasks.Task<T>> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, global::System.Threading.Tasks.Task<T>> five, global::System.Func<FunicularSwitch.Test.WithDefault, global::System.Threading.Tasks.Task<T>> withDefault) =>
 		@base switch
 		{
 			FunicularSwitch.Test.One one1 => one(one1),
@@ -29,13 +29,13 @@ namespace FunicularSwitch.Test
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}")
 		};
 		
-		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FunicularSwitch.Test.Base> @base, global::System.Func<FunicularSwitch.Test.One, T> one, global::System.Func<FunicularSwitch.Test.Two, T> two, global::System.Func<FunicularSwitch.Test.Three, T> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, T> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, T> five, global::System.Func<FunicularSwitch.Test.WithDefault, T> withDefault) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Base> @base, global::System.Func<FunicularSwitch.Test.One, T> one, global::System.Func<FunicularSwitch.Test.Two, T> two, global::System.Func<FunicularSwitch.Test.Three, T> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, T> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, T> five, global::System.Func<FunicularSwitch.Test.WithDefault, T> withDefault) =>
 		(await @base.ConfigureAwait(false)).Match(one, two, three, nested, five, withDefault);
 		
-		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FunicularSwitch.Test.Base> @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two, global::System.Func<FunicularSwitch.Test.Three, global::System.Threading.Tasks.Task<T>> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, global::System.Threading.Tasks.Task<T>> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, global::System.Threading.Tasks.Task<T>> five, global::System.Func<FunicularSwitch.Test.WithDefault, global::System.Threading.Tasks.Task<T>> withDefault) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Base> @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two, global::System.Func<FunicularSwitch.Test.Three, global::System.Threading.Tasks.Task<T>> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, global::System.Threading.Tasks.Task<T>> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, global::System.Threading.Tasks.Task<T>> five, global::System.Func<FunicularSwitch.Test.WithDefault, global::System.Threading.Tasks.Task<T>> withDefault) =>
 		await (await @base.ConfigureAwait(false)).Match(one, two, three, nested, five, withDefault).ConfigureAwait(false);
 		
-		public static void Switch(this FunicularSwitch.Test.Base @base, global::System.Action<FunicularSwitch.Test.One> one, global::System.Action<FunicularSwitch.Test.Two> two, global::System.Action<FunicularSwitch.Test.Three> three, global::System.Action<FunicularSwitch.Test.Cases.Nested> nested, global::System.Action<FunicularSwitch.Test.Cases.Five> five, global::System.Action<FunicularSwitch.Test.WithDefault> withDefault)
+		public static void Switch(this global::FunicularSwitch.Test.Base @base, global::System.Action<FunicularSwitch.Test.One> one, global::System.Action<FunicularSwitch.Test.Two> two, global::System.Action<FunicularSwitch.Test.Three> three, global::System.Action<FunicularSwitch.Test.Cases.Nested> nested, global::System.Action<FunicularSwitch.Test.Cases.Five> five, global::System.Action<FunicularSwitch.Test.WithDefault> withDefault)
 		{
 			switch (@base)
 			{
@@ -62,7 +62,7 @@ namespace FunicularSwitch.Test
 			}
 		}
 		
-		public static async global::System.Threading.Tasks.Task Switch(this FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task> two, global::System.Func<FunicularSwitch.Test.Three, global::System.Threading.Tasks.Task> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, global::System.Threading.Tasks.Task> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, global::System.Threading.Tasks.Task> five, global::System.Func<FunicularSwitch.Test.WithDefault, global::System.Threading.Tasks.Task> withDefault)
+		public static async global::System.Threading.Tasks.Task Switch(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task> two, global::System.Func<FunicularSwitch.Test.Three, global::System.Threading.Tasks.Task> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, global::System.Threading.Tasks.Task> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, global::System.Threading.Tasks.Task> five, global::System.Func<FunicularSwitch.Test.WithDefault, global::System.Threading.Tasks.Task> withDefault)
 		{
 			switch (@base)
 			{
@@ -89,10 +89,10 @@ namespace FunicularSwitch.Test
 			}
 		}
 		
-		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FunicularSwitch.Test.Base> @base, global::System.Action<FunicularSwitch.Test.One> one, global::System.Action<FunicularSwitch.Test.Two> two, global::System.Action<FunicularSwitch.Test.Three> three, global::System.Action<FunicularSwitch.Test.Cases.Nested> nested, global::System.Action<FunicularSwitch.Test.Cases.Five> five, global::System.Action<FunicularSwitch.Test.WithDefault> withDefault) =>
+		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Base> @base, global::System.Action<FunicularSwitch.Test.One> one, global::System.Action<FunicularSwitch.Test.Two> two, global::System.Action<FunicularSwitch.Test.Three> three, global::System.Action<FunicularSwitch.Test.Cases.Nested> nested, global::System.Action<FunicularSwitch.Test.Cases.Five> five, global::System.Action<FunicularSwitch.Test.WithDefault> withDefault) =>
 		(await @base.ConfigureAwait(false)).Switch(one, two, three, nested, five, withDefault);
 		
-		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FunicularSwitch.Test.Base> @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task> two, global::System.Func<FunicularSwitch.Test.Three, global::System.Threading.Tasks.Task> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, global::System.Threading.Tasks.Task> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, global::System.Threading.Tasks.Task> five, global::System.Func<FunicularSwitch.Test.WithDefault, global::System.Threading.Tasks.Task> withDefault) =>
+		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Base> @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task> two, global::System.Func<FunicularSwitch.Test.Three, global::System.Threading.Tasks.Task> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, global::System.Threading.Tasks.Task> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, global::System.Threading.Tasks.Task> five, global::System.Func<FunicularSwitch.Test.WithDefault, global::System.Threading.Tasks.Task> withDefault) =>
 		await (await @base.ConfigureAwait(false)).Switch(one, two, three, nested, five, withDefault).ConfigureAwait(false);
 	}
 	

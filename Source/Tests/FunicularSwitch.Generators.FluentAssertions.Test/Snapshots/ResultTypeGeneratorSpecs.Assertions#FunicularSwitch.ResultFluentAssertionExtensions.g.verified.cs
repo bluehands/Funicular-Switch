@@ -6,6 +6,6 @@ namespace FunicularSwitch
 {
     internal static class ResultFluentAssertionExtensions
     {
-        public static ResultAssertions<T> Should<T>(this FunicularSwitch.Result<T> result) => new(result);
+        public static ResultAssertions<T> Should<T>(this global::FunicularSwitch.Result<T> result) => new(result);
     }
 }

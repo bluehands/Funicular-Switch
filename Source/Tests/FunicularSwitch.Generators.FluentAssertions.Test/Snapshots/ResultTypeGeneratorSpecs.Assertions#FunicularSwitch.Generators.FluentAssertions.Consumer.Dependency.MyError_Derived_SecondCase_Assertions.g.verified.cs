@@ -8,17 +8,17 @@ namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency
 {
     internal partial class MyErrorAssertions
     {
-        public AndWhichConstraint<MyErrorAssertions, FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError.SecondCase_> BeSecondCase(
+        public AndWhichConstraint<MyErrorAssertions, global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError.SecondCase_> BeSecondCase(
             string because = "",
             params object[] becauseArgs)
         {
             Execute.Assertion
-                .ForCondition(this.Subject is FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError.SecondCase_)
+                .ForCondition(this.Subject is global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError.SecondCase_)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context} to be FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError.SecondCase_{reason}, but found {0}",
+                .FailWith("Expected {context} to be MyError.SecondCase_{reason}, but found {0}",
                     this.Subject);
 
-            return new(this, (this.Subject as FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError.SecondCase_)!);
+            return new(this, (this.Subject as global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError.SecondCase_)!);
         }
     }
 }

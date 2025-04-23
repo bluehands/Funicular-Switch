@@ -10,7 +10,8 @@ public static class SymbolWrapper
     internal static readonly SymbolDisplayFormat FullTypeWithNamespaceAndGenericsDisplayFormat = new(
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
         genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
-        miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+        miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier,
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included);
 
     public static SymbolWrapper<T> Create<T>(T symbol) where T : ISymbol => new(symbol);
 }

@@ -111,7 +111,7 @@ public static class Generator
                 var derivedTypeName = nameParts[nameParts.Length - 1];
                 var methodName = derivedType.StaticFactoryMethodName;
 
-                if ($"{unionTypeSchema.FullTypeNameWithTypeParameters}.{methodName}" == derivedType.FullTypeName) //union case is nested type without underscores, so factory method name would conflict with type name
+                if ($"{unionTypeSchema.FullTypeNameWithTypeParameters}.{methodName}" == $"global::{derivedType.FullTypeName}") //union case is nested type without underscores, so factory method name would conflict with type name
                     continue;
 
                 var constructors = derivedType.Constructors;

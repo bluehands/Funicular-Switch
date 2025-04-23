@@ -50,9 +50,11 @@ public abstract class VerifySourceGenerator : VerifyBase
     protected Task Verify(IEnumerable<Assembly> assemblies) =>
         Verify(assemblies, (compilation, _) =>
         {
-            var diagnostics = compilation.GetDiagnostics();
-            var errors = string.Join(Environment.NewLine, diagnostics
-                .Where(d => d.Severity == DiagnosticSeverity.Error));
-            errors.Should().BeNullOrEmpty($"Compilation failed: {compilation.SyntaxTrees.LastOrDefault(s => !s.ToString().Contains("ReSharper disable once CheckNamespace"))}");
+            var diagnostics = compilation.GetDiagnostics()
+                .Where(d => d.Severity == DiagnosticSeverity.Error)
+                .ToList();
+            var errors = string.Join(Environment.NewLine, diagnostics);
+            var syntaxTrees = string.Join(Environment.NewLine, diagnostics.Select(d => d.Location.SourceTree));
+            errors.Should().BeNullOrEmpty($"Compilation failed: {syntaxTrees}");
         });
 }

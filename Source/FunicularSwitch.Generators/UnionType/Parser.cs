@@ -22,7 +22,7 @@ static class Parser
         var typeConstraints = unionTypeClass.GetTypeConstraints(semanticModel);
 
         var fullTypeName = unionTypeSymbol.FullTypeNameWithNamespace();
-        var fullTypeNameWithTypeParameters = fullTypeName + RoslynExtensions.FormatTypeParameters(typeParameters);
+        var fullTypeNameWithTypeParameters = unionTypeSymbol.FullTypeNameWithNamespaceAndGenerics();
         var acc = unionTypeSymbol.GetActualAccessibility();
         if (acc is Accessibility.Private or Accessibility.Protected)
         {

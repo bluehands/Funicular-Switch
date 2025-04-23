@@ -41,11 +41,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-    <EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyAssertionExtensions_Result.cs" Link="Templates\MyAssertionExtensions_Result.cs" />
-    <EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyAssertionExtensions_UnionType.cs" Link="Templates\MyAssertionExtensions_UnionType.cs" />
-    <EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyAssertions_Result.cs" Link="Templates\MyAssertions_Result.cs" />
-    <EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyAssertions_UnionType.cs" Link="Templates\MyAssertions_UnionType.cs" />
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\MyUnionTypeAssertions_DerivedUnionType.cs" Link="Templates\MyUnionTypeAssertions_DerivedUnionType.cs" />
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\OptionAssertions.cs" Link="Templates\OptionAssertions.cs" />
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\OptionAssertionExtensions.cs" Link="Templates\OptionAssertionExtensions.cs" />
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\GenerateExtensionsForInternalTypesAttribute.cs" Link="Templates\GenerateExtensionsForInternalTypesAttribute.cs" />

@@ -6,6 +6,6 @@ namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency
 {
     internal static class MyErrorFluentAssertionExtensions
     {
-        public static MyErrorAssertions Should(this FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError unionType) => new(unionType);
+        public static MyErrorAssertions Should(this global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError unionType) => new(unionType);
     }
 }

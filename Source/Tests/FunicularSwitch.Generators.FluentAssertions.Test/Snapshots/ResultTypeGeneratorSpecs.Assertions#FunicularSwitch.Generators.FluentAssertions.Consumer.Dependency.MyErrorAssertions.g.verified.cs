@@ -5,9 +5,9 @@ using FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency;
 
 namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency
 {
-    internal partial class MyErrorAssertions : ObjectAssertions<FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError, MyErrorAssertions>
+    internal partial class MyErrorAssertions : ObjectAssertions<global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError, MyErrorAssertions>
     {
-        public MyErrorAssertions(FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError value) : base(value)
+        public MyErrorAssertions(global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MyError value) : base(value)
         {
         
         }

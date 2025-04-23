@@ -22,17 +22,18 @@ public abstract class VerifySourceGenerator : VerifyBase
             typeof(object),
             typeof(Enumerable)
         }.Select(t => MetadataReference.CreateFromFile(t.Assembly.Location))
-            .Concat(new []
-            {
+            .Concat([
                 MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll")),
-            });
+                MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll"))
+            ]);
 
         var compilation = CSharpCompilation.Create(
             assemblyName: "Tests",
-            syntaxTrees: new[] { syntaxTree },
+            syntaxTrees: [syntaxTree],
             references: references,
-            options: new(OutputKind.DynamicallyLinkedLibrary));
+            options: new(
+                outputKind: OutputKind.DynamicallyLinkedLibrary,
+                nullableContextOptions: NullableContextOptions.Enable));
 
         GeneratorDriver driver = CSharpGeneratorDriver.Create(new ResultTypeGenerator(), new UnionTypeGenerator(), new EnumTypeGenerator());
 

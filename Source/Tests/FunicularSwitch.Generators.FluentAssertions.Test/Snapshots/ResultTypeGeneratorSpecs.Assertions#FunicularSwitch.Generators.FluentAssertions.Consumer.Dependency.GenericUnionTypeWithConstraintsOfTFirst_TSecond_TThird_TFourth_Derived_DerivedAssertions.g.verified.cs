@@ -8,17 +8,17 @@ namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency
 {
     internal partial class GenericUnionTypeWithConstraintsAssertions<TFirst, TSecond, TThird, TFourth>
     {
-        public AndWhichConstraint<GenericUnionTypeWithConstraintsAssertions<TFirst, TSecond, TThird, TFourth>, FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>.Derived> BeDerived(
+        public AndWhichConstraint<GenericUnionTypeWithConstraintsAssertions<TFirst, TSecond, TThird, TFourth>, global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>.Derived> BeDerived(
             string because = "",
             params object[] becauseArgs)
         {
             Execute.Assertion
-                .ForCondition(this.Subject is FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>.Derived)
+                .ForCondition(this.Subject is global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>.Derived)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context} to be FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>.Derived{reason}, but found {0}",
+                .FailWith("Expected {context} to be GenericUnionTypeWithConstraints.Derived{reason}, but found {0}",
                     this.Subject);
 
-            return new(this, (this.Subject as FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>.Derived)!);
+            return new(this, (this.Subject as global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>.Derived)!);
         }
     }
 }

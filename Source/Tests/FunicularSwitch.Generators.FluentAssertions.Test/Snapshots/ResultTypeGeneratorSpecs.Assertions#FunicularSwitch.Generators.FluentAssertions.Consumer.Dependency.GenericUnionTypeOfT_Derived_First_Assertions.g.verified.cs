@@ -8,17 +8,17 @@ namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency
 {
     internal partial class GenericUnionTypeAssertions<T>
     {
-        public AndWhichConstraint<GenericUnionTypeAssertions<T>, FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionType<T>.First_> BeFirst(
+        public AndWhichConstraint<GenericUnionTypeAssertions<T>, global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionType<T>.First_> BeFirst(
             string because = "",
             params object[] becauseArgs)
         {
             Execute.Assertion
-                .ForCondition(this.Subject is FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionType<T>.First_)
+                .ForCondition(this.Subject is global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionType<T>.First_)
                 .BecauseOf(because, becauseArgs)
-                .FailWith("Expected {context} to be FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionType<T>.First_{reason}, but found {0}",
+                .FailWith("Expected {context} to be GenericUnionType.First_{reason}, but found {0}",
                     this.Subject);
 
-            return new(this, (this.Subject as FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionType<T>.First_)!);
+            return new(this, (this.Subject as global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionType<T>.First_)!);
         }
     }
 }

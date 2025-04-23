@@ -526,4 +526,22 @@ public abstract partial record NodeMessage(string NodeInstanceId)
 
         return Verify(code);
     }
+
+    [TestMethod]
+    public Task ForUnionType_WithNullableParameters_StaticFactoriesHaveNullableParametersToo()
+    {
+        var code = """
+                   using FunicularSwitch.Generators;
+                   
+                   namespace FunicularSwitch.Text;
+
+                   [UnionType]
+                   public abstract partial record BaseType
+                   {
+                       public sealed record DerivedType_(string? NullableReferenceType, int? NullableStruct) : BaseType;
+                   }
+                   """;
+
+        return Verify(code);
+    }
 }

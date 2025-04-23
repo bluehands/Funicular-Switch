@@ -285,12 +285,19 @@ public static class RoslynExtensions
 
     public static ImmutableArray<string> ToEquatableModifiers(this SyntaxTokenList modifiers) => modifiers.Select(m => m.Text).ToImmutableArray();
 
-    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, Compilation compilation) =>
-        new(
+    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, Compilation compilation)
+    {
+        var semanticModel = compilation.GetSemanticModel(p.SyntaxTree);
+        var typeInfo = semanticModel.GetTypeInfo(p.Type!);
+        var annotation = p.Type is NullableTypeSyntax
+            ? NullableAnnotation.Annotated
+            : NullableAnnotation.NotAnnotated;
+        return new ParameterInfo(
             p.Identifier.Text,
             p.Modifiers.ToEquatableModifiers(),
-            compilation.GetSemanticModel(p.SyntaxTree).GetTypeInfo(p.Type!).Type!,
+            typeInfo.Type!.WithNullableAnnotation(annotation),
             p.Default?.ToString());
+    }
 
     public static PropertyOrFieldInfo ToPropertyOrFieldInfo(this MemberDeclarationSyntax m, Compilation compilation)
     {
@@ -390,7 +397,7 @@ public sealed record ParameterInfo
         Type = type;
         DefaultClause = defaultClause;
 
-        _typeName = Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        _typeName = Type.ToDisplayString(SymbolWrapper.FullTypeWithNamespaceAndGenericsDisplayFormat);
     }
 
     public override string ToString()

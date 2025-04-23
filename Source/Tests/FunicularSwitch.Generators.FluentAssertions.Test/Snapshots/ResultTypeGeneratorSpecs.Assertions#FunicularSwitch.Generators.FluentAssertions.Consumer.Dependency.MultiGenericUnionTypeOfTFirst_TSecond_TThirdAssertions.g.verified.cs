@@ -5,9 +5,9 @@ using FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency;
 
 namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency
 {
-    internal partial class MultiGenericUnionTypeAssertions<TFirst, TSecond, TThird> : ObjectAssertions<FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MultiGenericUnionType<TFirst, TSecond, TThird>, MultiGenericUnionTypeAssertions<TFirst, TSecond, TThird>>
+    internal partial class MultiGenericUnionTypeAssertions<TFirst, TSecond, TThird> : ObjectAssertions<global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MultiGenericUnionType<TFirst, TSecond, TThird>, MultiGenericUnionTypeAssertions<TFirst, TSecond, TThird>>
     {
-        public MultiGenericUnionTypeAssertions(FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MultiGenericUnionType<TFirst, TSecond, TThird> value) : base(value)
+        public MultiGenericUnionTypeAssertions(global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.MultiGenericUnionType<TFirst, TSecond, TThird> value) : base(value)
         {
         
         }

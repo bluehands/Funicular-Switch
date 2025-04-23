@@ -5,9 +5,9 @@ using FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency;
 
 namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency
 {
-    internal partial class GenericUnionTypeWithConstraintsAssertions<TFirst, TSecond, TThird, TFourth> : ObjectAssertions<FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>, GenericUnionTypeWithConstraintsAssertions<TFirst, TSecond, TThird, TFourth>> where TFirst : struct, System.Collections.Generic.IEnumerable<int> where TSecond : class, new() where TThird : FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.WrapperClass where TFourth : notnull
+    internal partial class GenericUnionTypeWithConstraintsAssertions<TFirst, TSecond, TThird, TFourth> : ObjectAssertions<global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth>, GenericUnionTypeWithConstraintsAssertions<TFirst, TSecond, TThird, TFourth>> where TFirst : struct, global::System.Collections.Generic.IEnumerable<int> where TSecond : class, new() where TThird : global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.WrapperClass where TFourth : notnull
     {
-        public GenericUnionTypeWithConstraintsAssertions(FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth> value) : base(value)
+        public GenericUnionTypeWithConstraintsAssertions(global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionTypeWithConstraints<TFirst, TSecond, TThird, TFourth> value) : base(value)
         {
         
         }

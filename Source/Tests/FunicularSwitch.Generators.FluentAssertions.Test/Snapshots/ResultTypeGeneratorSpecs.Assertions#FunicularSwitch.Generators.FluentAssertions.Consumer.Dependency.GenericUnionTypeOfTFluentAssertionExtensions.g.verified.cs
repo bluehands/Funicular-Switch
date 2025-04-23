@@ -6,6 +6,6 @@ namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency
 {
     internal static class GenericUnionTypeFluentAssertionExtensions
     {
-        public static GenericUnionTypeAssertions<T> Should<T>(this FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionType<T> unionType) => new(unionType);
+        public static GenericUnionTypeAssertions<T> Should<T>(this global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.GenericUnionType<T> unionType) => new(unionType);
     }
 }

@@ -6,6 +6,6 @@ namespace FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency
 {
     internal static class WrapperClass_NestedUnionTypeFluentAssertionExtensions
     {
-        public static WrapperClass_NestedUnionTypeAssertions Should(this FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.WrapperClass.NestedUnionType unionType) => new(unionType);
+        public static WrapperClass_NestedUnionTypeAssertions Should(this global::FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.WrapperClass.NestedUnionType unionType) => new(unionType);
     }
 }
