@@ -1,4 +1,5 @@
 using BenchmarkDotNet.Attributes;
+using FunicularSwitch.Generic;
 
 namespace FunicularSwitch.Benchmarks;
 
@@ -29,6 +30,9 @@ public class GenResBenchmark
     public GenRes<int, int> CreateErrorWithType()
     {
         return GenRes<int, int>.Error(40);
+        
+        
+        
     }
     
     [Benchmark]

@@ -51,6 +51,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1EA7B0C8
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Benchmarks", "FunicularSwitch.Benchmarks\FunicularSwitch.Benchmarks.csproj", "{1FD4D9C9-29AC-4B76-91C8-D76C2D29890A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generic", "FunicularSwitch.Generic\FunicularSwitch.Generic.csproj", "{624B07C9-9E8C-4DCF-AA51-D46125EC3E10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,10 @@ Global
 		{1FD4D9C9-29AC-4B76-91C8-D76C2D29890A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FD4D9C9-29AC-4B76-91C8-D76C2D29890A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FD4D9C9-29AC-4B76-91C8-D76C2D29890A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{624B07C9-9E8C-4DCF-AA51-D46125EC3E10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{624B07C9-9E8C-4DCF-AA51-D46125EC3E10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{624B07C9-9E8C-4DCF-AA51-D46125EC3E10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{624B07C9-9E8C-4DCF-AA51-D46125EC3E10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
