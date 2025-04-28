@@ -300,7 +300,7 @@
       "funicularswitch.generators": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.CodeAnalysis.Common": "[4.13.0, )"
+          "Microsoft.CodeAnalysis.CSharp": "[4.13.0, )"
         }
       }
     }
