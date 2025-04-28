@@ -4,7 +4,7 @@
 		<TargetFramework>net4.8</TargetFramework>
 		<LangVersion>9.0</LangVersion>
 
-		<IsPackable>false</IsPackable>
+    <ImplicitUsings>disable</ImplicitUsings>
 	</PropertyGroup>
 
 	<PropertyGroup>

@@ -1,17 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-
-		<IsPackable>false</IsPackable>
-
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<LangVersion>latest</LangVersion>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<PackageReference Include="FluentAssertions" Version="7.2.0" />
 		<PackageReference Include="FunicularSwitch.Generators.FluentAssertions" Version="1.2.0">
