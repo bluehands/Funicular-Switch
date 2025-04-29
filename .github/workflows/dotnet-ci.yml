@@ -20,6 +20,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore ./Source
     - name: Build
-      run: dotnet build ./Source --no-restore
+      run: dotnet build ./Source --no-restore /p:TestConfiguration="IgnoreNetFramework"
     - name: Test
-      run: dotnet test ./Source --no-build --verbosity normal --filter 'FullyQualifiedName!~StandardMinLangVersion'
+      run: dotnet test ./Source --no-build --verbosity normal  /p:TestConfiguration="IgnoreNetFramework"

@@ -5,7 +5,11 @@
 		<LangVersion>9.0</LangVersion>
 
     <ImplicitUsings>disable</ImplicitUsings>
-	</PropertyGroup>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TestConfiguration)' == 'IgnoreNetFramework'">
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
 
 	<PropertyGroup>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
