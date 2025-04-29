@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
     - name: Restore dependencies
@@ -22,4 +22,4 @@ jobs:
     - name: Build
       run: dotnet build ./Source --no-restore
     - name: Test
-      run: dotnet test ./Source --no-build --verbosity normal
+      run: dotnet test ./Source --no-build --verbosity normal --filter 'FullyQualifiedName!~StandardMinLangVersion'

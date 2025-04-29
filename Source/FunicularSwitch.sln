@@ -49,6 +49,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generators.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1EA7B0C8-17DB-4ED9-A7B8-90CACA398BC3}"
 	ProjectSection(SolutionItems) = preProject
+		..\azure-pipelines.yml = ..\azure-pipelines.yml
 		..\.github\workflows\dotnet-ci.yml = ..\.github\workflows\dotnet-ci.yml
 	EndProjectSection
 EndProject
