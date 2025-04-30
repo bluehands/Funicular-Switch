@@ -124,6 +124,63 @@ public static class RoslynExtensions
         return tds.TypeParameterList?.Parameters.Select(tps => tps.Identifier.Text).ToImmutableArray() ?? ImmutableArray<string>.Empty;
     }
 
+    public static EquatableArray<string> GetTypeConstraints(this BaseTypeDeclarationSyntax dec, SemanticModel model)
+    {
+        if (dec is not TypeDeclarationSyntax tds)
+        {
+            return [];
+        }
+
+        return tds.ConstraintClauses.Select(cc =>
+        {
+            var constraints = string.Join(
+                ", ",
+                cc.Constraints
+                    .Select(
+                        c => c switch
+                        {
+                            TypeConstraintSyntax tcs => Format(tcs.Type),
+                            _ => c.ToFullString(),
+                        }));
+            return $"{cc.WhereKeyword.Text} {cc.Name.Identifier.ValueText} {cc.ColonToken.Text} {constraints}";
+
+            string Format(TypeSyntax ts)
+            {
+                var typeInfo = model.GetTypeInfo(ts);
+                return typeInfo.Type!.ToDisplayString(FullTypeWithNamespaceAndGenericsDisplayFormat);
+            }
+        }).ToImmutableArray();
+    }
+
+    public static string FormatTypeConstraints(this ITypeParameterSymbol tps)
+    {
+        var primaryConstraint = tps.HasValueTypeConstraint
+            ? "struct"
+            : tps.HasReferenceTypeConstraint
+                ? (tps.ReferenceTypeConstraintNullableAnnotation == NullableAnnotation.Annotated ? "class?" : "class")
+                : tps.HasNotNullConstraint
+                    ? "notnull"
+                    : tps.HasUnmanagedTypeConstraint
+                        ? "unmanaged"
+                        : "";
+        var constructorConstraint = tps.HasConstructorConstraint ? "new()" : "";
+        var typeConstraints = tps.ConstraintTypes
+            .Zip(tps.ConstraintNullableAnnotations, ValueTuple.Create)
+            .Select(tuple =>
+                tuple.Item1.ToDisplayString(FullTypeWithNamespaceAndGenericsDisplayFormat)
+                + (tuple.Item2 == NullableAnnotation.Annotated ? "?" : ""));
+        var constraints = string.Join(
+            ", ",
+            typeConstraints.Prepend(primaryConstraint).Append(constructorConstraint)
+                .Where(x => !string.IsNullOrEmpty(x)));
+        if (string.IsNullOrEmpty(constraints))
+        {
+            return "";
+        }
+        var result = $" where {tps.Name} : {constraints}";
+        return result;
+    }
+
     public static string FormatTypeParameters(EquatableArray<string> typeParameters)
     {
         if (typeParameters.Length == 0)
@@ -189,11 +246,7 @@ public static class RoslynExtensions
     public static string GetFullTypeName(this SemanticModel semanticModel, SyntaxNode typeSyntax)
     {
         var typeInfo = semanticModel.GetTypeInfo(typeSyntax);
-        return typeInfo.Type?.ToDisplayString(
-            new SymbolDisplayFormat(
-                typeQualificationStyle: SymbolWrapper.FullTypeWithNamespaceDisplayFormat.TypeQualificationStyle
-            )
-        ) ?? typeSyntax.ToString();
+        return typeInfo.Type?.ToDisplayString(SymbolWrapper.FullTypeWithNamespaceDisplayFormat) ?? typeSyntax.ToString();
     }
 
     public static IEnumerable<INamedTypeSymbol> GetAllTypes(this INamespaceOrTypeSymbol root)
@@ -232,12 +285,19 @@ public static class RoslynExtensions
 
     public static ImmutableArray<string> ToEquatableModifiers(this SyntaxTokenList modifiers) => modifiers.Select(m => m.Text).ToImmutableArray();
 
-    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, Compilation compilation) =>
-        new(
+    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, Compilation compilation)
+    {
+        var semanticModel = compilation.GetSemanticModel(p.SyntaxTree);
+        var typeInfo = semanticModel.GetTypeInfo(p.Type!);
+        var annotation = p.Type is NullableTypeSyntax
+            ? NullableAnnotation.Annotated
+            : NullableAnnotation.NotAnnotated;
+        return new ParameterInfo(
             p.Identifier.Text,
             p.Modifiers.ToEquatableModifiers(),
-            compilation.GetSemanticModel(p.SyntaxTree).GetTypeInfo(p.Type!).Type!,
+            typeInfo.Type!.WithNullableAnnotation(annotation),
             p.Default?.ToString());
+    }
 
     public static PropertyOrFieldInfo ToPropertyOrFieldInfo(this MemberDeclarationSyntax m, Compilation compilation)
     {
@@ -337,7 +397,7 @@ public sealed record ParameterInfo
         Type = type;
         DefaultClause = defaultClause;
 
-        _typeName = Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        _typeName = Type.ToDisplayString(SymbolWrapper.FullTypeWithNamespaceAndGenericsDisplayFormat);
     }
 
     public override string ToString()

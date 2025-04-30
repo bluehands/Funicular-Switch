@@ -56,8 +56,6 @@ internal static class Parser
             .Where(tuple => tuple.Attribute is not null)
             .Select(tuple => (tuple.Type, tuple.Attribute!));
 
-    
-
     private static INamedTypeSymbol? TryGetErrorType(AttributeData? attribute, Action<Diagnostic> reportDiagnostics)
     {
         var typedConstant = attribute?.NamedArguments

@@ -8,17 +8,6 @@ namespace FunicularSwitch.Generators.FluentAssertions.FluentAssertionMethods;
 internal static class Generator
 {
     public const string TemplateNamespace = "FunicularSwitch.Generators.FluentAssertions.Templates";
-    private const string TemplateResultTypeName = "MyResult";
-    private const string TemplateErrorTypeName = "MyErrorType";
-    private const string TemplateUnionTypeName = "MyUnionType";
-    private const string TemplateDerivedUnionTypeName = "MyDerivedUnionType";
-    private const string TemplateResultAssertionsTypeName = "MyAssertions_Result";
-    private const string TemplateResultAssertionExtensions = "MyAssertionExtensions_Result";
-    private const string TemplateUnionTypeAssertionsTypeName = "MyAssertions_UnionType";
-    private const string TemplateUnionTypeAssertionExtensions = "MyAssertionExtensions_UnionType";
-    private const string TemplateUnionTypeTypeParameterList = "<TTypeParameters>";
-    private const string TemplateFriendlyDerivedUnionTypeName = "FriendlyDerivedUnionTypeName";
-    private const string TemplateAdditionalUsingDirectives = "//additional using directives";
 
     public static IEnumerable<(string filename, string source)> EmitForResultType(
         ResultTypeSchema resultTypeSchema,
@@ -27,37 +16,74 @@ internal static class Generator
     {
         var resultTypeNameFullName = resultTypeSchema.ResultType.FullTypeName().Replace('.', '_');
         var resultTypeFullNameWithNamespace = resultTypeSchema.ResultType.FullTypeNameWithNamespace();
+        var resultTypeFullNameWithGlobalNamespace = resultTypeSchema.ResultType.FullTypeNameWithNamespaceAndGenerics();
         var resultTypeNamespace = resultTypeSchema.ResultType.GetFullNamespace()!;
 
         var errorTypeNameFullName = resultTypeSchema.ErrorType?.FullTypeNameWithNamespace() ?? typeof(string).FullName;
 
         var generateFileHint = $"{resultTypeFullNameWithNamespace}";
 
-        string Replace(string code, params string[] additionalNamespaces)
-        {
-            code = code
-                .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")
-                .Replace(TemplateResultTypeName, resultTypeFullNameWithNamespace)
-                .Replace(TemplateErrorTypeName, errorTypeNameFullName)
-                .Replace(TemplateResultAssertionsTypeName, $"{resultTypeNameFullName}Assertions")
-                .Replace(TemplateResultAssertionExtensions, $"{resultTypeNameFullName}FluentAssertionExtensions")
-                .Replace(
-                    TemplateAdditionalUsingDirectives,
-                        additionalNamespaces
-                            .Append(resultTypeNamespace)
-                            .Distinct()
-                            .Select(a => $"using {a};")
-                            .ToSeparatedString("\n"));
-            return code;
-        }
+        var assertionsTypeName = $"{resultTypeNameFullName}Assertions";
+        var assertionsCode =
+            $$"""
+              #nullable enable
+              using FluentAssertions.Execution;
+              using FluentAssertions.Primitives;
+              using FluentAssertions;
+              using {{resultTypeNamespace}};
+              
+              namespace {{resultTypeNamespace}}
+              {
+                  internal partial class {{assertionsTypeName}}<T> : ObjectAssertions<{{resultTypeFullNameWithGlobalNamespace}}<T>, {{assertionsTypeName}}<T>>
+                  {
+                      public {{assertionsTypeName}}({{resultTypeFullNameWithGlobalNamespace}}<T> value) : base(value)
+                      {
+                      }
+                      
+                      public AndWhichConstraint<{{assertionsTypeName}}<T>, T> BeOk(string because = "", params object[] becauseArgs)
+                      {
+                          Execute.Assertion
+                              .ForCondition(this.Subject.IsOk)
+                              .BecauseOf(because, becauseArgs)
+                              .FailWith("Expected {context} to be Ok{reason}, but found {0}", this.Subject.ToString());
+                              
+                          return new(this, this.Subject.GetValueOrThrow());
+                      }
+                      
+                      public AndWhichConstraint<{{assertionsTypeName}}<T>, {{errorTypeNameFullName}}> BeError(string because = "", params object[] becauseArgs)
+                      {
+                          Execute.Assertion
+                              .ForCondition(this.Subject.IsError)
+                              .BecauseOf(because, becauseArgs)
+                              .FailWith("Expected {context} to be Error{reason}, but found {0}", this.Subject.ToString());
+                              
+                          return new(this, this.Subject.GetErrorOrDefault()!);
+                      }
+                  }
+              }
+              """;
+
+        var extensionCode =
+            $$"""
+              #nullable enable
+              using {{resultTypeNamespace}};
+
+              namespace {{resultTypeNamespace}}
+              {
+                  internal static class {{resultTypeNameFullName}}FluentAssertionExtensions
+                  {
+                      public static {{assertionsTypeName}}<T> Should<T>(this {{resultTypeFullNameWithGlobalNamespace}}<T> result) => new(result);
+                  }
+              }
+              """;
 
         yield return (
             $"{generateFileHint}Assertions.g.cs",
-            Replace(Templates.GenerateFluentAssertionsForTemplates.MyResultAssertions, resultTypeNamespace));
+            assertionsCode);
 
         yield return (
             $"{generateFileHint}FluentAssertionExtensions.g.cs",
-            Replace(Templates.GenerateFluentAssertionsForTemplates.MyResultFluentAssertionExtensions));
+            extensionCode);
     }
 
     public static IEnumerable<(string filename, string source)> EmitForUnionType(
@@ -70,50 +96,88 @@ internal static class Generator
         var unionTypeFullNameWithNamespaceAndGenerics = unionTypeSchema.UnionTypeBaseType.FullTypeNameWithNamespaceAndGenerics();
         EquatableArray<string> typeParameters = unionTypeSchema.UnionTypeBaseType.TypeParameters
             .Select(t => t.Name).ToImmutableArray();
+        EquatableArray<string> typeConstraints = unionTypeSchema.UnionTypeBaseType.TypeParameters
+            .Select(t => t.FormatTypeConstraints()).ToImmutableArray();
         var unionTypeNamespace = unionTypeSchema.UnionTypeBaseType.GetFullNamespace();
         var typeParametersText = RoslynExtensions.FormatTypeParameters(typeParameters);
 
         var generateFileHint = $"{unionTypeFullNameWithNamespace}{RoslynExtensions.FormatTypeParameterForFileName(typeParameters)}";
 
-        //var generatorRuns = RunCount.Increase(unionTypeSchema.UnionTypeBaseType.FullTypeNameWithNamespace());
-        
-        string Replace(string code, params string[] additionalNamespaces)
-        {
-            code = code
-                .Replace($"namespace {TemplateNamespace}", $"namespace {unionTypeNamespace}")
-                .Replace(TemplateUnionTypeName, unionTypeFullNameWithNamespaceAndGenerics)
-                .Replace($"public {TemplateUnionTypeAssertionsTypeName}(", $"public {unionTypeFullName}Assertions(")
-                .Replace(TemplateUnionTypeAssertionsTypeName, $"{unionTypeFullName}Assertions{typeParametersText}")
-                .Replace(TemplateUnionTypeAssertionExtensions, $"{unionTypeFullName}FluentAssertionExtensions")
-                .Replace(TemplateUnionTypeTypeParameterList, typeParametersText)
-                .Replace(
-                    TemplateAdditionalUsingDirectives,
-                    additionalNamespaces
-                        .Append(unionTypeNamespace)
-                        .Distinct()
-                        .Select(a => $"using {a};")
-                        .ToSeparatedString("\n"));
-            //code = $"//Generator runs: {generatorRuns}\r\n" + code;
+        var typeConstraintsText = string.Join("", typeConstraints);
+        var assertionsCode =
+            $$"""
+            #nullable enable
+            using FluentAssertions.Primitives;
+            using {{unionTypeNamespace}};
             
-            return code;
-        }
+            namespace {{unionTypeNamespace}}
+            {
+                internal partial class {{unionTypeFullName}}Assertions{{typeParametersText}} : ObjectAssertions<{{unionTypeFullNameWithNamespaceAndGenerics}}, {{unionTypeFullName}}Assertions{{typeParametersText}}>{{typeConstraintsText}}
+                {
+                    public {{unionTypeFullName}}Assertions({{unionTypeFullNameWithNamespaceAndGenerics}} value) : base(value)
+                    {
+                    
+                    }
+                }
+            }
+            """;
+        
+        var extensionsCode =
+            $$"""
+            #nullable enable
+            using {{unionTypeNamespace}};
+            
+            namespace {{unionTypeNamespace}}
+            {
+                internal static class {{unionTypeFullName}}FluentAssertionExtensions
+                {
+                    public static {{unionTypeFullName}}Assertions{{typeParametersText}} Should{{typeParametersText}}(this {{unionTypeFullNameWithNamespaceAndGenerics}} unionType){{typeConstraintsText}} => new(unionType);
+                }
+            }
+            """;
 
         yield return (
             $"{generateFileHint}Assertions.g.cs",
-            Replace(Templates.GenerateFluentAssertionsForTemplates.MyUnionTypeAssertions));
+            assertionsCode);
 
         yield return (
             $"{generateFileHint}FluentAssertionExtensions.g.cs",
-            Replace(Templates.GenerateFluentAssertionsForTemplates.MyUnionTypeFluentAssertionExtensions));
+            extensionsCode);
 
         foreach (var derivedType in unionTypeSchema.DerivedTypes)
         {
-            var derivedTypeFullNameWithNamespace = derivedType.FullTypeNameWithNamespaceAndGenerics();
+            var derivedTypeFullName = derivedType.FullTypeName();
+            var derivedTypeFullNameWithGlobalNamespace = derivedType.FullTypeNameWithNamespaceAndGenerics();
+            var friendlyDerivedUnionTypeName = derivedType.Name.Trim('_');
+            var derivedAssertionCode =
+                $$"""
+                #nullable enable
+                using FluentAssertions;
+                using FluentAssertions.Execution;
+                using {{unionTypeNamespace}};
+                
+                namespace {{unionTypeNamespace}}
+                {
+                    internal partial class {{unionTypeFullName}}Assertions{{typeParametersText}}
+                    {
+                        public AndWhichConstraint<{{unionTypeFullName}}Assertions{{typeParametersText}}, {{derivedTypeFullNameWithGlobalNamespace}}> Be{{friendlyDerivedUnionTypeName}}(
+                            string because = "",
+                            params object[] becauseArgs)
+                        {
+                            Execute.Assertion
+                                .ForCondition(this.Subject is {{derivedTypeFullNameWithGlobalNamespace}})
+                                .BecauseOf(because, becauseArgs)
+                                .FailWith("Expected {context} to be {{derivedTypeFullName}}{reason}, but found {0}",
+                                    this.Subject);
+                
+                            return new(this, (this.Subject as {{derivedTypeFullNameWithGlobalNamespace}})!);
+                        }
+                    }
+                }
+                """;
             yield return (
                 $"{generateFileHint}_Derived_{derivedType.Name}Assertions.g.cs",
-                Replace(Templates.GenerateFluentAssertionsForTemplates.MyDerivedUnionTypeAssertions)
-                    .Replace(TemplateDerivedUnionTypeName, derivedTypeFullNameWithNamespace)
-                    .Replace(TemplateFriendlyDerivedUnionTypeName, derivedType.Name.Trim('_')));
+                derivedAssertionCode);
         }
     }
 }

@@ -96,6 +96,13 @@ public static class Generator
             .Select(m => m == "public" ? (unionTypeSchema.IsInternal ? "internal" : "public") : m);
 
         builder.WriteLine($"{(actualModifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");
+        using (builder.Indent())
+        {
+            foreach (var constraint in unionTypeSchema.TypeConstraints)
+            {
+                builder.WriteLine(constraint);
+            }
+        }
         using (builder.Scope())
         {
             foreach (var derivedType in unionTypeSchema.Cases)
@@ -104,7 +111,7 @@ public static class Generator
                 var derivedTypeName = nameParts[nameParts.Length - 1];
                 var methodName = derivedType.StaticFactoryMethodName;
 
-                if ($"{unionTypeSchema.FullTypeNameWithTypeParameters}.{methodName}" == derivedType.FullTypeName) //union case is nested type without underscores, so factory method name would conflict with type name
+                if ($"{unionTypeSchema.FullTypeNameWithTypeParameters}.{methodName}" == $"global::{derivedType.FullTypeName}") //union case is nested type without underscores, so factory method name would conflict with type name
                     continue;
 
                 var constructors = derivedType.Constructors;
@@ -263,7 +270,9 @@ public static class Generator
         builder.WriteMethodSignature(
             modifiers: modifiers,
             returnType: returnType,
-            methodName: "Match<" + typeParameterList + ">", parameters: handlerParameters,
+            methodName: "Match<" + typeParameterList + ">",
+            parameters: handlerParameters,
+            typeConstraints: unionTypeSchema.TypeConstraints,
             lambda: true);
     }
 
@@ -293,6 +302,7 @@ public static class Generator
             returnType: returnType,
             methodName: VoidMatchMethodName + typeParameters,
             parameters: handlerParameters,
+            typeConstraints: unionTypeSchema.TypeConstraints,
             lambda: lambda);
     }
 }

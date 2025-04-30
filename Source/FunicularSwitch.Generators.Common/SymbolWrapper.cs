@@ -4,8 +4,14 @@ namespace FunicularSwitch.Generators.Common;
 
 public static class SymbolWrapper
 {
-    internal static readonly SymbolDisplayFormat FullTypeWithNamespaceDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
-    internal static readonly SymbolDisplayFormat FullTypeWithNamespaceAndGenericsDisplayFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces, genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters);
+    internal static readonly SymbolDisplayFormat FullTypeWithNamespaceDisplayFormat = new(
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+    internal static readonly SymbolDisplayFormat FullTypeWithNamespaceAndGenericsDisplayFormat = new(
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
+        miscellaneousOptions: SymbolDisplayMiscellaneousOptions.UseSpecialTypes | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier,
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included);
 
     public static SymbolWrapper<T> Create<T>(T symbol) where T : ISymbol => new(symbol);
 }
