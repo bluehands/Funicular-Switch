@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <VersionPrefix>0.0.1</VersionPrefix>
         <TargetFramework>netstandard2.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -8,11 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FunicularSwitch\FunicularSwitch.csproj" />
+        <ProjectReference Include="..\FunicularSwitch\FunicularSwitch.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3"/>
     </ItemGroup>
 
 </Project>
