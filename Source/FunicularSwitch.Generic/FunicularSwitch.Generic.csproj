@@ -30,4 +30,5 @@
         <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3"/>
     </ItemGroup>
 
+    <Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
 </Project>
