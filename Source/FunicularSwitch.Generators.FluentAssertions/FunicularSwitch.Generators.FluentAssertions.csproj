@@ -23,7 +23,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>1</MajorVersion>
-		<MinorAndPatchVersion>3.2</MinorAndPatchVersion>
+		<MinorAndPatchVersion>3.3</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
@@ -47,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-		<PackageReference Include="FluentAssertions" Version="7.2.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
 	</ItemGroup>
 

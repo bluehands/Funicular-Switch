@@ -283,7 +283,6 @@
       "funicularswitch.generators.fluentassertions": {
         "type": "Project",
         "dependencies": {
-          "FluentAssertions": "[7.2.0, )",
           "Microsoft.CodeAnalysis.CSharp": "[4.13.0, )"
         }
       },
