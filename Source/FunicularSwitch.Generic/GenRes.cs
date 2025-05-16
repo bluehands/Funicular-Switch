@@ -7,9 +7,9 @@ public readonly partial record struct GenOk<TOk>
     private Option<TOk> Value { get; }
 
     internal GenOk(TOk value) => Value = value;
-    
+
     [Pure]
-    public GenRes<TOk, TError>WithError<TError>() =>
+    public GenRes<TOk, TError> WithError<TError>() =>
         GenRes<TOk, TError>.Ok(Value.GetValueOrThrow());
 
     [Pure]
@@ -23,7 +23,7 @@ public readonly partial record struct GenOk<TOk>
         await bind(Value.GetValueOrThrow()).ConfigureAwait(false);
 
     #region LinqQueryExpressionInterop
-    
+
     [Pure]
     public GenRes<TOkReturn, TError> Select<TOkReturn, TError>(
         Func<TOk, TOkReturn> selector) => Bind(value => GenRes<TOkReturn, TError>.Ok(selector(value)));
@@ -88,9 +88,9 @@ public readonly partial record struct GenError<TError>
     private Option<TError> Value { get; }
 
     internal GenError(TError value) => Value = value;
-    
+
     [Pure]
-    public GenRes<TOk, TError>WithOk<TOk>() =>
+    public GenRes<TOk, TError> WithOk<TOk>() =>
         GenRes<TOk, TError>.Error(Value.GetValueOrThrow());
 }
 
@@ -98,13 +98,13 @@ public static partial class GenRes
 {
     [Pure]
     public static GenOk<TOk> Ok<TOk>(TOk value) => new(value);
-    
+
     [Pure]
     public static GenRes<TOk, TError> Ok<TOk, TError>(TOk value) => GenRes<TOk, TError>.Ok(value);
-    
+
     [Pure]
     public static GenError<TError> Error<TError>(TError error) => new(error);
-    
+
     [Pure]
     public static GenRes<TOk, TError> Error<TOk, TError>(TError error) => GenRes<TOk, TError>.Error(error);
 }
@@ -123,12 +123,13 @@ public readonly partial record struct GenRes<TOk, TError>
 
     [Pure]
     public static GenRes<TOk, TError> Ok(TOk value) => new(Option.Some(value), Option.None<TError>());
+
     [Pure]
     public static GenRes<TOk, TError> Error(TError error) => new(Option.None<TOk>(), Option.Some(error));
 
     [Pure]
     public static implicit operator GenRes<TOk, TError>(GenOk<TOk> ok) => ok.WithError<TError>();
-    
+
     [Pure]
     public static implicit operator GenRes<TOk, TError>(TOk value) => Ok(value);
 
@@ -154,24 +155,58 @@ public readonly partial record struct GenRes<TOk, TError>
 
     [Pure]
     public TOk GetValueOrThrow() => _value.GetValueOrThrow();
+
     [Pure]
     public TError GetErrorOrThrow() => _error.GetValueOrThrow();
 
 
     [Pure]
-    public TOk GetValueOrDefault(TOk defaultValue) => _value.GetValueOrDefault(defaultValue);
+    public TOk GetValueOrDefault(TOk defaultValue) =>
+        _value.GetValueOrDefault(defaultValue);
+
     [Pure]
-    public TOk GetValueOrDefault(Func<TOk> defaultValue) => _value.GetValueOrDefault(defaultValue);
+    public async Task<TOk> GetValueOrDefaultAsync(Task<TOk> defaultValue) =>
+        _value.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
+
     [Pure]
-    public Task<TOk> GetValueOrDefaultAsync(Func<Task<TOk>> defaultValue) => _value.GetValueOrDefault(defaultValue);
+    public async ValueTask<TOk> GetValueOrDefaultAsync(ValueTask<TOk> defaultValue) =>
+        _value.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
+
+    [Pure]
+    public TOk GetValueOrDefault(Func<TOk> defaultValue) =>
+        _value.GetValueOrDefault(defaultValue);
+
+    [Pure]
+    public Task<TOk> GetValueOrDefaultAsync(Func<Task<TOk>> defaultValue) =>
+        _value.GetValueOrDefault(defaultValue);
+
+    [Pure]
+    public ValueTask<TOk> GetValueOrDefaultAsync(Func<ValueTask<TOk>> defaultValue) =>
+        _value.GetValueOrDefault(defaultValue);
 
 
     [Pure]
-    public TError GetErrorOrDefault(TError defaultValue) => _error.GetValueOrDefault(defaultValue);
+    public TError GetErrorOrDefault(TError defaultValue) =>
+        _error.GetValueOrDefault(defaultValue);
+
     [Pure]
-    public TError GetErrorOrDefault(Func<TError> defaultValue) => _error.GetValueOrDefault(defaultValue);
+    public async Task<TError> GetErrorOrDefaultAsync(Task<TError> defaultValue) =>
+        _error.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
+
+    [Pure]
+    public async ValueTask<TError> GetErrorOrDefaultAsync(ValueTask<TError> defaultValue) =>
+        _error.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
+
+    [Pure]
+    public TError GetErrorOrDefault(Func<TError> defaultValue) =>
+        _error.GetValueOrDefault(defaultValue);
+
     [Pure]
     public Task<TError> GetErrorOrDefaultAsync(Func<Task<TError>> defaultValue) =>
+        _error.GetValueOrDefault(defaultValue);
+
+    [Pure]
+    public ValueTask<TError> GetErrorOrDefaultAsync(Func<ValueTask<TError>> defaultValue) =>
         _error.GetValueOrDefault(defaultValue);
 
 
@@ -179,8 +214,10 @@ public readonly partial record struct GenRes<TOk, TError>
 
     [Pure]
     public Option<TOk> ToOption() => _value;
+
     [Pure]
     public Option<TError> ToErrorOption() => _error;
+
     [Pure]
     public (Option<TOk>, Option<TError>) ToOptions() => (_value, _error);
 
@@ -190,6 +227,9 @@ public readonly partial record struct GenRes<TOk, TError>
     [Pure]
     public Task<GenRes<TOk, TError>> ToTask() => Task.FromResult(this);
 
+    [Pure]
+    public ValueTask<GenRes<TOk, TError>> ToValueTask() => new(this);
+
 
     [Pure]
     public GenRes<TOk, TError> Do(Action<TOk> action)
@@ -197,14 +237,21 @@ public readonly partial record struct GenRes<TOk, TError>
         if (IsOk()) action(GetValueOrThrow());
         return this;
     }
-    
+
     [Pure]
     public async Task<GenRes<TOk, TError>> DoAsync(Func<TOk, Task> action)
     {
         if (IsOk()) await action(GetValueOrThrow());
         return this;
     }
-    
+
+    [Pure]
+    public async ValueTask<GenRes<TOk, TError>> DoAsync(Func<TOk, ValueTask> action)
+    {
+        if (IsOk()) await action(GetValueOrThrow());
+        return this;
+    }
+
     [Pure]
     public GenRes<TOk, TError> DoOnError(Action<TError> action)
     {
@@ -219,6 +266,14 @@ public readonly partial record struct GenRes<TOk, TError>
         return this;
     }
 
+    [Pure]
+    public async ValueTask<GenRes<TOk, TError>> DoOnErrorAsync(Func<TError, ValueTask> action)
+    {
+        if (IsError()) await action(GetErrorOrThrow());
+        return this;
+    }
+
+    #region Match
 
     [Pure]
     public TReturn Match<TReturn>(
@@ -253,6 +308,34 @@ public readonly partial record struct GenRes<TOk, TError>
             : await error(GetErrorOrThrow()).ConfigureAwait(false);
 
     [Pure]
+    public async ValueTask<TReturn> Match<TReturn>(
+        Func<TOk, ValueTask<TReturn>> ok,
+        Func<TError, TReturn> error) =>
+        IsOk()
+            ? await ok(GetValueOrThrow()).ConfigureAwait(false)
+            : error(GetErrorOrThrow());
+
+    [Pure]
+    public async ValueTask<TReturn> Match<TReturn>(
+        Func<TOk, TReturn> ok,
+        Func<TError, ValueTask<TReturn>> error) =>
+        IsOk()
+            ? ok(GetValueOrThrow())
+            : await error(GetErrorOrThrow()).ConfigureAwait(false);
+
+    [Pure]
+    public async ValueTask<TReturn> Match<TReturn>(
+        Func<TOk, ValueTask<TReturn>> ok,
+        Func<TError, ValueTask<TReturn>> error) =>
+        IsOk()
+            ? await ok(GetValueOrThrow()).ConfigureAwait(false)
+            : await error(GetErrorOrThrow()).ConfigureAwait(false);
+
+    #endregion
+
+    #region Bind
+
+    [Pure]
     public GenRes<TOkReturn, TError> Bind<TOkReturn>(
         Func<TOk, GenRes<TOkReturn, TError>> bind) =>
         IsOk()
@@ -265,6 +348,18 @@ public readonly partial record struct GenRes<TOk, TError>
         IsOk()
             ? await bind(GetValueOrThrow()).ConfigureAwait(false)
             : GenRes<TOkReturn, TError>.Error(GetErrorOrThrow());
+
+    [Pure]
+    public async ValueTask<GenRes<TOkReturn, TError>> Bind<TOkReturn>(
+        Func<TOk, ValueTask<GenRes<TOkReturn, TError>>> bind) =>
+        IsOk()
+            ? await bind(GetValueOrThrow()).ConfigureAwait(false)
+            : GenRes<TOkReturn, TError>.Error(GetErrorOrThrow());
+
+    #endregion
+
+
+    #region Map
 
     [Pure]
     public GenRes<TOkReturn, TError> Map<TOkReturn>(
@@ -281,6 +376,18 @@ public readonly partial record struct GenRes<TOk, TError>
             : GenRes<TOkReturn, TError>.Error(GetErrorOrThrow());
 
     [Pure]
+    public async ValueTask<GenRes<TOkReturn, TError>> Map<TOkReturn>(
+        Func<TOk, ValueTask<TOkReturn>> map) =>
+        IsOk()
+            ? GenRes<TOkReturn, TError>.Ok(await map(GetValueOrThrow()).ConfigureAwait(false))
+            : GenRes<TOkReturn, TError>.Error(GetErrorOrThrow());
+
+    #endregion
+
+
+    #region MapError
+
+    [Pure]
     public GenRes<TOk, TErrorReturn> MapError<TErrorReturn>(
         Func<TError, TErrorReturn> map) =>
         IsOk()
@@ -293,6 +400,16 @@ public readonly partial record struct GenRes<TOk, TError>
         IsOk()
             ? GenRes<TOk, TErrorReturn>.Ok(GetValueOrThrow())
             : GenRes<TOk, TErrorReturn>.Error(await map(GetErrorOrThrow()).ConfigureAwait(false));
+
+    [Pure]
+    public async ValueTask<GenRes<TOk, TErrorReturn>> MapError<TErrorReturn>(
+        Func<TError, ValueTask<TErrorReturn>> map) =>
+        IsOk()
+            ? GenRes<TOk, TErrorReturn>.Ok(GetValueOrThrow())
+            : GenRes<TOk, TErrorReturn>.Error(await map(GetErrorOrThrow()).ConfigureAwait(false));
+
+    #endregion
+
 
     [Pure]
     public GenRes<TOkReturn, TError> Select<TOkReturn>(
@@ -360,5 +477,51 @@ public readonly partial record struct GenRes<TOk, TError>
             return GenRes<TSelect, TError>.Error(intermediateResult.GetErrorOrThrow());
         var intermediateValue = intermediateResult.GetValueOrThrow();
         return GenRes<TSelect, TError>.Ok(await resultSelector(okValue, intermediateValue));
+    }
+
+    [Pure]
+    public ValueTask<GenRes<TOkReturn, TError>> SelectMany<TOkReturn>(
+        Func<TOk, ValueTask<GenRes<TOkReturn, TError>>> selector) => Bind(selector);
+
+    [Pure]
+    public async ValueTask<GenRes<TSelect, TError>> SelectMany<TOkReturn, TSelect>(
+        Func<TOk, ValueTask<GenRes<TOkReturn, TError>>> selector,
+        Func<TOk, TOkReturn, TSelect> resultSelector)
+    {
+        if (IsError()) return GenRes<TSelect, TError>.Error(GetErrorOrThrow());
+        var okValue = GetValueOrThrow();
+        var intermediateResult = await selector(okValue).ConfigureAwait(false);
+        if (intermediateResult.IsError())
+            return GenRes<TSelect, TError>.Error(intermediateResult.GetErrorOrThrow());
+        var intermediateValue = intermediateResult.GetValueOrThrow();
+        return GenRes<TSelect, TError>.Ok(resultSelector(okValue, intermediateValue));
+    }
+
+    [Pure]
+    public async ValueTask<GenRes<TSelect, TError>> SelectMany<TOkReturn, TSelect>(
+        Func<TOk, GenRes<TOkReturn, TError>> selector,
+        Func<TOk, TOkReturn, ValueTask<TSelect>> resultSelector)
+    {
+        if (IsError()) return GenRes<TSelect, TError>.Error(GetErrorOrThrow());
+        var okValue = GetValueOrThrow();
+        var intermediateResult = selector(okValue);
+        if (intermediateResult.IsError())
+            return GenRes<TSelect, TError>.Error(intermediateResult.GetErrorOrThrow());
+        var intermediateValue = intermediateResult.GetValueOrThrow();
+        return GenRes<TSelect, TError>.Ok(await resultSelector(okValue, intermediateValue).ConfigureAwait(false));
+    }
+
+    [Pure]
+    public async ValueTask<GenRes<TSelect, TError>> SelectMany<TOkReturn, TSelect>(
+        Func<TOk, ValueTask<GenRes<TOkReturn, TError>>> selector,
+        Func<TOk, TOkReturn, ValueTask<TSelect>> resultSelector)
+    {
+        if (IsError()) return GenRes<TSelect, TError>.Error(GetErrorOrThrow());
+        var okValue = GetValueOrThrow();
+        var intermediateResult = await selector(okValue).ConfigureAwait(false);
+        if (intermediateResult.IsError())
+            return GenRes<TSelect, TError>.Error(intermediateResult.GetErrorOrThrow());
+        var intermediateValue = intermediateResult.GetValueOrThrow();
+        return GenRes<TSelect, TError>.Ok(await resultSelector(okValue, intermediateValue).ConfigureAwait(false));
     }
 }

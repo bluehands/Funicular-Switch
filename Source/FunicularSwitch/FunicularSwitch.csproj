@@ -68,6 +68,10 @@
   some other tool. -->
 		<Compile Remove="$(CompilerGeneratedFilesOutputPath)/*/**/*.cs" />
 	</ItemGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3"/>
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\FunicularSwitch.Generators\FunicularSwitch.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />

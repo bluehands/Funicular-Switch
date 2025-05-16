@@ -113,6 +113,9 @@ namespace FunicularSwitch
 
         public async Task<T> GetValueOrDefault(Func<Task<T>> defaultValue) =>
             _isSome ? _value : await defaultValue().ConfigureAwait(false);
+        
+        public async ValueTask<T> GetValueOrDefault(Func<ValueTask<T>> defaultValue) =>
+            _isSome ? _value : await defaultValue().ConfigureAwait(false);
 
         public T GetValueOrDefault(T defaultValue) => Match(v => v, () => defaultValue);
 
