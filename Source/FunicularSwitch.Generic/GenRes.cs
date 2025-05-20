@@ -22,6 +22,11 @@ public readonly partial record struct GenOk<TOk>
         Func<TOk, Task<GenRes<TOkReturn, TError>>> bind) =>
         await bind(Value.GetValueOrThrow()).ConfigureAwait(false);
 
+    [Pure]
+    public async ValueTask<GenRes<TOkReturn, TError>> BindAsync<TOkReturn, TError>(
+        Func<TOk, ValueTask<GenRes<TOkReturn, TError>>> bind) =>
+        await bind(Value.GetValueOrThrow()).ConfigureAwait(false);
+
     #region LinqQueryExpressionInterop
 
     [Pure]
@@ -72,6 +77,42 @@ public readonly partial record struct GenOk<TOk>
     public async Task<GenRes<TOkReturn, TError>> SelectMany<TOkReturn, TOkSelectReturn, TError>(
         Func<TOk, Task<GenRes<TOkSelectReturn, TError>>> selector,
         Func<TOk, TOkSelectReturn, Task<TOkReturn>> resultSelector)
+    {
+        var intermediateResult = await selector(Value.GetValueOrThrow()).ConfigureAwait(false);
+        if (intermediateResult.IsError())
+            return GenRes<TOkReturn, TError>.Error(intermediateResult.GetErrorOrThrow());
+        var intermediateValue = intermediateResult.GetValueOrThrow();
+        return GenRes<TOkReturn, TError>.Ok(await resultSelector(Value.GetValueOrThrow(), intermediateValue).ConfigureAwait(false));
+    }
+
+    [Pure]
+    public async ValueTask<GenRes<TOkReturn, TError>> SelectMany<TOkReturn, TOkSelectReturn, TError>(
+        Func<TOk, ValueTask<GenRes<TOkSelectReturn, TError>>> selector,
+        Func<TOk, TOkSelectReturn, TOkReturn> resultSelector)
+    {
+        var intermediateResult = await selector(Value.GetValueOrThrow()).ConfigureAwait(false);
+        if (intermediateResult.IsError())
+            return GenRes<TOkReturn, TError>.Error(intermediateResult.GetErrorOrThrow());
+        var intermediateValue = intermediateResult.GetValueOrThrow();
+        return GenRes<TOkReturn, TError>.Ok(resultSelector(Value.GetValueOrThrow(), intermediateValue));
+    }
+
+    [Pure]
+    public async ValueTask<GenRes<TOkReturn, TError>> SelectMany<TOkReturn, TOkSelectReturn, TError>(
+        Func<TOk, GenRes<TOkSelectReturn, TError>> selector,
+        Func<TOk, TOkSelectReturn, ValueTask<TOkReturn>> resultSelector)
+    {
+        var intermediateResult = selector(Value.GetValueOrThrow());
+        if (intermediateResult.IsError())
+            return GenRes<TOkReturn, TError>.Error(intermediateResult.GetErrorOrThrow());
+        var intermediateValue = intermediateResult.GetValueOrThrow();
+        return GenRes<TOkReturn, TError>.Ok(await resultSelector(Value.GetValueOrThrow(), intermediateValue).ConfigureAwait(false));
+    }
+
+    [Pure]
+    public async ValueTask<GenRes<TOkReturn, TError>> SelectMany<TOkReturn, TOkSelectReturn, TError>(
+        Func<TOk, ValueTask<GenRes<TOkSelectReturn, TError>>> selector,
+        Func<TOk, TOkSelectReturn, ValueTask<TOkReturn>> resultSelector)
     {
         var intermediateResult = await selector(Value.GetValueOrThrow()).ConfigureAwait(false);
         if (intermediateResult.IsError())
