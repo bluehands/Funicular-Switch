@@ -3,11 +3,11 @@ using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 
-namespace FunicularSwitch.Generators.FluentAssertions.FluentAssertionMethods;
+namespace FunicularSwitch.Generators.AwesomeAssertions.AssertionMethods;
 
 internal static class Generator
 {
-    public const string TemplateNamespace = "FunicularSwitch.Generators.FluentAssertions.Templates";
+    public const string TemplateNamespace = "FunicularSwitch.Generators.AwesomeAssertions.Templates";
 
     public static IEnumerable<(string filename, string source)> EmitForResultType(
         ResultTypeSchema resultTypeSchema,
@@ -27,22 +27,22 @@ internal static class Generator
         var assertionsCode =
             $$"""
               #nullable enable
-              using FluentAssertions.Execution;
-              using FluentAssertions.Primitives;
-              using FluentAssertions;
+              using AwesomeAssertions.Execution;
+              using AwesomeAssertions.Primitives;
+              using AwesomeAssertions;
               using {{resultTypeNamespace}};
               
               namespace {{resultTypeNamespace}}
               {
                   internal partial class {{assertionsTypeName}}<T> : ObjectAssertions<{{resultTypeFullNameWithGlobalNamespace}}<T>, {{assertionsTypeName}}<T>>
                   {
-                      public {{assertionsTypeName}}({{resultTypeFullNameWithGlobalNamespace}}<T> value) : base(value)
+                      public {{assertionsTypeName}}({{resultTypeFullNameWithGlobalNamespace}}<T> value) : base(value, AssertionChain.GetOrCreate())
                       {
                       }
                       
                       public AndWhichConstraint<{{assertionsTypeName}}<T>, T> BeOk(string because = "", params object[] becauseArgs)
                       {
-                          Execute.Assertion
+                          CurrentAssertionChain
                               .ForCondition(this.Subject.IsOk)
                               .BecauseOf(because, becauseArgs)
                               .FailWith("Expected {context} to be Ok{reason}, but found {0}", this.Subject.ToString());
@@ -52,7 +52,7 @@ internal static class Generator
                       
                       public AndWhichConstraint<{{assertionsTypeName}}<T>, {{errorTypeNameFullName}}> BeError(string because = "", params object[] becauseArgs)
                       {
-                          Execute.Assertion
+                          CurrentAssertionChain
                               .ForCondition(this.Subject.IsError)
                               .BecauseOf(because, becauseArgs)
                               .FailWith("Expected {context} to be Error{reason}, but found {0}", this.Subject.ToString());
@@ -70,7 +70,7 @@ internal static class Generator
 
               namespace {{resultTypeNamespace}}
               {
-                  internal static class {{resultTypeNameFullName}}FluentAssertionExtensions
+                  internal static class {{resultTypeNameFullName}}AwesomeAssertionExtensions
                   {
                       public static {{assertionsTypeName}}<T> Should<T>(this {{resultTypeFullNameWithGlobalNamespace}}<T> result) => new(result);
                   }
@@ -82,7 +82,7 @@ internal static class Generator
             assertionsCode);
 
         yield return (
-            $"{generateFileHint}FluentAssertionExtensions.g.cs",
+            $"{generateFileHint}AwesomeAssertionExtensions.g.cs",
             extensionCode);
     }
 
@@ -107,14 +107,15 @@ internal static class Generator
         var assertionsCode =
             $$"""
             #nullable enable
-            using FluentAssertions.Primitives;
+            using AwesomeAssertions.Primitives;
+            using AwesomeAssertions.Execution;
             using {{unionTypeNamespace}};
             
             namespace {{unionTypeNamespace}}
             {
                 internal partial class {{unionTypeFullName}}Assertions{{typeParametersText}} : ObjectAssertions<{{unionTypeFullNameWithNamespaceAndGenerics}}, {{unionTypeFullName}}Assertions{{typeParametersText}}>{{typeConstraintsText}}
                 {
-                    public {{unionTypeFullName}}Assertions({{unionTypeFullNameWithNamespaceAndGenerics}} value) : base(value)
+                    public {{unionTypeFullName}}Assertions({{unionTypeFullNameWithNamespaceAndGenerics}} value) : base(value, AssertionChain.GetOrCreate())
                     {
                     
                     }
@@ -129,7 +130,7 @@ internal static class Generator
             
             namespace {{unionTypeNamespace}}
             {
-                internal static class {{unionTypeFullName}}FluentAssertionExtensions
+                internal static class {{unionTypeFullName}}AwesomeAssertionExtensions
                 {
                     public static {{unionTypeFullName}}Assertions{{typeParametersText}} Should{{typeParametersText}}(this {{unionTypeFullNameWithNamespaceAndGenerics}} unionType){{typeConstraintsText}} => new(unionType);
                 }
@@ -141,7 +142,7 @@ internal static class Generator
             assertionsCode);
 
         yield return (
-            $"{generateFileHint}FluentAssertionExtensions.g.cs",
+            $"{generateFileHint}AwesomeAssertionExtensions.g.cs",
             extensionsCode);
 
         foreach (var derivedType in unionTypeSchema.DerivedTypes)
@@ -152,8 +153,8 @@ internal static class Generator
             var derivedAssertionCode =
                 $$"""
                 #nullable enable
-                using FluentAssertions;
-                using FluentAssertions.Execution;
+                using AwesomeAssertions;
+                using AwesomeAssertions.Execution;
                 using {{unionTypeNamespace}};
                 
                 namespace {{unionTypeNamespace}}
@@ -164,7 +165,7 @@ internal static class Generator
                             string because = "",
                             params object[] becauseArgs)
                         {
-                            Execute.Assertion
+                            CurrentAssertionChain
                                 .ForCondition(this.Subject is {{derivedTypeFullNameWithGlobalNamespace}})
                                 .BecauseOf(because, becauseArgs)
                                 .FailWith("Expected {context} to be {{derivedTypeFullName}}{reason}, but found {0}",

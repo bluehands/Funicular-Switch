@@ -11,7 +11,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="FluentAssertions" Version="7.2.0" />
+	  <PackageReference Include="AwesomeAssertions" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,5 +1,5 @@
 ﻿#nullable enable
-namespace FunicularSwitch.Generators.FluentAssertions.Templates
+namespace FunicularSwitch.Generators.AwesomeAssertions.Templates
 {
     public abstract class MyErrorType
     {

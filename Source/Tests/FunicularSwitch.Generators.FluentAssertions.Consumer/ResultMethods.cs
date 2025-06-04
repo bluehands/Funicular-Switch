@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+﻿using AwesomeAssertions;
 using FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency;
 using Xunit.Sdk;
 

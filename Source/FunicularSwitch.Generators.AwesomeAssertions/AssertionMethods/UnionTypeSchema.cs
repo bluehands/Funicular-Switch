@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace FunicularSwitch.Generators.FluentAssertions.FluentAssertionMethods;
+namespace FunicularSwitch.Generators.AwesomeAssertions.AssertionMethods;
 
 public record UnionTypeSchema(
     INamedTypeSymbol UnionTypeBaseType,

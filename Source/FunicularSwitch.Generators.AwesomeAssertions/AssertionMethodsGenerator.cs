@@ -1,25 +1,25 @@
-﻿using FunicularSwitch.Generators.Common;
-using FunicularSwitch.Generators.FluentAssertions.FluentAssertionMethods;
+﻿using FunicularSwitch.Generators.AwesomeAssertions.AssertionMethods;
+using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace FunicularSwitch.Generators.FluentAssertions;
+namespace FunicularSwitch.Generators.AwesomeAssertions;
 
 [Generator]
-public class FluentAssertionMethodsGenerator : IIncrementalGenerator
+public class AssertionMethodsGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
         {
-            const string funicularSwitchFluentAssertionsNamespace = "FunicularSwitch";
+            const string funicularSwitchAssertionsNamespace = "FunicularSwitch";
     
-            var optionAssertionsText = Templates.GenerateFluentAssertionsForTemplates.OptionAssertions.Replace(Generator.TemplateNamespace, funicularSwitchFluentAssertionsNamespace);
-            ctx.AddSource($"{funicularSwitchFluentAssertionsNamespace}.OptionAssertions.g.cs", optionAssertionsText);
-            var optionAssertionExtensionsText = Templates.GenerateFluentAssertionsForTemplates.OptionAssertionExtensions.Replace(Generator.TemplateNamespace, funicularSwitchFluentAssertionsNamespace);
-            ctx.AddSource($"{funicularSwitchFluentAssertionsNamespace}.OptionAssertionExtensions.g.cs", optionAssertionExtensionsText);
-            var generateExtensionsForInternalTypeAttributesText = Templates.GenerateFluentAssertionsForTemplates.GenerateExtensionsForInternalTypesAttribute.Replace(Generator.TemplateNamespace, funicularSwitchFluentAssertionsNamespace);
-            ctx.AddSource($"{funicularSwitchFluentAssertionsNamespace}.GenerateExtensionsForInternalTypesAttribute.g.cs", generateExtensionsForInternalTypeAttributesText);
+            var optionAssertionsText = Templates.GenerateAssertionsForTemplates.OptionAssertions.Replace(Generator.TemplateNamespace, funicularSwitchAssertionsNamespace);
+            ctx.AddSource($"{funicularSwitchAssertionsNamespace}.OptionAssertions.g.cs", optionAssertionsText);
+            var optionAssertionExtensionsText = Templates.GenerateAssertionsForTemplates.OptionAssertionExtensions.Replace(Generator.TemplateNamespace, funicularSwitchAssertionsNamespace);
+            ctx.AddSource($"{funicularSwitchAssertionsNamespace}.OptionAssertionExtensions.g.cs", optionAssertionExtensionsText);
+            var generateExtensionsForInternalTypeAttributesText = Templates.GenerateAssertionsForTemplates.GenerateExtensionsForInternalTypesAttribute.Replace(Generator.TemplateNamespace, funicularSwitchAssertionsNamespace);
+            ctx.AddSource($"{funicularSwitchAssertionsNamespace}.GenerateExtensionsForInternalTypesAttribute.g.cs", generateExtensionsForInternalTypeAttributesText);
         });
 
         var refAssemblies = context.CompilationProvider

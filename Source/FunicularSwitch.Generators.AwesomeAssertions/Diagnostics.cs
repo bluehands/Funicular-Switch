@@ -1,10 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace FunicularSwitch.Generators.FluentAssertions;
+namespace FunicularSwitch.Generators.AwesomeAssertions;
 
 static class Diagnostics
 {
-    const string Category = nameof(FluentAssertionMethodsGenerator);
+    const string Category = nameof(AssertionMethodsGenerator);
 
     public static Diagnostic InavlidGenerateMethodsForUsage(string message, Location location) =>
         Create(location,

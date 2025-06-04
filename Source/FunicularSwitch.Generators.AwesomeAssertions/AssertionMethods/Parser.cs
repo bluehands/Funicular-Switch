@@ -1,7 +1,7 @@
 ﻿using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 
-namespace FunicularSwitch.Generators.FluentAssertions.FluentAssertionMethods;
+namespace FunicularSwitch.Generators.AwesomeAssertions.AssertionMethods;
 
 internal static class Parser
 {

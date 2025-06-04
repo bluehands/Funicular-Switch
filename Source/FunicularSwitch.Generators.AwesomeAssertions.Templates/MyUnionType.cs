@@ -1,5 +1,5 @@
 ﻿#nullable enable
-namespace FunicularSwitch.Generators.FluentAssertions.Templates
+namespace FunicularSwitch.Generators.AwesomeAssertions.Templates
 {
     [UnionType(CaseOrder = CaseOrder.AsDeclared)]
     public abstract partial record MyUnionType

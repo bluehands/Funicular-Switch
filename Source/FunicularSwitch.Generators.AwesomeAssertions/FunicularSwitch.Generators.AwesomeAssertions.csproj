@@ -30,10 +30,10 @@
 		<Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
 		<FileVersion>$(Version)</FileVersion>
 		<PackageVersion>$(Version)</PackageVersion>
-		<PackageId>FunicularSwitch.Generators.FluentAssertions</PackageId>
+		<PackageId>FunicularSwitch.Generators.AwesomeAssertions</PackageId>
 
 		<!-- Descriptions and information-->
-		<Titel>FunicularSwitch.Generators.FluentAssertions</Titel>
+		<Titel>FunicularSwitch.Generators.AwesomeAssertions</Titel>
 		<PackageDescription>Source generator emitting unit testing methods for result types</PackageDescription>
 		<PackageIcon>FunicularSwitch.png</PackageIcon>
 		<PackageTags>F# Result, Result, Match, UnionTypes, Map, Bind, Railway oriented programming, Railway oriented, Railway, Source Generator</PackageTags>
@@ -41,13 +41,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\OptionAssertions.cs" Link="Templates\OptionAssertions.cs" />
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\OptionAssertionExtensions.cs" Link="Templates\OptionAssertionExtensions.cs" />
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.FluentAssertions.Templates\GenerateExtensionsForInternalTypesAttribute.cs" Link="Templates\GenerateExtensionsForInternalTypesAttribute.cs" />
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.AwesomeAssertions.Templates\GenerateExtensionsForInternalTypesAttribute.cs">
+		  <Link>Templates\GenerateExtensionsForInternalTypesAttribute.cs</Link>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.AwesomeAssertions.Templates\OptionAssertionExtensions.cs">
+		  <Link>Templates\OptionAssertionExtensions.cs</Link>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.AwesomeAssertions.Templates\OptionAssertions.cs">
+		  <Link>Templates\OptionAssertions.cs</Link>
+		</EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
-		<PackageReference Include="FluentAssertions" Version="7.2.0" />
+		<PackageReference Include="AwesomeAssertions" Version="9.0.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
 	</ItemGroup>
 

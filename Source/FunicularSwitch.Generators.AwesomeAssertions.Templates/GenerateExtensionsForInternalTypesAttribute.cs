@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace FunicularSwitch.Generators.FluentAssertions.Templates;
+namespace FunicularSwitch.Generators.AwesomeAssertions.Templates;
 
 [AttributeUsage(validOn: AttributeTargets.Assembly, AllowMultiple = true)]
 public class GenerateExtensionsForInternalTypesAttribute : Attribute

@@ -1,11 +1,11 @@
-﻿namespace FunicularSwitch.Generators.FluentAssertions.Templates;
+﻿namespace FunicularSwitch.Generators.AwesomeAssertions.Templates;
 
-internal class GenerateFluentAssertionsForTemplates
+internal class GenerateAssertionsForTemplates
 {
-    public static string MyResultFluentAssertionExtensions =>
+    public static string MyResultAssertionExtensions =>
         Resources.ReadResource($"MyAssertionExtensions_Result.cs");
     public static string MyResultAssertions => Resources.ReadResource($"MyAssertions_Result.cs");
-    public static string MyUnionTypeFluentAssertionExtensions =>
+    public static string MyUnionTypeAssertionExtensions =>
         Resources.ReadResource($"MyAssertionExtensions_UnionType.cs");
     public static string MyUnionTypeAssertions => Resources.ReadResource($"MyAssertions_UnionType.cs");
     public static string MyDerivedUnionTypeAssertions => Resources.ReadResource("MyUnionTypeAssertions_DerivedUnionType.cs");
@@ -16,12 +16,12 @@ internal class GenerateFluentAssertionsForTemplates
 
 internal static class Resources
 {
-    private static readonly string Namespace = $"{typeof(GenerateFluentAssertionsForTemplates).Namespace}";
+    private static readonly string Namespace = $"{typeof(GenerateAssertionsForTemplates).Namespace}";
 
     public static string ReadResource(string filename)
     {
         var resourcePath = $"{Namespace}.{filename}";
-        using var stream = typeof(GenerateFluentAssertionsForTemplates).Assembly.GetManifestResourceStream(resourcePath);
+        using var stream = typeof(GenerateAssertionsForTemplates).Assembly.GetManifestResourceStream(resourcePath);
         using var reader = new StreamReader(stream!);
         return reader.ReadToEnd();
     }

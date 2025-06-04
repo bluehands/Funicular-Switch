@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="7.2.0" />
+    <PackageReference Include="AwesomeAssertions" Version="9.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\..\FunicularSwitch.Generators.FluentAssertions\FunicularSwitch.Generators.FluentAssertions.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	  <ProjectReference Include="..\..\FunicularSwitch.Generators.AwesomeAssertions\FunicularSwitch.Generators.AwesomeAssertions.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\FunicularSwitch\FunicularSwitch.csproj" />
     <ProjectReference Include="..\FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency\FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.csproj" />
   </ItemGroup>

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using FluentAssertions;
+using AwesomeAssertions;
+using FunicularSwitch.Generators.AwesomeAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -21,7 +22,7 @@ public abstract class VerifySourceGenerator : VerifyBase
             {
                 typeof(object).Assembly,
                 typeof(Enumerable).Assembly,
-                typeof(global::FluentAssertions.AssertionOptions).Assembly,
+                typeof(global::AwesomeAssertions.AssertionExtensions).Assembly,
             }
             .Concat(assemblies)
             .Select(a => MetadataReference.CreateFromFile(a.Location))
@@ -37,7 +38,7 @@ public abstract class VerifySourceGenerator : VerifyBase
             references: references,
             options: new(OutputKind.DynamicallyLinkedLibrary));
 
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(new FluentAssertionMethodsGenerator());
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(new AssertionMethodsGenerator());
 
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var updatedCompilation, out var diagnostics);
 
