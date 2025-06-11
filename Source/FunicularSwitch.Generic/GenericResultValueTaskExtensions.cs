@@ -2,7 +2,7 @@ using System.Diagnostics.Contracts;
 
 namespace FunicularSwitch.Generic;
 
-public static class GenResValueTaskExtensions
+public static class GenericResultValueTaskExtensions
 {
     [Pure]
     public static async ValueTask<bool> IsOk<TOk, TError>(

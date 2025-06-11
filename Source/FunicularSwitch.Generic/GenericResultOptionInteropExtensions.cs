@@ -2,7 +2,7 @@ using System.Diagnostics.Contracts;
 
 namespace FunicularSwitch.Generic;
 
-public static class GenResOptionInteropExtensions
+public static class GenericResultOptionInteropExtensions
 {
     [Pure]
     public static GenericResult<TOk, TError> ToGenRes<TOk, TError>(
