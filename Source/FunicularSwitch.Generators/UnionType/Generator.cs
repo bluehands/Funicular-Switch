@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -17,6 +16,7 @@ public static class Generator
     {
         var builder = new CSharpBuilder();
         builder.WriteLine("#pragma warning disable 1591");
+        builder.WriteLine("#nullable enable");
 
         //builder.WriteLine($"//Generator runs: {RunCount.Increase(unionTypeSchema.FullTypeName)}");
 
@@ -35,7 +35,7 @@ public static class Generator
         return (unionTypeSchema.FullTypeName.ToMatchExtensionFilename(unionTypeSchema.TypeParameters), builder.ToString());
     }
 
-    private static void WriteMatchExtension(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
+    static void WriteMatchExtension(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
     {
         using (builder.StaticPartialClass($"{unionTypeSchema.TypeName.Replace(".", "_")}MatchExtension",
                    unionTypeSchema.IsInternal ? "internal" : "public"))
@@ -49,7 +49,7 @@ public static class Generator
             void WriteBodyForAsyncTaskExtension(string matchMethodName) => builder.WriteLine(
                 $"await (await {thisTaskParameter.Name}.ConfigureAwait(false)).{matchMethodName}({caseParameters}).ConfigureAwait(false);");
 
-            var typeParameter = GetUnusedTypeParameter(unionTypeSchema.TypeParameters);
+            var typeParameter = unionTypeSchema.TypeParameters.AsImmutableArray().GetUnusedName("T", "TMatchResult");
             var taskOfTypeParameter = $"global::System.Threading.Tasks.Task<{typeParameter}>";
 
             GenerateMatchMethod(builder, unionTypeSchema, typeParameter, typeParameter);
@@ -96,6 +96,13 @@ public static class Generator
             .Select(m => m == "public" ? (unionTypeSchema.IsInternal ? "internal" : "public") : m);
 
         builder.WriteLine($"{(actualModifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");
+        using (builder.Indent())
+        {
+            foreach (var constraint in unionTypeSchema.TypeConstraints)
+            {
+                builder.WriteLine(constraint);
+            }
+        }
         using (builder.Scope())
         {
             foreach (var derivedType in unionTypeSchema.Cases)
@@ -104,14 +111,14 @@ public static class Generator
                 var derivedTypeName = nameParts[nameParts.Length - 1];
                 var methodName = derivedType.StaticFactoryMethodName;
 
-                if ($"{unionTypeSchema.FullTypeNameWithTypeParameters}.{methodName}" == derivedType.FullTypeName) //union case is nested type without underscores, so factory method name would conflict with type name
+                if ($"{unionTypeSchema.FullTypeNameWithTypeParameters}.{methodName}" == $"global::{derivedType.FullTypeName}") //union case is nested type without underscores, so factory method name would conflict with type name
                     continue;
 
                 var constructors = derivedType.Constructors;
                 if (constructors.Length == 0)
                     constructors = new[]
                     {
-                        new MemberInfo($"{derivedTypeName}",
+                        new CallableMemberInfo($"{derivedTypeName}",
                             ImmutableArray<string>.Empty.Add("public"),
                             ImmutableArray<ParameterInfo>.Empty)
                     }.ToImmutableArray();
@@ -133,15 +140,51 @@ public static class Generator
                                 .SequenceEqual(constructor.Parameters.Select(p => p.Type), SymbolEqualityComparer.Default)))
                         continue; //static method already exists
 
-                    var arguments = constructor.Parameters.ToSeparatedString();
+                    var requiredParametersToAdd = GetRequiredParameters(derivedType, constructor);
+
+                    var arguments = constructor.Parameters
+                        .Concat(requiredParametersToAdd
+                            .Select(p => new ParameterInfo(p.parameterName, ImmutableArray<string>.Empty, p.requiredProperty.Type, null))
+                        ).ToSeparatedString();
                     var constructorInvocation = $"new {derivedType.FullTypeName}({(constructor.Parameters.Select(p => p.Name).ToSeparatedString())})";
-                    builder.WriteLine($"{(isInternal ? "internal" : "public")} static {unionTypeSchema.FullTypeName}{typeParameters} {methodName}({arguments}) => {constructorInvocation};");
+                    builder.Write($"{(isInternal ? "internal" : "public")} static {unionTypeSchema.FullTypeName}{typeParameters} {methodName}({arguments}) => {constructorInvocation}");
+
+                    if (requiredParametersToAdd.Count > 0)
+                    {
+                        builder.NewLine();
+                        using var _ = builder.ScopeWithSemicolon();
+
+                        for (var i = 0; i < requiredParametersToAdd.Count; i++)
+                        {
+                            var required = requiredParametersToAdd[i];
+                            builder.Write($"{required.requiredProperty.Name} = {required.parameterName}");
+                            builder.Append(i < requiredParametersToAdd.Count - 1 ? "," : "");
+                            builder.NewLine();
+                        }
+                    }
+                    else
+                    {
+                        builder.Content.Append(";");
+                        builder.Content.AppendLine();    
+                    }
                 }
             }
         }
     }
 
-    private static string GetTypeKind(UnionTypeSchema unionTypeSchema)
+    static ImmutableList<(string parameterName, PropertyOrFieldInfo requiredProperty)> GetRequiredParameters(DerivedType derivedType, CallableMemberInfo constructor)
+    {
+        var parameterNames = constructor.Parameters
+            .Select(p => p.Name)
+            .ToImmutableList()
+            .GetUnusedNames(derivedType.RequiredMembers.Select(r => r.Name.FirstToLower()))
+            .Select(parameterName => parameterName.IsAnyKeyWord() ? $"@{parameterName}" : parameterName);
+
+        return derivedType.RequiredMembers.Zip(parameterNames, (info, s) => (s, info))
+            .ToImmutableList();
+    }
+
+    static string GetTypeKind(UnionTypeSchema unionTypeSchema)
     {
         var typeKind = unionTypeSchema.TypeKind switch { UnionTypeTypeKind.Class => "class", UnionTypeTypeKind.Interface => "interface", UnionTypeTypeKind.Record => "record", _ => throw new ArgumentException($"Unknown type kind: {unionTypeSchema.TypeKind}") };
         return typeKind;
@@ -212,28 +255,6 @@ public static class Generator
         }
     }
 
-    static string GetUnusedTypeParameter(EquatableArray<string> typeParameters)
-    {
-        return
-            new[] { "T" }
-                .Concat(
-                Enumerable.Range(0, 20)
-                    .Select(i => new string('_', i) + "TMatchResult")
-                )
-                .Select(Check)
-                .FirstOrDefault(s => s is not null) ?? "T" + Guid.NewGuid().ToString("N");
-
-        string? Check(string typeName)
-        {
-            if (!typeParameters.Contains(typeName))
-            {
-                return typeName;
-            }
-
-            return null;
-        }
-    }
-
     static Parameter ThisParameter(UnionTypeSchema unionTypeSchema, string thisParameterType) => new($"this {thisParameterType}", unionTypeSchema.TypeName.ToParameterName());
 
     static void WriteMatchSignature(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, Parameter thisParameter, string returnType, string? handlerReturnType = null, string modifiers = "public static", string t = "T")
@@ -249,7 +270,9 @@ public static class Generator
         builder.WriteMethodSignature(
             modifiers: modifiers,
             returnType: returnType,
-            methodName: "Match<" + typeParameterList + ">", parameters: handlerParameters,
+            methodName: "Match<" + typeParameterList + ">",
+            parameters: handlerParameters,
+            typeConstraints: unionTypeSchema.TypeConstraints,
             lambda: true);
     }
 
@@ -279,6 +302,7 @@ public static class Generator
             returnType: returnType,
             methodName: VoidMatchMethodName + typeParameters,
             parameters: handlerParameters,
+            typeConstraints: unionTypeSchema.TypeConstraints,
             lambda: lambda);
     }
 }

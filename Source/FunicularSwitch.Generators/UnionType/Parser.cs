@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -18,9 +19,10 @@ static class Parser
         var semanticModel = compilation.GetSemanticModel(unionTypeClass.SyntaxTree);
 
         var typeParameters = unionTypeClass.GetTypeParameterList();
+        var typeConstraints = unionTypeClass.GetTypeConstraints(semanticModel);
 
         var fullTypeName = unionTypeSymbol.FullTypeNameWithNamespace();
-        var fullTypeNameWithTypeParameters = fullTypeName + RoslynExtensions.FormatTypeParameters(typeParameters);
+        var fullTypeNameWithTypeParameters = unionTypeSymbol.FullTypeNameWithNamespaceAndGenerics();
         var acc = unionTypeSymbol.GetActualAccessibility();
         if (acc is Accessibility.Private or Accessibility.Protected)
         {
@@ -56,6 +58,7 @@ static class Parser
                     FullTypeNameWithTypeParameters: fullTypeNameWithTypeParameters,
                     Cases: cases,
                     TypeParameters: typeParameters,
+                    TypeConstraints: typeConstraints,
                     IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
                     IsPartial: isPartial,
                     TypeKind: unionTypeClass switch
@@ -174,19 +177,31 @@ static class Parser
         {
             var qualifiedTypeName = d.node.QualifiedNameWithGenerics();
             var fullNamespace = d.symbol.GetFullNamespace();
-            IEnumerable<MemberInfo>? constructors = null;
+            var constructors = ImmutableArray<CallableMemberInfo>.Empty;
+            var requiredMembers = ImmutableArray<PropertyOrFieldInfo>.Empty;
+
             if (getConstructors)
             {
-                constructors = d.node.ChildNodes()
+                constructors = constructors.AddRange(d.node
+                    .ChildNodes()
                     .OfType<ConstructorDeclarationSyntax>()
-                    .Select(c => c.ToMemberInfo(c.Identifier.Text, compilation));
+                    .Select(c => c.ToMemberInfo(c.Identifier.Text, compilation)));
 
+                //primary constructors
                 if (d.node is TypeDeclarationSyntax { ParameterList: not null } typeDeclaration)
-                    constructors = constructors.Concat(new[]
-                    {
-                        new MemberInfo(d.node.Name(), d.node.Modifiers.ToEquatableModifiers(), typeDeclaration.ParameterList.Parameters
-                            .Select(p => p.ToParameterInfo(compilation)).ToImmutableArray())
-                    });
+                    constructors = constructors.Add(
+                        new(
+                            Name: d.node.Name(),
+                            Modifiers: d.node.Modifiers.ToEquatableModifiers(),
+                            Parameters: typeDeclaration.ParameterList.Parameters
+                                .Select(p => p.ToParameterInfo(compilation))
+                                .ToImmutableArray())
+                    );
+
+                requiredMembers = requiredMembers.AddRange(d.node.ChildNodes()
+                    .OfType<MemberDeclarationSyntax>()
+                    .Where(m => m.Modifiers.HasRequiredModifier())
+                    .Select(m => m.ToPropertyOrFieldInfo(compilation)));
             }
 
             var (parameterName, staticMethodName) =
@@ -194,7 +209,8 @@ static class Parser
 
             return new DerivedType(
                 fullTypeName: $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}",
-                constructors: constructors?.ToImmutableArray(),
+                constructors: constructors,
+                requiredMembers: requiredMembers,
                 parameterName: parameterName,
                 staticFactoryMethodName: staticMethodName);
         }).ToImmutableArray();

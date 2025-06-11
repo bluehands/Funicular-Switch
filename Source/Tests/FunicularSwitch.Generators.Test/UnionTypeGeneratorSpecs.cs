@@ -378,6 +378,44 @@ public record Two : IBase {}";
 	}
 
     [TestMethod]
+    public Task Static_factories_for_type_with_required_properties()
+    {
+        var code = @"
+using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test;
+
+[UnionType]
+public partial class Base {}
+
+public class One : Base
+{
+    public required int RequiredField;
+    public required string RequiredProperty { get; init; }
+} 
+public class Two : Base
+{
+    public Two(int bla)
+    {
+        Bla = bla;
+    }
+
+    public Two(int bla, int strangeNameField, int strangeNameField2) : this(bla)
+    {
+        this.strangeNameField = strangeNameField;
+        this._strangeNameField = strangeNameField2;
+    }
+
+    public int Bla { get; }
+    public required int strangeNameField;
+    public required int _strangeNameField;
+    public required bool Bool;
+}";
+
+        return Verify(code);
+    }
+
+    [TestMethod]
     public Task Support_structs_derived_from_interface()
     {
         var code = @"
@@ -460,6 +498,47 @@ public abstract partial record NodeMessage(string NodeInstanceId)
                        public sealed record Deriving_(string Value, T Other) : BaseType<T>(Value);
                        
                        public sealed record Deriving2_(string Value) : BaseType<T>(Value);
+                   }
+                   """;
+
+        return Verify(code);
+    }
+
+	[TestMethod]
+	public Task For_union_type_with_generic_base_class_and_type_constraints()
+    {
+        var code = """
+                   using System.Collections.Generic;
+                   using FunicularSwitch.Generators;
+
+                   namespace FunicularSwitch.Test;
+
+                   [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+                   public abstract partial record BaseType<T1, T2>(string Value)
+                     where T1 : notnull, new()
+                     where T2 : class, IEnumerable<int>
+                   {
+                       public sealed record Deriving_(string Value, T1 Other, T2 List) : BaseType<T1, T2>(Value);
+                       
+                       public sealed record Deriving2_(string Value) : BaseType<T1, T2>(Value);
+                   }
+                   """;
+
+        return Verify(code);
+    }
+
+    [TestMethod]
+    public Task ForUnionType_WithNullableParameters_StaticFactoriesHaveNullableParametersToo()
+    {
+        var code = """
+                   using FunicularSwitch.Generators;
+                   
+                   namespace FunicularSwitch.Text;
+
+                   [UnionType]
+                   public abstract partial record BaseType
+                   {
+                       public sealed record DerivedType_(string? NullableReferenceType, int? NullableStruct) : BaseType;
                    }
                    """;
 

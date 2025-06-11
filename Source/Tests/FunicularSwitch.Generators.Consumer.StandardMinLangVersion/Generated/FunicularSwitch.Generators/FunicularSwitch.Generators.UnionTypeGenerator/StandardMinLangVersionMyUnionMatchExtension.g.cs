@@ -1,9 +1,10 @@
 ﻿#pragma warning disable 1591
+#nullable enable
 namespace StandardMinLangVersion
 {
 	public static partial class MyUnionMatchExtension
 	{
-		public static T Match<T>(this StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, T> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, T> case2) =>
+		public static T Match<T>(this global::StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, T> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, T> case2) =>
 		myUnion switch
 		{
 			StandardMinLangVersion.MyUnion.Case1_ case11 => case1(case11),
@@ -11,7 +12,7 @@ namespace StandardMinLangVersion
 			_ => throw new global::System.ArgumentException($"Unknown type derived from StandardMinLangVersion.MyUnion: {myUnion.GetType().Name}")
 		};
 		
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task<T>> case2) =>
+		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task<T>> case2) =>
 		myUnion switch
 		{
 			StandardMinLangVersion.MyUnion.Case1_ case11 => case1(case11),
@@ -19,13 +20,13 @@ namespace StandardMinLangVersion
 			_ => throw new global::System.ArgumentException($"Unknown type derived from StandardMinLangVersion.MyUnion: {myUnion.GetType().Name}")
 		};
 		
-		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<StandardMinLangVersion.MyUnion> myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, T> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, T> case2) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::StandardMinLangVersion.MyUnion> myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, T> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, T> case2) =>
 		(await myUnion.ConfigureAwait(false)).Match(case1, case2);
 		
-		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<StandardMinLangVersion.MyUnion> myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task<T>> case2) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::StandardMinLangVersion.MyUnion> myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task<T>> case2) =>
 		await (await myUnion.ConfigureAwait(false)).Match(case1, case2).ConfigureAwait(false);
 		
-		public static void Switch(this StandardMinLangVersion.MyUnion myUnion, global::System.Action<StandardMinLangVersion.MyUnion.Case1_> case1, global::System.Action<StandardMinLangVersion.MyUnion.MyUnionCase2> case2)
+		public static void Switch(this global::StandardMinLangVersion.MyUnion myUnion, global::System.Action<StandardMinLangVersion.MyUnion.Case1_> case1, global::System.Action<StandardMinLangVersion.MyUnion.MyUnionCase2> case2)
 		{
 			switch (myUnion)
 			{
@@ -40,7 +41,7 @@ namespace StandardMinLangVersion
 			}
 		}
 		
-		public static async global::System.Threading.Tasks.Task Switch(this StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task> case2)
+		public static async global::System.Threading.Tasks.Task Switch(this global::StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task> case2)
 		{
 			switch (myUnion)
 			{
@@ -55,10 +56,10 @@ namespace StandardMinLangVersion
 			}
 		}
 		
-		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<StandardMinLangVersion.MyUnion> myUnion, global::System.Action<StandardMinLangVersion.MyUnion.Case1_> case1, global::System.Action<StandardMinLangVersion.MyUnion.MyUnionCase2> case2) =>
+		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::StandardMinLangVersion.MyUnion> myUnion, global::System.Action<StandardMinLangVersion.MyUnion.Case1_> case1, global::System.Action<StandardMinLangVersion.MyUnion.MyUnionCase2> case2) =>
 		(await myUnion.ConfigureAwait(false)).Switch(case1, case2);
 		
-		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<StandardMinLangVersion.MyUnion> myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task> case2) =>
+		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::StandardMinLangVersion.MyUnion> myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task> case2) =>
 		await (await myUnion.ConfigureAwait(false)).Switch(case1, case2).ConfigureAwait(false);
 	}
 	

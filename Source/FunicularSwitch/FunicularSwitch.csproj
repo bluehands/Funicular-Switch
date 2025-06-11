@@ -14,7 +14,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>6</MajorVersion>
-		<MinorAndPatchVersion>1.1</MinorAndPatchVersion>
+		<MinorAndPatchVersion>1.2</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
@@ -25,28 +25,23 @@
 
 		<!-- Descriptions and information-->
 		<Titel>FunicularSwitch</Titel>
-		<Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
 		<PackageDescription>Funicular-Switch is a lightweight C# port of F# result and option types</PackageDescription>
-		<Copyright>Copyright 2024 bluehands GmbH &amp; C.ommunication KG</Copyright>
-		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>FunicularSwitch.png</PackageIcon>
-		<PackageTags>F# Result, Result, Option, Match, Map, Bind, Railway oriented programming, Railway oriented, Railway, Pipeline</PackageTags>
-		<RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
-		<RepositoryType>Git</RepositoryType>
-		<RepositoryBranch>main</RepositoryBranch>
+		<PackageTags>bluehands, F#Result, Result, Option, Match, Map, Bind, RailwayOrientedProgramming</PackageTags>
 
 		<!-- Package specific settings -->
-		<PackageOutputPath>$(OutputPath)</PackageOutputPath>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<ContentTargetFolders>content</ContentTargetFolders>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>FunicularSwitch.snk</AssemblyOriginatorKeyFile>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="../../README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
 	<Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
 		<ReadLinesFromFile File="../RELEASE-NOTES.txt">
