@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace FunicularSwitch.Generators.Analyzers;
@@ -12,8 +13,8 @@ public class MatchNullAnalyzer : DiagnosticAnalyzer
 
     private static readonly DiagnosticDescriptor Rule = new(
         id: DiagnosticId,
-        title: "",
-        messageFormat: "",
+        title: "Funicular Switch Library usage opportunity",
+        messageFormat: "Use .Map(...).GetValueOrDefault() over .Match(..., () => null)",
         category: "Usage Opportunity",
         defaultSeverity: DiagnosticSeverity.Info,
         isEnabledByDefault: true);

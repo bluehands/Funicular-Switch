@@ -393,6 +393,9 @@
           "System.IO.Hashing": "9.0.4"
         }
       },
+      "funicularswitch": {
+        "type": "Project"
+      },
       "funicularswitch.generators": {
         "type": "Project",
         "dependencies": {

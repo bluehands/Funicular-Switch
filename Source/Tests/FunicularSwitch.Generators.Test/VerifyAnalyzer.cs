@@ -18,8 +18,10 @@ public class VerifyAnalyzer : VerifyBase
     private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
     private static readonly MetadataReference RuntimeReference = MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Runtime.dll"));
     private static readonly MetadataReference CollectionsReference = MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll"));
+    private static readonly MetadataReference NetStandardReference = MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "netstandard.dll"));
     private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
     private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
+    private static readonly MetadataReference FunicularSwitchReference = MetadataReference.CreateFromFile(typeof(Unit).Assembly.Location);
     
     // ReSharper disable once ExplicitCallerInfoArgument
     protected VerifyAnalyzer([CallerFilePath] string sourceFile = "")
@@ -48,8 +50,10 @@ public class VerifyAnalyzer : VerifyBase
             .AddMetadataReference(projectId, SystemCoreReference)
             .AddMetadataReference(projectId, RuntimeReference)
             .AddMetadataReference(projectId, CollectionsReference)
+            .AddMetadataReference(projectId, NetStandardReference)
             .AddMetadataReference(projectId, CSharpSymbolsReference)
             .AddMetadataReference(projectId, CodeAnalysisReference)
+            .AddMetadataReference(projectId, FunicularSwitchReference)
             .WithProjectParseOptions(projectId, new CSharpParseOptions(LanguageVersion.Preview))
             .WithProjectCompilationOptions(projectId, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
             .AddDocument(documentId, fileName, SourceText.From(source));

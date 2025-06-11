@@ -8,7 +8,7 @@ namespace FunicularSwitch.Generators.Test;
 public class MatchNullAnalyzerTest : VerifyAnalyzer
 {
     [TestMethod]
-    public async Task MatchNull_IsRecognized_FixIsApplied()
+    public async Task MatchNullOption_IsRecognized_FixIsApplied()
     {
         var code =
             """
