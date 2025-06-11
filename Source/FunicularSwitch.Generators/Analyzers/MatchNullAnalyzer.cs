@@ -32,6 +32,46 @@ public class MatchNullAnalyzer : DiagnosticAnalyzer
 
     private void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
     {
+        if (context.Node is not InvocationExpressionSyntax invocationExpressionSyntax)
+        {
+            return;
+        }
         
+        if (context.SemanticModel.GetSymbolInfo(invocationExpressionSyntax, context.CancellationToken)
+                .Symbol is not IMethodSymbol methodSymbol)
+        {
+            return;
+        }
+
+        if (methodSymbol.Name != "Match")
+        {
+            return;
+        }
+
+        if (methodSymbol.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGenericsOptions(SymbolDisplayGenericsOptions.None))
+            is not ("global::FunicularSwitch.Option" or "global::FunicularSwitch.Result"))
+        {
+            return;
+        }
+
+        var secondParameter = invocationExpressionSyntax.ArgumentList.Arguments[1];
+        var isNullArgument = secondParameter.Expression switch
+        {
+            LambdaExpressionSyntax
+            {
+                Body: LiteralExpressionSyntax literal
+            } when literal.Token.IsKind(SyntaxKind.NullKeyword) || literal.Token.IsKind(SyntaxKind.DefaultKeyword) => true,
+            LiteralExpressionSyntax literal when literal.Token.IsKind(SyntaxKind.NullKeyword) || literal.Token.IsKind(SyntaxKind.DefaultKeyword) => true,
+            _ => false,
+        };
+        if (!isNullArgument)
+        {
+            return;
+        }
+
+        var diagnostic = Diagnostic.Create(
+            Rule,
+            invocationExpressionSyntax.GetLocation());
+        context.ReportDiagnostic(diagnostic);
     }
 }

@@ -26,6 +26,10 @@ public class VerifyAnalyzer : VerifyBase
     // ReSharper disable once ExplicitCallerInfoArgument
     protected VerifyAnalyzer([CallerFilePath] string sourceFile = "")
     {
+        if (string.IsNullOrEmpty(sourceFile))
+        {
+            throw new Exception("Call constructor explicitly");
+        }
         this.sourceFile = sourceFile;
     }
 
@@ -59,10 +63,7 @@ public class VerifyAnalyzer : VerifyBase
             .AddDocument(documentId, fileName, SourceText.From(source));
 
         var project = solution.GetProject(projectId)!;
-        var compilationWithAnalyzers = (await project.GetCompilationAsync())!.WithAnalyzers([analyzer]);
-        compilationWithAnalyzers.Compilation.GetDiagnostics()
-            .Where(d => d.Severity == DiagnosticSeverity.Error)
-            .Should().BeEmpty();
+        var compilationWithAnalyzers = (await CheckCompilation(project))!.WithAnalyzers([analyzer]);
         var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
         verifyDiagnostics(diagnostics);
         var document = project.Documents.First();
@@ -80,11 +81,22 @@ public class VerifyAnalyzer : VerifyBase
             var updatedDocument = await ApplyFix(document, actions[0]);
             var syntaxTree = await updatedDocument.GetSyntaxRootAsync();
             var updatedCode = syntaxTree.ToFullString();
+            await CheckCompilation(solution.RemoveDocument(documentId).AddDocument(documentId, fileName, SourceText.From(updatedCode)).GetProject(projectId)!);
+            
             var settings = new VerifySettings();
             settings.UseFileName($"{Path.GetFileNameWithoutExtension(this.sourceFile)}_{callingMethod}_{d.Id}_{index}.cs");
             await Verify(updatedCode, settings)
                 .UseDirectory("Snapshots");
             index += 1;
+        }
+
+        async Task<Compilation> CheckCompilation(Project p)
+        {
+            var c = await p.GetCompilationAsync()!;
+            c.GetDiagnostics()
+                .Where(d => d.Severity == DiagnosticSeverity.Error)
+                .Should().BeEmpty();
+            return c;
         }
     }
     
