@@ -6,284 +6,284 @@ public static class GenericResultValueTaskExtensions
 {
     [Pure]
     public static async ValueTask<bool> IsOk<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask)
+        this ValueTask<GenericResult<TOk, TError>> resultTask)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.IsOk();
+        var result = await resultTask.ConfigureAwait(false);
+        return result.IsOk();
     }
 
     [Pure]
     public static async ValueTask<bool> IsError<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask)
+        this ValueTask<GenericResult<TOk, TError>> resultTask)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.IsError();
+        var result = await resultTask.ConfigureAwait(false);
+        return result.IsError();
     }
 
     [Pure]
     public static async ValueTask<TOk> GetValueOrThrow<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask) =>
-        (await genResTask.ConfigureAwait(false)).GetValueOrThrow();
+        this ValueTask<GenericResult<TOk, TError>> resultTask) =>
+        (await resultTask.ConfigureAwait(false)).GetValueOrThrow();
 
     [Pure]
     public static async ValueTask<TError> GetErrorOrThrow<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask) =>
-        (await genResTask.ConfigureAwait(false)).GetErrorOrThrow();
+        this ValueTask<GenericResult<TOk, TError>> resultTask) =>
+        (await resultTask.ConfigureAwait(false)).GetErrorOrThrow();
 
     [Pure]
     public static async ValueTask<TOk> GetValueOrDefault<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         TOk defaultValue) =>
-        (await genResTask.ConfigureAwait(false)).GetValueOrDefault(defaultValue);
+        (await resultTask.ConfigureAwait(false)).GetValueOrDefault(defaultValue);
 
     [Pure]
     public static async ValueTask<TOk> GetValueOrDefault<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk> defaultValue) =>
-        (await genResTask.ConfigureAwait(false)).GetValueOrDefault(defaultValue);
+        (await resultTask.ConfigureAwait(false)).GetValueOrDefault(defaultValue);
 
     [Pure]
     public static async ValueTask<TOk> GetValueOrDefaultAsync<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<ValueTask<TOk>> defaultValue) =>
-        await (await genResTask.ConfigureAwait(false)).GetValueOrDefaultAsync(() => defaultValue().AsTask()).ConfigureAwait(false);
+        await (await resultTask.ConfigureAwait(false)).GetValueOrDefaultAsync(() => defaultValue().AsTask()).ConfigureAwait(false);
 
     [Pure]
     public static async ValueTask<TError> GetErrorOrDefault<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         TError defaultValue) =>
-        (await genResTask.ConfigureAwait(false)).GetErrorOrDefault(defaultValue);
+        (await resultTask.ConfigureAwait(false)).GetErrorOrDefault(defaultValue);
 
     [Pure]
     public static async ValueTask<TError> GetErrorOrDefault<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TError> defaultValue) =>
-        (await genResTask.ConfigureAwait(false)).GetErrorOrDefault(defaultValue);
+        (await resultTask.ConfigureAwait(false)).GetErrorOrDefault(defaultValue);
 
     [Pure]
     public static async ValueTask<TError> GetErrorOrDefaultAsync<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<ValueTask<TError>> defaultValue) =>
-        await (await genResTask.ConfigureAwait(false)).GetErrorOrDefaultAsync(() => defaultValue().AsTask()).ConfigureAwait(false);
+        await (await resultTask.ConfigureAwait(false)).GetErrorOrDefaultAsync(() => defaultValue().AsTask()).ConfigureAwait(false);
 
     [Pure]
     public static async ValueTask<Option<TOk>> ToOption<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask) =>
-        (await genResTask.ConfigureAwait(false)).ToOption();
+        this ValueTask<GenericResult<TOk, TError>> resultTask) =>
+        (await resultTask.ConfigureAwait(false)).ToOption();
 
     [Pure]
     public static async ValueTask<Option<TError>> ToErrorOption<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask) =>
-        (await genResTask.ConfigureAwait(false)).ToErrorOption();
+        this ValueTask<GenericResult<TOk, TError>> resultTask) =>
+        (await resultTask.ConfigureAwait(false)).ToErrorOption();
 
     [Pure]
     public static async ValueTask<(Option<TOk>, Option<TError>)> ToOptions<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask) =>
-        (await genResTask.ConfigureAwait(false)).ToOptions();
+        this ValueTask<GenericResult<TOk, TError>> resultTask) =>
+        (await resultTask.ConfigureAwait(false)).ToOptions();
 
     [Pure]
     public static async ValueTask<GenericResult<TOk, TError>> Do<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Action<TOk> action)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.Do(action);
+        var result = await resultTask.ConfigureAwait(false);
+        return result.Do(action);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOk, TError>> DoAsync<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, ValueTask> action)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.DoAsync(x => action(x).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.DoAsync(x => action(x).AsTask()).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOk, TError>> DoOnError<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Action<TError> action)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.DoOnError(action);
+        var result = await resultTask.ConfigureAwait(false);
+        return result.DoOnError(action);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOk, TError>> DoOnErrorAsync<TOk, TError>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TError, ValueTask> action)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.DoOnErrorAsync(x => action(x).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.DoOnErrorAsync(x => action(x).AsTask()).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<TReturn> Match<TOk, TError, TReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, TReturn> ok,
         Func<TError, TReturn> error)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.Match(ok, error);
+        var result = await resultTask.ConfigureAwait(false);
+        return result.Match(ok, error);
     }
 
     [Pure]
     public static async ValueTask<TReturn> Match<TOk, TError, TReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, ValueTask<TReturn>> ok,
         Func<TError, ValueTask<TReturn>> error)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.Match(x => ok(x).AsTask(), x => error(x).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.Match(x => ok(x).AsTask(), x => error(x).AsTask()).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<TReturn> Match<TOk, TError, TReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, ValueTask<TReturn>> ok,
         Func<TError, TReturn> error)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.Match(x => ok(x).AsTask(), error).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.Match(x => ok(x).AsTask(), error).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<TReturn> Match<TOk, TError, TReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, TReturn> ok,
         Func<TError, ValueTask<TReturn>> error)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.Match(ok, x => error(x).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.Match(ok, x => error(x).AsTask()).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOkReturn, TError>> Bind<TOk, TError, TOkReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, GenericResult<TOkReturn, TError>> bind)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.Bind(bind);
+        var result = await resultTask.ConfigureAwait(false);
+        return result.Bind(bind);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOkReturn, TError>> Bind<TOk, TError, TOkReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, ValueTask<GenericResult<TOkReturn, TError>>> bind)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.Bind(x => bind(x).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.Bind(x => bind(x).AsTask()).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOkReturn, TError>> Map<TOk, TError, TOkReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, TOkReturn> map)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.Map(map);
+        var result = await resultTask.ConfigureAwait(false);
+        return result.Map(map);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOkReturn, TError>> Map<TOk, TError, TOkReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, ValueTask<TOkReturn>> map)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.Map(x => map(x).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.Map(x => map(x).AsTask()).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOk, TErrorReturn>> MapError<TOk, TError, TErrorReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TError, TErrorReturn> map)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.MapError(map);
+        var result = await resultTask.ConfigureAwait(false);
+        return result.MapError(map);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOk, TErrorReturn>> MapError<TOk, TError, TErrorReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TError, ValueTask<TErrorReturn>> map)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.MapError(x => map(x).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.MapError(x => map(x).AsTask()).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOkReturn, TError>> Select<TOk, TError, TOkReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, TOkReturn> selector)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.Map(selector);
+        var result = await resultTask.ConfigureAwait(false);
+        return result.Map(selector);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOkReturn, TError>> Select<TOk, TError, TOkReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, ValueTask<TOkReturn>> selector)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.Map(x => selector(x).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.Map(x => selector(x).AsTask()).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOkReturn, TError>> SelectMany<TOk, TError, TOkReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, GenericResult<TOkReturn, TError>> selector)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.Bind(selector);
+        var result = await resultTask.ConfigureAwait(false);
+        return result.Bind(selector);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TOkReturn, TError>> SelectMany<TOk, TError, TOkReturn>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, ValueTask<GenericResult<TOkReturn, TError>>> selector)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.Bind(x => selector(x).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.Bind(x => selector(x).AsTask()).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TSelect, TError>> SelectMany<TOk, TError, TOkReturn, TSelect>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, GenericResult<TOkReturn, TError>> selector,
         Func<TOk, TOkReturn, TSelect> resultSelector)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return genRes.SelectMany(selector, resultSelector);
+        var result = await resultTask.ConfigureAwait(false);
+        return result.SelectMany(selector, resultSelector);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TSelect, TError>> SelectMany<TOk, TError, TOkReturn, TSelect>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, ValueTask<GenericResult<TOkReturn, TError>>> selector,
         Func<TOk, TOkReturn, TSelect> resultSelector)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.SelectMany(x => selector(x).AsTask(), resultSelector).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.SelectMany(x => selector(x).AsTask(), resultSelector).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TSelect, TError>> SelectMany<TOk, TError, TOkReturn, TSelect>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, GenericResult<TOkReturn, TError>> selector,
         Func<TOk, TOkReturn, ValueTask<TSelect>> resultSelector)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.SelectMany(selector, (x, y) => resultSelector(x, y).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.SelectMany(selector, (x, y) => resultSelector(x, y).AsTask()).ConfigureAwait(false);
     }
 
     [Pure]
     public static async ValueTask<GenericResult<TSelect, TError>> SelectMany<TOk, TError, TOkReturn, TSelect>(
-        this ValueTask<GenericResult<TOk, TError>> genResTask,
+        this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, ValueTask<GenericResult<TOkReturn, TError>>> selector,
         Func<TOk, TOkReturn, ValueTask<TSelect>> resultSelector)
     {
-        var genRes = await genResTask.ConfigureAwait(false);
-        return await genRes.SelectMany(x => selector(x).AsTask(), (x, y) => resultSelector(x, y).AsTask()).ConfigureAwait(false);
+        var result = await resultTask.ConfigureAwait(false);
+        return await result.SelectMany(x => selector(x).AsTask(), (x, y) => resultSelector(x, y).AsTask()).ConfigureAwait(false);
     }
 }
