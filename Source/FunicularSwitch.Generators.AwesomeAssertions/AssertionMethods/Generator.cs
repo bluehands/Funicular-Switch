@@ -169,7 +169,7 @@ internal static class Generator
                                 .ForCondition(this.Subject is {{derivedTypeFullNameWithGlobalNamespace}})
                                 .BecauseOf(because, becauseArgs)
                                 .FailWith("Expected {context} to be {{derivedTypeFullName}}{reason}, but found {0}",
-                                    this.Subject);
+                                    this.Subject.ToString());
                 
                             return new(this, (this.Subject as {{derivedTypeFullNameWithGlobalNamespace}})!);
                         }
