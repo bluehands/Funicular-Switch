@@ -46,7 +46,7 @@ public static class GenericResultValueTaskExtensions
     public static async ValueTask<TOk> GetValueOrDefaultAsync<TOk, TError>(
         this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<ValueTask<TOk>> defaultValue) =>
-        await (await resultTask.ConfigureAwait(false)).GetValueOrDefaultAsync(() => defaultValue().AsTask()).ConfigureAwait(false);
+        await (await resultTask.ConfigureAwait(false)).GetValueOrDefaultAsync(defaultValue).ConfigureAwait(false);
 
     [Pure]
     public static async ValueTask<TError> GetErrorOrDefault<TOk, TError>(
@@ -64,7 +64,7 @@ public static class GenericResultValueTaskExtensions
     public static async ValueTask<TError> GetErrorOrDefaultAsync<TOk, TError>(
         this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<ValueTask<TError>> defaultValue) =>
-        await (await resultTask.ConfigureAwait(false)).GetErrorOrDefaultAsync(() => defaultValue().AsTask()).ConfigureAwait(false);
+        await (await resultTask.ConfigureAwait(false)).GetErrorOrDefaultAsync(defaultValue).ConfigureAwait(false);
 
     [Pure]
     public static async ValueTask<Option<TOk>> ToOption<TOk, TError>(
@@ -96,7 +96,7 @@ public static class GenericResultValueTaskExtensions
         Func<TOk, ValueTask> action)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.DoAsync(x => action(x).AsTask()).ConfigureAwait(false);
+        return await result.DoAsync(action).ConfigureAwait(false);
     }
 
     [Pure]
@@ -114,7 +114,7 @@ public static class GenericResultValueTaskExtensions
         Func<TError, ValueTask> action)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.DoOnErrorAsync(x => action(x).AsTask()).ConfigureAwait(false);
+        return await result.DoOnErrorAsync(action).ConfigureAwait(false);
     }
 
     [Pure]
@@ -134,7 +134,7 @@ public static class GenericResultValueTaskExtensions
         Func<TError, ValueTask<TReturn>> error)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.Match(x => ok(x).AsTask(), x => error(x).AsTask()).ConfigureAwait(false);
+        return await result.Match(ok, error).ConfigureAwait(false);
     }
 
     [Pure]
@@ -144,7 +144,7 @@ public static class GenericResultValueTaskExtensions
         Func<TError, TReturn> error)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.Match(x => ok(x).AsTask(), error).ConfigureAwait(false);
+        return await result.Match(ok, error).ConfigureAwait(false);
     }
 
     [Pure]
@@ -154,7 +154,7 @@ public static class GenericResultValueTaskExtensions
         Func<TError, ValueTask<TReturn>> error)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.Match(ok, x => error(x).AsTask()).ConfigureAwait(false);
+        return await result.Match(ok, error).ConfigureAwait(false);
     }
 
     [Pure]
@@ -172,7 +172,7 @@ public static class GenericResultValueTaskExtensions
         Func<TOk, ValueTask<GenericResult<TOkReturn, TError>>> bind)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.Bind(x => bind(x).AsTask()).ConfigureAwait(false);
+        return await result.Bind(bind).ConfigureAwait(false);
     }
 
     [Pure]
@@ -190,7 +190,7 @@ public static class GenericResultValueTaskExtensions
         Func<TOk, ValueTask<TOkReturn>> map)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.Map(x => map(x).AsTask()).ConfigureAwait(false);
+        return await result.Map(map).ConfigureAwait(false);
     }
 
     [Pure]
@@ -208,7 +208,7 @@ public static class GenericResultValueTaskExtensions
         Func<TError, ValueTask<TErrorReturn>> map)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.MapError(x => map(x).AsTask()).ConfigureAwait(false);
+        return await result.MapError(map).ConfigureAwait(false);
     }
 
     [Pure]
@@ -226,7 +226,7 @@ public static class GenericResultValueTaskExtensions
         Func<TOk, ValueTask<TOkReturn>> selector)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.Map(x => selector(x).AsTask()).ConfigureAwait(false);
+        return await result.Map(selector).ConfigureAwait(false);
     }
 
     [Pure]
@@ -244,7 +244,7 @@ public static class GenericResultValueTaskExtensions
         Func<TOk, ValueTask<GenericResult<TOkReturn, TError>>> selector)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.Bind(x => selector(x).AsTask()).ConfigureAwait(false);
+        return await result.Bind(selector).ConfigureAwait(false);
     }
 
     [Pure]
@@ -264,7 +264,7 @@ public static class GenericResultValueTaskExtensions
         Func<TOk, TOkReturn, TSelect> resultSelector)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.SelectMany(x => selector(x).AsTask(), resultSelector).ConfigureAwait(false);
+        return await result.SelectMany(selector, resultSelector).ConfigureAwait(false);
     }
 
     [Pure]
@@ -274,7 +274,7 @@ public static class GenericResultValueTaskExtensions
         Func<TOk, TOkReturn, ValueTask<TSelect>> resultSelector)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.SelectMany(selector, (x, y) => resultSelector(x, y).AsTask()).ConfigureAwait(false);
+        return await result.SelectMany(selector, resultSelector).ConfigureAwait(false);
     }
 
     [Pure]
@@ -284,6 +284,6 @@ public static class GenericResultValueTaskExtensions
         Func<TOk, TOkReturn, ValueTask<TSelect>> resultSelector)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.SelectMany(x => selector(x).AsTask(), (x, y) => resultSelector(x, y).AsTask()).ConfigureAwait(false);
+        return await result.SelectMany(selector, resultSelector).ConfigureAwait(false);
     }
 }
