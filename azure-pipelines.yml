@@ -52,7 +52,7 @@ steps:
       **/FunicularSwitch.Generators.Consumer.csproj
       **/FunicularSwitch.Generators.Consumer.Nuget.csproj
       **/FunicularSwitch.Generators.Consumer.StandardMinLangVersion.csproj
-      **/FunicularSwitch.Generators.FluentAssertions.Consumer.csproj
+      **/FunicularSwitch.Generators.AwesomeAssertions.Consumer.csproj
     arguments: '--configuration $(BuildConfiguration)'
 
 - task: PublishSymbols@2
