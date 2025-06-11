@@ -3,12 +3,12 @@ using FunicularSwitch.Generic.Assertions;
 
 namespace FunicularSwitch.Generic.Test;
 
-public class GenResSpec
+public class GenericResultSpec
 {
     [Fact]
     public void Map()
     {
-        GenRes.Ok(42).WithError<string>().Map(r => r * 2).GetValueOrThrow().Should().Be(84);
+        GenericResult.Ok(42).WithError<string>().Map(r => r * 2).GetValueOrThrow().Should().Be(84);
         var error = Result.Error<int>("oh no");
         error.Map(r => r * 2).Should().BeEquivalentTo(error);
     }
@@ -16,33 +16,33 @@ public class GenResSpec
     [Fact]
     public void Bind()
     {
-        var ok = GenRes.Ok(42);
-        var error = GenRes.Error<string>("operation failed");
+        var ok = GenericResult.Ok(42);
+        var error = GenericResult.Error<string>("operation failed");
 
-        static GenRes<int, string> Ok(int input) => input;
-        GenRes<int, string> Error(int input) => error;
+        static GenericResult<int, string> Ok(int input) => input;
+        GenericResult<int, string> Error(int input) => error;
 
         var okRes = ok.Bind(Ok);
         okRes.GetValueOrDefault(0).Should().Be(42);
         var errRes = ok.Bind(Error);
         errRes.GetErrorOrDefault(string.Empty).Should().Be("operation failed");
 
-        GenRes<int, int> x = ok;
-        var _ = x.Bind<int>(_ => GenRes.Error(42));
+        GenericResult<int, int> x = ok;
+        var _ = x.Bind<int>(_ => GenericResult.Error(42));
     }
 
     [Fact]
     public void NotInitializedTrowsOnFirstUse()
     {
-        GenOk<string> ok = default;
+        GenericOk<string> ok = default;
         var okFn = () => ok.WithError<string>();
         okFn.Should().Throw<InvalidOperationException>();
 
-        GenError<string> err = default;
+        GenericError<string> err = default;
         var errFn = () => err.WithOk<int>();
         errFn.Should().Throw<InvalidOperationException>();
 
-        GenRes<int, string> res = default;
+        GenericResult<int, string> res = default;
         var resFn = () => res.IsOk();
         resFn.Should().Throw<InvalidOperationException>();
     }
@@ -50,53 +50,53 @@ public class GenResSpec
     [Fact]
     public void AssertCompilerUsesLinqQueryExpressions()
     {
-        GenRes<Unit, string> okRes0 =
-            from x in GenRes.Ok(42)
-            from y in GenRes.Ok<int, string>(1)
+        GenericResult<Unit, string> okRes0 =
+            from x in GenericResult.Ok(42)
+            from y in GenericResult.Ok<int, string>(1)
             select No.Thing;
 
-        Task<GenRes<Unit, string>> okRes1 =
-            from x in GenRes.Ok(42)
-            from y in GenRes.Ok<int, string>(1).ToTask()
+        Task<GenericResult<Unit, string>> okRes1 =
+            from x in GenericResult.Ok(42)
+            from y in GenericResult.Ok<int, string>(1).ToTask()
             select No.Thing;
 
-        Task<GenRes<Unit, string>> okRes2 =
-            from x in GenRes.Ok(42)
-            from y in GenRes.Ok<int, string>(1)
+        Task<GenericResult<Unit, string>> okRes2 =
+            from x in GenericResult.Ok(42)
+            from y in GenericResult.Ok<int, string>(1)
             select Task.FromResult(No.Thing);
 
-        Task<GenRes<Unit, string>> okRes3 =
-            from x in GenRes.Ok(42)
-            from y in GenRes.Ok<int, string>(1).ToTask()
+        Task<GenericResult<Unit, string>> okRes3 =
+            from x in GenericResult.Ok(42)
+            from y in GenericResult.Ok<int, string>(1).ToTask()
             select Task.FromResult(No.Thing);
 
-        GenRes<Unit, string> res0 =
-            from x in GenRes.Ok<int, string>(42)
-            from y in GenRes.Ok<int, string>(1)
+        GenericResult<Unit, string> res0 =
+            from x in GenericResult.Ok<int, string>(42)
+            from y in GenericResult.Ok<int, string>(1)
             select No.Thing;
 
-        Task<GenRes<Unit, string>> res1 =
-            from x in GenRes.Ok<int, string>(42)
-            from y in GenRes.Ok<int, string>(1).ToTask()
+        Task<GenericResult<Unit, string>> res1 =
+            from x in GenericResult.Ok<int, string>(42)
+            from y in GenericResult.Ok<int, string>(1).ToTask()
             select No.Thing;
 
-        Task<GenRes<Unit, string>> res2 =
-            from x in GenRes.Ok<int, string>(42)
-            from y in GenRes.Ok<int, string>(1)
+        Task<GenericResult<Unit, string>> res2 =
+            from x in GenericResult.Ok<int, string>(42)
+            from y in GenericResult.Ok<int, string>(1)
             select Task.FromResult(No.Thing);
 
-        Task<GenRes<Unit, string>> res3 =
-            from x in GenRes.Ok<int, string>(42)
-            from y in GenRes.Ok<int, string>(1).ToTask()
+        Task<GenericResult<Unit, string>> res3 =
+            from x in GenericResult.Ok<int, string>(42)
+            from y in GenericResult.Ok<int, string>(1).ToTask()
             select Task.FromResult(No.Thing);
     }
 
     [Fact]
     public void TestIsError()
     {
-        var ok = GenRes.Ok<int, string>(42);
-        var error = GenRes.Error<int, string>("fail");
-        GenRes<int, string> uninitialized = default;
+        var ok = GenericResult.Ok<int, string>(42);
+        var error = GenericResult.Error<int, string>("fail");
+        GenericResult<int, string> uninitialized = default;
 
         ok.IsError().Should().BeFalse();
         error.IsError().Should().BeTrue();
@@ -107,9 +107,9 @@ public class GenResSpec
     [Fact]
     public void TestIsOk()
     {
-        var ok = GenRes.Ok<int, string>(42);
-        var error = GenRes.Error<int, string>("fail");
-        GenRes<int, string> uninitialized = default;
+        var ok = GenericResult.Ok<int, string>(42);
+        var error = GenericResult.Error<int, string>("fail");
+        GenericResult<int, string> uninitialized = default;
 
         ok.IsOk().Should().BeTrue();
         error.IsOk().Should().BeFalse();
@@ -120,35 +120,35 @@ public class GenResSpec
     [Fact]
     public void CreatingOkResult_ShouldReturnOkResult()
     {
-        GenRes<int, string> result = GenRes.Ok(42);
+        GenericResult<int, string> result = GenericResult.Ok(42);
         result.Should().BeOk().Which.Should().Be(42);
     }
 
     [Fact]
     public void CreatingErrorResult_ShouldReturnErrorResult()
     {
-        GenRes<int, string> result = GenRes.Error("error");
+        GenericResult<int, string> result = GenericResult.Error("error");
         result.Should().BeError().Which.Should().Be("error");
     }
 
     [Fact]
     public void GivenOkResult_WhenGettingValue_ShouldReturnValue()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         result.Should().BeOk().Which.Should().Be(42);
     }
 
     [Fact]
     public void GivenErrorResult_WhenGettingError_ShouldReturnError()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         result.GetErrorOrThrow().Should().Be("error");
     }
 
     [Fact]
     public async Task GivenOkResult_WhenMappingAsync_ShouldReturnMappedResult()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var mapped = await result.Map(x => Task.FromResult(x * 2));
         mapped.Should().BeOk().Which.Should().Be(84);
     }
@@ -156,8 +156,8 @@ public class GenResSpec
     [Fact]
     public async Task GivenOkResult_WhenBindingAsync_ShouldReturnBoundResult()
     {
-        var result = GenRes.Ok<int, string>(42);
-        var bound = await result.Bind(x => Task.FromResult(GenRes.Ok<int, string>(x * 2)));
+        var result = GenericResult.Ok<int, string>(42);
+        var bound = await result.Bind(x => Task.FromResult(GenericResult.Ok<int, string>(x * 2)));
         bound.Should().BeOk().Which.Should().Be(84);
     }
 
@@ -165,8 +165,8 @@ public class GenResSpec
     public void GivenOkResult_WhenUsingLinqSyntax_ShouldWork()
     {
         var result =
-            from x in GenRes.Ok<int, string>(42)
-            from y in GenRes.Ok<int, string>(10)
+            from x in GenericResult.Ok<int, string>(42)
+            from y in GenericResult.Ok<int, string>(10)
             select x + y;
 
         result.Should().BeOk().Which.Should().Be(52);
@@ -176,8 +176,8 @@ public class GenResSpec
     public void GivenErrorResult_WhenUsingLinqSyntax_ShouldPreserveError()
     {
         var result =
-            from x in GenRes.Ok<int, string>(42)
-            from y in GenRes.Error<int, string>("error")
+            from x in GenericResult.Ok<int, string>(42)
+            from y in GenericResult.Error<int, string>("error")
             select x + y;
 
         result.Should().BeError().Which.Should().Be("error");
@@ -187,8 +187,8 @@ public class GenResSpec
     public async Task GivenAsyncResult_WhenUsingLinqSyntax_ShouldWork()
     {
         var result = await (
-            from x in Task.FromResult(GenRes.Ok<int, string>(42))
-            from y in Task.FromResult(GenRes.Ok<int, string>(10))
+            from x in Task.FromResult(GenericResult.Ok<int, string>(42))
+            from y in Task.FromResult(GenericResult.Ok<int, string>(10))
             select x + y);
 
         result.Should().BeOk().Which.Should().Be(52);
@@ -197,8 +197,8 @@ public class GenResSpec
     [Fact]
     public void GivenResult_WhenMatchingSync_ShouldMatchCorrectly()
     {
-        var okResult = GenRes.Ok<int, string>(42);
-        var errorResult = GenRes.Error<int, string>("error");
+        var okResult = GenericResult.Ok<int, string>(42);
+        var errorResult = GenericResult.Error<int, string>("error");
 
         var okMatched = okResult.Match(
             ok: x => x * 2,
@@ -215,7 +215,7 @@ public class GenResSpec
     [Fact]
     public async Task GivenResult_WhenMatchingAsync_ShouldMatchCorrectly()
     {
-        var okResult = GenRes.Ok<int, string>(42);
+        var okResult = GenericResult.Ok<int, string>(42);
 
         var matched = await okResult.Match(
             ok: x => Task.FromResult(x * 2),
@@ -227,7 +227,7 @@ public class GenResSpec
     [Fact]
     public void GivenOkResult_WhenConvertingToOption_ShouldReturnSome()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var option = result.ToOption();
         option.IsSome().Should().BeTrue();
         option.GetValueOrThrow().Should().Be(42);
@@ -236,7 +236,7 @@ public class GenResSpec
     [Fact]
     public void GivenErrorResult_WhenConvertingToOption_ShouldReturnNone()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var option = result.ToOption();
         option.IsNone().Should().BeTrue();
     }
@@ -244,32 +244,32 @@ public class GenResSpec
     [Fact]
     public void GivenGenOk_WhenImplicitlyConvertedToGenRes_ShouldBeOk()
     {
-        GenOk<int> ok = GenRes.Ok(42);
-        GenRes<int, string> result = ok;
+        GenericOk<int> ok = GenericResult.Ok(42);
+        GenericResult<int, string> result = ok;
         result.Should().BeOk().Which.Should().Be(42);
     }
 
     [Fact]
     public async Task GivenGenOk_WhenBindingAsync_ShouldReturnBoundResult()
     {
-        GenOk<int> ok = GenRes.Ok(42);
+        GenericOk<int> ok = GenericResult.Ok(42);
         var bound = await ok.BindAsync<int, string>(x =>
-            Task.FromResult(GenRes.Ok<int, string>(x * 2)));
+            Task.FromResult(GenericResult.Ok<int, string>(x * 2)));
         bound.Should().BeOk().Which.Should().Be(84);
     }
 
     [Fact]
     public void GivenGenError_WhenImplicitlyConvertedToGenRes_ShouldBeError()
     {
-        GenError<string> error = GenRes.Error("error");
-        GenRes<int, string> result = error;
+        GenericError<string> error = GenericResult.Error("error");
+        GenericResult<int, string> result = error;
         result.Should().BeError().Which.Should().Be("error");
     }
 
     [Fact]
     public void GivenGenError_WhenConvertingWithOk_ShouldReturnErrorResult()
     {
-        GenError<string> error = GenRes.Error("error");
+        GenericError<string> error = GenericResult.Error("error");
         var result = error.WithOk<int>();
         result.Should().BeError().Which.Should().Be("error");
     }
@@ -277,7 +277,7 @@ public class GenResSpec
     [Fact]
     public void ToOption_ShouldConvertToOption()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var option = result.ToOption();
         option.IsSome().Should().BeTrue();
         option.GetValueOrThrow().Should().Be(42);
@@ -286,7 +286,7 @@ public class GenResSpec
     [Fact]
     public async Task DoAsync_ShouldExecuteActionOnOkValue()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var executed = false;
         _ = await result.DoAsync(_ =>
         {
@@ -299,7 +299,7 @@ public class GenResSpec
     [Fact]
     public async Task DoOnErrorAsync_ShouldExecuteActionOnErrorValue()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var executed = false;
         _ = await result.DoOnErrorAsync(_ =>
         {
@@ -312,7 +312,7 @@ public class GenResSpec
     [Fact]
     public async Task GetValueOrDefaultAsync_WithFuncTask_ShouldReturnDefaultForError()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var value = await result.GetValueOrDefaultAsync(() => Task.FromResult(42));
         value.Should().Be(42);
     }
@@ -320,7 +320,7 @@ public class GenResSpec
     [Fact]
     public async Task GetValueOrDefaultAsync_WithFuncValueTask_ShouldReturnDefaultForError()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var value = await result.GetValueOrDefaultAsync(() => new ValueTask<int>(42));
         value.Should().Be(42);
     }
@@ -328,7 +328,7 @@ public class GenResSpec
     [Fact]
     public void GetErrorOrDefault_WithFunc_ShouldReturnDefaultForOk()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var error = result.GetErrorOrDefault(() => "default");
         error.Should().Be("default");
     }
@@ -336,7 +336,7 @@ public class GenResSpec
     [Fact]
     public async Task GetErrorOrDefaultAsync_WithTask_ShouldReturnDefaultForOk()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var error = await result.GetErrorOrDefaultAsync(Task.FromResult("default"));
         error.Should().Be("default");
     }
@@ -344,7 +344,7 @@ public class GenResSpec
     [Fact]
     public async Task GetErrorOrDefaultAsync_WithValueTask_ShouldReturnDefaultForOk()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var error = await result.GetErrorOrDefaultAsync(new ValueTask<string>("default"));
         error.Should().Be("default");
     }
@@ -352,7 +352,7 @@ public class GenResSpec
     [Fact]
     public async Task GetErrorOrDefaultAsync_WithFuncTask_ShouldReturnDefaultForOk()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var error = await result.GetErrorOrDefaultAsync(() => Task.FromResult("default"));
         error.Should().Be("default");
     }
@@ -360,7 +360,7 @@ public class GenResSpec
     [Fact]
     public async Task GetErrorOrDefaultAsync_WithFuncValueTask_ShouldReturnDefaultForOk()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var error = await result.GetErrorOrDefaultAsync(() => new ValueTask<string>("default"));
         error.Should().Be("default");
     }
@@ -368,7 +368,7 @@ public class GenResSpec
     [Fact]
     public void ToErrorOption_ShouldReturnSomeForError()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var option = result.ToErrorOption();
         option.IsSome().Should().BeTrue();
         option.GetValueOrThrow().Should().Be("error");
@@ -377,7 +377,7 @@ public class GenResSpec
     [Fact]
     public void ToOptions_ShouldReturnCorrectTuple()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var (okOption, errorOption) = result.ToOptions();
         okOption.IsSome().Should().BeTrue();
         errorOption.IsNone().Should().BeTrue();
@@ -386,7 +386,7 @@ public class GenResSpec
     [Fact]
     public async Task ToValueTask_ShouldReturnSameResult()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var valueTask = result.ToValueTask();
         var unwrapped = await valueTask;
         unwrapped.Should().BeOk().Which.Should().Be(42);
@@ -396,7 +396,7 @@ public class GenResSpec
     public void Do_ShouldExecuteActionForOk()
     {
         var executed = false;
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         _ = result.Do(_ => executed = true);
         executed.Should().BeTrue();
     }
@@ -405,7 +405,7 @@ public class GenResSpec
     public void Do_ShouldNotExecuteActionForError()
     {
         var executed = false;
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         _ = result.Do(_ => executed = true);
         executed.Should().BeFalse();
     }
@@ -414,7 +414,7 @@ public class GenResSpec
     public void DoOnError_ShouldExecuteActionForError()
     {
         var executed = false;
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         _ = result.DoOnError(_ => executed = true);
         executed.Should().BeTrue();
     }
@@ -424,7 +424,7 @@ public class GenResSpec
     [InlineData(false)]
     public async Task Match_WithMixedAsyncFuncs_ShouldWorkCorrectly(bool isOk)
     {
-        GenRes<int, string> result = isOk ? GenRes.Ok<int, string>(42) : GenRes.Error<int, string>("error");
+        GenericResult<int, string> result = isOk ? GenericResult.Ok<int, string>(42) : GenericResult.Error<int, string>("error");
 
         var matchedTask = result.Match(
             ok: x => Task.FromResult(x * 2),
@@ -451,16 +451,16 @@ public class GenResSpec
     [Fact]
     public async Task Bind_WithValueTask_ShouldWorkCorrectly()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var bound = await result.Bind(x =>
-            new ValueTask<GenRes<string, string>>(GenRes.Ok<string, string>(x.ToString())));
+            new ValueTask<GenericResult<string, string>>(GenericResult.Ok<string, string>(x.ToString())));
         bound.Should().BeOk().Which.Should().Be("42");
     }
 
     [Fact]
     public async Task Map_WithValueTask_ShouldWorkCorrectly()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var mapped = await result.Map(x => new ValueTask<string>(x.ToString()));
         mapped.Should().BeOk().Which.Should().Be("42");
     }
@@ -468,7 +468,7 @@ public class GenResSpec
     [Fact]
     public async Task MapError_WithAsyncFuncs_ShouldWorkCorrectly()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var mappedTask = await result.MapError(e => Task.FromResult(e + "!"));
         var mappedValueTask = await result.MapError(e => new ValueTask<string>(e + "!"));
 
@@ -479,45 +479,45 @@ public class GenResSpec
     [Fact]
     public void Select_AndSelectMany_ShouldWorkCorrectly()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
 
         var selected = result.Select(x => x.ToString());
         selected.Should().BeOk().Which.Should().Be("42");
 
-        var selectManied = result.SelectMany(x => GenRes.Ok<string, string>(x.ToString()));
+        var selectManied = result.SelectMany(x => GenericResult.Ok<string, string>(x.ToString()));
         selectManied.Should().BeOk().Which.Should().Be("42");
     }
 
     [Fact]
     public async Task SelectMany_WithAsyncFuncs_ShouldWorkCorrectly()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
 
-        var taskResult = await result.SelectMany(x => Task.FromResult(GenRes.Ok<string, string>(x.ToString())));
+        var taskResult = await result.SelectMany(x => Task.FromResult(GenericResult.Ok<string, string>(x.ToString())));
         taskResult.Should().BeOk().Which.Should().Be("42");
 
         var valueTaskResult = await result.SelectMany(x =>
-            new ValueTask<GenRes<string, string>>(GenRes.Ok<string, string>(x.ToString())));
+            new ValueTask<GenericResult<string, string>>(GenericResult.Ok<string, string>(x.ToString())));
         valueTaskResult.Should().BeOk().Which.Should().Be("42");
     }
 
     [Fact]
     public async Task SelectMany_WithValueTaskProjections_ShouldWorkCorrectly()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
 
         var r1 = await result.SelectMany(
-            x => new ValueTask<GenRes<string, string>>(GenRes.Ok<string, string>(x.ToString())),
+            x => new ValueTask<GenericResult<string, string>>(GenericResult.Ok<string, string>(x.ToString())),
             (_, s) => s + "!");
         r1.Should().BeOk().Which.Should().Be("42!");
 
         var r2 = await result.SelectMany(
-            x => GenRes.Ok<string, string>(x.ToString()),
+            x => GenericResult.Ok<string, string>(x.ToString()),
             (_, s) => new ValueTask<string>(s + "!"));
         r2.Should().BeOk().Which.Should().Be("42!");
 
         var r3 = await result.SelectMany(
-            x => new ValueTask<GenRes<string, string>>(GenRes.Ok<string, string>(x.ToString())),
+            x => new ValueTask<GenericResult<string, string>>(GenericResult.Ok<string, string>(x.ToString())),
             (_, s) => new ValueTask<string>(s + "!"));
         r3.Should().BeOk().Which.Should().Be("42!");
     }
@@ -525,7 +525,7 @@ public class GenResSpec
     [Fact]
     public void GetValueOrDefault_WithDefaultValue_ShouldReturnValueForOk()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var value = result.GetValueOrDefault(0);
         value.Should().Be(42);
     }
@@ -533,7 +533,7 @@ public class GenResSpec
     [Fact]
     public void GetValueOrDefault_WithFunc_ShouldReturnDefaultForError()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var value = result.GetValueOrDefault(() => 42);
         value.Should().Be(42);
     }
@@ -541,7 +541,7 @@ public class GenResSpec
     [Fact]
     public async Task GetValueOrDefaultAsync_WithTask_ShouldReturnDefaultForError()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var value = await result.GetValueOrDefaultAsync(Task.FromResult(42));
         value.Should().Be(42);
     }
@@ -549,7 +549,7 @@ public class GenResSpec
     [Fact]
     public async Task GetValueOrDefaultAsync_WithValueTask_ShouldReturnDefaultForError()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var value = await result.GetValueOrDefaultAsync(new ValueTask<int>(42));
         value.Should().Be(42);
     }
@@ -557,7 +557,7 @@ public class GenResSpec
     [Fact]
     public void GetErrorOrDefault_WithDefaultValue_ShouldReturnErrorForError()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var error = result.GetErrorOrDefault("default");
         error.Should().Be("error");
     }
@@ -565,7 +565,7 @@ public class GenResSpec
     [Fact]
     public async Task ToTask_ShouldReturnSameResult()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var task = result.ToTask();
         var unwrapped = await task;
         unwrapped.Should().BeOk().Which.Should().Be(42);
@@ -574,7 +574,7 @@ public class GenResSpec
     [Fact]
     public async Task DoAsync_WithValueTask_ShouldExecuteActionOnOkValue()
     {
-        var result = GenRes.Ok<int, string>(42);
+        var result = GenericResult.Ok<int, string>(42);
         var executed = false;
         _ = await result.DoAsync(_ =>
         {
@@ -587,7 +587,7 @@ public class GenResSpec
     [Fact]
     public async Task DoOnErrorAsync_WithValueTask_ShouldExecuteActionOnErrorValue()
     {
-        var result = GenRes.Error<int, string>("error");
+        var result = GenericResult.Error<int, string>("error");
         var executed = false;
         _ = await result.DoOnErrorAsync(_ =>
         {
@@ -602,7 +602,7 @@ public class GenResSpec
     [InlineData(false)]
     public async Task Match_WithMixedTaskPatterns_ShouldWorkCorrectly(bool isOk)
     {
-        GenRes<int, string> result = isOk ? GenRes.Ok<int, string>(42) : GenRes.Error<int, string>("error");
+        GenericResult<int, string> result = isOk ? GenericResult.Ok<int, string>(42) : GenericResult.Error<int, string>("error");
 
         var r1 = await result.Match(
             ok: x => Task.FromResult(x * 2),
@@ -641,14 +641,14 @@ public class GenResSpec
     [InlineData(false)]
     public async Task SelectMany_WithAsyncResultSelectors_ShouldWorkCorrectly(bool isOk)
     {
-        var result = isOk ? GenRes.Ok<int, string>(42) : GenRes.Error<int, string>("error");
+        var result = isOk ? GenericResult.Ok<int, string>(42) : GenericResult.Error<int, string>("error");
 
         var r1 = await result.SelectMany(
-            x => GenRes.Ok<string, string>(x.ToString()),
+            x => GenericResult.Ok<string, string>(x.ToString()),
             (_, s) => Task.FromResult(s + "!"));
 
         var r2 = await result.SelectMany(
-            x => Task.FromResult(GenRes.Ok<string, string>(x.ToString())),
+            x => Task.FromResult(GenericResult.Ok<string, string>(x.ToString())),
             (_, s) => Task.FromResult(s + "!"));
 
         if (isOk)

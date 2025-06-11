@@ -4,8 +4,8 @@ using AwesomeAssertions.Primitives;
 
 namespace FunicularSwitch.Generic.Assertions;
 
-public class GenericResultAssertions<TOk, TError>(GenRes<TOk, TError> value, AssertionChain assertionChain)
-    : ObjectAssertions<GenRes<TOk, TError>, GenericResultAssertions<TOk, TError>>(value, assertionChain)
+public class GenericResultAssertions<TOk, TError>(GenericResult<TOk, TError> value, AssertionChain assertionChain)
+    : ObjectAssertions<GenericResult<TOk, TError>, GenericResultAssertions<TOk, TError>>(value, assertionChain)
 {
     public AndWhichConstraint<GenericResultAssertions<TOk, TError>, TOk> BeOk(
         string because = "",

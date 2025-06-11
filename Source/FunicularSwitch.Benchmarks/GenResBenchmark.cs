@@ -6,45 +6,45 @@ namespace FunicularSwitch.Benchmarks;
 [MemoryDiagnoser()]
 public class GenResBenchmark
 {
-    private GenRes<int, int> _okRes;
-    private GenRes<int, int> _errorRes;
+    private GenericResult<int, int> _okRes;
+    private GenericResult<int, int> _errorRes;
     private Func<int, int> _identity;
-    private Func<int, GenRes<int, int>> _monadicIdentity;
+    private Func<int, GenericResult<int, int>> _monadicIdentity;
 
     [GlobalSetup]
     public void Setup()
     {
         _identity = static i => i;
-        _monadicIdentity = GenRes<int, int>.Ok;
-        _okRes = GenRes<int, int>.Ok(42);
-        _errorRes = GenRes<int, int>.Error(40);
+        _monadicIdentity = GenericResult<int, int>.Ok;
+        _okRes = GenericResult<int, int>.Ok(42);
+        _errorRes = GenericResult<int, int>.Error(40);
     }
 
     [Benchmark]
-    public GenRes<int, int> CreateOkWithType()
+    public GenericResult<int, int> CreateOkWithType()
     {
-        return GenRes<int, int>.Ok(42);
+        return GenericResult<int, int>.Ok(42);
     }
 
     [Benchmark]
-    public GenRes<int, int> CreateErrorWithType()
+    public GenericResult<int, int> CreateErrorWithType()
     {
-        return GenRes<int, int>.Error(40);
+        return GenericResult<int, int>.Error(40);
         
         
         
     }
     
     [Benchmark]
-    public GenRes<int, int> CreateOkWithImplicitOperator()
+    public GenericResult<int, int> CreateOkWithImplicitOperator()
     {
-        return GenRes.Ok(42);
+        return GenericResult.Ok(42);
     }
     
     [Benchmark]
-    public GenRes<int, int> CreateErrorWithImplicitOperator()
+    public GenericResult<int, int> CreateErrorWithImplicitOperator()
     {
-        return GenRes.Error(40);
+        return GenericResult.Error(40);
     }
 
     [Benchmark]
@@ -60,25 +60,25 @@ public class GenResBenchmark
     }
 
     [Benchmark]
-    public GenRes<int, int> BindOk()
+    public GenericResult<int, int> BindOk()
     {
         return _okRes.Bind(_monadicIdentity);
     }
 
     [Benchmark]
-    public GenRes<int, int> BindError()
+    public GenericResult<int, int> BindError()
     {
         return _errorRes.Bind(_monadicIdentity);
     }
 
     [Benchmark]
-    public GenRes<int, int> MapOk()
+    public GenericResult<int, int> MapOk()
     {
         return _okRes.Map(_identity);
     }
 
     [Benchmark]
-    public GenRes<int, int> MapError()
+    public GenericResult<int, int> MapError()
     {
         return _errorRes.Map(_identity);
     }
