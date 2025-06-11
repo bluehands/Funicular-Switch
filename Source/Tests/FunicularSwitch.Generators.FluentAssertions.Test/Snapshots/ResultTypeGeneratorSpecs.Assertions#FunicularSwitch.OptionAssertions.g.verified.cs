@@ -1,21 +1,21 @@
 ﻿//HintName: FunicularSwitch.OptionAssertions.g.cs
 #nullable enable
-using FluentAssertions.Execution;
-using FluentAssertions.Primitives;
-using FluentAssertions;
+using AwesomeAssertions.Execution;
+using AwesomeAssertions.Primitives;
+using AwesomeAssertions;
 using System;
 
 namespace FunicularSwitch;
 
 internal class OptionAssertions<T> : ObjectAssertions<FunicularSwitch.Option<T>, OptionAssertions<T>>
 {
-    public OptionAssertions(FunicularSwitch.Option<T> value) : base(value)
+    public OptionAssertions(FunicularSwitch.Option<T> value) : base(value, AssertionChain.GetOrCreate())
     {
     }
 
     public AndWhichConstraint<OptionAssertions<T>, T> BeSome(string because = "", params object[] becauseArgs)
     {
-        Execute.Assertion
+        CurrentAssertionChain
             .ForCondition(this.Subject.IsSome())
             .BecauseOf(because, becauseArgs)
             .FailWith("Expected {content} to be Some{reason}, but found {0}", this.Subject.ToString());
@@ -25,7 +25,7 @@ internal class OptionAssertions<T> : ObjectAssertions<FunicularSwitch.Option<T>,
 
     public AndConstraint<OptionAssertions<T>> BeNone(string because = "", params object[] becauseArgs)
     {
-        Execute.Assertion
+        CurrentAssertionChain
             .ForCondition(this.Subject.IsNone())
             .BecauseOf(because, becauseArgs)
             .FailWith("Expected {content} to be None{reason}, but found {0}", this.Subject.ToString());
