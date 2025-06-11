@@ -31,19 +31,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.Consumer.Nuget", "Tests\FunicularSwitch.Generators.Consumer.Nuget\FunicularSwitch.Generators.Consumer.Nuget.csproj", "{05DEB150-372C-4D76-856C-C7A20F7F3EA0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.FluentAssertions", "FunicularSwitch.Generators.FluentAssertions\FunicularSwitch.Generators.FluentAssertions.csproj", "{CC47AAAF-A8B4-4E03-AE78-E2011426F723}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.AwesomeAssertions", "FunicularSwitch.Generators.AwesomeAssertions\FunicularSwitch.Generators.AwesomeAssertions.csproj", "{CC47AAAF-A8B4-4E03-AE78-E2011426F723}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.FluentAssertions.Test", "Tests\FunicularSwitch.Generators.FluentAssertions.Test\FunicularSwitch.Generators.FluentAssertions.Test.csproj", "{DE65F0E3-12EA-48AA-98A3-DB7D636C28D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.AwesomeAssertions.Test", "Tests\FunicularSwitch.Generators.AwesomeAssertions.Test\FunicularSwitch.Generators.AwesomeAssertions.Test.csproj", "{DE65F0E3-12EA-48AA-98A3-DB7D636C28D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.FluentAssertions.Consumer", "Tests\FunicularSwitch.Generators.FluentAssertions.Consumer\FunicularSwitch.Generators.FluentAssertions.Consumer.csproj", "{672EACCA-A632-4D85-B36F-C1C83638C222}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.AwesomeAssertions.Consumer", "Tests\FunicularSwitch.Generators.AwesomeAssertions.Consumer\FunicularSwitch.Generators.AwesomeAssertions.Consumer.csproj", "{672EACCA-A632-4D85-B36F-C1C83638C222}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.FluentAssertions.Templates", "FunicularSwitch.Generators.FluentAssertions.Templates\FunicularSwitch.Generators.FluentAssertions.Templates.csproj", "{BBCC9D11-FD33-4F29-9BB2-C42DF36AA28B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.AwesomeAssertions.Templates", "FunicularSwitch.Generators.AwesomeAssertions.Templates\FunicularSwitch.Generators.AwesomeAssertions.Templates.csproj", "{BBCC9D11-FD33-4F29-9BB2-C42DF36AA28B}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FunicularSwitch.Generators.Common", "FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.shproj", "{5DBC7D41-67A3-41C2-8E6D-453CF1334627}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FunicularSwitch.Common", "FunicularSwitch.Common\FunicularSwitch.Common.shproj", "{BF664635-17E2-44EB-A99E-94D564542509}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency", "Tests\FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency\FunicularSwitch.Generators.FluentAssertions.Consumer.Dependency.csproj", "{DA09911F-FDE5-477E-BEEA-76D582844408}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunicularSwitch.Generators.AwesomeAssertions.Consumer.Dependency", "Tests\FunicularSwitch.Generators.AwesomeAssertions.Consumer.Dependency\FunicularSwitch.Generators.AwesomeAssertions.Consumer.Dependency.csproj", "{DA09911F-FDE5-477E-BEEA-76D582844408}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generators.Consumer.StandardMinLangVersion", "Tests\FunicularSwitch.Generators.Consumer.StandardMinLangVersion\FunicularSwitch.Generators.Consumer.StandardMinLangVersion.csproj", "{18D4F137-98AF-47CF-88FE-313C4BEA4215}"
 EndProject
