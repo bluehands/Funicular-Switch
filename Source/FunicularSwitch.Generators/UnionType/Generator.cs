@@ -11,8 +11,11 @@ public static class Generator
     const string VoidMatchMethodName = "Switch";
     const string MatchMethodName = "Match";
 
-    public static (string filename, string source) Emit(UnionTypeSchema unionTypeSchema,
-        Action<Diagnostic> reportDiagnostic, CancellationToken cancellationToken)
+    public static (string filename, string source) Emit(
+        UnionTypeSchema unionTypeSchema,
+        ImmutableArray<INamedTypeSymbol> derivedTypeShapeAttributes,
+        Action<Diagnostic> reportDiagnostic,
+        CancellationToken cancellationToken)
     {
         var builder = new CSharpBuilder();
         builder.WriteLine("#pragma warning disable 1591");
@@ -27,7 +30,7 @@ public static class Generator
             if (unionTypeSchema is { IsPartial: true, StaticFactoryInfo: not null })
             {
                 builder.WriteLine("");
-                WritePartialWithStaticFactories(unionTypeSchema, builder);
+                WritePartialWithStaticFactories(unionTypeSchema, derivedTypeShapeAttributes, builder);
             }
         }
 
@@ -86,7 +89,7 @@ public static class Generator
         }
     }
 
-    static void WritePartialWithStaticFactories(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
+    static void WritePartialWithStaticFactories(UnionTypeSchema unionTypeSchema, ImmutableArray<INamedTypeSymbol> derivedTypeShapeAttributes, CSharpBuilder builder)
     {
         var info = unionTypeSchema.StaticFactoryInfo!;
         var typeParameters = RoslynExtensions.FormatTypeParameters(unionTypeSchema.TypeParameters);
@@ -95,11 +98,13 @@ public static class Generator
         var actualModifiers = unionTypeSchema.Modifiers
             .Select(m => m == "public" ? (unionTypeSchema.IsInternal ? "internal" : "public") : m);
 
-        if (unionTypeSchema.HasPolyTypeReference)
+        if (derivedTypeShapeAttributes.Any())
         {
+            var attributeText = derivedTypeShapeAttributes.First()
+                .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             foreach (var derivedType in unionTypeSchema.Cases)
             {
-                builder.WriteLine($"[global::PolyType.DerivedTypeShape(typeof(global::{derivedType.FullTypeName}))]");
+                builder.WriteLine($"[{attributeText}(typeof(global::{derivedType.FullTypeName}))]");
             }
         }
         builder.WriteLine($"{(actualModifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");

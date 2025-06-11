@@ -70,8 +70,7 @@ static class Parser
                     Modifiers: unionTypeClass.Modifiers.ToEquatableModifiers(),
                     StaticFactoryInfo: generateFactoryMethods
                         ? BuildFactoryInfo(unionTypeClass, compilation)
-                        : null,
-                    HasPolyTypeReference: compilation.ReferencedAssemblyNames.Any(a => a.Name == "PolyType")
+                        : null
                 ));
 
 

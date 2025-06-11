@@ -14,8 +14,7 @@ public sealed record UnionTypeSchema(string? Namespace,
 	bool IsPartial,
 	UnionTypeTypeKind TypeKind,
 	EquatableArray<string> Modifiers,
-	StaticFactoryMethodsInfo? StaticFactoryInfo,
-	bool HasPolyTypeReference);
+	StaticFactoryMethodsInfo? StaticFactoryInfo);
 
 public enum UnionTypeTypeKind
 {

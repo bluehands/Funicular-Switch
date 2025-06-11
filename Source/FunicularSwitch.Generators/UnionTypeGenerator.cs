@@ -1,4 +1,5 @@
-﻿using FunicularSwitch.Generators.Common;
+﻿using System.Collections.Immutable;
+using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.UnionType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -22,29 +23,35 @@ public class UnionTypeGenerator : IIncrementalGenerator
                 .ForAttributeWithMetadataName(
                     UnionTypeAttribute,
                     predicate: static (_, _) => true,
-                    transform: static (context, cancellationToken) => 
+                    transform: static (context, cancellationToken) =>
                         Parser.GetUnionTypeSchema(
-                            context.SemanticModel.Compilation, 
-                            cancellationToken, 
+                            context.SemanticModel.Compilation,
+                            cancellationToken,
                             (BaseTypeDeclarationSyntax)context.TargetNode,
                             (INamedTypeSymbol)context.TargetSymbol,
                             context.Attributes[0]
-                            )
-                        );
-
+                        )
+                )
+                .Combine(context.CompilationProvider
+                    .SelectMany(static (compilation, _) => compilation.GlobalNamespace.GetNamespaceMembers())
+                    .Where(static (namespaceMember) => namespaceMember.Name == "PolyType")
+                    .SelectMany(static (namespaceMember, _) => namespaceMember.GetTypeMembers())
+                    .Where(static (type) => type.Name == "DerivedTypeShapeAttribute")
+                    .Collect());
+        
         context.RegisterSourceOutput(
             unionTypeClasses, 
-            static (spc, source) => Execute(source, spc));
+            static (spc, source) => Execute(source.Left, source.Right, spc));
     }
 
-    static void Execute(GenerationResult<UnionTypeSchema> target, SourceProductionContext context)
+    static void Execute(GenerationResult<UnionTypeSchema> target, ImmutableArray<INamedTypeSymbol> derivedTypeShapeAttributes, SourceProductionContext context)
     {
         var (unionTypeSchema, errors, hasValue) = target;
         foreach (var error in errors) context.ReportDiagnostic(error);
         
         if (!hasValue || unionTypeSchema!.Cases.IsEmpty) return;
 
-        var (filename, source) = Generator.Emit(unionTypeSchema, context.ReportDiagnostic, context.CancellationToken);
+        var (filename, source) = Generator.Emit(unionTypeSchema, derivedTypeShapeAttributes, context.ReportDiagnostic, context.CancellationToken);
         context.AddSource(filename, source);
     }
 }

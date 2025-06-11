@@ -64,8 +64,8 @@ namespace FunicularSwitch.Text
 		await (await baseType.ConfigureAwait(false)).Switch(derivedType, derivedType2).ConfigureAwait(false);
 	}
 	
-	[global::PolyType.DerivedTypeShape(typeof(global::FunicularSwitch.Text.BaseType.DerivedType_))]
-	[global::PolyType.DerivedTypeShape(typeof(global::FunicularSwitch.Text.BaseType.DerivedType2_))]
+	[global::PolyType.DerivedTypeShapeAttribute(typeof(global::FunicularSwitch.Text.BaseType.DerivedType_))]
+	[global::PolyType.DerivedTypeShapeAttribute(typeof(global::FunicularSwitch.Text.BaseType.DerivedType2_))]
 	public abstract partial record BaseType
 	{
 		public static FunicularSwitch.Text.BaseType DerivedType() => new FunicularSwitch.Text.BaseType.DerivedType_();
