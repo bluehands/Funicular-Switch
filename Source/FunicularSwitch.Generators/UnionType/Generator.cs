@@ -95,6 +95,13 @@ public static class Generator
         var actualModifiers = unionTypeSchema.Modifiers
             .Select(m => m == "public" ? (unionTypeSchema.IsInternal ? "internal" : "public") : m);
 
+        if (unionTypeSchema.HasPolyTypeReference)
+        {
+            foreach (var derivedType in unionTypeSchema.Cases)
+            {
+                builder.WriteLine($"[global::PolyType.DerivedTypeShape(typeof(global::{derivedType.FullTypeName}))]");
+            }
+        }
         builder.WriteLine($"{(actualModifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");
         using (builder.Indent())
         {
