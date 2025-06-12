@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using PolyType;
 
 namespace FunicularSwitch.Generators.Test;
 
@@ -22,6 +23,7 @@ public class VerifyAnalyzer : VerifyBase
     private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
     private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
     private static readonly MetadataReference FunicularSwitchReference = MetadataReference.CreateFromFile(typeof(Unit).Assembly.Location);
+    private static readonly MetadataReference PolyTypeReference = MetadataReference.CreateFromFile(typeof(DerivedTypeShapeAttribute).Assembly.Location);
     
     // ReSharper disable once ExplicitCallerInfoArgument
     protected VerifyAnalyzer([CallerFilePath] string sourceFile = "")
@@ -39,6 +41,7 @@ public class VerifyAnalyzer : VerifyBase
         CodeFixProvider codeFixProvider,
         Action<ImmutableArray<Diagnostic>> verifyDiagnostics,
         Action<Diagnostic, CodeAction>? verifyCodeAction = null,
+        bool hasPolytypeReference = false,
         [CallerMemberName] string callingMethod = "")
     {
         const string TestProjectName = "Test";
@@ -58,12 +61,17 @@ public class VerifyAnalyzer : VerifyBase
             .AddMetadataReference(projectId, CSharpSymbolsReference)
             .AddMetadataReference(projectId, CodeAnalysisReference)
             .AddMetadataReference(projectId, FunicularSwitchReference)
-            .WithProjectParseOptions(projectId, new CSharpParseOptions(LanguageVersion.Preview))
+            .WithProjectParseOptions(projectId, new CSharpParseOptions(LanguageVersion.Latest))
             .WithProjectCompilationOptions(projectId, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
             .AddDocument(documentId, fileName, SourceText.From(source));
 
+        if (hasPolytypeReference)
+        {
+            solution = solution.AddMetadataReference(projectId, PolyTypeReference);
+        }
+
         var project = solution.GetProject(projectId)!;
-        var compilationWithAnalyzers = (await CheckCompilation(project))!.WithAnalyzers([analyzer]);
+        var compilationWithAnalyzers = (await CheckCompilation(project)).Item1!.WithAnalyzers([analyzer]);
         var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
         verifyDiagnostics(diagnostics);
         var document = project.Documents.First();
@@ -81,7 +89,9 @@ public class VerifyAnalyzer : VerifyBase
             var updatedDocument = await ApplyFix(document, actions[0]);
             var syntaxTree = await updatedDocument.GetSyntaxRootAsync();
             var updatedCode = syntaxTree.ToFullString();
-            await CheckCompilation(solution.RemoveDocument(documentId).AddDocument(documentId, fileName, SourceText.From(updatedCode)).GetProject(projectId)!);
+            var (_, updatedDiagnostics) = await CheckCompilation(solution.RemoveDocument(documentId).AddDocument(documentId, fileName, SourceText.From(updatedCode)).GetProject(projectId)!);
+            
+            updatedDiagnostics.Should().BeEmpty();
             
             var settings = new VerifySettings();
             settings.UseFileName($"{Path.GetFileNameWithoutExtension(this.sourceFile)}_{callingMethod}_{d.Id}_{index}.cs");
@@ -90,13 +100,18 @@ public class VerifyAnalyzer : VerifyBase
             index += 1;
         }
 
-        async Task<Compilation> CheckCompilation(Project p)
+        async Task<(Compilation Compilation, ImmutableArray<Diagnostic> Diagnostics)> CheckCompilation(Project p)
         {
             var c = await p.GetCompilationAsync()!;
-            c.GetDiagnostics()
+
+            GeneratorDriver driver = CSharpGeneratorDriver.Create(new UnionTypeGenerator());
+
+            driver = driver.RunGeneratorsAndUpdateCompilation(c!, out var updatedCompilation, out var dA);
+            
+            updatedCompilation.GetDiagnostics()
                 .Where(d => d.Severity == DiagnosticSeverity.Error)
                 .Should().BeEmpty();
-            return c;
+            return (c, dA)!;
         }
     }
     

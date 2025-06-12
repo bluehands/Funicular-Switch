@@ -10,7 +10,8 @@ namespace FunicularSwitch.Generators.UnionType;
 
 static class Parser
 {
-    public static GenerationResult<UnionTypeSchema> GetUnionTypeSchema(Compilation compilation,
+    public static GenerationResult<UnionTypeSchema> GetUnionTypeSchema(
+        Compilation compilation,
         CancellationToken cancellationToken,
         BaseTypeDeclarationSyntax unionTypeClass,
         INamedTypeSymbol unionTypeSymbol,
