@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using FunicularSwitch.Generators.Common;
+﻿using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.UnionType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,6 +10,7 @@ public class UnionTypeGenerator : IIncrementalGenerator
 {
     internal const string UnionTypeAttribute = "FunicularSwitch.Generators.UnionTypeAttribute";
     internal const string UnionCaseAttribute = "FunicularSwitch.Generators.UnionCaseAttribute";
+    internal const string DerivedTypeShapeAttribute = "DerivedTypeShapeAttribute";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -35,23 +35,31 @@ public class UnionTypeGenerator : IIncrementalGenerator
                 .Combine(context.CompilationProvider
                     .SelectMany(static (compilation, _) => compilation.GlobalNamespace.GetNamespaceMembers())
                     .Where(static (namespaceMember) => namespaceMember.Name == "PolyType")
-                    .SelectMany(static (namespaceMember, _) => namespaceMember.GetTypeMembers())
-                    .Where(static (type) => type.Name == "DerivedTypeShapeAttribute")
+                    .Select(static (namespaceMember, _) =>
+                    {
+                        foreach (var namedTypeSymbol in namespaceMember.GetTypeMembers())
+                        {
+                           if (namedTypeSymbol.Name == DerivedTypeShapeAttribute)
+                               return true;
+                        }
+                        return false;
+                    })
+                    .Where(t => t)
                     .Collect());
         
         context.RegisterSourceOutput(
             unionTypeClasses, 
-            static (spc, source) => Execute(source.Left, source.Right, spc));
+            static (spc, source) => Execute(source.Left, source.Right.Length > 0, spc));
     }
 
-    static void Execute(GenerationResult<UnionTypeSchema> target, ImmutableArray<INamedTypeSymbol> derivedTypeShapeAttributes, SourceProductionContext context)
+    static void Execute(GenerationResult<UnionTypeSchema> target, bool hasPolyTypeReference, SourceProductionContext context)
     {
         var (unionTypeSchema, errors, hasValue) = target;
         foreach (var error in errors) context.ReportDiagnostic(error);
         
         if (!hasValue || unionTypeSchema!.Cases.IsEmpty) return;
 
-        var (filename, source) = Generator.Emit(unionTypeSchema, derivedTypeShapeAttributes, context.ReportDiagnostic, context.CancellationToken);
+        var (filename, source) = Generator.Emit(unionTypeSchema, hasPolyTypeReference, context.ReportDiagnostic, context.CancellationToken);
         context.AddSource(filename, source);
     }
 }

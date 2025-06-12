@@ -13,7 +13,7 @@ public static class Generator
 
     public static (string filename, string source) Emit(
         UnionTypeSchema unionTypeSchema,
-        ImmutableArray<INamedTypeSymbol> derivedTypeShapeAttributes,
+        bool hasPolyTypeReference,
         Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken)
     {
@@ -30,7 +30,7 @@ public static class Generator
             if (unionTypeSchema is { IsPartial: true, StaticFactoryInfo: not null })
             {
                 builder.WriteLine("");
-                WritePartialWithStaticFactories(unionTypeSchema, derivedTypeShapeAttributes, builder);
+                WritePartialWithStaticFactories(unionTypeSchema, hasPolyTypeReference, builder);
             }
         }
 
@@ -89,7 +89,7 @@ public static class Generator
         }
     }
 
-    static void WritePartialWithStaticFactories(UnionTypeSchema unionTypeSchema, ImmutableArray<INamedTypeSymbol> derivedTypeShapeAttributes, CSharpBuilder builder)
+    static void WritePartialWithStaticFactories(UnionTypeSchema unionTypeSchema, bool hasPolyTypeReference, CSharpBuilder builder)
     {
         var info = unionTypeSchema.StaticFactoryInfo!;
         var typeParameters = RoslynExtensions.FormatTypeParameters(unionTypeSchema.TypeParameters);
@@ -98,13 +98,11 @@ public static class Generator
         var actualModifiers = unionTypeSchema.Modifiers
             .Select(m => m == "public" ? (unionTypeSchema.IsInternal ? "internal" : "public") : m);
 
-        if (derivedTypeShapeAttributes.Any())
+        if (hasPolyTypeReference)
         {
-            var attributeText = derivedTypeShapeAttributes.First()
-                .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             foreach (var derivedType in unionTypeSchema.Cases)
             {
-                builder.WriteLine($"[{attributeText}(typeof(global::{derivedType.FullTypeName}))]");
+                builder.WriteLine($"[global::PolyType.{UnionTypeGenerator.DerivedTypeShapeAttribute}(typeof(global::{derivedType.FullTypeName}))]");
             }
         }
         builder.WriteLine($"{(actualModifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");
