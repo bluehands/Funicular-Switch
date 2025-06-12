@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Diagnostics;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -10,7 +9,8 @@ namespace FunicularSwitch.Generators.UnionType;
 
 static class Parser
 {
-    public static GenerationResult<UnionTypeSchema> GetUnionTypeSchema(Compilation compilation,
+    public static GenerationResult<UnionTypeSchema> GetUnionTypeSchema(
+        Compilation compilation,
         CancellationToken cancellationToken,
         BaseTypeDeclarationSyntax unionTypeClass,
         INamedTypeSymbol unionTypeSymbol,
