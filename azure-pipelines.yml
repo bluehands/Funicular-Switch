@@ -52,7 +52,7 @@ steps:
       **/FunicularSwitch.Generators.Consumer.csproj
       **/FunicularSwitch.Generators.Consumer.Nuget.csproj
       **/FunicularSwitch.Generators.Consumer.StandardMinLangVersion.csproj
-      **/FunicularSwitch.Generators.FluentAssertions.Consumer.csproj
+      **/FunicularSwitch.Generators.AwesomeAssertions.Consumer.csproj
     arguments: '--configuration $(BuildConfiguration)'
 
 - task: PublishSymbols@2
@@ -81,12 +81,12 @@ steps:
     verbosityPack: Detailed
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet pack funicular generators fluent assertions'
+  displayName: 'dotnet pack funicular generators assertions'
   inputs:
     command: pack
     nobuild: true
-    packagesToPack: Source/FunicularSwitch.Generators.FluentAssertions/FunicularSwitch.Generators.FluentAssertions.csproj
-    packDirectory: '$(Build.ArtifactStagingDirectory)/Generators.FluentAssertions'
+    packagesToPack: Source/FunicularSwitch.Generators.AwesomeAssertions/FunicularSwitch.Generators.AwesomeAssertions.csproj
+    packDirectory: '$(Build.ArtifactStagingDirectory)/Generators.AwesomeAssertions'
     verbosityPack: Detailed
 
 - task: PublishBuildArtifacts@1

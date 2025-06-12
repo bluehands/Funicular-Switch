@@ -76,6 +76,12 @@
           "MSTest.Analyzers": "3.8.3"
         }
       },
+      "PolyType": {
+        "type": "Direct",
+        "requested": "[0.42.1, )",
+        "resolved": "0.42.1",
+        "contentHash": "zAyfEJTPetYZD3RpDMThSDBhtB2NT3HXYrPJRPS+VdyDPMUY/bN5Gz3zL2ner/Nt+gUuZflcfTFR3Rxki9RD1g=="
+      },
       "Verify.MSTest": {
         "type": "Direct",
         "requested": "[29.3.0, )",
