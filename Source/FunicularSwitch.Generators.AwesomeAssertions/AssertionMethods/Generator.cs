@@ -16,7 +16,10 @@ internal static class Generator
     {
         var resultTypeNameFullName = resultTypeSchema.ResultType.FullTypeName().Replace('.', '_');
         var resultTypeFullNameWithNamespace = resultTypeSchema.ResultType.FullTypeNameWithNamespace();
-        var resultTypeFullNameWithGlobalNamespace = resultTypeSchema.ResultType.FullTypeNameWithNamespaceAndGenerics();
+        var format =
+            SymbolWrapper.FullTypeWithNamespaceAndGenericsDisplayFormat.WithGenericsOptions(SymbolDisplayGenericsOptions
+                .None);
+        var resultTypeFullNameWithGlobalNamespace = resultTypeSchema.ResultType.ToDisplayString(format);
         var resultTypeNamespace = resultTypeSchema.ResultType.GetFullNamespace()!;
 
         var errorTypeNameFullName = resultTypeSchema.ErrorType?.FullTypeNameWithNamespace() ?? typeof(string).FullName;
