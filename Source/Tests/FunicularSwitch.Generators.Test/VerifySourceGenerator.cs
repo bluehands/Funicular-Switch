@@ -1,27 +1,28 @@
-using System;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using VerifyMSTest;
+using PolyType;
 
 namespace FunicularSwitch.Generators.Test;
 
 public abstract class VerifySourceGenerator : VerifyBase
 {
-    protected Task Verify(string source, Action<Compilation, ImmutableArray<Diagnostic>>? verifyCompilation)
+    protected Task Verify(string source, IReadOnlyList<Assembly> additionalAssemblies, Action<Compilation, ImmutableArray<Diagnostic>>? verifyCompilation)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source);
 
         var assemblyDirectory = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-        var references = new[]
-        {
-            typeof(object),
-            typeof(Enumerable)
-        }.Select(t => MetadataReference.CreateFromFile(t.Assembly.Location))
+        var references =
+            new[]
+            {
+                typeof(object),
+                typeof(Enumerable),
+            }
+            .Select(t => t.Assembly)
+            .Concat(additionalAssemblies)
+            .Select(a => MetadataReference.CreateFromFile(a.Location))
             .Concat([
                 MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Runtime.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll"))
@@ -45,8 +46,8 @@ public abstract class VerifySourceGenerator : VerifyBase
             .UseDirectory("Snapshots");
     }
 
-    protected Task Verify(string source) =>
-        Verify(source, (compilation, _) =>
+    protected Task Verify(string source, bool referencePolyType = false) =>
+        Verify(source, additionalAssemblies: referencePolyType ? [typeof(DerivedTypeShapeAttribute).Assembly] : [], (compilation, _) =>
         {
             var diagnostics = compilation.GetDiagnostics();
             var errors = string.Join(Environment.NewLine, diagnostics

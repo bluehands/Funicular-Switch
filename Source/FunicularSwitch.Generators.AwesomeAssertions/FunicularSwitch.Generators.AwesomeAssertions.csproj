@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<IsPackable>true</IsPackable>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+
+		<VersionSuffixLocal />
+		<!--When variable is set we are building a prerelease package-->
+		<VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
+			$(VersionSuffix)
+		</VersionSuffixLocal>
+
+		<!--#region adapt versions here-->
+		<MajorVersion>1</MajorVersion>
+		<MinorAndPatchVersion>0.0</MinorAndPatchVersion>
+		<!--#endregion-->
+
+		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
+		<Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
+		<FileVersion>$(Version)</FileVersion>
+		<PackageVersion>$(Version)</PackageVersion>
+		<PackageId>FunicularSwitch.Generators.AwesomeAssertions</PackageId>
+
+		<!-- Descriptions and information-->
+		<Titel>FunicularSwitch.Generators.AwesomeAssertions</Titel>
+		<PackageDescription>Source generator emitting unit testing methods for result types</PackageDescription>
+		<PackageIcon>FunicularSwitch.png</PackageIcon>
+		<PackageTags>F# Result, Result, Match, UnionTypes, Map, Bind, Railway oriented programming, Railway oriented, Railway, Source Generator</PackageTags>
+		<DevelopmentDependency>true</DevelopmentDependency>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.AwesomeAssertions.Templates\GenerateExtensionsForInternalTypesAttribute.cs">
+		  <Link>Templates\GenerateExtensionsForInternalTypesAttribute.cs</Link>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.AwesomeAssertions.Templates\OptionAssertionExtensions.cs">
+		  <Link>Templates\OptionAssertionExtensions.cs</Link>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.AwesomeAssertions.Templates\OptionAssertions.cs">
+		  <Link>Templates\OptionAssertions.cs</Link>
+		</EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+		<PackageReference Include="AwesomeAssertions" Version="9.0.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
+
+	<Import Project="..\FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems" Label="Shared" />
+
+	<Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
+</Project>
