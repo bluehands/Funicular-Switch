@@ -88,7 +88,7 @@ public class VerifyAnalyzer : VerifyBase
             verifyCodeAction?.Invoke(d, actions[0]);
             var updatedDocument = await ApplyFix(document, actions[0]);
             var syntaxTree = await updatedDocument.GetSyntaxRootAsync();
-            var updatedCode = syntaxTree.ToFullString();
+            var updatedCode = syntaxTree!.ToFullString();
             var (_, updatedDiagnostics) = await CheckCompilation(solution.RemoveDocument(documentId).AddDocument(documentId, fileName, SourceText.From(updatedCode)).GetProject(projectId)!);
             
             updatedDiagnostics.Should().BeEmpty();

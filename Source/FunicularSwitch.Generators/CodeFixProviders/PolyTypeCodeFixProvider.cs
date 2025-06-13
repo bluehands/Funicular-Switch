@@ -45,7 +45,7 @@ public class PolyTypeCodeFixProvider : CodeFixProvider
 
         var (classSyntax, classSymbol, attributeData) = PolyTypeAnalyzer.BaseTypeDeclarationSyntax(semanticModel, attributeSyntax);
 
-        if (classSymbol is null || attributeData is null)
+        if (classSyntax is null || classSymbol is null || attributeData is null)
         {
             return;
         }

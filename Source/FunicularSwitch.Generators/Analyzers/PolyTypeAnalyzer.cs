@@ -24,7 +24,7 @@ public class PolyTypeAnalyzer : DiagnosticAnalyzer
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [Rule];
-    
+
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -41,7 +41,7 @@ public class PolyTypeAnalyzer : DiagnosticAnalyzer
 
         var (classSyntax, classSymbol, attributeData) = BaseTypeDeclarationSyntax(context.SemanticModel, attributeSyntax);
 
-        if (attributeData is null || classSymbol is null)
+        if (classSyntax is null || attributeData is null || classSymbol is null)
         {
             return;
         }
@@ -60,19 +60,19 @@ public class PolyTypeAnalyzer : DiagnosticAnalyzer
             attributeData);
 
         var (unionTypeSchema, errors, hasValue) = schema;
-        
+
         if (!hasValue || unionTypeSchema!.Cases.IsEmpty)
         {
             return;
         }
-        
+
         if (!context.Compilation.ReferencedAssemblyNames.Any(a => a.Name is "PolyType"))
         {
             return;
         }
 
         var derivedAttributes = GetAttributesOfDerivedTypes(classSymbol);
-        
+
         if (GetUnionTypeCasesWithoutAttribute(unionTypeSchema, derivedAttributes).Any())
         {
             var diagnostic = Diagnostic.Create(
@@ -83,11 +83,16 @@ public class PolyTypeAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    internal static (BaseTypeDeclarationSyntax classSyntax, INamedTypeSymbol? classSymbol, AttributeData? attributeData)
+    internal static (BaseTypeDeclarationSyntax? classSyntax, INamedTypeSymbol? classSymbol, AttributeData? attributeData)
         BaseTypeDeclarationSyntax(SemanticModel semanticModel, AttributeSyntax attributeSyntax)
     {
-        var attributeList = (attributeSyntax.Parent as AttributeListSyntax)!;
-        var classSyntax = (attributeList.Parent as BaseTypeDeclarationSyntax)!;
+        var attributeList = (attributeSyntax.Parent as AttributeListSyntax);
+        var classSyntax = (attributeList?.Parent as BaseTypeDeclarationSyntax);
+        if (classSyntax is null)
+        {
+            return (null, null, null);
+        }
+
         var classSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
         var attributeData = classSymbol?.GetAttributes()
             .FirstOrDefault(a => a.ApplicationSyntaxReference!.Span == attributeSyntax.Span);
