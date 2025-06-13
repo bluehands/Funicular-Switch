@@ -9,7 +9,6 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="PolyType" Version="0.42.1" />
 	</ItemGroup>
 
 	<PropertyGroup>

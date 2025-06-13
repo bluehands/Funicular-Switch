@@ -1,5 +1,7 @@
 ﻿using FunicularSwitch.Generators;
 
+namespace FunicularSwitch.Test;
+
 [UnionType]
 [PolyType.DerivedTypeShape(typeof(BaseType.DerivedType_))]
 [PolyType.DerivedTypeShape(typeof(BaseType.DerivedType2_))]

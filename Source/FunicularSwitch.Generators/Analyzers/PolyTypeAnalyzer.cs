@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using FunicularSwitch.Generators.Common;
+using FunicularSwitch.Generators.UnionType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -37,14 +39,9 @@ public class PolyTypeAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        var attributeList = (attributeSyntax.Parent as AttributeListSyntax)!;
-        var classSyntax = (attributeList.Parent as BaseTypeDeclarationSyntax)!;
-        var classSymbol = context.SemanticModel.GetDeclaredSymbol(classSyntax);
-        var attributeData = classSymbol?.GetAttributes()
-            .FirstOrDefault(a => a.ApplicationSyntaxReference!.SyntaxTree == attributeSyntax.SyntaxTree);
-        
-        
-        if (attributeData is null)
+        var (classSyntax, classSymbol, attributeData) = BaseTypeDeclarationSyntax(context.SemanticModel, attributeSyntax);
+
+        if (attributeData is null || classSymbol is null)
         {
             return;
         }
@@ -74,17 +71,9 @@ public class PolyTypeAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        var derivedAttributes = classSymbol
-            .GetAttributes()
-            .Where(a => a.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
-                        "global::PolyType.DerivedTypeShapeAttribute")
-            .Select(a => (a.ConstructorArguments[0].Value as INamedTypeSymbol)?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
-            .ToList();
+        var derivedAttributes = GetAttributesOfDerivedTypes(classSymbol);
         
-        // ReSharper disable once SimplifyLinqExpressionUseAll
-        if (unionTypeSchema.Cases
-            .Any(derivedType => !derivedAttributes
-                .Any(a => a == $"global::{derivedType.FullTypeName}")))
+        if (GetUnionTypeCasesWithoutAttribute(unionTypeSchema, derivedAttributes).Any())
         {
             var diagnostic = Diagnostic.Create(
                 Rule,
@@ -93,4 +82,33 @@ public class PolyTypeAnalyzer : DiagnosticAnalyzer
             context.ReportDiagnostic(diagnostic);
         }
     }
+
+    internal static (BaseTypeDeclarationSyntax classSyntax, INamedTypeSymbol? classSymbol, AttributeData? attributeData)
+        BaseTypeDeclarationSyntax(SemanticModel semanticModel, AttributeSyntax attributeSyntax)
+    {
+        var attributeList = (attributeSyntax.Parent as AttributeListSyntax)!;
+        var classSyntax = (attributeList.Parent as BaseTypeDeclarationSyntax)!;
+        var classSymbol = semanticModel.GetDeclaredSymbol(classSyntax);
+        var attributeData = classSymbol?.GetAttributes()
+            .FirstOrDefault(a => a.ApplicationSyntaxReference!.Span == attributeSyntax.Span);
+        return (classSyntax, classSymbol, attributeData);
+    }
+
+    internal static IEnumerable<DerivedType> GetUnionTypeCasesWithoutAttribute(UnionTypeSchema unionTypeSchema, List<string> derivedAttributes)
+    {
+        // ReSharper disable once SimplifyLinqExpressionUseAll
+        return unionTypeSchema.Cases
+            .Where(derivedType => !derivedAttributes
+                .Any(a => a == derivedType.PolyTypeTypeofExpressionName));
+    }
+
+    internal static List<string> GetAttributesOfDerivedTypes(INamedTypeSymbol classSymbol) =>
+        classSymbol
+            .GetAttributes()
+            .Where(a => a.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
+                        "global::PolyType.DerivedTypeShapeAttribute")
+            .Select(a => (a.ConstructorArguments[0].Value as INamedTypeSymbol)?.PolytypeTypeofExpressionTypeName())
+            .Where(s => s is not null)
+            .Select(s => s!)
+            .ToList();
 }

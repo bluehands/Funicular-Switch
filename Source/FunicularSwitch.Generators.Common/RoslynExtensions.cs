@@ -85,6 +85,14 @@ public static class RoslynExtensions
     public static string FullTypeNameWithNamespaceAndGenerics(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(FullTypeWithNamespaceAndGenericsDisplayFormat);
     public static string FullTypeName(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol.ToDisplayString(FullTypeDisplayFormat);
 
+    public static string PolytypeTypeofExpressionTypeName(this INamedTypeSymbol namedTypeSymbol) => namedTypeSymbol
+        .ToDisplayParts(format: FullTypeDisplayFormat
+            .WithGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeParameters))
+        .Where(w => w.Kind is not (SymbolDisplayPartKind.TypeParameterName or SymbolDisplayPartKind.NamespaceName
+            or SymbolDisplayPartKind.Space))
+        .ToImmutableArray()
+        .ToDisplayString();
+
     public static string FullNamespace(this INamespaceSymbol namespaceSymbol) =>
         namespaceSymbol.ToDisplayString(FullTypeDisplayFormat);
 
