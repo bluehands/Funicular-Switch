@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -77,6 +78,7 @@ public class VerifyAnalyzer : VerifyBase
         var document = project.Documents.First();
 
         var index = 0;
+        using var scope = new AssertionScope();
         foreach (var d in diagnostics
                      .OrderBy(d => d.Location.GetLineSpan().StartLinePosition.Line)
                      .ThenBy(d => d.Location.GetLineSpan().StartLinePosition.Character))
