@@ -36,11 +36,14 @@ public sealed record DerivedType
     public string ParameterName { get; }
 	public string StaticFactoryMethodName { get; }
 	
-    public DerivedType(string fullTypeName, string parameterName, string staticFactoryMethodName, EquatableArray<CallableMemberInfo>? constructors = null, EquatableArray<PropertyOrFieldInfo>? requiredMembers = null)
+	public string PolyTypeTypeofExpressionName { get; }
+	
+    public DerivedType(string fullTypeName, string parameterName, string staticFactoryMethodName, string polyTypeTypeofExpressionName, EquatableArray<CallableMemberInfo>? constructors = null, EquatableArray<PropertyOrFieldInfo>? requiredMembers = null)
     {
         FullTypeName = fullTypeName;
         ParameterName = parameterName;
         StaticFactoryMethodName = staticFactoryMethodName;
+        PolyTypeTypeofExpressionName = polyTypeTypeofExpressionName;
         RequiredMembers = requiredMembers ?? [];
         Constructors = constructors ?? [];
     }

@@ -21,4 +21,8 @@
     <ProjectReference Include="..\..\FunicularSwitch\FunicularSwitch.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="MatchNullAnalyzerTest.cs" />
+  </ItemGroup>
+
 </Project>

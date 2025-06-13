@@ -16,6 +16,11 @@ public class MatchNullCodeFixProvider : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds { get; } = [MatchNullAnalyzer.DiagnosticId];
 
+    public override FixAllProvider? GetFixAllProvider()
+    {
+        return WellKnownFixAllProviders.BatchFixer;
+    }
+
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var diagnostic = context.Diagnostics.Single();
@@ -39,11 +44,12 @@ public class MatchNullCodeFixProvider : CodeFixProvider
         context.RegisterCodeFix(
             CodeAction.Create(
                 title: $"Use .Map().GetValueOrDefault()",
-                createChangedDocument: c => MigrateMatch(context.Document, diagnostic.Id, invocationExpressionSyntax, m, context.CancellationToken)),
+                equivalenceKey: diagnostic.Id,
+                createChangedDocument: c => MigrateMatch(context.Document, invocationExpressionSyntax, m, context.CancellationToken)),
             diagnostic);
     }
 
-    private async Task<Document> MigrateMatch(Document document, string diagnosticId, InvocationExpressionSyntax invocationExpressionSyntax, MemberAccessExpressionSyntax memberAccessExpression, CancellationToken cancellationToken)
+    private async Task<Document> MigrateMatch(Document document, InvocationExpressionSyntax invocationExpressionSyntax, MemberAccessExpressionSyntax memberAccessExpression, CancellationToken cancellationToken)
     {
         var updatedInvocationExpression = invocationExpressionSyntax
             .WithExpression(memberAccessExpression.WithName(IdentifierName("Map")))
