@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Debug FunicularSwitch.Generators": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "../Tests/FunicularSwitch.Generators.Consumer/FunicularSwitch.Generators.Consumer.csproj"
+    }
+  }
+}
