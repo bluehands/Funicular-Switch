@@ -18,12 +18,12 @@ public readonly partial record struct GenericOk<TOk>
         bind(Value.GetValueOrThrow());
 
     [Pure]
-    public async Task<GenericResult<TOkReturn, TError>> BindAsync<TOkReturn, TError>(
+    public async Task<GenericResult<TOkReturn, TError>> Bind<TOkReturn, TError>(
         Func<TOk, Task<GenericResult<TOkReturn, TError>>> bind) =>
         await bind(Value.GetValueOrThrow()).ConfigureAwait(false);
 
     [Pure]
-    public async ValueTask<GenericResult<TOkReturn, TError>> BindAsync<TOkReturn, TError>(
+    public async ValueTask<GenericResult<TOkReturn, TError>> Bind<TOkReturn, TError>(
         Func<TOk, ValueTask<GenericResult<TOkReturn, TError>>> bind) =>
         await bind(Value.GetValueOrThrow()).ConfigureAwait(false);
 
@@ -206,11 +206,11 @@ public readonly partial record struct GenericResult<TOk, TError>
         _value.GetValueOrDefault(defaultValue);
 
     [Pure]
-    public async Task<TOk> GetValueOrDefaultAsync(Task<TOk> defaultValue) =>
+    public async Task<TOk> GetValueOrDefault(Task<TOk> defaultValue) =>
         _value.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
 
     [Pure]
-    public async ValueTask<TOk> GetValueOrDefaultAsync(ValueTask<TOk> defaultValue) =>
+    public async ValueTask<TOk> GetValueOrDefault(ValueTask<TOk> defaultValue) =>
         _value.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
 
     [Pure]
@@ -218,11 +218,11 @@ public readonly partial record struct GenericResult<TOk, TError>
         _value.GetValueOrDefault(defaultValue);
 
     [Pure]
-    public Task<TOk> GetValueOrDefaultAsync(Func<Task<TOk>> defaultValue) =>
+    public Task<TOk> GetValueOrDefault(Func<Task<TOk>> defaultValue) =>
         _value.GetValueOrDefault(defaultValue);
 
     [Pure]
-    public ValueTask<TOk> GetValueOrDefaultAsync(Func<ValueTask<TOk>> defaultValue) =>
+    public ValueTask<TOk> GetValueOrDefault(Func<ValueTask<TOk>> defaultValue) =>
         _value.GetValueOrDefault(defaultValue);
 
 
@@ -231,11 +231,11 @@ public readonly partial record struct GenericResult<TOk, TError>
         _error.GetValueOrDefault(defaultValue);
 
     [Pure]
-    public async Task<TError> GetErrorOrDefaultAsync(Task<TError> defaultValue) =>
+    public async Task<TError> GetErrorOrDefault(Task<TError> defaultValue) =>
         _error.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
 
     [Pure]
-    public async ValueTask<TError> GetErrorOrDefaultAsync(ValueTask<TError> defaultValue) =>
+    public async ValueTask<TError> GetErrorOrDefault(ValueTask<TError> defaultValue) =>
         _error.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
 
     [Pure]
@@ -243,11 +243,11 @@ public readonly partial record struct GenericResult<TOk, TError>
         _error.GetValueOrDefault(defaultValue);
 
     [Pure]
-    public Task<TError> GetErrorOrDefaultAsync(Func<Task<TError>> defaultValue) =>
+    public Task<TError> GetErrorOrDefault(Func<Task<TError>> defaultValue) =>
         _error.GetValueOrDefault(defaultValue);
 
     [Pure]
-    public ValueTask<TError> GetErrorOrDefaultAsync(Func<ValueTask<TError>> defaultValue) =>
+    public ValueTask<TError> GetErrorOrDefault(Func<ValueTask<TError>> defaultValue) =>
         _error.GetValueOrDefault(defaultValue);
 
 
@@ -280,14 +280,14 @@ public readonly partial record struct GenericResult<TOk, TError>
     }
 
     [Pure]
-    public async Task<GenericResult<TOk, TError>> DoAsync(Func<TOk, Task> action)
+    public async Task<GenericResult<TOk, TError>> Do(Func<TOk, Task> action)
     {
         if (IsOk()) await action(GetValueOrThrow());
         return this;
     }
 
     [Pure]
-    public async ValueTask<GenericResult<TOk, TError>> DoAsync(Func<TOk, ValueTask> action)
+    public async ValueTask<GenericResult<TOk, TError>> Do(Func<TOk, ValueTask> action)
     {
         if (IsOk()) await action(GetValueOrThrow());
         return this;
@@ -301,14 +301,14 @@ public readonly partial record struct GenericResult<TOk, TError>
     }
 
     [Pure]
-    public async Task<GenericResult<TOk, TError>> DoOnErrorAsync(Func<TError, Task> action)
+    public async Task<GenericResult<TOk, TError>> DoOnError(Func<TError, Task> action)
     {
         if (IsError()) await action(GetErrorOrThrow());
         return this;
     }
 
     [Pure]
-    public async ValueTask<GenericResult<TOk, TError>> DoOnErrorAsync(Func<TError, ValueTask> action)
+    public async ValueTask<GenericResult<TOk, TError>> DoOnError(Func<TError, ValueTask> action)
     {
         if (IsError()) await action(GetErrorOrThrow());
         return this;

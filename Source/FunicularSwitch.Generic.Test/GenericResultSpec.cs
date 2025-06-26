@@ -253,7 +253,7 @@ public class GenericResultSpec
     public async Task GivenGenOk_WhenBindingAsync_ShouldReturnBoundResult()
     {
         GenericOk<int> ok = GenericResult.Ok(42);
-        var bound = await ok.BindAsync<int, string>(x =>
+        var bound = await ok.Bind<int, string>(x =>
             Task.FromResult(GenericResult.Ok<int, string>(x * 2)));
         bound.Should().BeOk().Which.Should().Be(84);
     }
@@ -288,7 +288,7 @@ public class GenericResultSpec
     {
         var result = GenericResult.Ok<int, string>(42);
         var executed = false;
-        _ = await result.DoAsync(_ =>
+        _ = await result.Do(_ =>
         {
             executed = true;
             return Task.CompletedTask;
@@ -301,7 +301,7 @@ public class GenericResultSpec
     {
         var result = GenericResult.Error<int, string>("error");
         var executed = false;
-        _ = await result.DoOnErrorAsync(_ =>
+        _ = await result.DoOnError(_ =>
         {
             executed = true;
             return Task.CompletedTask;
@@ -313,7 +313,7 @@ public class GenericResultSpec
     public async Task GetValueOrDefaultAsync_WithFuncTask_ShouldReturnDefaultForError()
     {
         var result = GenericResult.Error<int, string>("error");
-        var value = await result.GetValueOrDefaultAsync(() => Task.FromResult(42));
+        var value = await result.GetValueOrDefault(() => Task.FromResult(42));
         value.Should().Be(42);
     }
 
@@ -321,7 +321,7 @@ public class GenericResultSpec
     public async Task GetValueOrDefaultAsync_WithFuncValueTask_ShouldReturnDefaultForError()
     {
         var result = GenericResult.Error<int, string>("error");
-        var value = await result.GetValueOrDefaultAsync(() => new ValueTask<int>(42));
+        var value = await result.GetValueOrDefault(() => new ValueTask<int>(42));
         value.Should().Be(42);
     }
 
@@ -337,7 +337,7 @@ public class GenericResultSpec
     public async Task GetErrorOrDefaultAsync_WithTask_ShouldReturnDefaultForOk()
     {
         var result = GenericResult.Ok<int, string>(42);
-        var error = await result.GetErrorOrDefaultAsync(Task.FromResult("default"));
+        var error = await result.GetErrorOrDefault(Task.FromResult("default"));
         error.Should().Be("default");
     }
 
@@ -345,7 +345,7 @@ public class GenericResultSpec
     public async Task GetErrorOrDefaultAsync_WithValueTask_ShouldReturnDefaultForOk()
     {
         var result = GenericResult.Ok<int, string>(42);
-        var error = await result.GetErrorOrDefaultAsync(new ValueTask<string>("default"));
+        var error = await result.GetErrorOrDefault(new ValueTask<string>("default"));
         error.Should().Be("default");
     }
 
@@ -353,7 +353,7 @@ public class GenericResultSpec
     public async Task GetErrorOrDefaultAsync_WithFuncTask_ShouldReturnDefaultForOk()
     {
         var result = GenericResult.Ok<int, string>(42);
-        var error = await result.GetErrorOrDefaultAsync(() => Task.FromResult("default"));
+        var error = await result.GetErrorOrDefault(() => Task.FromResult("default"));
         error.Should().Be("default");
     }
 
@@ -361,7 +361,7 @@ public class GenericResultSpec
     public async Task GetErrorOrDefaultAsync_WithFuncValueTask_ShouldReturnDefaultForOk()
     {
         var result = GenericResult.Ok<int, string>(42);
-        var error = await result.GetErrorOrDefaultAsync(() => new ValueTask<string>("default"));
+        var error = await result.GetErrorOrDefault(() => new ValueTask<string>("default"));
         error.Should().Be("default");
     }
 
@@ -542,7 +542,7 @@ public class GenericResultSpec
     public async Task GetValueOrDefaultAsync_WithTask_ShouldReturnDefaultForError()
     {
         var result = GenericResult.Error<int, string>("error");
-        var value = await result.GetValueOrDefaultAsync(Task.FromResult(42));
+        var value = await result.GetValueOrDefault(Task.FromResult(42));
         value.Should().Be(42);
     }
 
@@ -550,7 +550,7 @@ public class GenericResultSpec
     public async Task GetValueOrDefaultAsync_WithValueTask_ShouldReturnDefaultForError()
     {
         var result = GenericResult.Error<int, string>("error");
-        var value = await result.GetValueOrDefaultAsync(new ValueTask<int>(42));
+        var value = await result.GetValueOrDefault(new ValueTask<int>(42));
         value.Should().Be(42);
     }
 
@@ -576,7 +576,7 @@ public class GenericResultSpec
     {
         var result = GenericResult.Ok<int, string>(42);
         var executed = false;
-        _ = await result.DoAsync(_ =>
+        _ = await result.Do(_ =>
         {
             executed = true;
             return new ValueTask();
@@ -589,7 +589,7 @@ public class GenericResultSpec
     {
         var result = GenericResult.Error<int, string>("error");
         var executed = false;
-        _ = await result.DoOnErrorAsync(_ =>
+        _ = await result.DoOnError(_ =>
         {
             executed = true;
             return new ValueTask();

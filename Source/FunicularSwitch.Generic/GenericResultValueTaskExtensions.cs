@@ -43,10 +43,10 @@ public static class GenericResultValueTaskExtensions
         (await resultTask.ConfigureAwait(false)).GetValueOrDefault(defaultValue);
 
     [Pure]
-    public static async ValueTask<TOk> GetValueOrDefaultAsync<TOk, TError>(
+    public static async ValueTask<TOk> GetValueOrDefault<TOk, TError>(
         this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<ValueTask<TOk>> defaultValue) =>
-        await (await resultTask.ConfigureAwait(false)).GetValueOrDefaultAsync(defaultValue).ConfigureAwait(false);
+        await (await resultTask.ConfigureAwait(false)).GetValueOrDefault(defaultValue).ConfigureAwait(false);
 
     [Pure]
     public static async ValueTask<TError> GetErrorOrDefault<TOk, TError>(
@@ -61,10 +61,10 @@ public static class GenericResultValueTaskExtensions
         (await resultTask.ConfigureAwait(false)).GetErrorOrDefault(defaultValue);
 
     [Pure]
-    public static async ValueTask<TError> GetErrorOrDefaultAsync<TOk, TError>(
+    public static async ValueTask<TError> GetErrorOrDefault<TOk, TError>(
         this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<ValueTask<TError>> defaultValue) =>
-        await (await resultTask.ConfigureAwait(false)).GetErrorOrDefaultAsync(defaultValue).ConfigureAwait(false);
+        await (await resultTask.ConfigureAwait(false)).GetErrorOrDefault(defaultValue).ConfigureAwait(false);
 
     [Pure]
     public static async ValueTask<Option<TOk>> ToOption<TOk, TError>(
@@ -91,12 +91,12 @@ public static class GenericResultValueTaskExtensions
     }
 
     [Pure]
-    public static async ValueTask<GenericResult<TOk, TError>> DoAsync<TOk, TError>(
+    public static async ValueTask<GenericResult<TOk, TError>> Do<TOk, TError>(
         this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TOk, ValueTask> action)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.DoAsync(action).ConfigureAwait(false);
+        return await result.Do(action).ConfigureAwait(false);
     }
 
     [Pure]
@@ -109,12 +109,12 @@ public static class GenericResultValueTaskExtensions
     }
 
     [Pure]
-    public static async ValueTask<GenericResult<TOk, TError>> DoOnErrorAsync<TOk, TError>(
+    public static async ValueTask<GenericResult<TOk, TError>> DoOnError<TOk, TError>(
         this ValueTask<GenericResult<TOk, TError>> resultTask,
         Func<TError, ValueTask> action)
     {
         var result = await resultTask.ConfigureAwait(false);
-        return await result.DoOnErrorAsync(action).ConfigureAwait(false);
+        return await result.DoOnError(action).ConfigureAwait(false);
     }
 
     [Pure]
