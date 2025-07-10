@@ -14,7 +14,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>6</MajorVersion>
-		<MinorAndPatchVersion>1.2</MinorAndPatchVersion>
+		<MinorAndPatchVersion>2.0</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
@@ -66,6 +66,10 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\FunicularSwitch.Generators\FunicularSwitch.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<None Include="..\FunicularSwitch.Analyzers\bin\$(Configuration\netstandard2.0\FunicularSwitch.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
