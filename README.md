@@ -218,13 +218,13 @@ As you can see, all errors are collected as far as possible. Feel free to play a
 
 # <a name="analyzers_usage"></a>FunicularSwitch.Analyzers.Usage
 
-## MatchNullAnalyzer
-
 The FunicularSwitch.Analyzers package is automatically included when you reference the FunicularSwitch package starting from version v6.2.0.
 
 The analyzers are designed to provide useful refactoring and to show usage opportunities that can help people using the functional concepts for the first time to just experiment with the basics and get recommendations on which other functions and concepts may apply to their situation.
 
-### MatchNullAnalyzer
+## Analyzers
+
+### FS0001: MatchNullAnalyzer
 
 Consider the following code
 

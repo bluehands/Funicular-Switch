@@ -56,6 +56,31 @@ public class MatchNullAnalyzerTest : VerifyAnalyzer
     }
     
     [Fact]
+    public async Task MatchNullOption_WithNewLines_IsRecognized_FixIsApplied()
+    {
+        var code =
+            """
+            using FunicularSwitch;
+            
+            public class Test()
+            {
+                public string? T()
+                {
+                    var option = Option.Some("Hi");
+                    return option.Match(
+                        some: some => some.ToLower(),
+                        none: () => null);
+                }
+            }
+            """;
+        await Verify(
+            code,
+            new MatchNullAnalyzer(),
+            new MatchNullCodeFixProvider(),
+            diagnostic => diagnostic.Should().ContainSingle().Which.Id.Should().Be("FS0001"));
+    }
+    
+    [Fact]
     public async Task MatchNullOption_WithDefault_IsRecognized_FixIsApplied()
     {
         var code =

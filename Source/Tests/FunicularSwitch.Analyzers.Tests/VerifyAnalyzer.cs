@@ -75,6 +75,7 @@ public class VerifyAnalyzer : VerifyBase
             verifyCodeAction?.Invoke(d, actions[0]);
             var updatedDocument = await ApplyFix(document, actions[0]);
             var syntaxTree = await updatedDocument.GetSyntaxRootAsync();
+            syntaxTree.Should().NotBeNull();
             var updatedCode = syntaxTree.ToFullString();
             await CheckCompilation(solution.RemoveDocument(documentId).AddDocument(documentId, fileName, SourceText.From(updatedCode)).GetProject(projectId)!);
             
@@ -88,7 +89,8 @@ public class VerifyAnalyzer : VerifyBase
 
         async Task<Compilation> CheckCompilation(Project p)
         {
-            var c = await p.GetCompilationAsync()!;
+            var c = await p.GetCompilationAsync();
+            c.Should().NotBeNull();
             c.GetDiagnostics()
                 .Where(d => d.Severity == DiagnosticSeverity.Error)
                 .Should().BeEmpty();
