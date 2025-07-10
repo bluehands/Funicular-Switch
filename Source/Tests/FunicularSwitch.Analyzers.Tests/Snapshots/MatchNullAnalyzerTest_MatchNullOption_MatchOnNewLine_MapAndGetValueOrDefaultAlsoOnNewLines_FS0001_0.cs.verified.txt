@@ -1,0 +1,12 @@
+﻿using FunicularSwitch;
+
+public class Test()
+{
+    public string? T()
+    {
+        var option = Option.Some("Hi");
+        return option
+            .Map(some => some.ToLower())
+            .GetValueOrDefault();
+    }
+}

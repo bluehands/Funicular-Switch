@@ -52,13 +52,16 @@ public class MatchNullCodeFixProvider : CodeFixProvider
         var updatedInvocationExpression = invocationExpressionSyntax
             .WithExpression(memberAccessExpression.WithName(IdentifierName("Map")))
             .WithArgumentList(
-                invocationExpressionSyntax.ArgumentList.WithArguments(SingletonSeparatedList<ArgumentSyntax>(
+                ArgumentList(SingletonSeparatedList<ArgumentSyntax>(
                     invocationExpressionSyntax.ArgumentList.Arguments[0].WithNameColon(null))));
         var newInvocationExpression = InvocationExpression(
             MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
-                updatedInvocationExpression,
-                IdentifierName("GetValueOrDefault")));
+                updatedInvocationExpression
+                    .WithTrailingTrivia(memberAccessExpression.Expression.GetTrailingTrivia()),
+                IdentifierName("GetValueOrDefault")
+                    .WithLeadingTrivia(memberAccessExpression.Name.GetLeadingTrivia()))
+                .WithOperatorToken(memberAccessExpression.OperatorToken));
         var editor = await DocumentEditor.CreateAsync(document, cancellationToken);
         editor.ReplaceNode(invocationExpressionSyntax, newInvocationExpression);
         return editor.GetChangedDocument();
