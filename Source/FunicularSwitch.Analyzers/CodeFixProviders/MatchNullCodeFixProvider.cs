@@ -1,6 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
-using FunicularSwitch.Generators.Analyzers;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using FunicularSwitch.Analyzers.Analyzers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -9,7 +12,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace FunicularSwitch.Generators.CodeFixProviders;
+namespace FunicularSwitch.Analyzers.CodeFixProviders;
 
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MatchNullCodeFixProvider)), Shared]
 public class MatchNullCodeFixProvider : CodeFixProvider
@@ -35,10 +38,11 @@ public class MatchNullCodeFixProvider : CodeFixProvider
         {
             return;
         }
-        
+
         context.RegisterCodeFix(
             CodeAction.Create(
                 title: $"Use .Map().GetValueOrDefault()",
+                equivalenceKey: MatchNullAnalyzer.DiagnosticId,
                 createChangedDocument: c => MigrateMatch(context.Document, diagnostic.Id, invocationExpressionSyntax, m, context.CancellationToken)),
             diagnostic);
     }
@@ -59,4 +63,6 @@ public class MatchNullCodeFixProvider : CodeFixProvider
         editor.ReplaceNode(invocationExpressionSyntax, newInvocationExpression);
         return editor.GetChangedDocument();
     }
+
+    public sealed override FixAllProvider? GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 }

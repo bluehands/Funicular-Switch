@@ -4,9 +4,11 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace FunicularSwitch.Generators.Analyzers;
+namespace FunicularSwitch.Analyzers.Analyzers;
 
+#pragma warning disable RS1038 // Analyzer should not be in an assembly referencing CodeAnalysis.CSharp.Workspaces
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
+#pragma warning restore RS1038
 public class MatchNullAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "FS0001";

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
-using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -8,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
-namespace FunicularSwitch.Generators.Test;
+namespace FunicularSwitch.Analyzers.Tests;
 
 public class VerifyAnalyzer : VerifyBase
 {
@@ -24,12 +23,8 @@ public class VerifyAnalyzer : VerifyBase
     private static readonly MetadataReference FunicularSwitchReference = MetadataReference.CreateFromFile(typeof(Unit).Assembly.Location);
     
     // ReSharper disable once ExplicitCallerInfoArgument
-    protected VerifyAnalyzer([CallerFilePath] string sourceFile = "")
+    protected VerifyAnalyzer([CallerFilePath] string sourceFile = "") : base(sourceFile: sourceFile)
     {
-        if (string.IsNullOrEmpty(sourceFile))
-        {
-            throw new Exception("Call constructor explicitly");
-        }
         this.sourceFile = sourceFile;
     }
 
@@ -89,6 +84,7 @@ public class VerifyAnalyzer : VerifyBase
                 .UseDirectory("Snapshots");
             index += 1;
         }
+        return;
 
         async Task<Compilation> CheckCompilation(Project p)
         {

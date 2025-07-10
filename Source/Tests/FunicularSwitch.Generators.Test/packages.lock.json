@@ -405,8 +405,7 @@
       "funicularswitch.generators": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.CodeAnalysis.CSharp": "[4.11.0, )",
-          "Microsoft.CodeAnalysis.CSharp.Workspaces": "[4.11.0, )"
+          "Microsoft.CodeAnalysis.CSharp": "[4.11.0, )"
         }
       }
     }

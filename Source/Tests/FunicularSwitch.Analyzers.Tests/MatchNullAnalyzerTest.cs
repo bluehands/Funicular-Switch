@@ -1,17 +1,15 @@
-﻿using FluentAssertions;
-using FunicularSwitch.Generators.Analyzers;
-using FunicularSwitch.Generators.CodeFixProviders;
+﻿using FunicularSwitch.Analyzers.Analyzers;
+using FunicularSwitch.Analyzers.CodeFixProviders;
 
-namespace FunicularSwitch.Generators.Test;
+namespace FunicularSwitch.Analyzers.Tests;
 
-[TestClass]
 public class MatchNullAnalyzerTest : VerifyAnalyzer
 {
     public MatchNullAnalyzerTest() : base()
     {
     }
 
-    [TestMethod]
+    [Fact]
     public async Task MatchNullOption_IsRecognized_FixIsApplied()
     {
         var code =
@@ -34,7 +32,7 @@ public class MatchNullAnalyzerTest : VerifyAnalyzer
             diagnostic => diagnostic.Should().ContainSingle().Which.Id.Should().Be("FS0001"));
     }
     
-    [TestMethod]
+    [Fact]
     public async Task MatchNullOption_WithNamedSome_IsRecognized_FixIsApplied()
     {
         var code =
@@ -57,7 +55,7 @@ public class MatchNullAnalyzerTest : VerifyAnalyzer
             diagnostic => diagnostic.Should().ContainSingle().Which.Id.Should().Be("FS0001"));
     }
     
-    [TestMethod]
+    [Fact]
     public async Task MatchNullOption_WithDefault_IsRecognized_FixIsApplied()
     {
         var code =
@@ -80,7 +78,7 @@ public class MatchNullAnalyzerTest : VerifyAnalyzer
             diagnostic => diagnostic.Should().ContainSingle().Which.Id.Should().Be("FS0001"));
     }
     
-    [TestMethod]
+    [Fact]
     public async Task MatchNullResult_IsRecognized_FixIsApplied()
     {
         var code =
