@@ -112,7 +112,7 @@ public static class RoslynExtensions
         return new(dec.Name(), typeNames);
     }
 
-    public static QualifiedTypeName QualifiedNameWithGenerics(this BaseTypeDeclarationSyntax dec)
+    public static QualifiedTypeName QualifiedNameWithGenerics(this BaseTypeDeclarationSyntax dec, INamedTypeSymbol typeSymbol, INamedTypeSymbol baseType)
     {
         var current = dec.Parent as BaseTypeDeclarationSyntax;
         var typeNames = new Stack<string>();
@@ -121,8 +121,25 @@ public static class RoslynExtensions
             typeNames.Push(current.Name() + FormatTypeParameters(current.GetTypeParameterList()));
             current = current.Parent as BaseTypeDeclarationSyntax;
         }
+        
+        // If the base type has type parameters with different names then the generics are not resolved properly e.g. in the match method
+        // If though they are the same number of parameters and are passed in the same order as they are declared, we can replace the type argument list with the one from the base type and it should still work
+        var typeParameters = typeSymbol.TypeParameters;
+        var argumentsOnBaseType = typeSymbol.BaseType?.TypeArguments ?? [];
+        var baseTypeTypeParameters = baseType.TypeParameters;
+        EquatableArray<string> typeParametersForFormatting;
+        if (typeParameters.Length == argumentsOnBaseType.Length
+            && typeParameters.Zip(argumentsOnBaseType, ValueTuple.Create).All(x => x.Item1.Equals(x.Item2, SymbolEqualityComparer.Default))
+            && typeParameters.Length == baseTypeTypeParameters.Length)
+        {
+            typeParametersForFormatting = baseTypeTypeParameters.Select(tp => tp.Name).ToImmutableArray();
+        }
+        else
+        {
+            typeParametersForFormatting = typeParameters.Select(tp => tp.Name).ToImmutableArray();
+        }
 
-        return new(dec.Name() + FormatTypeParameters(dec.GetTypeParameterList()), typeNames);
+        return new(dec.Name() + FormatTypeParameters(typeParametersForFormatting), typeNames);
     }
 
     public static EquatableArray<string> GetTypeParameterList(this BaseTypeDeclarationSyntax dec)

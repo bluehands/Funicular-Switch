@@ -538,9 +538,26 @@ public abstract partial record NodeMessage(string NodeInstanceId)
                    {
                    }
                    
-                   public sealed record Deriving<TCustom1>(string Value, TCustom1 Other) : BaseType<TCustom1>(Value);
+                   public sealed record Deriving<TCustom>(string Value, TCustom Other) : BaseType<TCustom>(Value);
+                   """;
+
+        return Verify(code);
+    }
+
+	[TestMethod]
+	public Task For_union_type_with_generic_base_class_and_derived_definitions_that_are_not_nested_and_are_not_generic()
+    {
+        var code = """
+                   using FunicularSwitch.Generators;
+
+                   namespace FunicularSwitch.Test;
+
+                   [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+                   public abstract partial record BaseType<T>(string Value)
+                   {
+                   }
                    
-                   public sealed record Deriving2(string Value) : BaseType<int>(Value);
+                   public sealed record Deriving(string Value) : BaseType<int>(Value);
                    """;
 
         return Verify(code);

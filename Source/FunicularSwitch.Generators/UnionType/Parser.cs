@@ -42,15 +42,27 @@ static class Parser
             var treeSemanticModel = syntaxTree != unionTypeClass.SyntaxTree ? compilation.GetSemanticModel(syntaxTree) : semanticModel;
 
             return FindConcreteDerivedTypesWalker.Get(root, unionTypeSymbol, treeSemanticModel);
-        });
+        })
+        .ToList();
 
 
         var isPartial = unionTypeClass.Modifiers.HasModifier(SyntaxKind.PartialKeyword)
             && unionTypeSymbol.ContainingType == null; //for now do not generate factory methods for nested types, we could support that if all containing types are partial
-        var generateFactoryMethods = isPartial && staticFactoryMethods;
+        var anyDerivedTypeInheritsFromBaseWithResolvedGenericArgument = derivedTypes.Any(tuple =>
+            tuple.symbol.BaseType?.TypeArguments.Any(ta => ta is not ITypeParameterSymbol) ?? false);
+        var anyDerivedTypeHasDifferentParameterNames = derivedTypes.Any(tuple =>
+        {
+            if (unionTypeSymbol.Equals(tuple.symbol.ContainingType, SymbolEqualityComparer.Default))
+            {
+                return false;
+            }
+            return !tuple.symbol.TypeParameters.Select(tp => tp.Name)
+                .SequenceEqual(unionTypeSymbol.TypeParameters.Select(tp => tp.Name));
+        });
+        var generateFactoryMethods = isPartial && staticFactoryMethods && !anyDerivedTypeInheritsFromBaseWithResolvedGenericArgument && !anyDerivedTypeHasDifferentParameterNames;
 
         return
-            ToOrderedCases(caseOrder, derivedTypes, compilation, generateFactoryMethods, unionTypeSymbol.Name)
+            ToOrderedCases(caseOrder, derivedTypes, compilation, generateFactoryMethods, unionTypeSymbol)
                 .Map(cases => new UnionTypeSchema(
                     Namespace: fullNamespace,
                     TypeName: unionTypeSymbol.Name,
@@ -127,12 +139,13 @@ static class Parser
 
     static GenerationResult<ImmutableArray<DerivedType>> ToOrderedCases(CaseOrder caseOrder,
         IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int
-            numberOfConctreteBaseTypes)> derivedTypes, Compilation compilation, bool getConstructors, string baseTypeName)
+            numberOfConctreteBaseTypes)> derivedTypes, Compilation compilation, bool getConstructors, INamedTypeSymbol baseType)
     {
+        var baseTypeName = baseType.Name;
         var ordered = derivedTypes.OrderByDescending(d => d.numberOfConctreteBaseTypes);
         ordered = caseOrder switch
         {
-            CaseOrder.Alphabetic => ordered.ThenBy(d => d.node.QualifiedNameWithGenerics().Name),
+            CaseOrder.Alphabetic => ordered.ThenBy(d => d.node.QualifiedNameWithGenerics(d.symbol, baseType).Name),
             CaseOrder.AsDeclared => ordered.ThenBy(d => d.node.SyntaxTree.FilePath)
                 .ThenBy(d => d.node.Span.Start),
             CaseOrder.Explicit => ordered.ThenBy(d => d.caseIndex),
@@ -175,7 +188,7 @@ static class Parser
 
         var derived = result.Select(d =>
         {
-            var qualifiedNameWithGenerics = d.node.QualifiedNameWithGenerics();
+            var qualifiedNameWithGenerics = d.node.QualifiedNameWithGenerics(d.symbol, baseType);
             var qualifiedName = d.node.QualifiedName();
             var fullNamespace = d.symbol.GetFullNamespace();
             var constructors = ImmutableArray<CallableMemberInfo>.Empty;
