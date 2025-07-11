@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\FunicularSwitch.Analyzers.CodeFixProviders\FunicularSwitch.Analyzers.CodeFixProviders.csproj" />
         <ProjectReference Include="..\..\FunicularSwitch.Analyzers\FunicularSwitch.Analyzers.csproj"/>
         <ProjectReference Include="..\..\FunicularSwitch\FunicularSwitch.csproj" />
     </ItemGroup>

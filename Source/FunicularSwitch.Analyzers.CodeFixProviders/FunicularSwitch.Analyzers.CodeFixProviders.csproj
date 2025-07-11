@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
@@ -11,22 +11,22 @@
 
         <RootNamespace>FunicularSwitch.Analyzers</RootNamespace>
         <AssemblyName>FunicularSwitch.Analyzers</AssemblyName>
-        
+
         <MajorVersion>1</MajorVersion>
         <MinorAndPatchVersion>0.0</MinorAndPatchVersion>
-        
+
         <VersionSuffixLocal />
         <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
             $(VersionSuffix)
         </VersionSuffixLocal>
-        
+
         <AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
         <Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
         <FileVersion>$(Version)</FileVersion>
         <PackageVersion>$(Version)</PackageVersion>
-        
-        <PackageId>FunicularSwitch.Analyzers</PackageId>
-        <Title>FunicularSwitch.Analyzers</Title>
+
+        <PackageId>FunicularSwitch.Analyzers.CodeFixProviders</PackageId>
+        <Title>FunicularSwitch.Analyzers.CodeFixProviders</Title>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
         <PackageIcon>FunicularSwitch.png</PackageIcon>
         <PackageTags>bluehands, F#Result, Result, Match, UnionTypes, Map, Bind, RailwayOrientedProgramming, Analyzer, CodeFixProvider</PackageTags>
@@ -43,6 +43,13 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FunicularSwitch.Analyzers\FunicularSwitch.Analyzers.csproj">
+          <PrivateAssets>all</PrivateAssets>
+      </ProjectReference>
     </ItemGroup>
 
 </Project>
