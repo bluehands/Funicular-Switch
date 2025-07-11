@@ -1,0 +1,12 @@
+﻿using FunicularSwitch.Generators;
+
+namespace FunicularSwitch.Test.Generic;
+
+[UnionType(CaseOrder = CaseOrder.AsDeclared)]
+[PolyType.DerivedTypeShape(typeof(GenericResult<,>.Ok_))]
+[PolyType.DerivedTypeShape(typeof(GenericResult<,>.Error_))]
+public abstract partial record GenericResult<T, TFailure>(bool IsOk)
+{
+    public record Ok_(T Value) : GenericResult<T, TFailure>(true);
+    public record Error_(TFailure Failure) : GenericResult<T, TFailure>(false);
+}

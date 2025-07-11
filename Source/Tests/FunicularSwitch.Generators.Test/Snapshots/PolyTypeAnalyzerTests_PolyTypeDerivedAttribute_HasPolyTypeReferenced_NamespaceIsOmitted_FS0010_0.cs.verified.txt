@@ -1,0 +1,13 @@
+﻿using FunicularSwitch.Generators;
+using PolyType;
+
+namespace FunicularSwitch.Test;
+
+[UnionType]
+[DerivedTypeShape(typeof(BaseType.DerivedType_))]
+[DerivedTypeShape(typeof(BaseType.DerivedType2_))]
+public abstract partial record BaseType
+{
+    public sealed record DerivedType_() : BaseType;
+    public sealed record DerivedType2_() : BaseType;
+}

@@ -212,7 +212,8 @@ static class Parser
                 constructors: constructors,
                 requiredMembers: requiredMembers,
                 parameterName: parameterName,
-                staticFactoryMethodName: staticMethodName);
+                staticFactoryMethodName: staticMethodName,
+                polyTypeTypeofExpressionName: $"{d.symbol.PolytypeTypeofExpressionTypeName()}");
         }).ToImmutableArray();
 
         return new(derived, errors, true);
