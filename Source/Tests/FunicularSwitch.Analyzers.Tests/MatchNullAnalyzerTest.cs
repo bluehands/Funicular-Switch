@@ -1,5 +1,4 @@
-﻿using FunicularSwitch.Analyzers.Analyzers;
-using FunicularSwitch.Analyzers.CodeFixProviders;
+﻿using FunicularSwitch.Analyzers.CodeFixProviders;
 
 namespace FunicularSwitch.Analyzers.Tests;
 

@@ -9,8 +9,8 @@
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
 
-        <RootNamespace>FunicularSwitch.Analyzers</RootNamespace>
-        <AssemblyName>FunicularSwitch.Analyzers</AssemblyName>
+        <RootNamespace>FunicularSwitch.Analyzers.CodeFixProviders</RootNamespace>
+        <AssemblyName>FunicularSwitch.Analyzers.CodeFixProviders</AssemblyName>
 
         <MajorVersion>1</MajorVersion>
         <MinorAndPatchVersion>0.0</MinorAndPatchVersion>
