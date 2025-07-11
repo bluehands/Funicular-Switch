@@ -175,7 +175,8 @@ static class Parser
 
         var derived = result.Select(d =>
         {
-            var qualifiedTypeName = d.node.QualifiedNameWithGenerics();
+            var qualifiedNameWithGenerics = d.node.QualifiedNameWithGenerics();
+            var qualifiedName = d.node.QualifiedName();
             var fullNamespace = d.symbol.GetFullNamespace();
             var constructors = ImmutableArray<CallableMemberInfo>.Empty;
             var requiredMembers = ImmutableArray<PropertyOrFieldInfo>.Empty;
@@ -205,10 +206,10 @@ static class Parser
             }
 
             var (parameterName, staticMethodName) =
-                DeriveParameterAndStaticMethodName(qualifiedTypeName.Name, baseTypeName);
+                DeriveParameterAndStaticMethodName(qualifiedName.Name, baseTypeName);
 
             return new DerivedType(
-                fullTypeName: $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}",
+                fullTypeName: $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedNameWithGenerics}",
                 constructors: constructors,
                 requiredMembers: requiredMembers,
                 parameterName: parameterName,
@@ -230,15 +231,15 @@ class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
 {
     readonly List<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex)> m_DerivedClasses = new();
     readonly SemanticModel m_SemanticModel;
-    readonly ITypeSymbol m_BaseClass;
+    readonly INamedTypeSymbol m_BaseClass;
 
-    FindConcreteDerivedTypesWalker(SemanticModel semanticModel, ITypeSymbol baseClass)
+    FindConcreteDerivedTypesWalker(SemanticModel semanticModel, INamedTypeSymbol baseClass)
     {
         m_SemanticModel = semanticModel;
         m_BaseClass = baseClass;
     }
 
-    public static IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int numberOfConctreteBaseTypes)> Get(SyntaxNode node, ITypeSymbol baseClass, SemanticModel semanticModel)
+    public static IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int numberOfConctreteBaseTypes)> Get(SyntaxNode node, INamedTypeSymbol baseClass, SemanticModel semanticModel)
     {
         var me = new FindConcreteDerivedTypesWalker(semanticModel, baseClass);
         me.Visit(node);

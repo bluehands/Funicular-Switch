@@ -41,13 +41,24 @@ public static class RoslynExtensions
         || SyntaxFacts.GetReservedKeywordKinds().Contains(SyntaxFactory.ParseToken(identifier).Kind());
 
 
-    public static bool InheritsFrom(this INamedTypeSymbol symbol, ITypeSymbol type)
+    public static bool InheritsFrom(this INamedTypeSymbol symbol, INamedTypeSymbol type)
     {
         var baseType = symbol.BaseType;
         while (baseType != null)
         {
             if (type.Equals(baseType, SymbolEqualityComparer.Default))
+            {
                 return true;
+            }
+
+            // If the derived type is not declared as a nested type and the base type is generic, then the generic <T>s will not be equal to each other.
+            // That is why we compare to the fully qualified display string without generics and then assert the number of type arguments is the same, which also prevents issues when the type arguments are named differently in the deriving class
+            if (type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGenericsOptions(SymbolDisplayGenericsOptions.None)) ==
+                baseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGenericsOptions(SymbolDisplayGenericsOptions.None))
+                && type.TypeParameters.Length == baseType.TypeParameters.Length)
+            {
+                return true;
+            }
 
             baseType = baseType.BaseType;
         }
