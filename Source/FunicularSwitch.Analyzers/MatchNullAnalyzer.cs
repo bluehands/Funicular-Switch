@@ -6,15 +6,11 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace FunicularSwitch.Analyzers;
 
-#pragma warning disable RS1038 // Analyzer should not be in an assembly referencing CodeAnalysis.CSharp.Workspaces
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-#pragma warning restore RS1038
 public class MatchNullAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "FS0001";
-
     private static readonly DiagnosticDescriptor Rule = new(
-        id: DiagnosticId,
+        id: DiagnosticId.MatchNull,
         title: "Funicular Switch Library usage opportunity",
         messageFormat: "Use .Map(...).GetValueOrDefault() over .Match(..., () => null)",
         category: "Usage Opportunity",

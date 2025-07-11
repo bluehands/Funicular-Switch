@@ -45,4 +45,6 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0"/>
     </ItemGroup>
 
+    <Import Project="..\FunicularSwitch.Analyzers.Common\FunicularSwitch.Analyzers.Common.projitems" Label="Shared" />
+
 </Project>

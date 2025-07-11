@@ -16,7 +16,7 @@ namespace FunicularSwitch.Analyzers.CodeFixProviders;
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MatchNullCodeFixProvider)), Shared]
 public class MatchNullCodeFixProvider : CodeFixProvider
 {
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [MatchNullAnalyzer.DiagnosticId];
+    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [DiagnosticId.MatchNull];
 
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
@@ -41,7 +41,7 @@ public class MatchNullCodeFixProvider : CodeFixProvider
         context.RegisterCodeFix(
             CodeAction.Create(
                 title: $"Use .Map().GetValueOrDefault()",
-                equivalenceKey: MatchNullAnalyzer.DiagnosticId,
+                equivalenceKey: DiagnosticId.MatchNull,
                 createChangedDocument: c => MigrateMatch(context.Document, diagnostic.Id, invocationExpressionSyntax, m, context.CancellationToken)),
             diagnostic);
     }
