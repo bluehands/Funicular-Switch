@@ -11,26 +11,6 @@
 
         <RootNamespace>FunicularSwitch.Analyzers</RootNamespace>
         <AssemblyName>FunicularSwitch.Analyzers</AssemblyName>
-        
-        <MajorVersion>1</MajorVersion>
-        <MinorAndPatchVersion>0.0</MinorAndPatchVersion>
-        
-        <VersionSuffixLocal />
-        <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
-            $(VersionSuffix)
-        </VersionSuffixLocal>
-        
-        <AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
-        <Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
-        <FileVersion>$(Version)</FileVersion>
-        <PackageVersion>$(Version)</PackageVersion>
-        
-        <PackageId>FunicularSwitch.Analyzers</PackageId>
-        <Title>FunicularSwitch.Analyzers</Title>
-        <PackageReadmeFile>readme.md</PackageReadmeFile>
-        <PackageIcon>FunicularSwitch.png</PackageIcon>
-        <PackageTags>bluehands, F#Result, Result, Match, UnionTypes, Map, Bind, RailwayOrientedProgramming, Analyzer, CodeFixProvider</PackageTags>
-        <DevelopmentDependency>true</DevelopmentDependency>
     </PropertyGroup>
 
     <ItemGroup>

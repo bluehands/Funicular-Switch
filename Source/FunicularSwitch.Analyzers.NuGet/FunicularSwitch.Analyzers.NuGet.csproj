@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <PackageType>roslyn;analyzer</PackageType>
+        <IsPackable>true</IsPackable>
+        
+        <MajorVersion>1</MajorVersion>
+        <MinorAndPatchVersion>0.0</MinorAndPatchVersion>
+
+        <VersionSuffixLocal />
+        <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
+            $(VersionSuffix)
+        </VersionSuffixLocal>
+
+        <AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
+        <Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
+        <FileVersion>$(Version)</FileVersion>
+        <PackageVersion>$(Version)</PackageVersion>
+
+        <PackageId>FunicularSwitch.Analyzers</PackageId>
+        <Title>FunicularSwitch.Analyzers</Title>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
+        <PackageIcon>FunicularSwitch.png</PackageIcon>
+        <PackageTags>bluehands, F#Result, Result, Match, UnionTypes, Map, Bind, RailwayOrientedProgramming, Analyzer, CodeFixProvider</PackageTags>
+        <DevelopmentDependency>true</DevelopmentDependency>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\FunicularSwitch.Analyzers\FunicularSwitch.Analyzers.csproj" />
+      <ProjectReference Include="..\FunicularSwitch.Analyzers.CodeFixProviders\FunicularSwitch.Analyzers.CodeFixProviders.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <None Include="..\FunicularSwitch.Analyzers\bin\$(Configuration)\netstandard2.0\FunicularSwitch.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="..\FunicularSwitch.Analyzers.CodeFixProviders\bin\$(Configuration)\netstandard2.0\FunicularSwitch.Analyzers.CodeFixProviders.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+
+</Project>

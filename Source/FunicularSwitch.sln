@@ -66,6 +66,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Analyzers.C
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FunicularSwitch.Analyzers.Common", "FunicularSwitch.Analyzers.Common\FunicularSwitch.Analyzers.Common.shproj", "{59ABA78F-281E-4241-A892-F23F7E432756}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Analyzers.NuGet", "FunicularSwitch.Analyzers.NuGet\FunicularSwitch.Analyzers.NuGet.csproj", "{563AF842-9542-44CE-8D01-9D3662444B90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -144,6 +146,10 @@ Global
 		{F06C6482-BFE0-432F-8CDF-FFC0077BEE8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F06C6482-BFE0-432F-8CDF-FFC0077BEE8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F06C6482-BFE0-432F-8CDF-FFC0077BEE8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{563AF842-9542-44CE-8D01-9D3662444B90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{563AF842-9542-44CE-8D01-9D3662444B90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{563AF842-9542-44CE-8D01-9D3662444B90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{563AF842-9542-44CE-8D01-9D3662444B90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
