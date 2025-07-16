@@ -123,6 +123,9 @@
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "4.5.3"
         }
+      },
+      "funicularswitch.analyzers.nuget": {
+        "type": "Project"
       }
     }
   }

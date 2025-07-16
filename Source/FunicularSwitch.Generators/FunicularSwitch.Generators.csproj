@@ -65,10 +65,6 @@
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\FunicularSwitch.Analyzers.NuGet\FunicularSwitch.Analyzers.NuGet.csproj" />
-	</ItemGroup>
-
 	<Import Project="..\FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems" Label="Shared" />
 
 	<Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />

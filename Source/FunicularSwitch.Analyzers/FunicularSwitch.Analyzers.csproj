@@ -8,9 +8,6 @@
 
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
-
-        <RootNamespace>FunicularSwitch.Analyzers</RootNamespace>
-        <AssemblyName>FunicularSwitch.Analyzers</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

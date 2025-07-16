@@ -89,6 +89,17 @@ steps:
     packDirectory: '$(Build.ArtifactStagingDirectory)/Generators.AwesomeAssertions'
     verbosityPack: Detailed
 
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack funicular analyzers'
+  inputs:
+    command: pack
+    nobuild: true
+    packagesToPack: Source/FunicularSwitch.Analyzers.NuGet/FunicularSwitch.Analyzers.NuGet.csproj
+    packDirectory: '$(Build.ArtifactStagingDirectory)/Analyzers'
+    verbosityPack: Detailed
+    arguments: >
+      /p:PackageID=FunicularSwitch.Analyzers
+
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)'

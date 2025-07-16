@@ -19,7 +19,6 @@
         <FileVersion>$(Version)</FileVersion>
         <PackageVersion>$(Version)</PackageVersion>
 
-        <PackageId>FunicularSwitch.Analyzers</PackageId>
         <Title>FunicularSwitch.Analyzers</Title>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
         <PackageIcon>FunicularSwitch.png</PackageIcon>
