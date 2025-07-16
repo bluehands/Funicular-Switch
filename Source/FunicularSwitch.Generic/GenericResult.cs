@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics.Contracts;
 
 namespace FunicularSwitch.Generic;
@@ -8,24 +9,26 @@ public readonly partial record struct GenericOk<TOk>
 
     internal GenericOk(TOk value) => Value = value;
 
+    TOk GetValueOrThrow() => Value.GetValueOrThrow(ErrorMessages.UninitializedOk);
+
     [Pure]
     public GenericResult<TOk, TError> WithError<TError>() =>
-        GenericResult<TOk, TError>.Ok(Value.GetValueOrThrow());
+        GenericResult<TOk, TError>.Ok(GetValueOrThrow());
 
     [Pure]
     public GenericResult<TOkReturn, TError> Bind<TOkReturn, TError>(
         Func<TOk, GenericResult<TOkReturn, TError>> bind) =>
-        bind(Value.GetValueOrThrow());
+        bind(GetValueOrThrow());
 
     [Pure]
     public async Task<GenericResult<TOkReturn, TError>> Bind<TOkReturn, TError>(
         Func<TOk, Task<GenericResult<TOkReturn, TError>>> bind) =>
-        await bind(Value.GetValueOrThrow()).ConfigureAwait(false);
+        await bind(GetValueOrThrow()).ConfigureAwait(false);
 
     [Pure]
     public async ValueTask<GenericResult<TOkReturn, TError>> Bind<TOkReturn, TError>(
         Func<TOk, ValueTask<GenericResult<TOkReturn, TError>>> bind) =>
-        await bind(Value.GetValueOrThrow()).ConfigureAwait(false);
+        await bind(GetValueOrThrow()).ConfigureAwait(false);
 
     #region LinqQueryExpressionInterop
 
@@ -42,11 +45,11 @@ public readonly partial record struct GenericOk<TOk>
         Func<TOk, GenericResult<TOkSelectReturn, TError>> selector,
         Func<TOk, TOkSelectReturn, TOkReturn> resultSelector)
     {
-        var intermediateResult = selector(Value.GetValueOrThrow());
+        var intermediateResult = selector(GetValueOrThrow());
         if (intermediateResult.IsError())
             return GenericResult<TOkReturn, TError>.Error(intermediateResult.GetErrorOrThrow());
         var intermediateValue = intermediateResult.GetValueOrThrow();
-        return GenericResult<TOkReturn, TError>.Ok(resultSelector(Value.GetValueOrThrow(), intermediateValue));
+        return GenericResult<TOkReturn, TError>.Ok(resultSelector(GetValueOrThrow(), intermediateValue));
     }
 
     [Pure]
@@ -54,11 +57,11 @@ public readonly partial record struct GenericOk<TOk>
         Func<TOk, Task<GenericResult<TOkSelectReturn, TError>>> selector,
         Func<TOk, TOkSelectReturn, TOkReturn> resultSelector)
     {
-        var intermediateResult = await selector(Value.GetValueOrThrow()).ConfigureAwait(false);
+        var intermediateResult = await selector(GetValueOrThrow()).ConfigureAwait(false);
         if (intermediateResult.IsError())
             return GenericResult<TOkReturn, TError>.Error(intermediateResult.GetErrorOrThrow());
         var intermediateValue = intermediateResult.GetValueOrThrow();
-        return GenericResult<TOkReturn, TError>.Ok(resultSelector(Value.GetValueOrThrow(), intermediateValue));
+        return GenericResult<TOkReturn, TError>.Ok(resultSelector(GetValueOrThrow(), intermediateValue));
     }
 
     [Pure]
@@ -66,11 +69,11 @@ public readonly partial record struct GenericOk<TOk>
         Func<TOk, GenericResult<TOkSelectReturn, TError>> selector,
         Func<TOk, TOkSelectReturn, Task<TOkReturn>> resultSelector)
     {
-        var intermediateResult = selector(Value.GetValueOrThrow());
+        var intermediateResult = selector(GetValueOrThrow());
         if (intermediateResult.IsError())
             return GenericResult<TOkReturn, TError>.Error(intermediateResult.GetErrorOrThrow());
         var intermediateValue = intermediateResult.GetValueOrThrow();
-        return GenericResult<TOkReturn, TError>.Ok(await resultSelector(Value.GetValueOrThrow(), intermediateValue).ConfigureAwait(false));
+        return GenericResult<TOkReturn, TError>.Ok(await resultSelector(GetValueOrThrow(), intermediateValue).ConfigureAwait(false));
     }
 
     [Pure]
@@ -78,11 +81,11 @@ public readonly partial record struct GenericOk<TOk>
         Func<TOk, Task<GenericResult<TOkSelectReturn, TError>>> selector,
         Func<TOk, TOkSelectReturn, Task<TOkReturn>> resultSelector)
     {
-        var intermediateResult = await selector(Value.GetValueOrThrow()).ConfigureAwait(false);
+        var intermediateResult = await selector(GetValueOrThrow()).ConfigureAwait(false);
         if (intermediateResult.IsError())
             return GenericResult<TOkReturn, TError>.Error(intermediateResult.GetErrorOrThrow());
         var intermediateValue = intermediateResult.GetValueOrThrow();
-        return GenericResult<TOkReturn, TError>.Ok(await resultSelector(Value.GetValueOrThrow(), intermediateValue).ConfigureAwait(false));
+        return GenericResult<TOkReturn, TError>.Ok(await resultSelector(GetValueOrThrow(), intermediateValue).ConfigureAwait(false));
     }
 
     [Pure]
@@ -90,11 +93,11 @@ public readonly partial record struct GenericOk<TOk>
         Func<TOk, ValueTask<GenericResult<TOkSelectReturn, TError>>> selector,
         Func<TOk, TOkSelectReturn, TOkReturn> resultSelector)
     {
-        var intermediateResult = await selector(Value.GetValueOrThrow()).ConfigureAwait(false);
+        var intermediateResult = await selector(GetValueOrThrow()).ConfigureAwait(false);
         if (intermediateResult.IsError())
             return GenericResult<TOkReturn, TError>.Error(intermediateResult.GetErrorOrThrow());
         var intermediateValue = intermediateResult.GetValueOrThrow();
-        return GenericResult<TOkReturn, TError>.Ok(resultSelector(Value.GetValueOrThrow(), intermediateValue));
+        return GenericResult<TOkReturn, TError>.Ok(resultSelector(GetValueOrThrow(), intermediateValue));
     }
 
     [Pure]
@@ -102,11 +105,11 @@ public readonly partial record struct GenericOk<TOk>
         Func<TOk, GenericResult<TOkSelectReturn, TError>> selector,
         Func<TOk, TOkSelectReturn, ValueTask<TOkReturn>> resultSelector)
     {
-        var intermediateResult = selector(Value.GetValueOrThrow());
+        var intermediateResult = selector(GetValueOrThrow());
         if (intermediateResult.IsError())
             return GenericResult<TOkReturn, TError>.Error(intermediateResult.GetErrorOrThrow());
         var intermediateValue = intermediateResult.GetValueOrThrow();
-        return GenericResult<TOkReturn, TError>.Ok(await resultSelector(Value.GetValueOrThrow(), intermediateValue).ConfigureAwait(false));
+        return GenericResult<TOkReturn, TError>.Ok(await resultSelector(GetValueOrThrow(), intermediateValue).ConfigureAwait(false));
     }
 
     [Pure]
@@ -114,11 +117,11 @@ public readonly partial record struct GenericOk<TOk>
         Func<TOk, ValueTask<GenericResult<TOkSelectReturn, TError>>> selector,
         Func<TOk, TOkSelectReturn, ValueTask<TOkReturn>> resultSelector)
     {
-        var intermediateResult = await selector(Value.GetValueOrThrow()).ConfigureAwait(false);
+        var intermediateResult = await selector(GetValueOrThrow()).ConfigureAwait(false);
         if (intermediateResult.IsError())
             return GenericResult<TOkReturn, TError>.Error(intermediateResult.GetErrorOrThrow());
         var intermediateValue = intermediateResult.GetValueOrThrow();
-        return GenericResult<TOkReturn, TError>.Ok(await resultSelector(Value.GetValueOrThrow(), intermediateValue).ConfigureAwait(false));
+        return GenericResult<TOkReturn, TError>.Ok(await resultSelector(GetValueOrThrow(), intermediateValue).ConfigureAwait(false));
     }
 
     #endregion
@@ -130,9 +133,11 @@ public readonly partial record struct GenericError<TError>
 
     internal GenericError(TError value) => Value = value;
 
+    TError GetValueOrThrow() => Value.GetValueOrThrow(ErrorMessages.UninitializedError);
+
     [Pure]
     public GenericResult<TOk, TError> WithOk<TOk>() =>
-        GenericResult<TOk, TError>.Error(Value.GetValueOrThrow());
+        GenericResult<TOk, TError>.Error(GetValueOrThrow());
 }
 
 public static partial class GenericResult
@@ -154,7 +159,6 @@ public readonly partial record struct GenericResult<TOk, TError>
 {
     private readonly Option<TOk> _value;
     private readonly Option<TError> _error;
-
 
     private GenericResult(Option<TOk> value, Option<TError> error)
     {
@@ -183,7 +187,7 @@ public readonly partial record struct GenericResult<TOk, TError>
     {
         if (_value.IsSome()) return true;
         if (_error.IsSome()) return false;
-        throw new InvalidOperationException("Neither Ok nor Error");
+        throw new InvalidOperationException(ErrorMessages.UninitializedResult);
     }
 
     [Pure]
@@ -191,14 +195,14 @@ public readonly partial record struct GenericResult<TOk, TError>
     {
         if (_error.IsSome()) return true;
         if (_value.IsSome()) return false;
-        throw new InvalidOperationException("Neither Ok nor Error");
+        throw new InvalidOperationException(ErrorMessages.UninitializedResult);
     }
 
     [Pure]
-    public TOk GetValueOrThrow() => _value.GetValueOrThrow();
+    public TOk GetValueOrThrow() => _value.GetValueOrThrow(ErrorMessages.UninitializedResult);
 
     [Pure]
-    public TError GetErrorOrThrow() => _error.GetValueOrThrow();
+    public TError GetErrorOrThrow() => _error.GetValueOrThrow(ErrorMessages.UninitializedResult);
 
 
     [Pure]
@@ -565,4 +569,12 @@ public readonly partial record struct GenericResult<TOk, TError>
         var intermediateValue = intermediateResult.GetValueOrThrow();
         return GenericResult<TSelect, TError>.Ok(await resultSelector(okValue, intermediateValue).ConfigureAwait(false));
     }
+}
+
+internal static class ErrorMessages
+{
+    public const string UninitializedResult = "Access to uninitialized GenericResult object.";
+    public const string UninitializedError = "Access to uninitialized GenericError object.";
+    public const string UninitializedOk = "Access to uninitialized GenericOk object.";
+
 }
