@@ -45,6 +45,10 @@ public class GenericResultSpec
         GenericResult<int, string> res = default;
         var resFn = () => res.IsOk();
         resFn.Should().Throw<InvalidOperationException>();
+
+        //what is our expectation here? currently both calls return the default value. I think they should throw.
+        var valueOrDefaultFn = () => res.GetValueOrDefault(42);
+        var errorOrDefaultFn = () => res.GetErrorOrDefault("error");
     }
 
     [Fact]
