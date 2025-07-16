@@ -3,6 +3,5 @@
 using BenchmarkDotNet.Running;
 using FunicularSwitch.Benchmarks;
 
-var summary = BenchmarkRunner.Run<GenResBenchmark>();
-
-Console.WriteLine(summary);
+BenchmarkRunner.Run<GenResBenchmark>();
+//BenchmarkRunner.Run<ResBenchmark>();

@@ -190,10 +190,51 @@ namespace StandardMinLangVersion
         }
 
         public Result<T1> Map<T1>(global::System.Func<T, T1> map)
-            => Bind(value => Ok(map(value)));
+        {
+            switch (this)
+            {
+                case Ok_ ok:
+                    try
+                    {
+                        return Result.Ok(map(ok.Value));
+                    }
+                    // ReSharper disable once RedundantCatchClause
+#pragma warning disable CS0168 // Variable is declared but never used
+                    catch (global::System.Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+                    {
+                        throw; //createGenericErrorResult
+                    }
+                case Error_ error:
+                    return error.Convert<T1>();
+                default:
+                    throw new global::System.InvalidOperationException($"Unexpected derived result type: {GetType()}");
+            }
+        }
 
-        public global::System.Threading.Tasks.Task<Result<T1>> Map<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> map)
-            => Bind(async value => Ok(await map(value).ConfigureAwait(false)));
+        public async global::System.Threading.Tasks.Task<Result<T1>> Map<T1>(
+            global::System.Func<T, global::System.Threading.Tasks.Task<T1>> map)
+        {
+            switch (this)
+            {
+                case Ok_ ok:
+                    try
+                    {
+                        return Result.Ok(await map(ok.Value).ConfigureAwait(false));
+                    }
+                    // ReSharper disable once RedundantCatchClause
+#pragma warning disable CS0168 // Variable is declared but never used
+                    catch (global::System.Exception e)
+#pragma warning restore CS0168 // Variable is declared but never used
+                    {
+                        throw; //createGenericErrorResult
+                    }
+                case Error_ error:
+                    return error.Convert<T1>();
+                default:
+                    throw new global::System.InvalidOperationException($"Unexpected derived result type: {GetType()}");
+            }
+        }
 
         public T? GetValueOrDefault()
 	        => Match(
