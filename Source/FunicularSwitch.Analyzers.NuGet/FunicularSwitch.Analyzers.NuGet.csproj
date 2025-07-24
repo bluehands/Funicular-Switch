@@ -20,7 +20,7 @@
         <PackageVersion>$(Version)</PackageVersion>
 
         <Title>FunicularSwitch.Analyzers</Title>
-        <PackageReadmeFile>readme.md</PackageReadmeFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>FunicularSwitch.png</PackageIcon>
         <PackageTags>bluehands, F#Result, Result, Match, UnionTypes, Map, Bind, RailwayOrientedProgramming, Analyzer, CodeFixProvider</PackageTags>
         <DevelopmentDependency>true</DevelopmentDependency>
