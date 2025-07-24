@@ -342,7 +342,7 @@
       "funicularswitch": {
         "type": "Project"
       },
-      "funicularswitch.analyzers": {
+      "FunicularSwitch.Analyzers.Analyzers": {
         "type": "Project",
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp": "[4.11.0, )"

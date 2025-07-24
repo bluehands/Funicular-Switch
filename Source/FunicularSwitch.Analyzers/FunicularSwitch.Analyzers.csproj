@@ -8,6 +8,7 @@
 
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
+        <PackageId>FunicularSwitch.Analyzers.Analyzers</PackageId> <!-- Changes this package's id (which is not used) to something other than FunicularSwitch.Analyzers, which is the Id that the FunicularSwitch.Analyzers.NuGet pacakge uses -->
     </PropertyGroup>
 
     <ItemGroup>

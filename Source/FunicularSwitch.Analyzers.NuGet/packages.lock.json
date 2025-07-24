@@ -234,7 +234,7 @@
           "System.Runtime.CompilerServices.Unsafe": "4.5.3"
         }
       },
-      "funicularswitch.analyzers": {
+      "FunicularSwitch.Analyzers.Analyzers": {
         "type": "Project",
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp": "[4.11.0, )"
