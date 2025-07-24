@@ -97,8 +97,6 @@ steps:
     packagesToPack: Source/FunicularSwitch.Analyzers.NuGet/FunicularSwitch.Analyzers.NuGet.csproj
     packDirectory: '$(Build.ArtifactStagingDirectory)/Analyzers'
     verbosityPack: Detailed
-    arguments: >
-      /p:PackageID=FunicularSwitch.Analyzers
 
 - task: PublishBuildArtifacts@1
   inputs:
