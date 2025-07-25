@@ -22,8 +22,7 @@
         <Title>FunicularSwitch.Analyzers</Title>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>FunicularSwitch.png</PackageIcon>
-        <PackageTags>bluehands, F#Result, Result, Match, UnionTypes, Map, Bind, RailwayOrientedProgramming, Analyzer, CodeFixProvider</PackageTags>
-        <DevelopmentDependency>true</DevelopmentDependency>
+        <PackageTags>bluehands, F#Result, Result, Match, UnionTypes, Map, Bind, RailwayOrientedProgramming, Analyzer, CodeFixProvider</PackageTags> 
     </PropertyGroup>
     
     <ItemGroup>
