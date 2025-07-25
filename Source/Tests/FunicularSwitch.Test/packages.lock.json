@@ -792,6 +792,12 @@
         }
       },
       "funicularswitch": {
+        "type": "Project",
+        "dependencies": {
+          "FunicularSwitch.Analyzers": "[1.0.0, )"
+        }
+      },
+      "FunicularSwitch.Analyzers": {
         "type": "Project"
       }
     }

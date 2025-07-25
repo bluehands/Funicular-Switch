@@ -17,6 +17,12 @@
         "contentHash": "kz0PEW2lhqygehI/d6XsPCQzD7ff7gUJaVGPVETX611eadGsA3A877GdSlU0LRVMCTH/+P3o2iDTak+S08V2+A=="
       },
       "funicularswitch": {
+        "type": "Project",
+        "dependencies": {
+          "FunicularSwitch.Analyzers": "[1.0.0, )"
+        }
+      },
+      "FunicularSwitch.Analyzers": {
         "type": "Project"
       }
     }

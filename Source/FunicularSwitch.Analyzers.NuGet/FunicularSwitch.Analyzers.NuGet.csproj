@@ -3,14 +3,13 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <IncludeBuildOutput>false</IncludeBuildOutput>
-        <PackageType>roslyn;analyzer</PackageType>
         <IsPackable>true</IsPackable>
         
         <MajorVersion>1</MajorVersion>
         <MinorAndPatchVersion>0.0</MinorAndPatchVersion>
 
         <VersionSuffixLocal />
-        <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
+        <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)' AND '$(ReferencePreReleaseAnalyzer)'!='' AND '$(ReferencePreReleaseAnalyzer)'">
             $(VersionSuffix)
         </VersionSuffixLocal>
 

@@ -65,6 +65,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\FunicularSwitch.Analyzers.NuGet\FunicularSwitch.Analyzers.NuGet.csproj" />
 		<ProjectReference Include="..\FunicularSwitch.Generators\FunicularSwitch.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 

@@ -2,6 +2,9 @@ parameters:
   - name: buildPrerelease
     type: boolean
     default: true
+  - name: referencePrereleaseAnalyzer
+    type: boolean
+    default: false
 
 trigger:
 - main
@@ -14,6 +17,7 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   IsPrerelease: $[or(ne(variables['Build.SourceBranchName'], 'main'), ${{parameters.buildPrerelease}})]
+  ReferencePreReleaseAnalyzer: $[and($(IsPrerelease), ${{parameters.referencePrereleaseAnalyzer}})]
   VersionSuffix: -$(Build.SourceBranchName)-$(Build.BuildNumber)
   NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
 
