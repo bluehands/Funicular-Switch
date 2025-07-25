@@ -17,7 +17,7 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   IsPrerelease: $[or(ne(variables['Build.SourceBranchName'], 'main'), ${{parameters.buildPrerelease}})]
-  ReferencePreReleaseAnalyzer: $[and($(IsPrerelease), ${{parameters.referencePrereleaseAnalyzer}})]
+  ReferencePreReleaseAnalyzer: ${{parameters.referencePrereleaseAnalyzer}}
   VersionSuffix: -$(Build.SourceBranchName)-$(Build.BuildNumber)
   NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
 
