@@ -4,15 +4,13 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace FunicularSwitch.Generators.Analyzers;
+namespace FunicularSwitch.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class MatchNullAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "FS0001";
-
     private static readonly DiagnosticDescriptor Rule = new(
-        id: DiagnosticId,
+        id: DiagnosticId.MatchNull,
         title: "Funicular Switch Library usage opportunity",
         messageFormat: "Use .Map(...).GetValueOrDefault() over .Match(..., () => null)",
         category: "Usage Opportunity",

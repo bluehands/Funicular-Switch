@@ -19,6 +19,7 @@ FunicularSwitch helps you to:
 ### Packages
 
  - [NuGet: FunicularSwitch](https://www.nuget.org/packages/FunicularSwitch/)
+ - [NuGet: FunicularSwitch.Analyzers](https://www.nuget.org/packages/FunicularSwitch.Analyzers/)
  - [NuGet: FunicularSwitch.Generators](https://www.nuget.org/packages/FunicularSwitch.Generators/)
 
 [**FunicularSwitch**](https://github.com/bluehands/Funicular-Switch#funicularswitch-usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
@@ -214,6 +215,37 @@ No Pear in stock
 Stink fruit, I do not serve that
 ```
 As you can see, all errors are collected as far as possible. Feel free to play around with the cooks skill level, fruits in stock and the ingredients list to finally get your fruit salad.
+
+# <a name="analyzers_usage"></a>FunicularSwitch.Analyzers.Usage
+
+The FunicularSwitch.Analyzers package is automatically included when you reference the FunicularSwitch package starting from version v6.2.0.
+
+The analyzers are designed to provide useful refactoring and to show usage opportunities that can help people using the functional concepts for the first time to just experiment with the basics and get recommendations on which other functions and concepts may apply to their situation.
+
+## Analyzers
+
+### FS0001: MatchNullAnalyzer
+
+Consider the following code
+
+```csharp
+public string? ToLower(Option<string> textOption)
+{
+    return textOption.Match(some: some => some.ToLower(), none: () => null);
+}
+```
+
+While this works as intended, the intention of
+- convert the text to lowercase, if there is text
+- return the converted text, or null if none
+
+can be also expressed using the ``.Map(...)`` and ``.GetValueOrDefault()`` operators which will more explicitly tell someone familiar with functional concepts the above two steps. The analyzers points this out, and offers a code fix that will refactor the code to:
+```csharp
+public string? ToLower(Option<string> textOption)
+{
+    return textOption.Map(some => some.ToLower()).GetValueOrDefault();
+}
+```
 
 # <a name="generators_usage"></a>FunicularSwitch.Generators Usage
 

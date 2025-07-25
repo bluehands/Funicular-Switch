@@ -1,6 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
-using FunicularSwitch.Generators.Analyzers;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -9,12 +11,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace FunicularSwitch.Generators.CodeFixProviders;
+namespace FunicularSwitch.Analyzers.CodeFixProviders;
 
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MatchNullCodeFixProvider)), Shared]
 public class MatchNullCodeFixProvider : CodeFixProvider
 {
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [MatchNullAnalyzer.DiagnosticId];
+    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [DiagnosticId.MatchNull];
 
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
@@ -35,10 +37,11 @@ public class MatchNullCodeFixProvider : CodeFixProvider
         {
             return;
         }
-        
+
         context.RegisterCodeFix(
             CodeAction.Create(
                 title: $"Use .Map().GetValueOrDefault()",
+                equivalenceKey: DiagnosticId.MatchNull,
                 createChangedDocument: c => MigrateMatch(context.Document, diagnostic.Id, invocationExpressionSyntax, m, context.CancellationToken)),
             diagnostic);
     }
@@ -48,15 +51,20 @@ public class MatchNullCodeFixProvider : CodeFixProvider
         var updatedInvocationExpression = invocationExpressionSyntax
             .WithExpression(memberAccessExpression.WithName(IdentifierName("Map")))
             .WithArgumentList(
-                invocationExpressionSyntax.ArgumentList.WithArguments(SingletonSeparatedList<ArgumentSyntax>(
+                ArgumentList(SingletonSeparatedList<ArgumentSyntax>(
                     invocationExpressionSyntax.ArgumentList.Arguments[0].WithNameColon(null))));
         var newInvocationExpression = InvocationExpression(
             MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
-                updatedInvocationExpression,
-                IdentifierName("GetValueOrDefault")));
+                updatedInvocationExpression
+                    .WithTrailingTrivia(memberAccessExpression.Expression.GetTrailingTrivia()),
+                IdentifierName("GetValueOrDefault")
+                    .WithLeadingTrivia(memberAccessExpression.Name.GetLeadingTrivia()))
+                .WithOperatorToken(memberAccessExpression.OperatorToken));
         var editor = await DocumentEditor.CreateAsync(document, cancellationToken);
         editor.ReplaceNode(invocationExpressionSyntax, newInvocationExpression);
         return editor.GetChangedDocument();
     }
+
+    public sealed override FixAllProvider? GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 }

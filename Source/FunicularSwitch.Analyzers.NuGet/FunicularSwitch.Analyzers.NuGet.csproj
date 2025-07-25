@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <IsPackable>true</IsPackable>
+        
+        <MajorVersion>1</MajorVersion>
+        <MinorAndPatchVersion>0.0</MinorAndPatchVersion>
+
+        <VersionSuffixLocal />
+        <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)' AND '$(ReferencePreReleaseAnalyzer)'!='' AND '$(ReferencePreReleaseAnalyzer)'">
+            $(VersionSuffix)
+        </VersionSuffixLocal>
+
+        <AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
+        <Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
+        <FileVersion>$(Version)</FileVersion>
+        <PackageVersion>$(Version)</PackageVersion>
+
+        <PackageId>FunicularSwitch.Analyzers</PackageId>
+        <Title>FunicularSwitch.Analyzers</Title>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>FunicularSwitch.png</PackageIcon>
+        <PackageTags>bluehands, F#Result, Result, Match, UnionTypes, Map, Bind, RailwayOrientedProgramming, Analyzer, CodeFixProvider</PackageTags> 
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\FunicularSwitch.Analyzers\FunicularSwitch.Analyzers.csproj" PrivateAssets="all" />
+      <ProjectReference Include="..\FunicularSwitch.Analyzers.CodeFixProviders\FunicularSwitch.Analyzers.CodeFixProviders.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../../README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <None Include="..\FunicularSwitch.Analyzers\bin\$(Configuration)\netstandard2.0\FunicularSwitch.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="..\FunicularSwitch.Analyzers.CodeFixProviders\bin\$(Configuration)\netstandard2.0\FunicularSwitch.Analyzers.CodeFixProviders.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+    
+    <Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
+
+</Project>

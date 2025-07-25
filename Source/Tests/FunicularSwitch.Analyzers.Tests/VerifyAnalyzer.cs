@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
-using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -8,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
-namespace FunicularSwitch.Generators.Test;
+namespace FunicularSwitch.Analyzers.Tests;
 
 public class VerifyAnalyzer : VerifyBase
 {
@@ -24,12 +23,8 @@ public class VerifyAnalyzer : VerifyBase
     private static readonly MetadataReference FunicularSwitchReference = MetadataReference.CreateFromFile(typeof(Unit).Assembly.Location);
     
     // ReSharper disable once ExplicitCallerInfoArgument
-    protected VerifyAnalyzer([CallerFilePath] string sourceFile = "")
+    protected VerifyAnalyzer([CallerFilePath] string sourceFile = "") : base(sourceFile: sourceFile)
     {
-        if (string.IsNullOrEmpty(sourceFile))
-        {
-            throw new Exception("Call constructor explicitly");
-        }
         this.sourceFile = sourceFile;
     }
 
@@ -80,6 +75,7 @@ public class VerifyAnalyzer : VerifyBase
             verifyCodeAction?.Invoke(d, actions[0]);
             var updatedDocument = await ApplyFix(document, actions[0]);
             var syntaxTree = await updatedDocument.GetSyntaxRootAsync();
+            syntaxTree.Should().NotBeNull();
             var updatedCode = syntaxTree.ToFullString();
             await CheckCompilation(solution.RemoveDocument(documentId).AddDocument(documentId, fileName, SourceText.From(updatedCode)).GetProject(projectId)!);
             
@@ -89,10 +85,12 @@ public class VerifyAnalyzer : VerifyBase
                 .UseDirectory("Snapshots");
             index += 1;
         }
+        return;
 
         async Task<Compilation> CheckCompilation(Project p)
         {
-            var c = await p.GetCompilationAsync()!;
+            var c = await p.GetCompilationAsync();
+            c.Should().NotBeNull();
             c.GetDiagnostics()
                 .Where(d => d.Severity == DiagnosticSeverity.Error)
                 .Should().BeEmpty();
