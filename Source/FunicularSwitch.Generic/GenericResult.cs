@@ -133,11 +133,12 @@ public readonly partial record struct GenericError<TError>
 
     internal GenericError(TError value) => Value = value;
 
-    TError GetValueOrThrow() => Value.GetValueOrThrow(ErrorMessages.UninitializedError);
+    [Pure]
+    public TError GetErrorOrThrow() => Value.GetValueOrThrow(ErrorMessages.UninitializedError);
 
     [Pure]
     public GenericResult<TOk, TError> WithOk<TOk>() =>
-        GenericResult<TOk, TError>.Error(GetValueOrThrow());
+        GenericResult<TOk, TError>.Error(GetErrorOrThrow());
 }
 
 public static partial class GenericResult
