@@ -49,6 +49,23 @@ public class OptionSpecs
 		result.Should().BeError().Subject.Should().Be("Value is missing");
 	}
 
+    [TestMethod]
+    public async Task OrElse()
+    {
+        var none = None<int>();
+        none.OrElse(Option<int>.None).Should().BeNone();
+        ShouldBeSome42(none.OrElse(42));
+
+        var some = Some(42);
+        ShouldBeSome42(some.OrElse(Option<int>.None));
+        ShouldBeSome42(some.OrElse(2));
+
+        ShouldBeSome42(await none.OrElse(() => Task.FromResult(Some(42))));
+        return;
+
+        void ShouldBeSome42(Option<int> option) => option.Should().BeSome().Subject.Should().Be(42);
+    }
+
 	[TestMethod]
 	public void QueryExpressionSelect()
 	{
