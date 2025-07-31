@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FunicularSwitch.Generators.Consumer.Extensions;
@@ -21,6 +18,10 @@ public class When_using_generated_result_type
 
         OperationResult<int> result = 42;
 
+        global::FunicularSwitch.Generic.GenericResult<int, Error> a = result;
+        var b = result.ToGenericResult();
+        var c = Task.FromResult(result).ToGenericResult();
+        
         var calc = result
             .Bind(i => Divide(i, 0))
             .Map(i => (i * 2).ToString(CultureInfo.InvariantCulture));

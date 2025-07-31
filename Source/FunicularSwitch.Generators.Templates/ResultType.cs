@@ -235,6 +235,8 @@ namespace FunicularSwitch.Generators.Templates
                     throw new global::System.InvalidOperationException($"Unexpected derived result type: {GetType()}");
             }
         }
+        
+        //createGenericResultConversions
 
         public T? GetValueOrDefault()
 	        => Match(
@@ -411,6 +413,8 @@ namespace FunicularSwitch.Generators.Templates
         public static global::System.Threading.Tasks.Task<MyResult<T2>> SelectMany<T, T1, T2>(this MyResult<T> result, global::System.Func<T, global::System.Threading.Tasks.Task<MyResult<T1>>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
         #endregion
+        
+        //createGenericResultConversionExtensions
     }
 }
 

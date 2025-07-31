@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using global::System.Linq;
 using MyNamespace2;
+using FunicularSwitch.Generic;
 
 namespace MyNamespace
 {

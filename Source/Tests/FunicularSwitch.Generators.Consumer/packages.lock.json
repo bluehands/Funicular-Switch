@@ -178,12 +178,40 @@
           "System.Windows.Extensions": "6.0.0"
         }
       },
+      "System.Threading.Tasks.Extensions": {
+        "type": "Transitive",
+        "resolved": "4.6.3",
+        "contentHash": "7sCiwilJLYbTZELaKnc7RecBBXWXA+xMLQWZKWawBxYjp6DBlSE3v9/UcvKBvr1vv2tTOhipiogM8rRmxlhrVA=="
+      },
       "System.Windows.Extensions": {
         "type": "Transitive",
         "resolved": "6.0.0",
         "contentHash": "IXoJOXIqc39AIe+CIR7koBtRGMiCt/LPM3lI+PELtDIy9XdyeSrwXFdWV9dzJ2Awl0paLWUaknLxFQ5HpHZUog==",
         "dependencies": {
           "System.Drawing.Common": "6.0.0"
+        }
+      },
+      "funicularswitch": {
+        "type": "Project",
+        "dependencies": {
+          "FunicularSwitch.Analyzers": "[1.0.0, )",
+          "System.Threading.Tasks.Extensions": "[4.6.3, )"
+        }
+      },
+      "FunicularSwitch.Analyzers": {
+        "type": "Project"
+      },
+      "funicularswitch.generic": {
+        "type": "Project",
+        "dependencies": {
+          "FunicularSwitch": "[6.3.0, )",
+          "System.Threading.Tasks.Extensions": "[4.6.3, )"
+        }
+      },
+      "intermediateconsumer": {
+        "type": "Project",
+        "dependencies": {
+          "FunicularSwitch.Generic": "[0.0.1, )"
         }
       }
     }
