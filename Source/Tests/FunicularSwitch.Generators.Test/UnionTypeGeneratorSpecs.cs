@@ -192,7 +192,7 @@ public class Outer {
 }
 ";
 
-		return Verify(code);
+		return Verify(code, numberOfGeneratedFiles: 0);
 	}
 
 	[TestMethod]
@@ -334,7 +334,7 @@ class Consumer {
 }
 ";
 
-		return Verify(code);
+		return Verify(code, numberOfGeneratedFiles: 2);
 	}
 
     [TestMethod]
@@ -481,7 +481,7 @@ public abstract partial record NodeMessage(string NodeInstanceId)
 	public string Node { get; } = NodeInstanceId.Substring(0, NodeInstanceId.IndexOf(':'));
 }";
 
-		return Verify(code);
+		return Verify(code, numberOfGeneratedFiles: 0);
 	}
 
 	[TestMethod]
@@ -505,6 +505,65 @@ public abstract partial record NodeMessage(string NodeInstanceId)
     }
 
 	[TestMethod]
+	public Task For_union_type_with_generic_base_class_and_derived_definitions_that_are_not_nested()
+    {
+        var code = """
+                   using FunicularSwitch.Generators;
+
+                   namespace FunicularSwitch.Test;
+
+                   [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+                   public abstract partial record BaseType<T>(string Value)
+                   {
+                   }
+                   
+                   public sealed record Deriving<T>(string Value, T Other) : BaseType<T>(Value);
+                   
+                   public sealed record Deriving2<T>(string Value) : BaseType<T>(Value);
+                   """;
+
+        return Verify(code);
+    }
+
+	[TestMethod]
+	public Task For_union_type_with_generic_base_class_and_derived_definitions_that_are_not_nested_and_have_different_generic_names()
+    {
+        var code = """
+                   using FunicularSwitch.Generators;
+
+                   namespace FunicularSwitch.Test;
+
+                   [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+                   public abstract partial record BaseType<T>(string Value)
+                   {
+                   }
+                   
+                   public sealed record Deriving<TCustom>(string Value, TCustom Other) : BaseType<TCustom>(Value);
+                   """;
+
+        return Verify(code);
+    }
+
+	[TestMethod]
+	public Task For_union_type_with_generic_base_class_and_derived_definitions_that_are_not_nested_and_are_not_generic()
+    {
+        var code = """
+                   using FunicularSwitch.Generators;
+
+                   namespace FunicularSwitch.Test;
+
+                   [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+                   public abstract partial record BaseType<T>(string Value)
+                   {
+                   }
+                   
+                   public sealed record Deriving(string Value) : BaseType<int>(Value);
+                   """;
+
+        return Verify(code);
+    }
+
+	[TestMethod]
 	public Task For_union_type_with_generic_base_class_and_type_constraints()
     {
         var code = """
@@ -522,6 +581,34 @@ public abstract partial record NodeMessage(string NodeInstanceId)
                        
                        public sealed record Deriving2_(string Value) : BaseType<T1, T2>(Value);
                    }
+                   """;
+
+        return Verify(code);
+    }
+
+	[TestMethod]
+	public Task For_union_type_with_generic_base_class_and_type_constraints_and_derived_definitions_that_are_not_nested()
+    {
+        var code = """
+                   using System.Collections.Generic;
+                   using FunicularSwitch.Generators;
+
+                   namespace FunicularSwitch.Test;
+
+                   [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+                   public abstract partial record BaseType<T1, T2>(string Value)
+                       where T1 : notnull, new()
+                       where T2 : class, IEnumerable<int>
+                   {
+                   }
+                   
+                   public sealed record Deriving<T1, T2>(string Value, T1 Other, T2 List) : BaseType<T1, T2>(Value)
+                       where T1 : notnull, new()
+                       where T2 : class, IEnumerable<int>;
+                   
+                   public sealed record Deriving2<T1, T2>(string Value) : BaseType<T1, T2>(Value)
+                       where T1 : notnull, new()
+                       where T2 : class, IEnumerable<int>;
                    """;
 
         return Verify(code);
