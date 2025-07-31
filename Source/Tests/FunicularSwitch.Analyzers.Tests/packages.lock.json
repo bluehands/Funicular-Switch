@@ -274,6 +274,11 @@
         "resolved": "7.0.0",
         "contentHash": "qmeeYNROMsONF6ndEZcIQ+VxR4Q/TX/7uIVLJqtwIWL7dDWeh0l1UIqgo4wYyjG//5lUNhwkLDSFl+pAWO6oiA=="
       },
+      "System.Threading.Tasks.Extensions": {
+        "type": "Transitive",
+        "resolved": "4.6.3",
+        "contentHash": "7sCiwilJLYbTZELaKnc7RecBBXWXA+xMLQWZKWawBxYjp6DBlSE3v9/UcvKBvr1vv2tTOhipiogM8rRmxlhrVA=="
+      },
       "Verify": {
         "type": "Transitive",
         "resolved": "30.4.0",
@@ -342,7 +347,8 @@
       "funicularswitch": {
         "type": "Project",
         "dependencies": {
-          "FunicularSwitch.Analyzers": "[1.0.0, )"
+          "FunicularSwitch.Analyzers": "[1.0.0, )",
+          "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
       "FunicularSwitch.Analyzers": {

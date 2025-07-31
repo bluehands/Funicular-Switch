@@ -14,7 +14,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>6</MajorVersion>
-		<MinorAndPatchVersion>2.0</MinorAndPatchVersion>
+		<MinorAndPatchVersion>3.0</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
@@ -62,6 +62,10 @@
   at least one subdirectory, which is our key that it's coming from a source generator as opposed to something that is coming from
   some other tool. -->
 		<Compile Remove="$(CompilerGeneratedFilesOutputPath)/*/**/*.cs" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3"/>
 	</ItemGroup>
 
 	<ItemGroup>

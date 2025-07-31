@@ -73,6 +73,11 @@
         "resolved": "1.6.0",
         "contentHash": "COC1aiAJjCoA5GBF+QKL2uLqEBew4JsCkQmoHKbN3TlOZKa2fKLz5CpiRQKDz0RsAOEGsVKqOD5bomsXq/4STQ=="
       },
+      "System.Threading.Tasks.Extensions": {
+        "type": "Transitive",
+        "resolved": "4.6.3",
+        "contentHash": "7sCiwilJLYbTZELaKnc7RecBBXWXA+xMLQWZKWawBxYjp6DBlSE3v9/UcvKBvr1vv2tTOhipiogM8rRmxlhrVA=="
+      },
       "xunit.abstractions": {
         "type": "Transitive",
         "resolved": "2.0.3",
@@ -116,7 +121,8 @@
       "funicularswitch": {
         "type": "Project",
         "dependencies": {
-          "FunicularSwitch.Analyzers": "[1.0.0, )"
+          "FunicularSwitch.Analyzers": "[1.0.0, )",
+          "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
       "FunicularSwitch.Analyzers": {

@@ -68,6 +68,14 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FunicularSwitch.Analyzers.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Analyzers.NuGet", "FunicularSwitch.Analyzers.NuGet\FunicularSwitch.Analyzers.NuGet.csproj", "{563AF842-9542-44CE-8D01-9D3662444B90}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generic.Test", "Tests\FunicularSwitch.Generic.Test\FunicularSwitch.Generic.Test.csproj", "{F5EFC832-1C7F-4273-ACE6-12CD866F1EF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generic", "FunicularSwitch.Generic\FunicularSwitch.Generic.csproj", "{864A9377-0A35-436D-9610-ADCDD34FA39A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generic.Assertions", "FunicularSwitch.Generic.Assertions\FunicularSwitch.Generic.Assertions.csproj", "{27643A6E-1DBF-4A97-8CF0-EAFA3391CEBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Benchmarks", "FunicularSwitch.Benchmarks\FunicularSwitch.Benchmarks.csproj", "{D9F9DFE4-825C-4075-BF71-4C0BC8C8D36D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +158,22 @@ Global
 		{563AF842-9542-44CE-8D01-9D3662444B90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{563AF842-9542-44CE-8D01-9D3662444B90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{563AF842-9542-44CE-8D01-9D3662444B90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5EFC832-1C7F-4273-ACE6-12CD866F1EF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5EFC832-1C7F-4273-ACE6-12CD866F1EF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5EFC832-1C7F-4273-ACE6-12CD866F1EF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5EFC832-1C7F-4273-ACE6-12CD866F1EF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{864A9377-0A35-436D-9610-ADCDD34FA39A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{864A9377-0A35-436D-9610-ADCDD34FA39A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{864A9377-0A35-436D-9610-ADCDD34FA39A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{864A9377-0A35-436D-9610-ADCDD34FA39A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27643A6E-1DBF-4A97-8CF0-EAFA3391CEBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27643A6E-1DBF-4A97-8CF0-EAFA3391CEBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27643A6E-1DBF-4A97-8CF0-EAFA3391CEBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27643A6E-1DBF-4A97-8CF0-EAFA3391CEBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9F9DFE4-825C-4075-BF71-4C0BC8C8D36D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9F9DFE4-825C-4075-BF71-4C0BC8C8D36D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9F9DFE4-825C-4075-BF71-4C0BC8C8D36D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9F9DFE4-825C-4075-BF71-4C0BC8C8D36D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -164,6 +188,8 @@ Global
 		{DA09911F-FDE5-477E-BEEA-76D582844408} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
 		{18D4F137-98AF-47CF-88FE-313C4BEA4215} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
 		{8507953C-2D55-4EDB-9751-9D74FFE6153F} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
+		{F5EFC832-1C7F-4273-ACE6-12CD866F1EF8} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
+		{D9F9DFE4-825C-4075-BF71-4C0BC8C8D36D} = {3411C93C-2928-49DF-8180-90DDB1F8FB6C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A6C53D4-8DAD-4DBF-B4A6-D02801D28BD4}

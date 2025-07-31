@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <VersionPrefix>0.0.1</VersionPrefix>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <IsPackable>true</IsPackable>
+
+        <!-- Descriptions and information-->
+        <Titel>FunicularSwitch.Generic</Titel>
+        <Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
+        <PackageDescription>Funicular-Switch is a lightweight C# port of F# result and option types</PackageDescription>
+        <Copyright>Copyright 2024 bluehands GmbH &amp; C.ommunication KG</Copyright>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>FunicularSwitch.png</PackageIcon>
+        <PackageTags>F# Result, Result, Option, Match, Map, Bind, Railway oriented programming, Railway oriented, Railway, Pipeline</PackageTags>
+        <RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <RepositoryBranch>main</RepositoryBranch>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\FunicularSwitch\FunicularSwitch.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3"/>
+    </ItemGroup>
+
+    <Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
+</Project>
