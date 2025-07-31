@@ -666,4 +666,100 @@ public class GenericResultSpec
             r2.Should().BeError();
         }
     }
+
+    [Fact]
+    public void GetValueOrDefault_WithDefaultValue_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = () => uninitialized.GetValueOrDefault(42);
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void GetValueOrDefault_WithFunc_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = () => uninitialized.GetValueOrDefault(() => 42);
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetValueOrDefault_WithTask_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = async () => await uninitialized.GetValueOrDefault(Task.FromResult(42));
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetValueOrDefault_WithValueTask_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = async () => await uninitialized.GetValueOrDefault(new ValueTask<int>(42));
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetValueOrDefault_WithFuncTask_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = async () => await uninitialized.GetValueOrDefault(() => Task.FromResult(42));
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetValueOrDefault_WithFuncValueTask_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = async () => await uninitialized.GetValueOrDefault(() => new ValueTask<int>(42));
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void GetErrorOrDefault_WithDefaultValue_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = () => uninitialized.GetErrorOrDefault("error");
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void GetErrorOrDefault_WithFunc_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = () => uninitialized.GetErrorOrDefault(() => "error");
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetErrorOrDefault_WithTask_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = async () => await uninitialized.GetErrorOrDefault(Task.FromResult("error"));
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetErrorOrDefault_WithValueTask_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = async () => await uninitialized.GetErrorOrDefault(new ValueTask<string>("error"));
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetErrorOrDefault_WithFuncTask_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = async () => await uninitialized.GetErrorOrDefault(() => Task.FromResult("error"));
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetErrorOrDefault_WithFuncValueTask_ShouldThrowWhenUninitialized()
+    {
+        GenericResult<int, string> uninitialized = default;
+        var act = async () => await uninitialized.GetErrorOrDefault(() => new ValueTask<string>("error"));
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
 }

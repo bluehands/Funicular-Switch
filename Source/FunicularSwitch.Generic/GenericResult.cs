@@ -199,60 +199,62 @@ public readonly partial record struct GenericResult<TOk, TError>
     }
 
     [Pure]
-    public TOk GetValueOrThrow() => _value.GetValueOrThrow(ErrorMessages.UninitializedResult);
+    public TOk GetValueOrThrow() =>
+        IsOk() ? _value.GetValueOrThrow(ErrorMessages.UninitializedResult) : throw new InvalidOperationException(ErrorMessages.ResultInErrorState);
 
     [Pure]
-    public TError GetErrorOrThrow() => _error.GetValueOrThrow(ErrorMessages.UninitializedResult);
+    public TError GetErrorOrThrow() =>
+        IsError() ? _error.GetValueOrThrow(ErrorMessages.UninitializedResult) : throw new InvalidOperationException(ErrorMessages.ResultInOkState);
 
 
     [Pure]
     public TOk GetValueOrDefault(TOk defaultValue) =>
-        _value.GetValueOrDefault(defaultValue);
+        IsOk() ? _value.GetValueOrThrow(ErrorMessages.UninitializedResult) : defaultValue;
 
     [Pure]
     public async Task<TOk> GetValueOrDefault(Task<TOk> defaultValue) =>
-        _value.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
+        IsOk() ? _value.GetValueOrThrow(ErrorMessages.UninitializedResult) : await defaultValue.ConfigureAwait(false);
 
     [Pure]
     public async ValueTask<TOk> GetValueOrDefault(ValueTask<TOk> defaultValue) =>
-        _value.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
+        IsOk() ? _value.GetValueOrThrow(ErrorMessages.UninitializedResult) : await defaultValue.ConfigureAwait(false);
 
     [Pure]
     public TOk GetValueOrDefault(Func<TOk> defaultValue) =>
-        _value.GetValueOrDefault(defaultValue);
+        IsOk() ? _value.GetValueOrThrow(ErrorMessages.UninitializedResult) : defaultValue();
 
     [Pure]
-    public Task<TOk> GetValueOrDefault(Func<Task<TOk>> defaultValue) =>
-        _value.GetValueOrDefault(defaultValue);
+    public async Task<TOk> GetValueOrDefault(Func<Task<TOk>> defaultValue) =>
+        IsOk() ? _value.GetValueOrThrow(ErrorMessages.UninitializedResult) : await defaultValue().ConfigureAwait(false);
 
     [Pure]
-    public ValueTask<TOk> GetValueOrDefault(Func<ValueTask<TOk>> defaultValue) =>
-        _value.GetValueOrDefault(defaultValue);
+    public async ValueTask<TOk> GetValueOrDefault(Func<ValueTask<TOk>> defaultValue) =>
+        IsOk() ? _value.GetValueOrThrow(ErrorMessages.UninitializedResult) : await defaultValue().ConfigureAwait(false);
 
 
     [Pure]
     public TError GetErrorOrDefault(TError defaultValue) =>
-        _error.GetValueOrDefault(defaultValue);
+        IsError() ? _error.GetValueOrThrow(ErrorMessages.UninitializedResult) : defaultValue;
 
     [Pure]
     public async Task<TError> GetErrorOrDefault(Task<TError> defaultValue) =>
-        _error.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
+        IsError() ? _error.GetValueOrThrow(ErrorMessages.UninitializedResult) : await defaultValue.ConfigureAwait(false);
 
     [Pure]
     public async ValueTask<TError> GetErrorOrDefault(ValueTask<TError> defaultValue) =>
-        _error.GetValueOrDefault(await defaultValue.ConfigureAwait(false));
+        IsError() ? _error.GetValueOrThrow(ErrorMessages.UninitializedResult) : await defaultValue.ConfigureAwait(false);
 
     [Pure]
     public TError GetErrorOrDefault(Func<TError> defaultValue) =>
-        _error.GetValueOrDefault(defaultValue);
+        IsError() ? _error.GetValueOrThrow(ErrorMessages.UninitializedResult) : defaultValue();
 
     [Pure]
-    public Task<TError> GetErrorOrDefault(Func<Task<TError>> defaultValue) =>
-        _error.GetValueOrDefault(defaultValue);
+    public async Task<TError> GetErrorOrDefault(Func<Task<TError>> defaultValue) =>
+        IsError() ? _error.GetValueOrThrow(ErrorMessages.UninitializedResult) : await defaultValue().ConfigureAwait(false);
 
     [Pure]
-    public ValueTask<TError> GetErrorOrDefault(Func<ValueTask<TError>> defaultValue) =>
-        _error.GetValueOrDefault(defaultValue);
+    public async ValueTask<TError> GetErrorOrDefault(Func<ValueTask<TError>> defaultValue) =>
+        IsError() ? _error.GetValueOrThrow(ErrorMessages.UninitializedResult) : await defaultValue().ConfigureAwait(false);
 
 
     #region Option interop
@@ -573,8 +575,9 @@ public readonly partial record struct GenericResult<TOk, TError>
 
 internal static class ErrorMessages
 {
+    public const string ResultInOkState = "Result is in ok state, cannot access error value.";
+    public const string ResultInErrorState = "Result is in error state, cannot access value.";
     public const string UninitializedResult = "Access to uninitialized GenericResult object.";
     public const string UninitializedError = "Access to uninitialized GenericError object.";
     public const string UninitializedOk = "Access to uninitialized GenericOk object.";
-
 }
