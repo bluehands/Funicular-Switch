@@ -23,7 +23,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>1</MajorVersion>
-		<MinorAndPatchVersion>0.0</MinorAndPatchVersion>
+		<MinorAndPatchVersion>0.1</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
@@ -54,7 +54,7 @@
 
   <ItemGroup>
 		<PackageReference Include="AwesomeAssertions" Version="9.0.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
 	</ItemGroup>
 
 	<ItemGroup>

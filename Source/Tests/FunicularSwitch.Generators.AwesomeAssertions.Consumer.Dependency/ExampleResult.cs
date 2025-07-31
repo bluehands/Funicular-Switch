@@ -7,6 +7,11 @@ public partial class ExampleResult
 {
 }
 
+[ResultType(ErrorType = typeof(object))]
+public partial class GenericResult<T>
+{
+}
+
 [UnionType(CaseOrder = CaseOrder.AsDeclared)]
 public abstract partial class MyError
 {

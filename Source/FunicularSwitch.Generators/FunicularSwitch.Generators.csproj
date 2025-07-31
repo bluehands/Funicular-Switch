@@ -17,7 +17,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>4</MajorVersion>
-		<MinorAndPatchVersion>2.3</MinorAndPatchVersion>
+		<MinorAndPatchVersion>2.5</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<VersionSuffixLocal />
@@ -52,7 +52,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
 	</ItemGroup>
 
 	<ItemGroup>

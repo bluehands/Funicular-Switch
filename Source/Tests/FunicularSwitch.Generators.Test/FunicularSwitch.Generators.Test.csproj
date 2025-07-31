@@ -2,7 +2,8 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="7.2.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
     <PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
@@ -10,12 +11,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="PolyType" Version="0.42.1" />
     <PackageReference Include="Verify.MSTest" Version="29.3.0" />
     <PackageReference Include="Verify.SourceGenerators" Version="2.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\FunicularSwitch.Generators\FunicularSwitch.Generators.csproj" />
+    <ProjectReference Include="..\..\FunicularSwitch\FunicularSwitch.csproj" />
   </ItemGroup>
 
 </Project>

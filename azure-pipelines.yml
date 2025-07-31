@@ -2,6 +2,9 @@ parameters:
   - name: buildPrerelease
     type: boolean
     default: true
+  - name: referencePrereleaseAnalyzer
+    type: boolean
+    default: false
 
 trigger:
 - main
@@ -14,6 +17,7 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   IsPrerelease: $[or(ne(variables['Build.SourceBranchName'], 'main'), ${{parameters.buildPrerelease}})]
+  ReferencePreReleaseAnalyzer: ${{parameters.referencePrereleaseAnalyzer}}
   VersionSuffix: -$(Build.SourceBranchName)-$(Build.BuildNumber)
   NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
 
@@ -87,6 +91,15 @@ steps:
     nobuild: true
     packagesToPack: Source/FunicularSwitch.Generators.AwesomeAssertions/FunicularSwitch.Generators.AwesomeAssertions.csproj
     packDirectory: '$(Build.ArtifactStagingDirectory)/Generators.AwesomeAssertions'
+    verbosityPack: Detailed
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack funicular analyzers'
+  inputs:
+    command: pack
+    nobuild: true
+    packagesToPack: Source/FunicularSwitch.Analyzers.NuGet/FunicularSwitch.Analyzers.NuGet.csproj
+    packDirectory: '$(Build.ArtifactStagingDirectory)/Analyzers'
     verbosityPack: Detailed
 
 - task: PublishBuildArtifacts@1
