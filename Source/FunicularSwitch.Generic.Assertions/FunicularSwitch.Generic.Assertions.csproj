@@ -45,4 +45,5 @@
       <PackageReference Include="AwesomeAssertions" Version="9.0.0" />
     </ItemGroup>
 
+    <Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
 </Project>
