@@ -92,7 +92,25 @@ steps:
     packagesToPack: Source/FunicularSwitch.Generators.AwesomeAssertions/FunicularSwitch.Generators.AwesomeAssertions.csproj
     packDirectory: '$(Build.ArtifactStagingDirectory)/Generators.AwesomeAssertions'
     verbosityPack: Detailed
-
+    
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack funicular generic'
+  inputs:
+    command: pack
+    nobuild: true
+    packagesToPack: Source/FunicularSwitch.Generic/FunicularSwitch.Generic.csproj
+    packDirectory: '$(Build.ArtifactStagingDirectory)/Generic'
+    verbosityPack: Detailed
+    
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack funicular generic assertions'
+  inputs:
+    command: pack
+    nobuild: true
+    packagesToPack: Source/FunicularSwitch.Generic.Assertions/FunicularSwitch.Generic.Assertions.csproj
+    packDirectory: '$(Build.ArtifactStagingDirectory)/Generic.Assertions'
+    verbosityPack: Detailed
+    
 - task: DotNetCoreCLI@2
   displayName: 'dotnet pack funicular analyzers'
   inputs:

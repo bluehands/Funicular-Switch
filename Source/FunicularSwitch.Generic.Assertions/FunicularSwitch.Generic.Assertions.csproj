@@ -1,7 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <VersionPrefix>0.0.1</VersionPrefix>
+        <VersionSuffixLocal />
+        <!--When variable is set we are building a prerelease package-->
+        <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
+            $(VersionSuffix)
+        </VersionSuffixLocal>
+
+        <!--#region adapt versions here-->
+        <MajorVersion>1</MajorVersion>
+        <MinorAndPatchVersion>0.0</MinorAndPatchVersion>
+        <!--#endregion-->
+
+        <AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
+        <Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
+        <FileVersion>$(Version)</FileVersion>
+        <PackageVersion>$(Version)</PackageVersion>
+        
         <TargetFramework>netstandard2.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -30,4 +45,5 @@
       <PackageReference Include="AwesomeAssertions" Version="9.0.0" />
     </ItemGroup>
 
+    <Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
 </Project>
