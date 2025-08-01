@@ -19,7 +19,8 @@ public class When_using_generated_result_type
         OperationResult<int> result = 42;
 
         global::FunicularSwitch.Generic.GenericResult<int, Error> a = result;
-        var b = result.ToGenericResult();
+        OperationResult<int> d = a;
+         var b = result.ToGenericResult();
         var c = Task.FromResult(result).ToGenericResult();
         
         var calc = result

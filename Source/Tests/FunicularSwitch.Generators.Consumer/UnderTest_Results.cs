@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System;
-using FunicularSwitch.Generic;
 
 namespace FunicularSwitch.Generators.Consumer;
 
