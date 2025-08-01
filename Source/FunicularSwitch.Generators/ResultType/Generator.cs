@@ -10,20 +10,22 @@ static class Generator
     const string TemplateResultTypeName = "MyResult";
     const string TemplateErrorTypeName = "MyError";
 
-    public static IEnumerable<(string filename, string source)> Emit(
-        ResultTypeSchema resultTypeSchema, 
+    public static IEnumerable<(string filename, string source)> Emit(ResultTypeSchema resultTypeSchema,
         SymbolWrapper<INamedTypeSymbol> defaultErrorType,
         MergeMethod? mergeErrorMethod,
         ExceptionToErrorMethod? exceptionToErrorMethod,
-        Action<Diagnostic> reportDiagnostic, 
+        Action<Diagnostic> reportDiagnostic,
+        bool referencesFunicularSwitchGeneric,
         CancellationToken cancellationToken)
     {
-	    var resultTypeName = resultTypeSchema.ResultTypeName.Name;
+        var resultTypeName = resultTypeSchema.ResultTypeName.Name;
         var resultTypeNamespace = resultTypeSchema.ResultTypeNamespace;
         if (resultTypeNamespace == null)
         {
-	        reportDiagnostic(Diagnostics.ResultTypeInGlobalNamespace($"Result type {resultTypeName} is placed in global namespace, this is not supported. Please put {resultTypeName} into non empty namespace.", resultTypeSchema.ResultTypeLocation?.ToLocation() ?? Location.None));
-	        yield break;
+            reportDiagnostic(Diagnostics.ResultTypeInGlobalNamespace(
+                $"Result type {resultTypeName} is placed in global namespace, this is not supported. Please put {resultTypeName} into non empty namespace.",
+                resultTypeSchema.ResultTypeLocation?.ToLocation() ?? Location.None));
+            yield break;
         }
 
         var errorTypeSymbol = resultTypeSchema.ErrorType ?? defaultErrorType;
@@ -32,7 +34,7 @@ static class Generator
 
         string Replace(string code, IReadOnlyCollection<string> additionalNamespaces, string genericTypeParameterNameForHandleExceptions)
         {
-	        code = code
+            code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")
                 .Replace(TemplateResultTypeName, resultTypeName)
                 .Replace(TemplateErrorTypeName, errorTypeSymbol.Symbol.Name);
@@ -47,8 +49,53 @@ static class Generator
 
             if (exceptionToErrorMethod != null)
             {
-	            code = code.Replace("throw; //createGenericErrorResult",
-		            $"return {resultTypeName}.Error<{genericTypeParameterNameForHandleExceptions}>({exceptionToErrorMethod.FullMethodName}(e));");
+                code = code.Replace("throw; //createGenericErrorResult",
+                    $"return {resultTypeName}.Error<{genericTypeParameterNameForHandleExceptions}>({exceptionToErrorMethod.FullMethodName}(e));");
+            }
+
+            if (referencesFunicularSwitchGeneric)
+            {
+                var genericResultType = $"global::FunicularSwitch.Generic.GenericResult<T, {errorTypeSymbol.Symbol.Name}>";
+                code = code.Replace("//createGenericResultConversions",
+                    $"""
+                     
+                             public static implicit operator {genericResultType}({resultTypeName}<T> result) => 
+                                 result.Match(
+                                     {genericResultType}.Ok,
+                                     {genericResultType}.Error);
+                             
+                             public static implicit operator {resultTypeName}<T>({genericResultType} result) =>
+                                 result.Match<{resultTypeName}<T>>(
+                                     {resultTypeName}<T>.Ok,
+                                     {resultTypeName}<T>.Error);
+                             
+                             public {genericResultType} ToGenericResult() =>
+                                 Match(
+                                     {genericResultType}.Ok,
+                                     {genericResultType}.Error);
+                     """);
+                
+                code = code.Replace("//createGenericResultConversionExtensions", 
+                    $"""
+                    
+                            public static {resultTypeName}<T> To{resultTypeName}<T>(
+                                this {genericResultType} result) =>
+                                    result.Match<{resultTypeName}<T>>(
+                                        {resultTypeName}<T>.Ok,
+                                        {resultTypeName}<T>.Error);
+                            
+                            public static global::System.Threading.Tasks.Task<{resultTypeName}<T>> To{resultTypeName}<T>(
+                                this global::System.Threading.Tasks.Task<{genericResultType}> result) =>
+                                    result.Match(
+                                        {resultTypeName}<T>.Ok,
+                                        {resultTypeName}<T>.Error);
+                            
+                            public static global::System.Threading.Tasks.Task<{genericResultType}> ToGenericResult<T>(
+                                this global::System.Threading.Tasks.Task<{resultTypeName}<T>> result) =>
+                                    result.Match(
+                                        {genericResultType}.Ok,
+                                        {genericResultType}.Error);
+                    """);
             }
 
             return code;
@@ -58,12 +105,15 @@ static class Generator
         if (errorTypeNamespace != resultTypeNamespace && errorTypeNamespace != null)
             additionalNamespaces.Add(errorTypeNamespace);
 
+        if (referencesFunicularSwitchGeneric)
+            additionalNamespaces.Add("FunicularSwitch.Generic");
+
         var generateFileHint = $"{resultTypeNamespace}.{resultTypeSchema.ResultTypeName}";
 
         var resultTypeImpl = Replace(Templates.ResultTypeTemplates.ResultType, additionalNamespaces, "T1");
 
         //resultTypeImpl = $"//Generator runs: {RunCount.Increase(generateFileHint)}\r\n" + resultTypeImpl;
-        
+
         yield return ($"{generateFileHint}.g.cs", resultTypeImpl);
 
         if (mergeErrorMethod != null)
@@ -87,7 +137,7 @@ static class Generator
 
     static string GenerateAggregateExtensionMethods(int maxParameterCount, bool isValueType) => Generate(maxParameterCount, i => MakeAggregateExtensionMethod(i, isValueType));
     static string GenerateAggregateMethods(int maxParameterCount) => Generate(maxParameterCount, GenerateAggregateMethod);
-        
+
 
     static string Generate(int maxParameterCount, Func<int, string> generateMethods) =>
         Enumerable
@@ -98,7 +148,7 @@ static class Generator
     static string MakeAggregateExtensionMethod(int typeParameterCount, bool isValueType)
     {
         var range = Enumerable.Range(1, typeParameterCount).ToImmutableArray();
-        string Expand(Func<int, string> strAtIndex, string separator = ", ") => range.Select(strAtIndex).ToSeparatedString(separator); 
+        string Expand(Func<int, string> strAtIndex, string separator = ", ") => range.Select(strAtIndex).ToSeparatedString(separator);
 
         var typeArguments = Expand(i => $"T{i}");
         var typeArgumentsWithResult = $"{typeArguments}, TResult";
@@ -143,7 +193,7 @@ static class Generator
     public static string GenerateAggregateMethod(int typeParameterCount)
     {
         var range = Enumerable.Range(1, typeParameterCount).ToImmutableArray();
-        string Expand(Func<int, string> strAtIndex, string separator = ", ") => range.Select(strAtIndex).ToSeparatedString(separator); 
+        string Expand(Func<int, string> strAtIndex, string separator = ", ") => range.Select(strAtIndex).ToSeparatedString(separator);
 
         var typeParameters = Expand(i => $"T{i}");
         var parameterDeclarations = Expand(i => $"MyResult<T{i}> r{i}");

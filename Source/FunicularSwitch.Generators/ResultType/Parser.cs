@@ -27,6 +27,9 @@ static class Parser
             });
     }
 
+    public static bool ReferencesFunicularSwitchGeneric(Compilation compilation) => 
+        compilation.ReferencedAssemblyNames.Any(r => r.Name.Equals("FunicularSwitch.Generic", StringComparison.InvariantCultureIgnoreCase));
+
     public static Dictionary<string, MergeMethod> FindMergeMethods(Compilation compilation, Action<Diagnostic> reportDiagnostic)
     {
         var mergeMethodByErrorTypeName = compilation.SyntaxTrees

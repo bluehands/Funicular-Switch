@@ -41,17 +41,20 @@ public class ResultTypeGenerator : IIncrementalGenerator
                     });
 
         var compilationAndClasses = context.CompilationProvider
-            .Select((compilation, _) => 
+            .Select((compilation, _) =>
             {
                 List<Diagnostic> diagnostics = new();
                 var mergeMethods = Parser.FindMergeMethods(compilation, diagnostics.Add);
                 var exceptionToErrorMethods = Parser.FindExceptionToErrorMethods(compilation, diagnostics.Add);
+                var referencesFunicularSwitchGeneric = Parser.ReferencesFunicularSwitchGeneric(compilation);
+
 
                 return GenerationResult.Create(
                     (
                         mergeMethods: mergeMethods.Values.ToImmutableArray().AsEquatableArray(),
                         exceptionToErrorMethods: exceptionToErrorMethods.Values.ToImmutableArray().AsEquatableArray(),
-                        stringSymbol: SymbolWrapper.Create(compilation.GetTypeByMetadataName("System.String")!)
+                        stringSymbol: SymbolWrapper.Create(compilation.GetTypeByMetadataName("System.String")!),
+                        referencesFunicularSwitchGeneric
                     ),
                     diagnostics.Select(d => new DiagnosticInfo(d)).ToImmutableArray(), true
                 );
@@ -64,19 +67,25 @@ public class ResultTypeGenerator : IIncrementalGenerator
     }
 
     static void Execute(
-        GenerationResult<(EquatableArray<MergeMethod> mergeMethods, EquatableArray<ExceptionToErrorMethod> exceptionToErrorMethods, SymbolWrapper<INamedTypeSymbol> stringSymbol)> resultTypeMethods, 
-        ImmutableArray<GenerationResult<ResultTypeSchema>> resultTypeClassesResult, SourceProductionContext context)
+        GenerationResult<(
+            EquatableArray<MergeMethod> mergeMethods,
+            EquatableArray<ExceptionToErrorMethod> exceptionToErrorMethods,
+            SymbolWrapper<INamedTypeSymbol> stringSymbol,
+            bool referencesFunicularSwitchGeneric
+            )> resultTypeMethods,
+        ImmutableArray<GenerationResult<ResultTypeSchema>> resultTypeClassesResult,
+        SourceProductionContext context)
     {
         foreach (var diagnosticInfo in resultTypeClassesResult
                      .SelectMany(r => r.Diagnostics)
-                     .Concat(resultTypeMethods.Diagnostics)) 
+                     .Concat(resultTypeMethods.Diagnostics))
             context.ReportDiagnostic(diagnosticInfo);
 
         ImmutableArray<ResultTypeSchema> resultTypeSchemata = resultTypeClassesResult
             .Select(r => r.Value)
             .Where(r => r != null)
             .ToImmutableArray()!;
-        
+
         if (resultTypeSchemata.IsDefaultOrEmpty) return;
 
         var generated = resultTypeSchemata
@@ -85,13 +94,15 @@ public class ResultTypeGenerator : IIncrementalGenerator
                 var defaultErrorType = resultTypeMethods.Value.stringSymbol;
                 var errorTypeSymbol = r.ErrorType ?? defaultErrorType;
 
-                return Generator.Emit(r,
-                    defaultErrorType,
-                    resultTypeMethods.Value.mergeMethods.FirstOrDefault(m =>
+                return Generator.Emit(resultTypeSchema: r,
+                    defaultErrorType: defaultErrorType,
+                    mergeErrorMethod: resultTypeMethods.Value.mergeMethods.FirstOrDefault(m =>
                         m.FullErrorTypeName == errorTypeSymbol.FullNameWithNamespace),
-                    resultTypeMethods.Value.exceptionToErrorMethods.FirstOrDefault(e =>
+                    exceptionToErrorMethod: resultTypeMethods.Value.exceptionToErrorMethods.FirstOrDefault(e =>
                         e.ErrorTypeName == errorTypeSymbol.FullNameWithNamespace),
-                    context.ReportDiagnostic, context.CancellationToken);
+                    reportDiagnostic: context.ReportDiagnostic, 
+                    referencesFunicularSwitchGeneric: resultTypeMethods.Value.referencesFunicularSwitchGeneric,
+                    cancellationToken: context.CancellationToken);
             }).ToImmutableArray();
 
         foreach (var (filename, source) in generated) context.AddSource(filename, source);

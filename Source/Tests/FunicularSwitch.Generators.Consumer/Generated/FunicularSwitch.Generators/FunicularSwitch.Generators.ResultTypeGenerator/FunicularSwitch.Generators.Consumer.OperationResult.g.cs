@@ -1,6 +1,6 @@
 ﻿#nullable enable
 using global::System.Linq;
-
+using FunicularSwitch.Generic;
 
 namespace FunicularSwitch.Generators.Consumer
 {
@@ -235,6 +235,22 @@ namespace FunicularSwitch.Generators.Consumer
                     throw new global::System.InvalidOperationException($"Unexpected derived result type: {GetType()}");
             }
         }
+        
+        
+        public static implicit operator global::FunicularSwitch.Generic.GenericResult<T, Error>(OperationResult<T> result) => 
+            result.Match(
+                global::FunicularSwitch.Generic.GenericResult<T, Error>.Ok,
+                global::FunicularSwitch.Generic.GenericResult<T, Error>.Error);
+        
+        public static implicit operator OperationResult<T>(global::FunicularSwitch.Generic.GenericResult<T, Error> result) =>
+            result.Match<OperationResult<T>>(
+                OperationResult<T>.Ok,
+                OperationResult<T>.Error);
+        
+        public global::FunicularSwitch.Generic.GenericResult<T, Error> ToGenericResult() =>
+            Match(
+                global::FunicularSwitch.Generic.GenericResult<T, Error>.Ok,
+                global::FunicularSwitch.Generic.GenericResult<T, Error>.Error);
 
         public T? GetValueOrDefault()
 	        => Match(
@@ -411,6 +427,25 @@ namespace FunicularSwitch.Generators.Consumer
         public static global::System.Threading.Tasks.Task<OperationResult<T2>> SelectMany<T, T1, T2>(this OperationResult<T> result, global::System.Func<T, global::System.Threading.Tasks.Task<OperationResult<T1>>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
         #endregion
+        
+        
+        public static OperationResult<T> ToOperationResult<T>(
+            this global::FunicularSwitch.Generic.GenericResult<T, Error> result) =>
+                result.Match<OperationResult<T>>(
+                    OperationResult<T>.Ok,
+                    OperationResult<T>.Error);
+        
+        public static global::System.Threading.Tasks.Task<OperationResult<T>> ToOperationResult<T>(
+            this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generic.GenericResult<T, Error>> result) =>
+                result.Match(
+                    OperationResult<T>.Ok,
+                    OperationResult<T>.Error);
+        
+        public static global::System.Threading.Tasks.Task<global::FunicularSwitch.Generic.GenericResult<T, Error>> ToGenericResult<T>(
+            this global::System.Threading.Tasks.Task<OperationResult<T>> result) =>
+                result.Match(
+                    global::FunicularSwitch.Generic.GenericResult<T, Error>.Ok,
+                    global::FunicularSwitch.Generic.GenericResult<T, Error>.Error);
     }
 }
 
