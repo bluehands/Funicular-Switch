@@ -8,6 +8,7 @@ internal record TransformMonadData(
     string TypeParameter,
     string FullTypeName,
     Func<string, string> FullGenericType,
+    bool IsRecord,
     string TransformerTypeName,
     MonadData InnerMonad,
     MonadData OuterMonad);

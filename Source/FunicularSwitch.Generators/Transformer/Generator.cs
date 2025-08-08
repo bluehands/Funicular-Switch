@@ -1,4 +1,3 @@
-using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 
 namespace FunicularSwitch.Generators.Transformer;
@@ -19,6 +18,17 @@ internal static class Generator
               {
                   public {{data.Modifier}} {{data.TypeNameWithTypeParameters}}({{NestedTypeName(data.TypeParameter)}} M)
                   {
+              """ +
+            (data.IsRecord
+                ? string.Empty
+                :
+                /*lang=csharp*/
+                ("\n" +
+                $$"""
+                        public {{NestedTypeName(data.TypeParameter)}} M { get; } = M;
+                """))+ "\n" +
+            /*lang=csharp*/
+            $$"""
                       public static implicit operator {{data.TypeNameWithTypeParameters}}({{NestedTypeName(data.TypeParameter)}} ma) => new(ma);
                       public static implicit operator {{NestedTypeName(data.TypeParameter)}}({{data.TypeNameWithTypeParameters}} ma) => ma.M;
                   }
