@@ -91,7 +91,7 @@ public class TransformerGenerator : IIncrementalGenerator
                          {
                              public static {{data.TargetTypeSymbol.Name}}<A> Return<A>(A a) => {{data.MonadType.FullTypeNameWithNamespace()}}.Return({{innerMonadType.FullTypeNameWithNamespace()}}.Return(a));
                              
-                             public static {{data.TargetTypeSymbol.Name}}<B> Bind<A, B>(this {{data.TargetTypeSymbol.Name}}<A> ma, System.Func<A, {{data.TargetTypeSymbol.Name}}<B>> fn) => {{data.TransformerType.FullTypeNameWithNamespace()}}.Bind<A, B, {{nestedTypeName("A")}}, {{nestedTypeName("B")}}>(ma, x => fn(x), {{data.MonadType.FullTypeNameWithNamespace()}}.Return, {{data.MonadType.FullTypeNameWithNamespace()}}.Bind);
+                             public static {{data.TargetTypeSymbol.Name}}<B> Bind<A, B>(this {{data.TargetTypeSymbol.Name}}<A> ma, global::System.Func<A, {{data.TargetTypeSymbol.Name}}<B>> fn) => {{data.TransformerType.FullTypeNameWithNamespace()}}.Bind<A, B, {{nestedTypeName("A")}}, {{nestedTypeName("B")}}>(ma, x => fn(x), {{data.MonadType.FullTypeNameWithNamespace()}}.Return, {{data.MonadType.FullTypeNameWithNamespace()}}.Bind);
                              
                              public static {{data.TargetTypeSymbol.Name}}<A> Lift<A>({{outerMonadGenericType.FullTypeNameWithNamespace()}}<A> ma) => {{data.MonadType.FullTypeNameWithNamespace()}}.Bind(ma, a => {{data.MonadType.FullTypeNameWithNamespace()}}.Return({{innerMonadType.FullTypeNameWithNamespace()}}.Return(a)));
                          }

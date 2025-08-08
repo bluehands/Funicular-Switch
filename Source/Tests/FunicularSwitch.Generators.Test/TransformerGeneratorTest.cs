@@ -22,7 +22,6 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
                 
                 public static MonadA<B> Bind<A, B>(MonadA<A> ma, Func<A, MonadA<B>> fn) => throw new NotImplementedException();
             }
-
             public record MonadB<B>(B Value);
             [Monad(typeof(MonadB<>))]
             public class MonadB
