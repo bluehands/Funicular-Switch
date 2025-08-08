@@ -26,7 +26,11 @@ internal static class Parser
             transformedMonadSymbol.Name,
             $"{transformedMonadSymbol.Name}<{typeParameter}>",
             typeParameter,
-            transformedMonadSymbol.FullTypeNameWithNamespace(), FullGenericType, transformerType.FullTypeNameWithNamespace(), innerMonadData, outerMonadData);
+            transformedMonadSymbol.FullTypeNameWithNamespace(),
+            FullGenericType,
+            transformerType.FullTypeNameWithNamespace(),
+            innerMonadData,
+            outerMonadData);
 
         string FullGenericType(string typeParameter) => $"{transformedMonadSymbol.FullTypeNameWithNamespace()}<{typeParameter}>";
     }
