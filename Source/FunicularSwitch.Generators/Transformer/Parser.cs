@@ -12,7 +12,9 @@ internal static class Parser
     {
         var typeModifier = transformedMonadSymbol.IsReadOnly
             ? "readonly partial record struct"
-            : "partial record";
+            : transformedMonadSymbol.IsReferenceType 
+            ? "partial record"
+            : "partial record struct";
         
         var transformerType = (INamedTypeSymbol)transformMonadAttribute.ConstructorArguments[1].Value!;
         

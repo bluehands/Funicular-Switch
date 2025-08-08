@@ -4,8 +4,9 @@ namespace FunicularSwitch.Generators.Test;
 public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerator>
 {
     [TestMethod]
-    [DataRow("public readonly partial record struct")]
     [DataRow("public partial record")]
+    [DataRow("public partial record struct")]
+    [DataRow("public readonly partial record struct")]
     public Task TypeModifiers(string modifier)
     {
         var code =
