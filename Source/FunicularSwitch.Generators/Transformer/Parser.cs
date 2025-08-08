@@ -63,9 +63,18 @@ internal static class Parser
 
     static MonadData ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
     {
-        var genericMonadType = (INamedTypeSymbol)staticMonadType.GetAttributes()[0].ConstructorArguments[0].Value!;
-        var monadData = MonadData.From(staticMonadType, genericMonadType);
-        return monadData;
+        var monadAttribute = staticMonadType.GetAttributes().FirstOrDefault(x => x.AttributeClass?.Name == "MonadAttribute");
+        if (monadAttribute is not null)
+        {
+            var genericMonadType = (INamedTypeSymbol) staticMonadType.GetAttributes()[0].ConstructorArguments[0].Value!;
+            return MonadData.From(staticMonadType, genericMonadType);
+        }
+        else
+        {
+            var returnMethod = staticMonadType.GetMembers("Return").OfType<IMethodSymbol>().First();
+            var genericMonadType = ((INamedTypeSymbol) returnMethod.ReturnType).ConstructUnboundGenericType();
+            return MonadData.From(staticMonadType, genericMonadType);
+        }
     }
 }
 
