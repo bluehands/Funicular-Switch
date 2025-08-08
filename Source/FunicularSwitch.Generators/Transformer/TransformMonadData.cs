@@ -1,8 +1,12 @@
-using Microsoft.CodeAnalysis;
-
 namespace FunicularSwitch.Generators.Transformer;
 
-public record TransformMonadData(
-    INamedTypeSymbol TargetTypeSymbol,
-    INamedTypeSymbol MonadType,
-    INamedTypeSymbol TransformerType);
+internal record TransformMonadData(
+    string Namespace,
+    string TypeName,
+    string TypeNameWithTypeParameters,
+    string TypeParameter,
+    string FullTypeName,
+    Func<string, string> FullGenericType,
+    string TransformerTypeName,
+    MonadData InnerMonad,
+    MonadData OuterMonad);

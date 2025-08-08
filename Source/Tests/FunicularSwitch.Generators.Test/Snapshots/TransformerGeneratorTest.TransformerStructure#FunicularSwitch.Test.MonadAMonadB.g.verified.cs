@@ -9,10 +9,10 @@ namespace FunicularSwitch.Test
     
     public static partial class MonadAMonadB
     {
-        public static MonadAMonadB<A> Return<A>(A a) => FunicularSwitch.Test.MonadA.Return(FunicularSwitch.Test.MonadB.Return(a));
+        public static FunicularSwitch.Test.MonadAMonadB<A> Return<A>(A a) => FunicularSwitch.Test.MonadA.Return(FunicularSwitch.Test.MonadB.Return(a));
         
-        public static MonadAMonadB<B> Bind<A, B>(this MonadAMonadB<A> ma, global::System.Func<A, MonadAMonadB<B>> fn) => FunicularSwitch.Test.MonadBT.Bind<A, B, FunicularSwitch.Test.MonadA<FunicularSwitch.Test.MonadB<A>>, FunicularSwitch.Test.MonadA<FunicularSwitch.Test.MonadB<B>>>(ma, x => fn(x), FunicularSwitch.Test.MonadA.Return, FunicularSwitch.Test.MonadA.Bind);
+        public static FunicularSwitch.Test.MonadAMonadB<B> Bind<A, B>(this FunicularSwitch.Test.MonadAMonadB<A> ma, global::System.Func<A, FunicularSwitch.Test.MonadAMonadB<B>> fn) => FunicularSwitch.Test.MonadBT.Bind<A, B, FunicularSwitch.Test.MonadA<FunicularSwitch.Test.MonadB<A>>, FunicularSwitch.Test.MonadA<FunicularSwitch.Test.MonadB<B>>>(ma, x => fn(x), FunicularSwitch.Test.MonadA.Return, FunicularSwitch.Test.MonadA.Bind);
         
-        public static MonadAMonadB<A> Lift<A>(FunicularSwitch.Test.MonadA<A> ma) => FunicularSwitch.Test.MonadA.Bind(ma, a => FunicularSwitch.Test.MonadA.Return(FunicularSwitch.Test.MonadB.Return(a)));
+        public static FunicularSwitch.Test.MonadAMonadB<A> Lift<A>(FunicularSwitch.Test.MonadA<A> ma) => FunicularSwitch.Test.MonadA.Bind(ma, a => FunicularSwitch.Test.MonadA.Return(FunicularSwitch.Test.MonadB.Return(a)));
     }
 }

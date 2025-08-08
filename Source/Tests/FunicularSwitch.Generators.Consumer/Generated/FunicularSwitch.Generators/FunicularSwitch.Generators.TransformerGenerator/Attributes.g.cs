@@ -9,10 +9,10 @@ namespace FunicularSwitch.Generators
         {
             MonadType = monadType;
         }
-                    
+
         public Type MonadType { get; }
     }
-                
+
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     internal sealed class MonadTransformerAttribute : Attribute
     {
@@ -20,10 +20,10 @@ namespace FunicularSwitch.Generators
         {
             MonadType = monadType;
         }
-                    
+
         public Type MonadType { get; }
     }
-                
+
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     internal sealed class TransformMonadAttribute : Attribute
     {
@@ -32,9 +32,9 @@ namespace FunicularSwitch.Generators
             MonadType = monadType;
             TransformerType = transformerType;
         }
-                    
+
         public Type MonadType { get; }
-                    
+
         public Type TransformerType { get; }
     }
 }
