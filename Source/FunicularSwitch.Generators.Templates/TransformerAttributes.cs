@@ -1,4 +1,3 @@
-﻿//HintName: Attributes.g.cs
 #nullable enable
 using System;
 namespace FunicularSwitch.Generators
