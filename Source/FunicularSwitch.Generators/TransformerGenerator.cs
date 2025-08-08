@@ -31,9 +31,14 @@ public class TransformerGenerator : IIncrementalGenerator
             Execute);
     }
 
-    private static void Execute(SourceProductionContext context, TransformMonadData data)
+    private static void Execute(SourceProductionContext context, GenerationResult<TransformMonadData> target)
     {
-        var (filename, source) = Generator.Emit(data, context.ReportDiagnostic, context.CancellationToken);
+        var (data, errors, hasValue) = target;
+        foreach (var error in errors) context.ReportDiagnostic(error);
+        
+        if (!hasValue) return;
+        
+        var (filename, source) = Generator.Emit(data!, context.ReportDiagnostic, context.CancellationToken);
         context.AddSource(filename, source);
     }
 }
