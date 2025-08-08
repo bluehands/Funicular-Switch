@@ -7,7 +7,12 @@ using PolyType;
 
 namespace FunicularSwitch.Generators.Test;
 
-public abstract class VerifySourceGenerator : VerifyBase
+public abstract class VerifySourceGenerator()
+    : BaseVerifySourceGenerators(new ResultTypeGenerator(), new UnionTypeGenerator(), new EnumTypeGenerator());
+
+public abstract class VerifySourceGenerator<T>() : BaseVerifySourceGenerators(new T()) where T : IIncrementalGenerator, new();
+
+public abstract class BaseVerifySourceGenerators(params IIncrementalGenerator[] generators) : VerifyBase
 {
     protected Task Verify(string source, IReadOnlyList<Assembly> additionalAssemblies, Action<Compilation, ImmutableArray<Diagnostic>>? verifyCompilation)
     {
@@ -36,7 +41,7 @@ public abstract class VerifySourceGenerator : VerifyBase
                 outputKind: OutputKind.DynamicallyLinkedLibrary,
                 nullableContextOptions: NullableContextOptions.Enable));
 
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(new ResultTypeGenerator(), new UnionTypeGenerator(), new EnumTypeGenerator());
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(generators);
 
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var updatedCompilation, out var diagnostics);
 
