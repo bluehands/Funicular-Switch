@@ -10,6 +10,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
     [DataRow("public partial record struct")]
     [DataRow("public readonly partial struct")]
     [DataRow("public readonly partial record struct")]
+    [DataRow("internal partial class")]
     public Task TypeModifiers(string modifier)
     {
         var code =

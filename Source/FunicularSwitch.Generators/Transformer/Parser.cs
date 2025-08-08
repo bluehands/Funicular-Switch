@@ -22,7 +22,13 @@ internal static class Parser
                     ? "partial record struct"
                     : "partial struct";
 
-        var usePrimaryConstructor = transformedMonadSymbol.IsRecord;
+        var accessModifier = transformedMonadSymbol.DeclaredAccessibility switch
+        {
+            Accessibility.Public => "public",
+            Accessibility.Internal => "internal",
+        };
+
+        var isRecord = transformedMonadSymbol.IsRecord;
         
         var transformerType = (INamedTypeSymbol)transformMonadAttribute.ConstructorArguments[1].Value!;
         
@@ -38,13 +44,14 @@ internal static class Parser
         
         return new TransformMonadData(
             transformedMonadSymbol.GetFullNamespace()!,
+            accessModifier,
             typeModifier,
             transformedMonadSymbol.Name,
             $"{transformedMonadSymbol.Name}<{typeParameter}>",
             typeParameter,
             transformedMonadSymbol.FullTypeNameWithNamespace(),
             FullGenericType,
-            usePrimaryConstructor,
+            isRecord,
             transformerType.FullTypeNameWithNamespace(),
             innerMonadData,
             outerMonadData);

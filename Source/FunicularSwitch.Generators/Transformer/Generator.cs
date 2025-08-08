@@ -16,7 +16,7 @@ internal static class Generator
             $$"""
               namespace {{data.Namespace}}
               {
-                  public {{data.Modifier}} {{data.TypeNameWithTypeParameters}}({{NestedTypeName(data.TypeParameter)}} M)
+                  {{data.AccessModifier}} {{data.Modifier}} {{data.TypeNameWithTypeParameters}}({{NestedTypeName(data.TypeParameter)}} M)
                   {
               """ +
             (data.IsRecord
@@ -33,7 +33,7 @@ internal static class Generator
                       public static implicit operator {{NestedTypeName(data.TypeParameter)}}({{data.TypeNameWithTypeParameters}} ma) => ma.M;
                   }
                   
-                  public static partial class {{data.TypeName}}
+                  {{data.AccessModifier}} static partial class {{data.TypeName}}
                   {
                       public static {{data.FullGenericType("A")}} Return<A>(A a) => {{data.OuterMonad.StaticTypeName}}.Return({{data.InnerMonad.StaticTypeName}}.Return(a));
                       
