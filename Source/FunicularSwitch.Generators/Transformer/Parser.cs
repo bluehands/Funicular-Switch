@@ -30,15 +30,10 @@ internal static class Parser
 
         var isRecord = transformedMonadSymbol.IsRecord;
         
-        var transformerType = (INamedTypeSymbol)transformMonadAttribute.ConstructorArguments[1].Value!;
-        
-        var innerMonadType = (INamedTypeSymbol)transformerType.GetAttributes()[0].ConstructorArguments[0].Value!;
-        var innerMonadGenericType = (INamedTypeSymbol)innerMonadType.GetAttributes()[0].ConstructorArguments[0].Value!;
-        var innerMonadData = MonadData.From(innerMonadType, innerMonadGenericType);
-
         var outerMonadType = (INamedTypeSymbol)transformMonadAttribute.ConstructorArguments[0].Value!;
-        var outerMonadGenericType = (INamedTypeSymbol)outerMonadType.GetAttributes()[0].ConstructorArguments[0].Value!;
-        var outerMonadData = MonadData.From(outerMonadType, outerMonadGenericType);
+        var outerMonadData = ResolveMonadDataFromStaticMonadType(outerMonadType);
+        var transformerType = (INamedTypeSymbol)transformMonadAttribute.ConstructorArguments[1].Value!;
+        var innerMonadData = ResolveMonadDataFromTransformerType(transformerType);
 
         var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
         
@@ -57,6 +52,20 @@ internal static class Parser
             outerMonadData);
 
         string FullGenericType(string typeParameter) => $"{transformedMonadSymbol.FullTypeNameWithNamespace()}<{typeParameter}>";
+    }
+
+    static MonadData ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType)
+    {
+        var staticMonadType = (INamedTypeSymbol)transformerType.GetAttributes()[0].ConstructorArguments[0].Value!;
+        var monadData = ResolveMonadDataFromStaticMonadType(staticMonadType);
+        return monadData;
+    }
+
+    static MonadData ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
+    {
+        var genericMonadType = (INamedTypeSymbol)staticMonadType.GetAttributes()[0].ConstructorArguments[0].Value!;
+        var monadData = MonadData.From(staticMonadType, genericMonadType);
+        return monadData;
     }
 }
 
