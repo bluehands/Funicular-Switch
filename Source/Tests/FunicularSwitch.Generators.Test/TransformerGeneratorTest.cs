@@ -4,11 +4,13 @@ namespace FunicularSwitch.Generators.Test;
 public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerator>
 {
     [TestMethod]
-    public Task TransformerStructure()
+    [DataRow("public readonly partial record struct")]
+    [DataRow("public partial record")]
+    public Task TypeModifiers(string modifier)
     {
         var code =
             /*lang=csharp*/
-            """
+            $$"""
             using System;
             using FunicularSwitch.Generators;
 
@@ -30,15 +32,15 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
                 
                 public static MonadB<B> Bind<A, B>(MonadB<A> ma, Func<A, MonadB<B>> fn) => throw new NotImplementedException();
             }
-            
+
             [MonadTransformer(typeof(MonadB))]
             public class MonadBT
             {
                 public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadB<B>, TMB> returnM, Func<TMA, Func<MonadB<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
             }
-            
+
             [TransformMonad(typeof(MonadA), typeof(MonadBT))]
-            public partial record MonadAMonadB<A>;
+            {{modifier}} MonadAMonadB<A>;
             """;
 
         return Verify(code);

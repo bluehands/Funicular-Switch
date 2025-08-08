@@ -17,7 +17,7 @@ internal static class Generator
             $$"""
               namespace {{data.Namespace}}
               {
-                  public partial record {{data.TypeNameWithTypeParameters}}({{NestedTypeName(data.TypeParameter)}} M)
+                  public {{data.Modifier}} {{data.TypeNameWithTypeParameters}}({{NestedTypeName(data.TypeParameter)}} M)
                   {
                       public static implicit operator {{data.TypeNameWithTypeParameters}}({{NestedTypeName(data.TypeParameter)}} ma) => new(ma);
                       public static implicit operator {{NestedTypeName(data.TypeParameter)}}({{data.TypeNameWithTypeParameters}} ma) => ma.M;

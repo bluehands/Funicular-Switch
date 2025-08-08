@@ -10,6 +10,10 @@ internal static class Parser
         AttributeData transformMonadAttribute,
         CancellationToken cancellationToken)
     {
+        var typeModifier = transformedMonadSymbol.IsReadOnly
+            ? "readonly partial record struct"
+            : "partial record";
+        
         var transformerType = (INamedTypeSymbol)transformMonadAttribute.ConstructorArguments[1].Value!;
         
         var innerMonadType = (INamedTypeSymbol)transformerType.GetAttributes()[0].ConstructorArguments[0].Value!;
@@ -22,7 +26,9 @@ internal static class Parser
 
         var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
         
-        return new TransformMonadData(transformedMonadSymbol.GetFullNamespace()!,
+        return new TransformMonadData(
+            transformedMonadSymbol.GetFullNamespace()!,
+            typeModifier,
             transformedMonadSymbol.Name,
             $"{transformedMonadSymbol.Name}<{typeParameter}>",
             typeParameter,

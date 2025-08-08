@@ -24,7 +24,7 @@ namespace FunicularSwitch.Generators
         public Type MonadType { get; }
     }
 
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false)]
     internal sealed class TransformMonadAttribute : Attribute
     {
         public TransformMonadAttribute(Type monadType, Type transformerType)
