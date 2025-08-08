@@ -1,3 +1,4 @@
+using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
 
 namespace FunicularSwitch.Generators.Transformer;
@@ -11,42 +12,43 @@ internal static class Generator
     {
         var filename = $"{data.FullTypeName}.g.cs";
 
-        var source =
-            /*lang=csharp*/
-            $$"""
-              namespace {{data.Namespace}}
-              {
-                  {{data.AccessModifier}} {{data.Modifier}} {{data.TypeNameWithTypeParameters}}({{NestedTypeName(data.TypeParameter)}} M)
-                  {
-              """ +
-            (data.IsRecord
-                ? string.Empty
-                :
-                /*lang=csharp*/
-                ("\n" +
-                $$"""
-                        public {{NestedTypeName(data.TypeParameter)}} M { get; } = M;
-                """))+ "\n" +
-            /*lang=csharp*/
-            $$"""
-                      public static implicit operator {{data.TypeNameWithTypeParameters}}({{NestedTypeName(data.TypeParameter)}} ma) => new(ma);
-                      public static implicit operator {{NestedTypeName(data.TypeParameter)}}({{data.TypeNameWithTypeParameters}} ma) => ma.M;
-                  }
-                  
-                  {{data.AccessModifier}} static partial class {{data.TypeName}}
-                  {
-                      public static {{data.FullGenericType("A")}} Return<A>(A a) => {{data.OuterMonad.StaticTypeName}}.Return({{data.InnerMonad.StaticTypeName}}.Return(a));
-                      
-                      public static {{data.FullGenericType("B")}} Bind<A, B>(this {{data.FullGenericType("A")}} ma, global::System.Func<A, {{data.FullGenericType("B")}}> fn) => {{data.TransformerTypeName}}.Bind<A, B, {{NestedTypeName("A")}}, {{NestedTypeName("B")}}>(ma, x => fn(x), {{data.OuterMonad.StaticTypeName}}.Return, {{data.OuterMonad.StaticTypeName}}.Bind);
-                      
-                      public static {{data.FullGenericType("A")}} Lift<A>({{data.OuterMonad.GenericTypeName("A")}} ma) => {{data.OuterMonad.StaticTypeName}}.Bind(ma, a => {{data.OuterMonad.StaticTypeName}}.Return({{data.InnerMonad.StaticTypeName}}.Return(a)));
-                  }
-              }
-              """;
-
-        return (filename, source);
-
-        string NestedTypeName(string genericArgument) =>
-            data.OuterMonad.GenericTypeName(data.InnerMonad.GenericTypeName(genericArgument));
+        var builder = new CSharpBuilder(defaultIntent: "    ");
+        using (builder.Namespace(data.Namespace))
+        {
+            WriteGenericMonad(data, builder);
+            BlankLine(builder);
+            WriteStaticMonad(data, builder);
+        }
+        
+        return (filename, builder);
     }
+    
+    private static string NestedTypeName(TransformMonadData data, string genericArgument) =>
+        data.OuterMonad.GenericTypeName(data.InnerMonad.GenericTypeName(genericArgument));
+
+    private static void WriteGenericMonad(TransformMonadData data, CSharpBuilder builder)
+    {
+        var nestedTypeName = NestedTypeName(data, data.TypeParameter);
+        using var _ = new Scope(builder, $"{data.AccessModifier} {data.Modifier} {data.TypeNameWithTypeParameters}({nestedTypeName} M)");
+
+        if (!data.IsRecord)
+        {
+             builder.WriteGetOnlyProperty(nestedTypeName, "M", "M");
+        }
+        
+        builder.WriteLine($"public static implicit operator {data.TypeNameWithTypeParameters}({nestedTypeName} ma) => new(ma);");
+        builder.WriteLine($"public static implicit operator {nestedTypeName}({data.TypeNameWithTypeParameters} ma) => ma.M;");
+    }
+
+    private static void WriteStaticMonad(TransformMonadData data, CSharpBuilder builder)
+    {
+        using var _ = builder.StaticPartialClass(data.TypeName, data.AccessModifier);
+        builder.WriteLine($"public static {data.FullGenericType("A")} Return<A>(A a) => {data.OuterMonad.StaticTypeName}.Return({data.InnerMonad.StaticTypeName}.Return(a));");
+        BlankLine(builder);
+        builder.WriteLine($"public static {data.FullGenericType("B")} Bind<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.TransformerTypeName}.Bind<A, B, {NestedTypeName(data, "A")}, {NestedTypeName(data, "B")}>(ma, x => fn(x), {data.OuterMonad.StaticTypeName}.Return, {data.OuterMonad.StaticTypeName}.Bind);");
+        BlankLine(builder);
+        builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {data.OuterMonad.StaticTypeName}.Bind(ma, a => {data.OuterMonad.StaticTypeName}.Return({data.InnerMonad.StaticTypeName}.Return(a)));");
+    }
+
+    private static void BlankLine(CSharpBuilder builder) => builder.Content.AppendLine();
 }
