@@ -71,21 +71,40 @@ internal static class Parser
         }
         else
         {
-            var returnMethod = staticMonadType.GetMembers("Return").OfType<IMethodSymbol>().First();
+            var returnMethod = staticMonadType
+                .GetMembers()
+                .OfType<IMethodSymbol>()
+                .First(IsStaticReturnMethod);
             var genericMonadType = ((INamedTypeSymbol) returnMethod.ReturnType).ConstructUnboundGenericType();
-            return MonadData.From(staticMonadType, genericMonadType);
+            return MonadData.From(staticMonadType, genericMonadType, returnMethod);
+        }
+
+        bool IsStaticReturnMethod(IMethodSymbol method)
+        {
+            if (method.TypeParameters.Length != 1) return false;
+            if (method.Parameters.Length != 1) return false;
+            if (!IsGenericMonadType(method.ReturnType, method.TypeParameters[0])) return false;
+            return method.Parameters[0].Type.Name == method.TypeParameters[0].Name;
+        }
+
+        bool IsGenericMonadType(ITypeSymbol type, ITypeParameterSymbol typeParameter)
+        {
+            if (type is not INamedTypeSymbol {IsGenericType: true, TypeParameters.Length: 1} genericType) return false;
+            return genericType.TypeArguments[0].Name == typeParameter.Name;
         }
     }
 }
 
 internal record MonadData(
     string StaticTypeName,
-    Func<string, string> GenericTypeName)
+    Func<string, string> GenericTypeName,
+    IMethodSymbol? ReturnMethod)
 {
-    public static MonadData From(INamedTypeSymbol staticType, INamedTypeSymbol genericType)
+    public static MonadData From(INamedTypeSymbol staticType, INamedTypeSymbol genericType, IMethodSymbol? returnMethod = default)
     {
         var genericTypeName = genericType.FullTypeNameWithNamespace();
         return new MonadData(staticType.FullTypeNameWithNamespace(),
-            typeParameter => $"{genericTypeName}<{typeParameter}>");
+            typeParameter => $"{genericTypeName}<{typeParameter}>",
+            returnMethod);
     }
 }
