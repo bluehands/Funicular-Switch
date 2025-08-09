@@ -49,11 +49,41 @@ internal static class Parser
             isRecord,
             transformerType.FullTypeNameWithNamespace(),
             innerMonadData,
-            outerMonadData);
+            outerMonadData,
+            DetermineReturnName(outerMonadData, innerMonadData),
+            DetermineBindName(outerMonadData, innerMonadData));
 
         string FullGenericType(string typeParameter) => $"{transformedMonadSymbol.FullTypeNameWithNamespace()}<{typeParameter}>";
     }
 
+    static string DetermineReturnName(MonadData outerMonad, MonadData innerMonad) =>
+        DetermineMethodName(outerMonad, innerMonad, x => x.ReturnMethod, "Return");
+
+    static string DetermineBindName(MonadData outerMonad, MonadData innerMonad) =>
+        DetermineMethodName(outerMonad, innerMonad, x => x.BindMethod, "Bind");
+
+    static string DetermineMethodName(MonadData outerMonad, MonadData innerMonad, Func<MonadData, IMethodSymbol?> selector, string defaultName)
+    {
+        var outerMonadReturn = ReturnName(outerMonad);
+        var innerMonadReturn = ReturnName(innerMonad);
+
+        if (outerMonadReturn == innerMonadReturn)
+            return outerMonadReturn;
+        
+        if(outerMonadReturn == defaultName)
+            return innerMonadReturn;
+
+        if (innerMonadReturn == defaultName)
+            return outerMonadReturn;
+
+        return $"{outerMonadReturn}{innerMonadReturn}";
+        
+        string ReturnName(MonadData data) =>
+            selector(data) is {} method
+                ? method.Name
+                : defaultName;
+    }
+    
     static MonadData ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType)
     {
         var staticMonadType = (INamedTypeSymbol)transformerType.GetAttributes()[0].ConstructorArguments[0].Value!;

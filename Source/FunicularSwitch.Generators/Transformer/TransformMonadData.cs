@@ -12,4 +12,6 @@ internal record TransformMonadData(
     bool IsRecord,
     string TransformerTypeName,
     MonadData InnerMonad,
-    MonadData OuterMonad);
+    MonadData OuterMonad,
+    string ReturnName,
+    string BindName);

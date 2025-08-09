@@ -44,9 +44,9 @@ internal static class Generator
     private static void WriteStaticMonad(TransformMonadData data, CSharpBuilder builder)
     {
         using var _ = builder.StaticPartialClass(data.TypeName, data.AccessModifier);
-        builder.WriteLine($"public static {data.FullGenericType("A")} Return<A>(A a) => {InvokeTransformReturn(data, "a")};");
+        builder.WriteLine($"public static {data.FullGenericType("A")} {data.ReturnName}<A>(A a) => {InvokeTransformReturn(data, "a")};");
         BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("B")} Bind<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.TransformerTypeName}.Bind<A, B, {NestedTypeName(data, "A")}, {NestedTypeName(data, "B")}>(ma, x => fn(x), {GetMonadReturn(data.OuterMonad)}, {GetMonadBind(data.OuterMonad)});");
+        builder.WriteLine($"public static {data.FullGenericType("B")} {data.BindName}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.TransformerTypeName}.Bind<A, B, {NestedTypeName(data, "A")}, {NestedTypeName(data, "B")}>(ma, x => fn(x), {GetMonadReturn(data.OuterMonad)}, {GetMonadBind(data.OuterMonad)});");
         BlankLine(builder);
         builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {InvokeMonadBind(data.OuterMonad, $"ma, a => {InvokeTransformReturn(data, "a")}")};");
     }
