@@ -48,24 +48,24 @@ internal static class Parser
             FullGenericType,
             isRecord,
             transformerType.FullTypeNameWithNamespace(),
-            innerMonadData,
-            outerMonadData,
+            innerMonadData.Data,
+            outerMonadData.Data,
             DetermineReturnName(outerMonadData, innerMonadData),
             DetermineBindName(outerMonadData, innerMonadData));
 
         string FullGenericType(string typeParameter) => $"{transformedMonadSymbol.FullTypeNameWithNamespace()}<{typeParameter}>";
     }
 
-    static string DetermineReturnName(MonadData outerMonad, MonadData innerMonad) =>
-        DetermineMethodName(outerMonad, innerMonad, x => x.ReturnMethod, "Return");
+    static string DetermineReturnName(MonadData2 outerMonad, MonadData2 innerMonad) =>
+        DetermineMethodName(outerMonad, innerMonad, x => x.ReturnMethodName, "Return");
 
-    static string DetermineBindName(MonadData outerMonad, MonadData innerMonad) =>
-        DetermineMethodName(outerMonad, innerMonad, x => x.BindMethod, "Bind");
+    static string DetermineBindName(MonadData2 outerMonad, MonadData2 innerMonad) =>
+        DetermineMethodName(outerMonad, innerMonad, x => x.BindMethodName, "Bind");
 
-    static string DetermineMethodName(MonadData outerMonad, MonadData innerMonad, Func<MonadData, IMethodSymbol?> selector, string defaultName)
+    static string DetermineMethodName(MonadData2 outerMonad, MonadData2 innerMonad, Func<MonadData2, string> selector, string defaultName)
     {
-        var outerMonadReturn = ReturnName(outerMonad);
-        var innerMonadReturn = ReturnName(innerMonad);
+        var outerMonadReturn = selector(outerMonad);
+        var innerMonadReturn = selector(innerMonad);
 
         if (outerMonadReturn == innerMonadReturn)
             return outerMonadReturn;
@@ -77,27 +77,22 @@ internal static class Parser
             return outerMonadReturn;
 
         return $"{outerMonadReturn}{innerMonadReturn}";
-        
-        string ReturnName(MonadData data) =>
-            selector(data) is {} method
-                ? method.Name
-                : defaultName;
     }
     
-    static MonadData ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType)
+    static MonadData2 ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType)
     {
         var staticMonadType = (INamedTypeSymbol)transformerType.GetAttributes()[0].ConstructorArguments[0].Value!;
         var monadData = ResolveMonadDataFromStaticMonadType(staticMonadType);
         return monadData;
     }
 
-    static MonadData ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
+    static MonadData2 ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
     {
         var monadAttribute = staticMonadType.GetAttributes().FirstOrDefault(x => x.AttributeClass?.Name == "MonadAttribute");
         if (monadAttribute is not null)
         {
             var genericMonadType = (INamedTypeSymbol) staticMonadType.GetAttributes()[0].ConstructorArguments[0].Value!;
-            return MonadData.From(staticMonadType, genericMonadType);
+            return CreateMonadData(staticMonadType, genericMonadType);
         }
         else
         {
@@ -111,7 +106,7 @@ internal static class Parser
                 .GetMembers()
                 .OfType<IMethodSymbol>()
                 .First(x => IsStaticBindMethod(genericMonadType, x));
-            return MonadData.From(staticMonadType, genericMonadType, returnMethod, bindMethod);
+            return CreateMonadData(staticMonadType, genericMonadType, returnMethod, bindMethod);
         }
 
         bool IsStaticReturnMethod(IMethodSymbol method)
@@ -138,20 +133,34 @@ internal static class Parser
             return true;
         }
     }
-}
 
-internal record MonadData(
-    string StaticTypeName,
-    Func<string, string> GenericTypeName,
-    IMethodSymbol? ReturnMethod,
-    IMethodSymbol? BindMethod)
-{
-    public static MonadData From(INamedTypeSymbol staticType, INamedTypeSymbol genericType, IMethodSymbol? returnMethod = default, IMethodSymbol? bindMethod = default)
+    private static MonadData2 CreateMonadData(INamedTypeSymbol staticType, INamedTypeSymbol genericType, IMethodSymbol? returnMethod = default, IMethodSymbol? bindMethod = default)
     {
         var genericTypeName = genericType.FullTypeNameWithNamespace();
-        return new MonadData(staticType.FullTypeNameWithNamespace(),
-            typeParameter => $"{genericTypeName}<{typeParameter}>",
-            returnMethod,
-            bindMethod);
+        var (returnMethodName, returnMethodFullName) = GetMethodFullName(returnMethod, "Return");
+        var (bindMethodName, bindMethodFullName) = GetMethodFullName(bindMethod, "Bind");
+
+        return new MonadData2(
+            new MonadData(
+                typeParameter => $"{genericTypeName}<{typeParameter}>",
+                returnMethodFullName,
+                bindMethodFullName),
+            returnMethodName,
+            bindMethodName);
+        
+        (string Name, string FullName) GetMethodFullName(IMethodSymbol? method, string defaultName) =>
+            method is not null
+                ? (method.Name, $"{method.ContainingType.FullTypeNameWithNamespace()}.{method.Name}")
+                : (defaultName, $"{staticType}.{defaultName}");
     }
 }
+
+internal record MonadData2(
+    MonadData Data,
+    string ReturnMethodName,
+    string BindMethodName);
+
+internal record MonadData(
+    Func<string, string> GenericTypeName,
+    string ReturnMethodFullName,
+    string BindMethodFullName);

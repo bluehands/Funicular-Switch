@@ -46,29 +46,19 @@ internal static class Generator
         using var _ = builder.StaticPartialClass(data.TypeName, data.AccessModifier);
         builder.WriteLine($"public static {data.FullGenericType("A")} {data.ReturnName}<A>(A a) => {InvokeTransformReturn(data, "a")};");
         BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("B")} {data.BindName}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.TransformerTypeName}.Bind<A, B, {NestedTypeName(data, "A")}, {NestedTypeName(data, "B")}>(ma, x => fn(x), {GetMonadReturn(data.OuterMonad)}, {GetMonadBind(data.OuterMonad)});");
+        builder.WriteLine($"public static {data.FullGenericType("B")} {data.BindName}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.TransformerTypeName}.Bind<A, B, {NestedTypeName(data, "A")}, {NestedTypeName(data, "B")}>(ma, x => fn(x), {data.OuterMonad.ReturnMethodFullName}, {data.OuterMonad.BindMethodFullName});");
         BlankLine(builder);
         builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {InvokeMonadBind(data.OuterMonad, $"ma, a => {InvokeTransformReturn(data, "a")}")};");
     }
 
     private static void BlankLine(CSharpBuilder builder) => builder.Content.AppendLine();
 
-    private static string InvokeMonadReturn(MonadData data, string argument) => $"{GetMonadReturn(data)}({argument})";
-
-    private static string GetMonadReturn(MonadData data) =>
-        data.ReturnMethod is not null
-            ? $"{data.ReturnMethod.ContainingType.FullTypeNameWithNamespace()}.{data.ReturnMethod.Name}"
-            : $"{data.StaticTypeName}.Return";
+    private static string InvokeMonadReturn(MonadData data, string argument) => $"{data.ReturnMethodFullName}({argument})";
 
     private static string InvokeTransformReturn(TransformMonadData data, string argument) =>
         InvokeMonadReturn(data.OuterMonad, InvokeMonadReturn(data.InnerMonad, argument));
-    
-    private static string GetMonadBind(MonadData data) =>
-        data.BindMethod is not null
-            ? $"{data.BindMethod.ContainingType.FullTypeNameWithNamespace()}.{data.BindMethod.Name}"
-            : $"{data.StaticTypeName}.Bind";
 
     private static string InvokeMonadBind(MonadData data, string arguments) =>
-        $"{GetMonadBind(data)}({arguments})";
+        $"{data.BindMethodFullName}({arguments})";
 
 }
