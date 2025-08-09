@@ -1,3 +1,4 @@
+using System.Text;
 using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 
@@ -10,26 +11,9 @@ internal static class Parser
         AttributeData transformMonadAttribute,
         CancellationToken cancellationToken)
     {
-        var typeModifier = transformedMonadSymbol.IsReadOnly
-            ? transformedMonadSymbol.IsRecord
-                ? "readonly partial record struct"
-                : "readonly partial struct"
-            : transformedMonadSymbol.IsReferenceType
-                ? transformedMonadSymbol.IsRecord
-                    ? "partial record"
-                    : "partial class"
-                : transformedMonadSymbol.IsRecord
-                    ? "partial record struct"
-                    : "partial struct";
-
-        var accessModifier = transformedMonadSymbol.DeclaredAccessibility switch
-        {
-            Accessibility.Public => "public",
-            Accessibility.Internal => "internal",
-        };
-
+        var typeModifier = DetermineTypeModifier(transformedMonadSymbol);
+        var accessModifier = DetermineAccessModifier(transformedMonadSymbol);
         var isRecord = transformedMonadSymbol.IsRecord;
-        
         var outerMonadType = (INamedTypeSymbol)transformMonadAttribute.ConstructorArguments[0].Value!;
         var outerMonadData = ResolveMonadDataFromStaticMonadType(outerMonadType);
         var transformerType = (INamedTypeSymbol)transformMonadAttribute.ConstructorArguments[1].Value!;
@@ -54,6 +38,33 @@ internal static class Parser
             DetermineBindName(outerMonadData, innerMonadData));
 
         string FullGenericType(string typeParameter) => $"{transformedMonadSymbol.FullTypeNameWithNamespace()}<{typeParameter}>";
+    }
+
+    private static string DetermineAccessModifier(INamedTypeSymbol type) =>
+        type.DeclaredAccessibility switch
+        {
+            Accessibility.Public => "public",
+            Accessibility.Internal => "internal",
+        };
+
+    static string DetermineTypeModifier(INamedTypeSymbol type)
+    {
+        var modifiers = new List<string>();
+            
+        if(type.IsReadOnly)
+            modifiers.Add("readonly");
+
+        modifiers.Add("partial");
+            
+        if(type.IsRecord)
+            modifiers.Add("record");
+            
+        if(!type.IsReferenceType)
+            modifiers.Add("struct");
+        else if(!type.IsRecord)
+            modifiers.Add("class");
+            
+        return string.Join(" ", modifiers);
     }
 
     static string DetermineReturnName(MonadData2 outerMonad, MonadData2 innerMonad) =>
