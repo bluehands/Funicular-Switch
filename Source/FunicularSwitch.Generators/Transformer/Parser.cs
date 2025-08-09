@@ -76,7 +76,12 @@ internal static class Parser
                 .OfType<IMethodSymbol>()
                 .First(IsStaticReturnMethod);
             var genericMonadType = ((INamedTypeSymbol) returnMethod.ReturnType).ConstructUnboundGenericType();
-            return MonadData.From(staticMonadType, genericMonadType, returnMethod);
+
+            var bindMethod = staticMonadType
+                .GetMembers()
+                .OfType<IMethodSymbol>()
+                .First(x => IsStaticBindMethod(genericMonadType, x));
+            return MonadData.From(staticMonadType, genericMonadType, returnMethod, bindMethod);
         }
 
         bool IsStaticReturnMethod(IMethodSymbol method)
@@ -92,19 +97,31 @@ internal static class Parser
             if (type is not INamedTypeSymbol {IsGenericType: true, TypeParameters.Length: 1} genericType) return false;
             return genericType.TypeArguments[0].Name == typeParameter.Name;
         }
+
+        bool IsStaticBindMethod(INamedTypeSymbol genericMonadType, IMethodSymbol method)
+        {
+            if (method.TypeParameters.Length != 2) return false;
+            if (method.Parameters.Length != 2) return false;
+            if (method.ReturnType is not INamedTypeSymbol { IsGenericType: true, TypeArguments.Length: 1 } genericReturnType) return false;
+            if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType)) return false;
+            if (genericReturnType.TypeArguments[0].Name != method.TypeParameters[1].Name) return false; 
+            return true;
+        }
     }
 }
 
 internal record MonadData(
     string StaticTypeName,
     Func<string, string> GenericTypeName,
-    IMethodSymbol? ReturnMethod)
+    IMethodSymbol? ReturnMethod,
+    IMethodSymbol? BindMethod)
 {
-    public static MonadData From(INamedTypeSymbol staticType, INamedTypeSymbol genericType, IMethodSymbol? returnMethod = default)
+    public static MonadData From(INamedTypeSymbol staticType, INamedTypeSymbol genericType, IMethodSymbol? returnMethod = default, IMethodSymbol? bindMethod = default)
     {
         var genericTypeName = genericType.FullTypeNameWithNamespace();
         return new MonadData(staticType.FullTypeNameWithNamespace(),
             typeParameter => $"{genericTypeName}<{typeParameter}>",
-            returnMethod);
+            returnMethod,
+            bindMethod);
     }
 }

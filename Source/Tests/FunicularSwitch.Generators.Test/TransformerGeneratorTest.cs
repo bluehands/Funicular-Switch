@@ -106,14 +106,14 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
               {
                   public static MonadA<A> ReturnA<A>(A a) => throw new NotImplementedException();
                   
-                  public static MonadA<B> Bind<A, B>(MonadA<A> ma, Func<A, MonadA<B>> fn) => throw new NotImplementedException();
+                  public static MonadA<B> BindB<A, B>(MonadA<A> ma, Func<A, MonadA<B>> fn) => throw new NotImplementedException();
               }
               public record MonadB<B>(B Value);
               public class MonadB
               {
                   public static MonadB<A> ReturnB<A>(A a) => throw new NotImplementedException();
                   
-                  public static MonadB<B> Bind<A, B>(MonadB<A> ma, Func<A, MonadB<B>> fn) => throw new NotImplementedException();
+                  public static MonadB<B> BindB<A, B>(MonadB<A> ma, Func<A, MonadB<B>> fn) => throw new NotImplementedException();
               }
 
               [MonadTransformer(typeof(MonadB))]
