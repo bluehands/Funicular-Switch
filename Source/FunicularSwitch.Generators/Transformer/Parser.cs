@@ -17,10 +17,12 @@ internal static class Parser
         var isRecord = transformedMonadSymbol.IsRecord;
         var outerMonadType = transformMonadAttribute.MonadType;
         var outerMonadData = ResolveMonadDataFromMonadType(outerMonadType);
-        var transformerType = transformMonadAttribute.TransformerType;
+        var transformerType = transformMonadAttribute.TransformerTypes.First();
         var innerMonadData = ResolveMonadDataFromTransformerType(transformerType);
 
         var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
+
+        var transformedMonadData = Combine(outerMonadData, transformerType);
         
         return new TransformMonadData(
             transformedMonadSymbol.GetFullNamespace()!,
@@ -36,11 +38,30 @@ internal static class Parser
             innerMonadData.Data,
             outerMonadData.Data,
             DetermineReturnName(outerMonadData, innerMonadData),
-            DetermineBindName(outerMonadData, innerMonadData));
+            DetermineBindName(outerMonadData, innerMonadData),
+            transformedMonadData.Data);
 
         string FullGenericType(string typeParameter) => $"{transformedMonadSymbol.FullTypeNameWithNamespace()}<{typeParameter}>";
     }
 
+    private static MonadData2 Combine(MonadData2 outerMonad, INamedTypeSymbol transformerType)
+    {
+        var innerMonad = ResolveMonadDataFromTransformerType(transformerType);
+        
+        Func<string, string> genericTypeName = t => outerMonad.Data.GenericTypeName(innerMonad.Data.GenericTypeName(t));
+        Func<string, string, string> returnMethodInvoke = (t, x) => outerMonad.Data.ReturnMethodInvoke(innerMonad.Data.GenericTypeName(t), innerMonad.Data.ReturnMethodInvoke(t, x));
+        Func<string, string, string> bindMethodInvoke = (ma, fn) => $"{transformerType.FullTypeNameWithNamespace()}.Bind<A, B, {genericTypeName("A")}, {genericTypeName("B")}>({ma}, x => {fn}(x), {outerMonad.Data.ReturnMethodFunc(innerMonad.Data.GenericTypeName("B"))}, {outerMonad.Data.BindMethodFunc})";
+        return new(
+            new(
+                genericTypeName,
+                t => $"x => {returnMethodInvoke(t, "x")}",
+                returnMethodInvoke,
+                $"(ma, fn) => {bindMethodInvoke("ma", "fn")}",
+                bindMethodInvoke),
+            DetermineReturnName(outerMonad, innerMonad),
+            DetermineBindName(outerMonad, innerMonad));
+    }
+    
     private static string DetermineAccessModifier(INamedTypeSymbol type) =>
         type.DeclaredAccessibility switch
         {
@@ -232,8 +253,9 @@ internal static class Parser
         {
             if (returnMethod is null)
             {
-                var func = (string _) => $"{staticType}.Return";
-                var invoke = (string _, string a) => $"{func}({a})";
+                var returnFullName = $"{staticType}.Return";
+                var func = (string _) => returnFullName;
+                var invoke = (string _, string a) => $"{returnFullName}({a})";
                 return ("Return", func, invoke);
             }
             else
@@ -242,7 +264,7 @@ internal static class Parser
                 var func = returnMethod.ContainingType.IsGenericType
                     ? new Func<string, string>((string t) => $"{returnMethod.ContainingType.FullTypeNameWithNamespace()}<{t}>.{name}")
                     : (string _) => $"{returnMethod.ContainingType.FullTypeNameWithNamespace()}.{name}";
-                var invoke = (string t, string a) => $"{func(t)}.{name}({a})";
+                var invoke = (string t, string a) => $"{func(t)}({a})";
                 return (name, func, invoke);
             }
         }

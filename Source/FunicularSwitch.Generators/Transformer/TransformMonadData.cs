@@ -14,4 +14,5 @@ internal record TransformMonadData(
     MonadData InnerMonad,
     MonadData OuterMonad,
     string ReturnName,
-    string BindName);
+    string BindName,
+    MonadData Monad);
