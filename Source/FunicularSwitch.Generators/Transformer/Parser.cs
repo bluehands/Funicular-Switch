@@ -98,7 +98,30 @@ internal static class Parser
         return monadData;
     }
 
-    static MonadData2 ResolveMonadDataFromMonadType(INamedTypeSymbol monadType) => monadType.IsUnboundGenericType ? ResolveMonadDataFromGenericMonadType(monadType) : ResolveMonadDataFromStaticMonadType(monadType);
+    static MonadData2 ResolveMonadDataFromMonadType(INamedTypeSymbol monadType)
+    {
+        if (monadType.GetAttributes().Any(x => x.AttributeClass?.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.ResultTypeAttribute"))
+            return ResolveMonadDataFromResultType(monadType);
+        if (monadType.IsUnboundGenericType)
+            return ResolveMonadDataFromGenericMonadType(monadType);
+        return ResolveMonadDataFromStaticMonadType(monadType);
+    }
+
+    static MonadData2 ResolveMonadDataFromResultType(INamedTypeSymbol resultType)
+    {
+        Func<string, string> genericTypeName = t => $"{resultType.FullTypeNameWithNamespace()}<{t}>";
+        Func<string, string> returnMethodFunc = t => $"{genericTypeName(t)}.Ok";
+        Func<string, string, string> bindMethodInvoke = (ma, fn) => $"{ma}.Bind({fn})";
+        return new MonadData2(
+            new MonadData(
+                genericTypeName,
+                returnMethodFunc,
+                (t, a) => $"{returnMethodFunc(t)}({a})",
+                $"(ma, fn) => {bindMethodInvoke("ma", "fn")}",
+                bindMethodInvoke),
+            "Ok",
+            "Bind");
+    }
 
     static MonadData2 ResolveMonadDataFromGenericMonadType(INamedTypeSymbol genericMonadType)
     {

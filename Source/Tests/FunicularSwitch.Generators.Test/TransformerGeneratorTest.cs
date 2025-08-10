@@ -1,5 +1,7 @@
 namespace FunicularSwitch.Generators.Test;
 
+public class VerifyTransformerInteropSourceGenerator() : BaseVerifySourceGenerators(new TransformerGenerator(), new ResultTypeGenerator());
+
 [TestClass]
 public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerator>
 {
@@ -152,6 +154,40 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
                   
                   public MonadB<A> Bind<A>(Func<B, MonadB<A>> fn) => throw new NotImplementedException();
               }
+
+              [MonadTransformer(typeof(MonadB<>))]
+              public class MonadBT
+              {
+                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadB<B>, TMB> returnM, Func<TMA, Func<MonadB<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+              }
+
+              [TransformMonad(typeof(MonadA<>), typeof(MonadBT))]
+              public readonly partial record struct MonadAB<A>;
+              """;
+
+        return Verify(code);
+    }
+}
+
+[TestClass]
+public class TransformerGeneratorInteropTest : VerifyTransformerInteropSourceGenerator
+{
+    [TestMethod]
+    public Task TransformResultType()
+    {
+        var code =
+            /*lang=csharp*/
+            $$"""
+              using System;
+              using FunicularSwitch.Generators;
+
+              namespace FunicularSwitch.Test;
+
+              [ResultType(typeof(string))]
+              public abstract partial class MonadA<T>;
+              
+              [ResultType(typeof(int))]
+              public abstract partial class MonadB<T>;
 
               [MonadTransformer(typeof(MonadB<>))]
               public class MonadBT
