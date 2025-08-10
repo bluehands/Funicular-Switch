@@ -52,7 +52,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="DarkLink.RoslynHelpers.AttributeGenerator" Version="0.0.1-1681809350" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+		<PackageReference Include="PolySharp" Version="1.15.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>

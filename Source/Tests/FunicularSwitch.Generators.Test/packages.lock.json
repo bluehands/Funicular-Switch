@@ -110,6 +110,11 @@
         "resolved": "0.27.0",
         "contentHash": "LtZKATYeTwDyYq1AXrgVU/ly+nI6GvE0GK1isJYFPQOnb2uHUxvDA+yh40QYaITGTLViXK7rbWhNKpbZ5pb9XA=="
       },
+      "DarkLink.RoslynHelpers.AttributeGenerator": {
+        "type": "Transitive",
+        "resolved": "0.0.1-1681809350",
+        "contentHash": "pUZlIcVxGlRpnPNkX5OhgoTlaKCbtpVGybTUPkWOmR7kVobZYE4O+kyZjAsQVRPwCbLTRXz1ULp+WEFxamqkzw=="
+      },
       "DiffEngine": {
         "type": "Transitive",
         "resolved": "16.1.0",
@@ -417,6 +422,7 @@
       "funicularswitch.generators": {
         "type": "Project",
         "dependencies": {
+          "DarkLink.RoslynHelpers.AttributeGenerator": "[0.0.1-1681809350, )",
           "Microsoft.CodeAnalysis.CSharp": "[4.11.0, )"
         }
       }

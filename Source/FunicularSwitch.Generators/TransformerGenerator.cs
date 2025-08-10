@@ -13,24 +13,27 @@ public class TransformerGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        context.RegisterPostInitializationOutput(TransformMonadAttribute.AddTo);
         context.RegisterPostInitializationOutput(static ctx => ctx.AddSource(
             AttributesFilename,
             TransformerTemplates.StaticCode));
 
-        var transformedMonadTypes = context.SyntaxProvider
-            .ForAttributeWithMetadataName(
-                TransformMonadAttributeFullname,
-                static (_, _) => true,
-                static (syntaxContext, token) => Parser.GetTransformedMonadSchema(
-                    (INamedTypeSymbol)syntaxContext.TargetSymbol,
-                    syntaxContext.Attributes[0],
-                    token));
+        var transformedMonadTypes = TransformMonadAttribute.Find(
+            context.SyntaxProvider,
+            static (_, _) => true,
+            Parse);
         
         context.RegisterSourceOutput(
             transformedMonadTypes,
             Execute);
     }
 
+    private static GenerationResult<TransformMonadData> Parse(GeneratorAttributeSyntaxContext syntaxContext, IReadOnlyList<TransformMonadAttribute> attributes, CancellationToken token) =>
+        Parser.GetTransformedMonadSchema(
+            (INamedTypeSymbol) syntaxContext.TargetSymbol,
+            syntaxContext.Attributes[0],
+            token);
+    
     private static void Execute(SourceProductionContext context, GenerationResult<TransformMonadData> target)
     {
         var (data, errors, hasValue) = target;
