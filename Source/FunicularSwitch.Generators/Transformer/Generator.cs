@@ -23,13 +23,10 @@ internal static class Generator
         
         return (filename, builder);
     }
-    
-    private static string NestedTypeName(TransformMonadData data, string genericArgument) =>
-        data.OuterMonad.GenericTypeName(data.InnerMonad.GenericTypeName(genericArgument));
 
     private static void WriteGenericMonad(TransformMonadData data, CSharpBuilder builder)
     {
-        var nestedTypeName = NestedTypeName(data, data.TypeParameter);
+        var nestedTypeName = data.Monad.GenericTypeName(data.TypeParameter);
         using var _ = new Scope(builder, $"{data.AccessModifier} {data.Modifier} {data.TypeNameWithTypeParameters}({nestedTypeName} M)");
 
         if (!data.IsRecord)
@@ -46,9 +43,9 @@ internal static class Generator
         using var _ = builder.StaticPartialClass(data.TypeName, data.AccessModifier);
         builder.WriteLine($"public static {data.FullGenericType("A")} {data.ReturnName}<A>(A a) => {data.Monad.ReturnMethodInvoke("A", "a")};");
         BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("B")} {data.BindName}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.Monad.BindMethodInvoke("ma", "fn")};");
+        builder.WriteLine($"public static {data.FullGenericType("B")} {data.BindName}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.Monad.BindMethodInvoke("A", "B", "ma", "fn")};");
         BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {data.OuterMonad.BindMethodInvoke("ma", $"a => {data.Monad.ReturnMethodInvoke("A", "a")}")};");
+        builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {data.OuterMonad.BindMethodInvoke("A", "B", "ma", $"a => {data.Monad.ReturnMethodInvoke("A", "a")}")};");
     }
 
     private static void BlankLine(CSharpBuilder builder) => builder.Content.AppendLine();

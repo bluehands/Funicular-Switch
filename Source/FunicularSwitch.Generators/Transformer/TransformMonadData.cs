@@ -10,8 +10,6 @@ internal record TransformMonadData(
     string FullTypeName,
     Func<string, string> FullGenericType,
     bool IsRecord,
-    string TransformerTypeName,
-    MonadData InnerMonad,
     MonadData OuterMonad,
     string ReturnName,
     string BindName,

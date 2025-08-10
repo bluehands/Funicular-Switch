@@ -168,7 +168,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
         return Verify(code);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public Task MultipleTransformers()
     {
         var code =
