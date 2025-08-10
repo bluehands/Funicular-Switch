@@ -44,21 +44,20 @@ internal static class Generator
     private static void WriteStaticMonad(TransformMonadData data, CSharpBuilder builder)
     {
         using var _ = builder.StaticPartialClass(data.TypeName, data.AccessModifier);
-        builder.WriteLine($"public static {data.FullGenericType("A")} {data.ReturnName}<A>(A a) => {InvokeTransformReturn(data, "a")};");
+        builder.WriteLine($"public static {data.FullGenericType("A")} {data.ReturnName}<A>(A a) => {InvokeTransformReturn(data, "A", "a")};");
         BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("B")} {data.BindName}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.TransformerTypeName}.Bind<A, B, {NestedTypeName(data, "A")}, {NestedTypeName(data, "B")}>(ma, x => fn(x), {data.OuterMonad.ReturnMethodFullName}, {data.OuterMonad.BindMethodFullName});");
+        builder.WriteLine($"public static {data.FullGenericType("B")} {data.BindName}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.TransformerTypeName}.Bind<A, B, {NestedTypeName(data, "A")}, {NestedTypeName(data, "B")}>(ma, x => fn(x), {data.OuterMonad.ReturnMethodFunc(data.InnerMonad.GenericTypeName("B"))}, {data.OuterMonad.BindMethodFunc});");
         BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {InvokeMonadBind(data.OuterMonad, $"ma, a => {InvokeTransformReturn(data, "a")}")};");
+        builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {InvokeMonadBind(data.OuterMonad, "ma", $"a => {InvokeTransformReturn(data, "A", "a")}")};");
     }
 
     private static void BlankLine(CSharpBuilder builder) => builder.Content.AppendLine();
 
-    private static string InvokeMonadReturn(MonadData data, string argument) => $"{data.ReturnMethodFullName}({argument})";
+    private static string InvokeMonadReturn(MonadData data, string typeArgument, string argument) => $"{data.ReturnMethodFunc(typeArgument)}({argument})";
 
-    private static string InvokeTransformReturn(TransformMonadData data, string argument) =>
-        InvokeMonadReturn(data.OuterMonad, InvokeMonadReturn(data.InnerMonad, argument));
+    private static string InvokeTransformReturn(TransformMonadData data, string typeArgument, string argument) =>
+        InvokeMonadReturn(data.OuterMonad, data.InnerMonad.GenericTypeName(typeArgument), InvokeMonadReturn(data.InnerMonad, typeArgument, argument));
 
-    private static string InvokeMonadBind(MonadData data, string arguments) =>
-        $"{data.BindMethodFullName}({arguments})";
+    private static string InvokeMonadBind(MonadData data, string ma, string fn) => data.BindMethodInvoke(ma, fn);
 
 }
