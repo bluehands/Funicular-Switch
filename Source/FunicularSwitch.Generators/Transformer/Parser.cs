@@ -143,6 +143,25 @@ internal static class Parser
 
     static MonadData2 ResolveMonadDataFromGenericMonadType(INamedTypeSymbol genericMonadType)
     {
+        var transformMonadAttribute = genericMonadType
+            .GetAttributes()
+            .FirstOrDefault(x => x.AttributeClass?.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.TransformMonadAttribute");
+        if (transformMonadAttribute is not null)
+        {
+            var transformedMonadData = GetTransformedMonadSchema(genericMonadType, TransformMonadAttribute.From(transformMonadAttribute), CancellationToken.None).Value!;
+            var returnMethodFunc = $"{transformedMonadData.FullTypeName}.{transformedMonadData.ReturnName}";
+            Func<string, string, string, string, string> bindMethodInvoke = (_, _, ma, fn) => $"{ma}.{transformedMonadData.BindName}({fn})";
+            return new(
+                new(
+                    transformedMonadData.FullGenericType,
+                    _ => returnMethodFunc,
+                    (_, a) => $"{returnMethodFunc}({a})",
+                    (_, _) => $"(ma, fn) => {bindMethodInvoke(string.Empty, string.Empty, "ma", "fn")}",
+                    bindMethodInvoke),
+                transformedMonadData.ReturnName,
+                transformedMonadData.BindName);
+        }
+        
         var returnMethod = genericMonadType.OriginalDefinition
             .GetMembers()
             .OfType<IMethodSymbol>()

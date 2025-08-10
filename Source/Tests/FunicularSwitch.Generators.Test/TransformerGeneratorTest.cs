@@ -210,6 +210,58 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
 
         return Verify(code);
     }
+
+    [TestMethod]
+    public Task WithTransformedMonads()
+    {
+        var code =
+            /*lang=csharp*/
+            $$"""
+              using System;
+              using FunicularSwitch.Generators;
+              
+              namespace FunicularSwitch.Test;
+              
+              public record MonadA<A>(A Value)
+              {
+                  public static MonadA<A> Return(A a) => throw new NotImplementedException();
+                  
+                  public MonadA<B> Bind<B>(Func<A, MonadA<B>> fn) => throw new NotImplementedException();
+              }
+              public record MonadB<B>(B Value)
+              {
+                  public static MonadB<B> Return(B a) => throw new NotImplementedException();
+                  
+                  public MonadB<A> Bind<A>(Func<B, MonadB<A>> fn) => throw new NotImplementedException();
+              }
+              public record MonadC<C>(C Value)
+              {
+                  public static MonadC<C> Return(C a) => throw new NotImplementedException();
+                  
+                  public MonadC<A> Bind<A>(Func<C, MonadC<A>> fn) => throw new NotImplementedException();
+              }
+              
+              [MonadTransformer(typeof(MonadB<>))]
+              public class MonadBT
+              {
+                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadB<B>, TMB> returnM, Func<TMA, Func<MonadB<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+              }
+              
+              [MonadTransformer(typeof(MonadC<>))]
+              public class MonadCT
+              {
+                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadC<B>, TMB> returnM, Func<TMA, Func<MonadC<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+              }
+              
+              [TransformMonad(typeof(MonadA<>), typeof(MonadBT))]
+              public readonly partial record struct MonadAB<A>;
+              
+              [TransformMonad(typeof(MonadAB<>), typeof(MonadCT))]
+              public readonly partial record struct MonadABC<A>;
+              """;
+
+        return Verify(code);
+    }
 }
 
 [TestClass]
