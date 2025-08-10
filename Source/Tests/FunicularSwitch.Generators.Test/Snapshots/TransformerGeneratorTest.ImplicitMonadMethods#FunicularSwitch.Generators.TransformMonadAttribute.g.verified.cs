@@ -6,6 +6,6 @@ namespace FunicularSwitch.Generators
     [AttributeUsage((AttributeTargets)12, AllowMultiple = false, Inherited = false)]
     internal class TransformMonadAttribute : Attribute
     {
-        public TransformMonadAttribute(System.Type monadType, params System.Type[] transformerTypes) { }
+        public TransformMonadAttribute(System.Type monadType, System.Type transformerType, params System.Type[] extraTransformerTypes) { }
     }
 }

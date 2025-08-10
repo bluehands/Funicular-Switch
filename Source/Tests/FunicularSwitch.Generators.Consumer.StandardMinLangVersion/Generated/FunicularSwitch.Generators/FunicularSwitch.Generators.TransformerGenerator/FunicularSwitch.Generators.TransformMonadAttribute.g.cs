@@ -1,4 +1,3 @@
-﻿//HintName: FunicularSwitch.Generators.TransformMonadAttribute.g.cs
 using System;
 
 namespace FunicularSwitch.Generators

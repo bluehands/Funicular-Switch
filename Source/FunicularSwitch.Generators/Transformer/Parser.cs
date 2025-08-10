@@ -17,7 +17,9 @@ internal static class Parser
         var isRecord = transformedMonadSymbol.IsRecord;
         var outerMonadType = transformMonadAttribute.MonadType;
         var outerMonadData = ResolveMonadDataFromMonadType(outerMonadType);
-        var transformedMonadData = transformMonadAttribute.TransformerTypes.Aggregate(outerMonadData, Combine);
+        var transformedMonadData = new[]{transformMonadAttribute.TransformerType}
+            .Concat(transformMonadAttribute.ExtraTransformerTypes)
+            .Aggregate(outerMonadData, Combine);
 
         var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
         
