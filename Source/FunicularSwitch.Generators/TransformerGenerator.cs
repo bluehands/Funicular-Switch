@@ -31,7 +31,7 @@ public class TransformerGenerator : IIncrementalGenerator
     private static GenerationResult<TransformMonadData> Parse(GeneratorAttributeSyntaxContext syntaxContext, IReadOnlyList<TransformMonadAttribute> attributes, CancellationToken token) =>
         Parser.GetTransformedMonadSchema(
             (INamedTypeSymbol) syntaxContext.TargetSymbol,
-            syntaxContext.Attributes[0],
+            attributes.First(),
             token);
     
     private static void Execute(SourceProductionContext context, GenerationResult<TransformMonadData> target)

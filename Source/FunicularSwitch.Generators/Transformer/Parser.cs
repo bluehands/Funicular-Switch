@@ -9,15 +9,15 @@ internal static class Parser
 {
     public static GenerationResult<TransformMonadData> GetTransformedMonadSchema(
         INamedTypeSymbol transformedMonadSymbol,
-        AttributeData transformMonadAttribute,
+        TransformMonadAttribute transformMonadAttribute,
         CancellationToken cancellationToken)
     {
         var typeModifier = DetermineTypeModifier(transformedMonadSymbol);
         var accessModifier = DetermineAccessModifier(transformedMonadSymbol);
         var isRecord = transformedMonadSymbol.IsRecord;
-        var outerMonadType = (INamedTypeSymbol)transformMonadAttribute.ConstructorArguments[0].Value!;
+        var outerMonadType = transformMonadAttribute.MonadType;
         var outerMonadData = ResolveMonadDataFromMonadType(outerMonadType);
-        var transformerType = (INamedTypeSymbol)transformMonadAttribute.ConstructorArguments[1].Value!;
+        var transformerType = transformMonadAttribute.TransformerType;
         var innerMonadData = ResolveMonadDataFromTransformerType(transformerType);
 
         var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
