@@ -11,6 +11,7 @@ public class ResultTypeGeneratorSpecs : VerifySourceGenerator
     [Fact]
     public async Task Assertions()
     {
-        await Verify([typeof(ExampleResult).Assembly, typeof(Result).Assembly]);
+        await Verify([typeof(ExampleResult).Assembly], subfolder: "GeneratedTypes");
+        await Verify([typeof(Result).Assembly], subfolder: "FunicularSwitchTypes");
     }
 }
