@@ -175,64 +175,42 @@ public static class EnumerableT
         Func<TMA, Func<IEnumerable<A>, TMB>, TMB> bindM) =>
         throw new NotImplementedException();
 
-    internal static M<IEnumerable<B>> Bind<M, A, B>(M<IEnumerable<A>> ma, Func<A, M<IEnumerable<B>>> fn)
-        where M : struct, MOps<M> =>
-        default(M).Bind(
-            ma,
-            xs => xs.Aggregate(
-                default(M).Return<IEnumerable<B>>([]),
-                (cur, acc) => default(M).Bind<IEnumerable<B>, IEnumerable<B>>(
-                    cur,
-                    xs_ => default(M).Map<IEnumerable<B>, IEnumerable<B>>(
-                        fn(acc),
-                        y => [..xs_, ..y]))));
+    internal static Monad<IEnumerable<B>> Bind<A, B>(Monad<IEnumerable<A>> ma, Func<A, Monad<IEnumerable<B>>> fn) =>
+        ma.Bind(xs => xs.Aggregate(
+            ma.Return<IEnumerable<B>>([]),
+            (cur, acc) => cur.Bind(xs_ =>
+                fn(acc).Map(y => (IEnumerable<B>) [..xs_, ..y]))));
 }
 
-// TODO: add use case tests
 [TransformMonad(typeof(Writer<>), typeof(ResultT))]
 public readonly partial record struct WriterResult<A>;
 
 // TODO: use like enumerable
 [TransformMonad(typeof(Result<>), typeof(EnumerableT))]
-public readonly partial record struct ResultEnumerable<A>
-{
-    public ResultEnumerable<B> Bind_<B>(Func<A, ResultEnumerable<B>> fn)
-    {
-        return M.Bind(x => BindInternal(x, fn));
-
-        static Result<IEnumerable<B>> BindInternal(IEnumerable<A> xs, Func<A, ResultEnumerable<B>> fn) =>
-            xs.Aggregate(Result.Ok<IEnumerable<B>>([]),
-                (cur, acc) => cur.Bind(xs_ => fn(acc).M.Map<IEnumerable<B>>(y => [..xs_, ..y])));
-    }
-}
+public readonly partial record struct ResultEnumerable<A>;
 
 public partial class ResultEnumerable
 {
     public static ResultEnumerable<B> Bind2<A, B>(this ResultEnumerable<A> ma, Func<A, ResultEnumerable<B>> fn) =>
-        ((ResultOps.M_<IEnumerable<B>>) EnumerableT.Bind<ResultOps, A, B>((ResultOps.M_<IEnumerable<A>>) ma.M, a => (ResultOps.M_<IEnumerable<B>>) fn(a).M)).M;
+        ((ResultMonad<IEnumerable<B>>) EnumerableT.Bind<A, B>((ResultMonad<IEnumerable<A>>) ma.M, a => (ResultMonad<IEnumerable<B>>) fn(a).M)).M;
 
-    private struct ResultOps : MOps<ResultOps>
+    private readonly record struct ResultMonad<A>(Result<A> M) : Monad<A>
     {
-        public M<B> Bind<A, B>(M<A> ma, Func<A, M<B>> fn) => (M_<B>) ((M_<A>) ma).M.Bind(x => ((M_<B>) fn(x)).M);
+        public Monad<B> Bind<B>(Func<A, Monad<B>> fn) => (ResultMonad<B>) M.Bind<B>(a => (ResultMonad<B>) fn(a));
 
-        public M<A> Return<A>(A value) => (M_<A>) Result.Ok(value);
+        public Monad<B> Return<B>(B value) => (ResultMonad<B>) Result.Ok(value);
 
-        public readonly record struct M_<A>(Result<A> M) : M<A>
-        {
-            public static implicit operator M_<A>(Result<A> ma) => new(ma);
+        public static implicit operator ResultMonad<A>(Result<A> ma) => new(ma);
 
-            public static implicit operator Result<A>(M_<A> ma) => ma.M;
-        }
+        public static implicit operator Result<A>(ResultMonad<A> ma) => ma.M;
     }
 }
 
-internal interface MOps<T> where T : struct, MOps<T>
+internal interface Monad<A>
 {
-    public M<B> Bind<A, B>(M<A> ma, Func<A, M<B>> fn);
+    public Monad<B> Bind<B>(Func<A, Monad<B>> fn);
 
-    public M<B> Map<A, B>(M<A> ma, Func<A, B> fn) => Bind(ma, x => Return(fn(x)));
+    public Monad<B> Map<B>(Func<A, B> fn) => Bind(a => Return(fn(a)));
 
-    public M<A> Return<A>(A value);
+    public Monad<B> Return<B>(B value);
 }
-
-internal interface M<A>;
