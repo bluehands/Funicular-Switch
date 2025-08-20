@@ -8,10 +8,10 @@
 
     public static partial class OptionResult
     {
-        public static FunicularSwitch.Generators.Consumer.OptionResult<A> Return<A>(A a) => FunicularSwitch.Generators.Consumer.OptionM.Return(FunicularSwitch.Generators.Consumer.ResultM.Return(a));
+        public static FunicularSwitch.Generators.Consumer.OptionResult<A> Ok<A>(A a) => FunicularSwitch.Generators.Consumer.OptionM.Return(FunicularSwitch.Generators.Consumer.Result<A>.Ok(a));
 
         public static FunicularSwitch.Generators.Consumer.OptionResult<B> Bind<A, B>(this FunicularSwitch.Generators.Consumer.OptionResult<A> ma, global::System.Func<A, FunicularSwitch.Generators.Consumer.OptionResult<B>> fn) => FunicularSwitch.Generators.Consumer.ResultT.Bind<A, B, FunicularSwitch.Option<FunicularSwitch.Generators.Consumer.Result<A>>, FunicularSwitch.Option<FunicularSwitch.Generators.Consumer.Result<B>>>(ma, x => fn(x), FunicularSwitch.Generators.Consumer.OptionM.Return, FunicularSwitch.Generators.Consumer.OptionM.Bind);
 
-        public static FunicularSwitch.Generators.Consumer.OptionResult<A> Lift<A>(FunicularSwitch.Option<A> ma) => FunicularSwitch.Generators.Consumer.OptionM.Bind(ma, a => FunicularSwitch.Generators.Consumer.OptionM.Return(FunicularSwitch.Generators.Consumer.ResultM.Return(a)));
+        public static FunicularSwitch.Generators.Consumer.OptionResult<A> Lift<A>(FunicularSwitch.Option<A> ma) => FunicularSwitch.Generators.Consumer.OptionM.Bind(ma, a => FunicularSwitch.Generators.Consumer.OptionM.Return(FunicularSwitch.Generators.Consumer.Result<A>.Ok(a)));
     }
 }

@@ -9,6 +9,9 @@ public class TransformerSpecs
     [TestMethod]
     public void ResultOption_Return()
     {
+        var x = ResultOption.Return(1337);
+        var y = x.Bind(x_ => ResultOption.Return("hi"));
+        
         // Arrange
         var value = 1337;
         var expected = new ResultOption<int>(Result.Ok(Option.Some(value)));
@@ -104,7 +107,7 @@ public static class OptionT
 [TransformMonad(typeof(ResultM), typeof(OptionT))]
 public partial record ResultOption<A>;
 
-[MonadTransformer(typeof(ResultM))]
+[MonadTransformer(typeof(Result<>))]
 public static class ResultT
 {
     public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<Result<B>, TMB> returnM,
@@ -114,3 +117,48 @@ public static class ResultT
 
 [TransformMonad(typeof(OptionM), typeof(ResultT))]
 public partial record OptionResult<A>;
+
+public record Writer<A>(A Value, string Log)
+{
+    public static Writer<A> Init(A v) => new(v, string.Empty);
+
+    public Writer<B> Bind<B>(Func<A, Writer<B>> fn)
+    {
+        var tmp = fn(Value);
+        return new(tmp.Value, Log + tmp.Log);
+    }
+}
+
+public static class EnumerableM
+{
+    public static IEnumerable<A> Yield<A>(A v) => throw new NotImplementedException();
+
+    public static IEnumerable<B> Bind<A, B>(this IEnumerable<A> en, Func<A, IEnumerable<B>> fn) =>
+        throw new NotImplementedException();
+}
+
+[MonadTransformer(typeof(EnumerableM))]
+public static class EnumerableT
+{
+    public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<IEnumerable<B>, TMB> returnM,
+        Func<TMA, Func<IEnumerable<A>, TMB>, TMB> bindM) =>
+        throw new NotImplementedException();
+}
+
+// TODO: add use case tests
+[TransformMonad(typeof(Writer<>), typeof(ResultT))]
+public readonly partial record struct WriterResult<A>;
+
+// TODO: use like enumerable
+[TransformMonad(typeof(Result<>), typeof(EnumerableT))]
+public readonly partial record struct ResultEnumerable<A>
+{
+    public ResultEnumerable<B> Bind_<B>(Func<A, ResultEnumerable<B>> fn)
+    {
+        return M.Bind(x => BindInternal(x, fn));
+        
+        static Result<IEnumerable<B>> BindInternal(IEnumerable<A> xs, Func<A, ResultEnumerable<B>> fn) =>
+            xs.Aggregate(Result.Ok<IEnumerable<B>>([]),
+                (cur, acc) => cur.Bind(xs_ => fn(acc).M.Map<IEnumerable<B>>(y => [..xs_, ..y])));
+    }
+}
