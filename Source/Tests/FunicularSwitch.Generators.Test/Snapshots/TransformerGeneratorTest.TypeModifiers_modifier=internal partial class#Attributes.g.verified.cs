@@ -1,6 +1,7 @@
 ﻿//HintName: Attributes.g.cs
 #nullable enable
 using System;
+
 namespace FunicularSwitch.Generators
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]

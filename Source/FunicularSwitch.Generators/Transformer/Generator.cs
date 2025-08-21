@@ -1,4 +1,3 @@
-using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
 
@@ -20,22 +19,30 @@ internal static class Generator
             BlankLine(builder);
             WriteStaticMonad(data, builder);
         }
-        
+
         return (filename, builder);
     }
+
+    private static void BlankLine(CSharpBuilder builder) => builder.Content.AppendLine();
 
     private static void WriteGenericMonad(TransformMonadData data, CSharpBuilder builder)
     {
         var nestedTypeName = data.Monad.GenericTypeName(data.TypeParameter);
-        using var _ = new Scope(builder, $"{data.AccessModifier} {data.Modifier} {data.TypeNameWithTypeParameters}({nestedTypeName} M)");
+        var monadInterface = $"global::FunicularSwitch.Generators.Monad<{data.TypeParameter}>";
+        var altTypeParameter = $"{data.TypeParameter}_";
+        var monadInterfaceAlt = $"global::FunicularSwitch.Generators.Monad<{altTypeParameter}>";
+        using var _ = new Scope(builder, $"{data.AccessModifier} {data.Modifier} {data.TypeNameWithTypeParameters}({nestedTypeName} M) : {monadInterface}");
 
         if (!data.IsRecord)
         {
-             builder.WriteGetOnlyProperty(nestedTypeName, "M", "M");
+            builder.WriteGetOnlyProperty(nestedTypeName, "M", "M");
         }
-        
+
+        // TODO: add missing global::
         builder.WriteLine($"public static implicit operator {data.TypeNameWithTypeParameters}({nestedTypeName} ma) => new(ma);");
         builder.WriteLine($"public static implicit operator {nestedTypeName}({data.TypeNameWithTypeParameters} ma) => ma.M;");
+        builder.WriteLine($"{monadInterfaceAlt} {monadInterface}.Return<{altTypeParameter}>({altTypeParameter} a) => {data.TypeName}.{data.ReturnName}(a);");
+        builder.WriteLine($"{monadInterfaceAlt} {monadInterface}.Bind<{altTypeParameter}>(global::System.Func<{data.TypeParameter}, {monadInterfaceAlt}> fn) => this.{data.BindName}(a => ({data.TypeName}<{altTypeParameter}>)fn(a));");
     }
 
     private static void WriteStaticMonad(TransformMonadData data, CSharpBuilder builder)
@@ -47,6 +54,4 @@ internal static class Generator
         BlankLine(builder);
         builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {data.OuterMonad.BindMethodInvoke("A", "B", "ma", $"a => {data.Monad.ReturnMethodInvoke("A", "a")}")};");
     }
-
-    private static void BlankLine(CSharpBuilder builder) => builder.Content.AppendLine();
 }
