@@ -205,12 +205,3 @@ public partial class ResultEnumerable
         public static implicit operator Result<A>(ResultMonad<A> ma) => ma.M;
     }
 }
-
-internal interface Monad<A>
-{
-    public Monad<B> Bind<B>(Func<A, Monad<B>> fn);
-
-    public Monad<B> Map<B>(Func<A, B> fn) => Bind(a => Return(fn(a)));
-
-    public Monad<B> Return<B>(B value);
-}
