@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+
 namespace FunicularSwitch.Generators
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
@@ -24,14 +25,16 @@ namespace FunicularSwitch.Generators
         public Type MonadType { get; }
     }
 
-    internal interface Monad<A>
+    // TODO: move to own library
+    public interface Monad<A>
     {
         public Monad<B> Bind<B>(Func<A, Monad<B>> fn);
 
         public Monad<B> Return<B>(B value);
     }
 
-    internal static class MonadExtension
+    // TODO: move to own library
+    public static class MonadExtension
     {
         public static Monad<B> Map<A, B>(this Monad<A> ma, Func<A, B> fn) => ma.Bind(a => ma.Return(fn(a)));
     }
