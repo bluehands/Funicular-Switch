@@ -11,4 +11,5 @@ internal record TransformMonadData(
     Func<string, string> FullGenericType,
     bool IsRecord,
     MonadData OuterMonad,
-    MonadData Monad);
+    MonadData Monad,
+    IReadOnlyList<MonadData> MonadsWithoutImplementation);
