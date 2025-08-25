@@ -48,10 +48,10 @@ internal static class Generator
     private static void WriteStaticMonad(TransformMonadData data, CSharpBuilder builder)
     {
         using var _ = builder.StaticPartialClass(data.TypeName, data.AccessModifier);
-        builder.WriteLine($"public static {data.FullGenericType("A")} {data.ReturnName}<A>(A a) => {data.Monad.ReturnMethodInvoke("A", "a")};");
+        builder.WriteLine($"public static {data.FullGenericType("A")} {data.ReturnName}<A>(A a) => {data.Monad.ReturnMethod.Invoke(["A"], ["a"])};");
         BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("B")} {data.BindName}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.Monad.BindMethodInvoke("A", "B", "ma", "fn")};");
+        builder.WriteLine($"public static {data.FullGenericType("B")} {data.BindName}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.Monad.BindMethod.Invoke(["A", "B"], ["ma", "fn"])};");
         BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {data.OuterMonad.BindMethodInvoke("A", "B", "ma", $"a => {data.Monad.ReturnMethodInvoke("A", "a")}")};");
+        builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {data.OuterMonad.BindMethod.Invoke(["A", "B"], ["ma", $"a => {data.Monad.ReturnMethod.Invoke(["A"], ["a"])}"])};");
     }
 }
