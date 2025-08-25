@@ -41,16 +41,16 @@ internal static class Generator
         // TODO: add missing global::
         builder.WriteLine($"public static implicit operator {data.TypeNameWithTypeParameters}({nestedTypeName} ma) => new(ma);");
         builder.WriteLine($"public static implicit operator {nestedTypeName}({data.TypeNameWithTypeParameters} ma) => ma.M;");
-        builder.WriteLine($"{monadInterfaceAlt} {monadInterface}.Return<{altTypeParameter}>({altTypeParameter} a) => {data.TypeName}.{data.ReturnName}(a);");
-        builder.WriteLine($"{monadInterfaceAlt} {monadInterface}.Bind<{altTypeParameter}>(global::System.Func<{data.TypeParameter}, {monadInterfaceAlt}> fn) => this.{data.BindName}(a => ({data.TypeName}<{altTypeParameter}>)fn(a));");
+        builder.WriteLine($"{monadInterfaceAlt} {monadInterface}.Return<{altTypeParameter}>({altTypeParameter} a) => {data.TypeName}.{data.Monad.ReturnMethod.Name}(a);");
+        builder.WriteLine($"{monadInterfaceAlt} {monadInterface}.Bind<{altTypeParameter}>(global::System.Func<{data.TypeParameter}, {monadInterfaceAlt}> fn) => this.{data.Monad.BindMethod.Name}(a => ({data.TypeName}<{altTypeParameter}>)fn(a));");
     }
 
     private static void WriteStaticMonad(TransformMonadData data, CSharpBuilder builder)
     {
         using var _ = builder.StaticPartialClass(data.TypeName, data.AccessModifier);
-        builder.WriteLine($"public static {data.FullGenericType("A")} {data.ReturnName}<A>(A a) => {data.Monad.ReturnMethod.Invoke(["A"], ["a"])};");
+        builder.WriteLine($"public static {data.FullGenericType("A")} {data.Monad.ReturnMethod.Name}<A>(A a) => {data.Monad.ReturnMethod.Invoke(["A"], ["a"])};");
         BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("B")} {data.BindName}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.Monad.BindMethod.Invoke(["A", "B"], ["ma", "fn"])};");
+        builder.WriteLine($"public static {data.FullGenericType("B")} {data.Monad.BindMethod.Name}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.Monad.BindMethod.Invoke(["A", "B"], ["ma", "fn"])};");
         BlankLine(builder);
         builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {data.OuterMonad.BindMethod.Invoke(["A", "B"], ["ma", $"a => {data.Monad.ReturnMethod.Invoke(["A"], ["a"])}"])};");
     }

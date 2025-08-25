@@ -11,6 +11,4 @@ internal record TransformMonadData(
     Func<string, string> FullGenericType,
     bool IsRecord,
     MonadData OuterMonad,
-    string ReturnName,
-    string BindName,
     MonadData Monad);
