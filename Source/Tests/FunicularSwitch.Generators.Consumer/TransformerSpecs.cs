@@ -99,7 +99,6 @@ public class TransformerSpecs
     }
 }
 
-[Monad(typeof(Result<>))]
 public static class ResultM
 {
     public static Result<B> Bind<A, B>(this Result<A> ma, Func<A, Result<B>> fn) => ma.Bind(fn);
@@ -107,7 +106,6 @@ public static class ResultM
     public static Result<A> Return<A>(A a) => Result.Ok(a);
 }
 
-[Monad(typeof(Option<>))]
 public static class OptionM
 {
     public static Option<B> Bind<A, B>(this Option<A> ma, Func<A, Option<B>> fn) => ma.Bind(fn);

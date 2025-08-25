@@ -24,7 +24,6 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             namespace FunicularSwitch.Test;
 
             public record MonadA<A>(A Value);
-            [Monad(typeof(MonadA<>))]
             public class MonadA
             {
                 public static MonadA<A> Return<A>(A a) => throw new NotImplementedException();
@@ -32,7 +31,6 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
                 public static MonadA<B> Bind<A, B>(MonadA<A> ma, Func<A, MonadA<B>> fn) => throw new NotImplementedException();
             }
             public record MonadB<B>(B Value);
-            [Monad(typeof(MonadB<>))]
             public class MonadB
             {
                 public static MonadB<A> Return<A>(A a) => throw new NotImplementedException();

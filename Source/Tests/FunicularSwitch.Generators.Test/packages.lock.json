@@ -404,6 +404,11 @@
           "System.IO.Hashing": "9.0.4"
         }
       },
+      "Vogen": {
+        "type": "Transitive",
+        "resolved": "8.0.1",
+        "contentHash": "fLXtNstXrkFRJJfpjbo5zZKjboHforSi7mOgEb2chTTTI6jYRZmDCxfaX4g1rdkP2jcG/NnMkxuINmIbDsAwRg=="
+      },
       "funicularswitch": {
         "type": "Project",
         "dependencies": {
@@ -417,7 +422,8 @@
       "funicularswitch.generators": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.CodeAnalysis.CSharp": "[4.11.0, )"
+          "Microsoft.CodeAnalysis.CSharp": "[4.11.0, )",
+          "Vogen": "[8.0.1, )"
         }
       }
     }

@@ -1,9 +1,11 @@
 ﻿namespace FunicularSwitch.Generators.Consumer
 {
-    public partial record OptionResult<A>(global::FunicularSwitch.Option<global::FunicularSwitch.Generators.Consumer.Result<A>> M)
+    public partial record OptionResult<A>(global::FunicularSwitch.Option<global::FunicularSwitch.Generators.Consumer.Result<A>> M) : global::FunicularSwitch.Generators.Monad<A>
     {
         public static implicit operator OptionResult<A>(global::FunicularSwitch.Option<global::FunicularSwitch.Generators.Consumer.Result<A>> ma) => new(ma);
         public static implicit operator global::FunicularSwitch.Option<global::FunicularSwitch.Generators.Consumer.Result<A>>(OptionResult<A> ma) => ma.M;
+        global::FunicularSwitch.Generators.Monad<A_> global::FunicularSwitch.Generators.Monad<A>.Return<A_>(A_ a) => OptionResult.Ok(a);
+        global::FunicularSwitch.Generators.Monad<A_> global::FunicularSwitch.Generators.Monad<A>.Bind<A_>(global::System.Func<A, global::FunicularSwitch.Generators.Monad<A_>> fn) => this.Bind(a => (OptionResult<A_>)fn(a));
     }
 
     public static partial class OptionResult

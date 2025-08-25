@@ -279,7 +279,8 @@ internal static class Parser
 
     private static MonadData2 ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType)
     {
-        var staticMonadType = (INamedTypeSymbol) transformerType.GetAttributes()[0].ConstructorArguments[0].Value!;
+        var monadTransformerAttribute = MonadTransformerAttribute.From(transformerType.GetAttributes()[0]);
+        var staticMonadType = monadTransformerAttribute.MonadType;
         var monadData = ResolveMonadDataFromMonadType(staticMonadType);
         return monadData;
     }
@@ -296,3 +297,5 @@ internal record MonadData(
     Func<string, string, string> ReturnMethodInvoke,
     Func<string, string, string> BindMethodFunc,
     Func<string, string, string, string, string> BindMethodInvoke);
+
+internal record TypeInfo();

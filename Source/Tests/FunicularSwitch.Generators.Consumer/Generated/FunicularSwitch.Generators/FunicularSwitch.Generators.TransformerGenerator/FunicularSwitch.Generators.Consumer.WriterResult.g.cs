@@ -1,9 +1,11 @@
 ﻿namespace FunicularSwitch.Generators.Consumer
 {
-    public readonly partial record struct WriterResult<A>(global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<A>> M)
+    public readonly partial record struct WriterResult<A>(global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<A>> M) : global::FunicularSwitch.Generators.Monad<A>
     {
         public static implicit operator WriterResult<A>(global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<A>> ma) => new(ma);
         public static implicit operator global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<A>>(WriterResult<A> ma) => ma.M;
+        global::FunicularSwitch.Generators.Monad<A_> global::FunicularSwitch.Generators.Monad<A>.Return<A_>(A_ a) => WriterResult.InitOk(a);
+        global::FunicularSwitch.Generators.Monad<A_> global::FunicularSwitch.Generators.Monad<A>.Bind<A_>(global::System.Func<A, global::FunicularSwitch.Generators.Monad<A_>> fn) => this.Bind(a => (WriterResult<A_>)fn(a));
     }
 
     public static partial class WriterResult
