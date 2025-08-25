@@ -57,7 +57,7 @@ internal static class Parser
             DetermineBindName(outerMonad, innerMonad));
     }
 
-    private static MonadData2 CreateMonadData(INamedTypeSymbol? staticType, INamedTypeSymbol genericType, IMethodSymbol? returnMethod = default, IMethodSymbol? bindMethod = default)
+    private static MonadData2 CreateMonadData(INamedTypeSymbol? staticType, INamedTypeSymbol genericType, IMethodSymbol returnMethod, IMethodSymbol? bindMethod = default)
     {
         var genericTypeName = $"global::{genericType.FullTypeNameWithNamespace()}";
         var (returnMethodName, returnMethodFunc, returnMethodInvoke) = GetReturnMethod();
@@ -96,22 +96,12 @@ internal static class Parser
 
         (string Name, Func<string, string> Func, Func<string, string, string> Invoke) GetReturnMethod()
         {
-            if (returnMethod is null)
-            {
-                var returnFullName = $"global::{staticType}.Return";
-                var func = (string _) => returnFullName;
-                var invoke = (string _, string a) => $"{returnFullName}({a})";
-                return ("Return", func, invoke);
-            }
-            else
-            {
-                var name = returnMethod.Name;
-                var func = returnMethod.ContainingType.IsGenericType
-                    ? new Func<string, string>(t => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}<{t}>.{name}")
-                    : _ => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}.{name}";
-                var invoke = (string t, string a) => $"{func(t)}({a})";
-                return (name, func, invoke);
-            }
+            var name = returnMethod.Name;
+            var func = returnMethod.ContainingType.IsGenericType
+                ? new Func<string, string>(t => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}<{t}>.{name}")
+                : _ => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}.{name}";
+            var invoke = (string t, string a) => $"{func(t)}({a})";
+            return (name, func, invoke);
         }
     }
 
@@ -231,26 +221,17 @@ internal static class Parser
 
     static MonadData2 ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
     {
-        var monadAttribute = staticMonadType.GetAttributes().FirstOrDefault(x => x.AttributeClass?.Name == "MonadAttribute");
-        if (monadAttribute is not null)
-        {
-            var genericMonadType = (INamedTypeSymbol) staticMonadType.GetAttributes()[0].ConstructorArguments[0].Value!;
-            return CreateMonadData(staticMonadType, genericMonadType);
-        }
-        else
-        {
-            var returnMethod = staticMonadType
-                .GetMembers()
-                .OfType<IMethodSymbol>()
-                .First(IsStaticReturnMethod);
-            var genericMonadType = ((INamedTypeSymbol) returnMethod.ReturnType).ConstructUnboundGenericType();
+        var returnMethod = staticMonadType
+            .GetMembers()
+            .OfType<IMethodSymbol>()
+            .First(IsStaticReturnMethod);
+        var genericMonadType = ((INamedTypeSymbol) returnMethod.ReturnType).ConstructUnboundGenericType();
 
-            var bindMethod = staticMonadType
-                .GetMembers()
-                .OfType<IMethodSymbol>()
-                .First(x => IsStaticBindMethod(genericMonadType, x));
-            return CreateMonadData(staticMonadType, genericMonadType, returnMethod, bindMethod);
-        }
+        var bindMethod = staticMonadType
+            .GetMembers()
+            .OfType<IMethodSymbol>()
+            .First(x => IsStaticBindMethod(genericMonadType, x));
+        return CreateMonadData(staticMonadType, genericMonadType, returnMethod, bindMethod);
 
         bool IsStaticReturnMethod(IMethodSymbol method)
         {
