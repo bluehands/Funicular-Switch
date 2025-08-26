@@ -35,5 +35,7 @@ namespace FunicularSwitch.Test
         public static global::FunicularSwitch.Test.MonadABA<B> Bind<A, B>(this global::FunicularSwitch.Test.MonadABA<A> ma, global::System.Func<A, global::FunicularSwitch.Test.MonadABA<B>> fn) => global::FunicularSwitch.Test.MonadAT.Bind<A, B>((Impl__FunicularSwitch_Test_MonadA_global__FunicularSwitch_Test_MonadB<global::FunicularSwitch.Test.MonadA<A>>)((global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<global::FunicularSwitch.Test.MonadA<A>>>)ma), a => (Impl__FunicularSwitch_Test_MonadA_global__FunicularSwitch_Test_MonadB<global::FunicularSwitch.Test.MonadA<B>>)(new global::System.Func<A, global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<global::FunicularSwitch.Test.MonadA<B>>>>(a => fn(a)).Invoke(a))).Cast<global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<global::FunicularSwitch.Test.MonadA<B>>>>();
 
         public static global::FunicularSwitch.Test.MonadABA<A> Lift<A>(global::FunicularSwitch.Test.MonadA<A> ma) => ma.Bind(a => global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<global::FunicularSwitch.Test.MonadA<A>>>.Return(global::FunicularSwitch.Test.MonadB<global::FunicularSwitch.Test.MonadA<A>>.Return(global::FunicularSwitch.Test.MonadA<A>.Return(a))));
+
+        public static global::FunicularSwitch.Test.MonadABA<B> Map<A, B>(this global::FunicularSwitch.Test.MonadABA<A> ma, global::System.Func<A, B> fn) => ma.Bind(a => MonadABA.Return(fn(a)));
     }
 }

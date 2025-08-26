@@ -110,6 +110,7 @@ internal static class Parser
                 BuildReturnMethod(),
                 BuildBindMethod(),
                 BuildLiftMethod(),
+                BuildMapMethod(),
             ]
         );
         return staticMonadInfo;
@@ -141,6 +142,19 @@ internal static class Parser
             new(
                 "Lift",
                 (t, p) => $"{outerMonad.BindMethod.Invoke([t[0], $"{innerMonad.GenericTypeName("A")}"], ["ma", $"a => {chainedMonad.ReturnMethod.Invoke(t, ["a"])}"])}" // implicit cast
+            )
+        );
+
+        MethodGenerationInfo BuildMapMethod() => new(
+            genericTypeName("B"),
+            ["A", "B"],
+            [
+                new(genericTypeName("A"), "ma", true),
+                new("global::System.Func<A, B>", "fn"),
+            ],
+            new(
+                "Map",
+                (t, p) => $"{p[0]}.{chainedMonad.BindMethod.Name}(a => {typeName}.{chainedMonad.ReturnMethod.Name}({p[1]}(a)))"
             )
         );
     }
