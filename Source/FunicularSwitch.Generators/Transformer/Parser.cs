@@ -138,7 +138,7 @@ internal static class Parser
             [new(outerMonad.GenericTypeName("A"), "ma")],
             new(
                 "Lift",
-                (t, p) => $"{outerMonad.BindMethod.Invoke([t[0], $"{innerMonad.GenericTypeName("A")}"], ["ma", $"a => {chainedMonad.ReturnMethod.Invoke(t, [p[0]])}"])}" // implicit cast
+                (t, p) => $"{outerMonad.BindMethod.Invoke([t[0], $"{innerMonad.GenericTypeName("A")}"], ["ma", $"a => {chainedMonad.ReturnMethod.Invoke(t, ["a"])}"])}" // implicit cast
             )
         );
     }

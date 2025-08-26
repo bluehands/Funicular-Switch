@@ -158,13 +158,13 @@ public partial record OptionResult<A>;
 
 public record Writer<A>
 {
-    private Writer(A Value, string Log)
+    private Writer(A Value, Option<string> Log)
     {
         this.Value = Value;
-        this.Log = $"{Log,-21}: {Value}";
+        this.Log = Log.Map(log => $"{log,-21}: {Value}");
     }
 
-    public string Log { get; init; }
+    public Option<string> Log { get; init; }
 
     public A Value { get; init; }
 
@@ -173,10 +173,11 @@ public record Writer<A>
     public Writer<B> Bind<B>(Func<A, Writer<B>> fn)
     {
         var tmp = fn(Value);
-        return tmp with {Log = Log + "\n" + tmp.Log};
+        var result = tmp with {Log = string.Join("\n", [..Log, ..tmp.Log])};
+        return result;
     }
 
-    public static Writer<A> Init(A v) => new(v, "init");
+    public static Writer<A> Init(A v) => new(v, Option<string>.None);
 }
 
 public static class EnumerableM
