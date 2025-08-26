@@ -120,6 +120,17 @@ public class TransformerSpecs
             .Bind<int, string>(x => (WriterResult<Option<string>>) Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"), "to hex failed"));
         Console.WriteLine(w2.M.M.Log);
     }
+
+    [TestMethod]
+    public void TODO_ResultEnumerable()
+    {
+        Console.WriteLine("ResultEnumerable<>");
+        var r = ResultEnumerable.OkYield(24)
+            .Bind(x => (ResultEnumerable<int>)Result<IEnumerable<int>>.Ok(Enumerable.Range(0, x)))
+            .Bind(x => ResultEnumerable.OkYield(x.ToString("X2")))
+            .Bind(x => (ResultEnumerable<string>)Result<IEnumerable<string>>.Error("meh"));
+        Console.WriteLine(r.M.Map(x => string.Join("\n", x)));
+    }
 }
 
 public static class ResultM
