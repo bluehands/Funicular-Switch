@@ -55,12 +55,13 @@ internal static class Generator
             WriteMonadInterfaceImplementation(generationInfo, builder);
             BlankLine(builder);
         }
-        
-        WriteMethod(data.ReturnMethod, builder);
-        BlankLine(builder);
-        WriteMethod(data.BindMethod, builder);
-        BlankLine(builder);
-        WriteMethod(data.LiftMethod, builder);
+
+        WriteMethod(data.Methods.First(), builder);
+        foreach (var method in data.Methods.Skip(1))
+        {
+            BlankLine(builder);
+            WriteMethod(method, builder);
+        }
     }
 
     private static void WriteMethod(MethodGenerationInfo info, CSharpBuilder cs)
@@ -95,9 +96,7 @@ internal record StaticMonadGenerationInfo(
     string TypeName,
     string AccessModifier,
     IReadOnlyList<MonadImplementationGenerationInfo> MonadsWithoutImplementation,
-    MethodGenerationInfo ReturnMethod,
-    MethodGenerationInfo BindMethod,
-    MethodGenerationInfo LiftMethod);
+    IReadOnlyList<MethodGenerationInfo> Methods);
 
 internal record MethodGenerationInfo(
     string ReturnType,

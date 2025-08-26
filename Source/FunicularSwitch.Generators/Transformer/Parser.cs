@@ -106,9 +106,11 @@ internal static class Parser
             typeName,
             accessModifier,
             monadImplementations,
-            BuildReturnMethod(),
-            BuildBindMethod(),
-            BuildLiftMethod()
+            [
+                BuildReturnMethod(),
+                BuildBindMethod(),
+                BuildLiftMethod(),
+            ]
         );
         return staticMonadInfo;
 
