@@ -25,5 +25,13 @@
         public static global::FunicularSwitch.Generators.Consumer.OptionResult<B> Bind<A, B>(this global::FunicularSwitch.Generators.Consumer.OptionResult<A> ma, global::System.Func<A, global::FunicularSwitch.Generators.Consumer.OptionResult<B>> fn) => global::FunicularSwitch.Generators.Consumer.ResultT.Bind<A, B>((Impl__FunicularSwitch_Option<global::FunicularSwitch.Generators.Consumer.Result<A>>)((global::FunicularSwitch.Option<global::FunicularSwitch.Generators.Consumer.Result<A>>)ma), a => (Impl__FunicularSwitch_Option<global::FunicularSwitch.Generators.Consumer.Result<B>>)(new global::System.Func<A, global::FunicularSwitch.Option<global::FunicularSwitch.Generators.Consumer.Result<B>>>(a => fn(a)).Invoke(a))).Cast<global::FunicularSwitch.Option<global::FunicularSwitch.Generators.Consumer.Result<B>>>();
 
         public static global::FunicularSwitch.Generators.Consumer.OptionResult<A> Lift<A>(global::FunicularSwitch.Option<A> ma) => global::FunicularSwitch.Generators.Consumer.OptionM.Bind(ma, a => global::FunicularSwitch.Generators.Consumer.OptionM.Return(global::FunicularSwitch.Generators.Consumer.Result<A>.Ok(a)));
+
+        public static global::FunicularSwitch.Generators.Consumer.OptionResult<B> Map<A, B>(this global::FunicularSwitch.Generators.Consumer.OptionResult<A> ma, global::System.Func<A, B> fn) => ma.Bind(a => OptionResult.Ok(fn(a)));
+
+        public static global::FunicularSwitch.Generators.Consumer.OptionResult<B> Select<A, B>(this global::FunicularSwitch.Generators.Consumer.OptionResult<A> ma, global::System.Func<A, B> fn) => ma.Bind(a => OptionResult.Ok(fn(a)));
+
+        public static global::FunicularSwitch.Generators.Consumer.OptionResult<B> SelectMany<A, B>(this global::FunicularSwitch.Generators.Consumer.OptionResult<A> ma, global::System.Func<A, global::FunicularSwitch.Generators.Consumer.OptionResult<B>> fn) => ma.Bind(fn);
+
+        public static global::FunicularSwitch.Generators.Consumer.OptionResult<C> SelectMany<A, B, C>(this global::FunicularSwitch.Generators.Consumer.OptionResult<A> ma, global::System.Func<A, global::FunicularSwitch.Generators.Consumer.OptionResult<B>> fn, global::System.Func<A, B, C> selector) => ma.Bind(a => fn(a).Map(b => selector(a, b)));
     }
 }

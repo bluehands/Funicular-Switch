@@ -28,5 +28,11 @@ namespace FunicularSwitch.Test
         public static global::FunicularSwitch.Test.MonadAB<A> Lift<A>(global::FunicularSwitch.Test.MonadA<A> ma) => global::FunicularSwitch.Test.MonadA.Bind(ma, a => global::FunicularSwitch.Test.MonadA.Return(global::FunicularSwitch.Test.MonadB.Return(a)));
 
         public static global::FunicularSwitch.Test.MonadAB<B> Map<A, B>(this global::FunicularSwitch.Test.MonadAB<A> ma, global::System.Func<A, B> fn) => ma.Bind(a => MonadAB.Return(fn(a)));
+
+        public static global::FunicularSwitch.Test.MonadAB<B> Select<A, B>(this global::FunicularSwitch.Test.MonadAB<A> ma, global::System.Func<A, B> fn) => ma.Bind(a => MonadAB.Return(fn(a)));
+
+        public static global::FunicularSwitch.Test.MonadAB<B> SelectMany<A, B>(this global::FunicularSwitch.Test.MonadAB<A> ma, global::System.Func<A, global::FunicularSwitch.Test.MonadAB<B>> fn) => ma.Bind(fn);
+
+        public static global::FunicularSwitch.Test.MonadAB<C> SelectMany<A, B, C>(this global::FunicularSwitch.Test.MonadAB<A> ma, global::System.Func<A, global::FunicularSwitch.Test.MonadAB<B>> fn, global::System.Func<A, B, C> selector) => ma.Bind(a => fn(a).Map(b => selector(a, b)));
     }
 }

@@ -80,6 +80,17 @@ public class TransformerSpecs
     }
 
     [TestMethod]
+    public void TODO_ResultEnumerable()
+    {
+        Console.WriteLine("ResultEnumerable<>");
+        var r = ResultEnumerable.OkYield(24)
+            .Bind(x => (ResultEnumerable<int>) Result<IEnumerable<int>>.Ok(Enumerable.Range(0, x)))
+            .Bind(x => ResultEnumerable.OkYield(x.ToString("X2")))
+            .Bind(x => (ResultEnumerable<string>) Result<IEnumerable<string>>.Error("meh"));
+        Console.WriteLine(r.M.Map(x => string.Join("\n", x)));
+    }
+
+    [TestMethod]
     public void TODO_WriterResult()
     {
         Console.WriteLine("Writer<>");
@@ -103,11 +114,13 @@ public class TransformerSpecs
     {
         Console.WriteLine();
         Console.WriteLine("WriterResultOption<>");
-        var w2 = WriterResultOption.InitOk(1337)
-            .Bind<int, int>(x => Writer<Result<Option<int>>>.Append(Option.Some(x * 2), "multiplied by 2"))
-            .Bind<int, int>(x => Writer<Result<Option<int>>>.Append(Option.None<int>(), "added 100 -> none"))
-            .Bind<int, string>(x => Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"), "to hex failed"));
-        Console.WriteLine(w2.M.Log);
+        var w =
+            from a in WriterResultOption.InitOk(1337)
+            from b in WriterResultOption.Append(a * 2, "multiplied by 2")
+            from c in (WriterResultOption<int>) Writer<Result<Option<int>>>.Append(Option.None<int>(), "added 100 -> none")
+            from d in (WriterResultOption<string>) Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"), "to hex failed")
+            select d;
+        Console.WriteLine(w.M.Log);
     }
 
     [TestMethod]
@@ -119,17 +132,6 @@ public class TransformerSpecs
             .Bind<int, int>(x => WriterResult.Append(Option.None<int>(), "added 100 -> none"))
             .Bind<int, string>(x => (WriterResult<Option<string>>) Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"), "to hex failed"));
         Console.WriteLine(w2.M.M.Log);
-    }
-
-    [TestMethod]
-    public void TODO_ResultEnumerable()
-    {
-        Console.WriteLine("ResultEnumerable<>");
-        var r = ResultEnumerable.OkYield(24)
-            .Bind(x => (ResultEnumerable<int>)Result<IEnumerable<int>>.Ok(Enumerable.Range(0, x)))
-            .Bind(x => ResultEnumerable.OkYield(x.ToString("X2")))
-            .Bind(x => (ResultEnumerable<string>)Result<IEnumerable<string>>.Error("meh"));
-        Console.WriteLine(r.M.Map(x => string.Join("\n", x)));
     }
 }
 
@@ -220,6 +222,11 @@ public static partial class WriterResult
 [TransformMonad(typeof(Writer<>), typeof(ResultT), typeof(OptionT))]
 public readonly partial record struct WriterResultOption<A>;
 
+public static partial class WriterResultOption
+{
+    public static WriterResultOption<A> Append<A>(A a, string text) => Writer<Result<Option<A>>>.Append(Result.Ok(Option.Some(a)), text);
+}
+
 [TransformMonad(typeof(WriterResult<>), typeof(OptionT))]
 public readonly partial record struct WriterResultOption2<A>;
 
@@ -231,14 +238,14 @@ public partial class ResultEnumerable
 {
     public static ResultEnumerable<B> Bind2<A, B>(this ResultEnumerable<A> ma, Func<A, ResultEnumerable<B>> fn) =>
         ((ResultMonad<IEnumerable<B>>) EnumerableT.Bind<A, B>((ResultMonad<IEnumerable<A>>) ma.M, a => (ResultMonad<IEnumerable<B>>) fn(a).M)).M;
-    
+
     private readonly record struct ResultMonad<A>(Result<A> M) : Monad<A>
     {
         public Monad<B> Bind<B>(Func<A, Monad<B>> fn) => (ResultMonad<B>) M.Bind<B>(a => (ResultMonad<B>) fn(a));
 
-        public Monad<B> Return<B>(B value) => (ResultMonad<B>) Result.Ok(value);
+        public B Cast<B>() => (B) (object) M;
 
-        public B Cast<B>() => (B)(object)M;
+        public Monad<B> Return<B>(B value) => (ResultMonad<B>) Result.Ok(value);
 
         public static implicit operator ResultMonad<A>(Result<A> ma) => new(ma);
 

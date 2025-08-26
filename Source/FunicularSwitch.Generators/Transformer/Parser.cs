@@ -65,7 +65,7 @@ internal static class Parser
         static MethodInfo TransformBind(MonadData outer, MonadData inner, string transformerTypeName, Func<string, string> outerInterfaceImplName)
         {
             var chainedGenericType = ChainGenericTypeName(outer.GenericTypeName, inner.GenericTypeName);
-            
+
             return new MethodInfo(
                 DetermineMethodName(outer.BindMethod.Name, inner.BindMethod.Name, "Bind"),
                 (t, p) =>
@@ -111,6 +111,9 @@ internal static class Parser
                 BuildBindMethod(),
                 BuildLiftMethod(),
                 BuildMapMethod(),
+                BuildSelectMethod(),
+                BuildSelectManyMethod(),
+                BuildSelectManyMethod2(),
             ]
         );
         return staticMonadInfo;
@@ -157,6 +160,45 @@ internal static class Parser
                 (t, p) => $"{p[0]}.{chainedMonad.BindMethod.Name}(a => {typeName}.{chainedMonad.ReturnMethod.Name}({p[1]}(a)))"
             )
         );
+
+        MethodGenerationInfo BuildSelectManyMethod() => new(
+            genericTypeName("B"),
+            ["A", "B"],
+            [
+                new ParameterGenerationInfo(genericTypeName("A"), "ma", true),
+                new ParameterGenerationInfo($"global::System.Func<A, {genericTypeName("B")}>", "fn"),
+            ],
+            new MethodInfo(
+                "SelectMany",
+                (t, p) => $"ma.{chainedMonad.BindMethod.Name}(fn)"
+            )
+        );
+
+        MethodGenerationInfo BuildSelectManyMethod2() => new(
+            genericTypeName("C"),
+            ["A", "B", "C"],
+            [
+                new ParameterGenerationInfo(genericTypeName("A"), "ma", true),
+                new ParameterGenerationInfo($"global::System.Func<A, {genericTypeName("B")}>", "fn"),
+                new ParameterGenerationInfo("global::System.Func<A, B, C>", "selector"),
+            ],
+            new MethodInfo(
+                "SelectMany",
+                (t, p) => $"ma.{chainedMonad.BindMethod.Name}(a => fn(a).Map(b => selector(a, b)))"
+            )
+        );
+
+        MethodGenerationInfo BuildSelectMethod()
+        {
+            var mapMethod = BuildMapMethod();
+            return mapMethod with
+            {
+                Info = mapMethod.Info with
+                {
+                    Name = "Select",
+                },
+            };
+        }
     }
 
     private static MonadData CreateMonadData(INamedTypeSymbol? staticType, INamedTypeSymbol genericType, IMethodSymbol returnMethod, IMethodSymbol? bindMethod = default)
@@ -197,7 +239,7 @@ internal static class Parser
             {
                 var name = "Bind";
                 return (name, Invoke);
-                
+
                 string Invoke(string s, string s1, string ma, string fn) => $"{ma}.Bind({fn})";
             }
         }
@@ -254,6 +296,26 @@ internal static class Parser
             modifiers.Add("class");
 
         return string.Join(" ", modifiers);
+    }
+
+    private static MonadImplementationGenerationInfo GenerateImplementationForMonad(MonadData data)
+    {
+        var baseName = data.GenericTypeName("_")
+            .Replace('.', '_')
+            .Replace('<', '_')
+            .Replace('>', '_')
+            .Replace(':', '_')
+            .TrimEnd('_')
+            [8..];
+        return new MonadImplementationGenerationInfo(
+            t => $"Impl__{baseName}<{t}>",
+            data);
+    }
+
+    private static MonadImplementationInfo GenerateImplementationForType(INamedTypeSymbol type)
+    {
+        var substituteName = $"Impl__{type.FullTypeNameWithNamespace().Replace('.', '_')}";
+        return new MonadImplementationInfo(substituteName);
     }
 
     private static bool ImplementsMonadInterface(INamedTypeSymbol type) => type.Interfaces.Any(x => x.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.Monad");
@@ -322,7 +384,7 @@ internal static class Parser
             t => $"{implementationInfo.FullName}<{t}>",
             returnMethod,
             bindMethod);
-        
+
         string GenericTypeName(string t) => $"global::{resultType.FullTypeNameWithNamespace()}<{t}>";
     }
 
@@ -371,26 +433,6 @@ internal static class Parser
         var staticMonadType = monadTransformerAttribute.MonadType;
         var monadData = ResolveMonadDataFromMonadType(staticMonadType);
         return monadData;
-    }
-
-    private static MonadImplementationInfo GenerateImplementationForType(INamedTypeSymbol type)
-    {
-        var substituteName = $"Impl__{type.FullTypeNameWithNamespace().Replace('.', '_')}";
-        return new MonadImplementationInfo(substituteName);
-    }
-
-    private static MonadImplementationGenerationInfo GenerateImplementationForMonad(MonadData data)
-    {
-        var baseName = data.GenericTypeName("_")
-            .Replace('.', '_')
-            .Replace('<', '_')
-            .Replace('>', '_')
-            .Replace(':', '_')
-            .TrimEnd('_')
-            [8..];
-        return new MonadImplementationGenerationInfo(
-            t => $"Impl__{baseName}<{t}>",
-            data);
     }
 }
 
