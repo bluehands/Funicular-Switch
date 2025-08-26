@@ -12,4 +12,5 @@ internal record TransformMonadData(
     bool IsRecord,
     MonadData OuterMonad,
     MonadData Monad,
-    IReadOnlyList<MonadData> MonadsWithoutImplementation);
+    IReadOnlyList<MonadImplementationGenerationInfo> MonadsWithoutImplementation,
+    StaticMonadGenerationInfo? StaticMonadGenerationInfo);

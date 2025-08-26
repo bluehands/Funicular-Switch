@@ -97,6 +97,29 @@ public class TransformerSpecs
             .Bind<int, string>(x => Writer<Result<string>>.Append(Result.Error<string>("conversion failed"), "to hex failed"));
         Console.WriteLine(w2.M.Log);
     }
+
+    [TestMethod]
+    public void TODO_WriterResultOption()
+    {
+        Console.WriteLine();
+        Console.WriteLine("WriterResultOption<>");
+        var w2 = WriterResultOption.InitOk(1337)
+            .Bind<int, int>(x => Writer<Result<Option<int>>>.Append(Option.Some(x * 2), "multiplied by 2"))
+            .Bind<int, int>(x => Writer<Result<Option<int>>>.Append(Option.None<int>(), "added 100 -> none"))
+            .Bind<int, string>(x => Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"), "to hex failed"));
+        Console.WriteLine(w2.M.Log);
+    }
+
+    [TestMethod]
+    public void TODO_WriterResultOption2()
+    {
+        Console.WriteLine("WriterResultOption2<>");
+        var w2 = WriterResultOption2.InitOk(1337)
+            .Bind<int, int>(x => WriterResult.Append(Option.Some(x * 2), "multiplied by 2"))
+            .Bind<int, int>(x => WriterResult.Append(Option.None<int>(), "added 100 -> none"))
+            .Bind<int, string>(x => (WriterResult<Option<string>>) Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"), "to hex failed"));
+        Console.WriteLine(w2.M.M.Log);
+    }
 }
 
 public static class ResultM
@@ -116,9 +139,8 @@ public static class OptionM
 [MonadTransformer(typeof(OptionM))]
 public static class OptionT
 {
-    public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<Option<B>, TMB> returnM,
-        Func<TMA, Func<Option<A>, TMB>, TMB> bindM) =>
-        bindM(ma, aOption => aOption.Match(fn, () => returnM(Option.None<B>())));
+    public static Monad<Option<B>> Bind<A, B>(Monad<Option<A>> ma, Func<A, Monad<Option<B>>> fn) =>
+        ma.Bind(aOption => aOption.Match(fn, () => ma.Return(Option.None<B>())));
 }
 
 [TransformMonad(typeof(ResultM), typeof(OptionT))]
@@ -127,9 +149,8 @@ public partial record ResultOption<A>;
 [MonadTransformer(typeof(Result<>))]
 public static class ResultT
 {
-    public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<Result<B>, TMB> returnM,
-        Func<TMA, Func<Result<A>, TMB>, TMB> bindM) =>
-        bindM(ma, aResult => aResult.Match(fn, e => returnM(Result.Error<B>(e))));
+    public static Monad<Result<B>> Bind<A, B>(Monad<Result<A>> ma, Func<A, Monad<Result<B>>> fn) =>
+        ma.Bind(aResult => aResult.Match(fn, e => ma.Return(Result.Error<B>(e))));
 }
 
 [TransformMonad(typeof(OptionM), typeof(ResultT))]
@@ -169,11 +190,7 @@ public static class EnumerableM
 [MonadTransformer(typeof(EnumerableM))]
 public static class EnumerableT
 {
-    public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<IEnumerable<B>, TMB> returnM,
-        Func<TMA, Func<IEnumerable<A>, TMB>, TMB> bindM) =>
-        throw new NotImplementedException();
-
-    internal static Monad<IEnumerable<B>> Bind<A, B>(Monad<IEnumerable<A>> ma, Func<A, Monad<IEnumerable<B>>> fn) =>
+    public static Monad<IEnumerable<B>> Bind<A, B>(Monad<IEnumerable<A>> ma, Func<A, Monad<IEnumerable<B>>> fn) =>
         ma.Bind(xs => xs.Aggregate(
             ma.Return<IEnumerable<B>>([]),
             (cur, acc) => cur.Bind(xs_ =>
@@ -183,6 +200,17 @@ public static class EnumerableT
 [TransformMonad(typeof(Writer<>), typeof(ResultT))]
 public readonly partial record struct WriterResult<A>;
 
+public static partial class WriterResult
+{
+    public static WriterResult<A> Append<A>(A value, string text) => Writer<Result<A>>.Append(value, text);
+}
+
+[TransformMonad(typeof(Writer<>), typeof(ResultT), typeof(OptionT))]
+public readonly partial record struct WriterResultOption<A>;
+
+[TransformMonad(typeof(WriterResult<>), typeof(OptionT))]
+public readonly partial record struct WriterResultOption2<A>;
+
 // TODO: use like enumerable
 [TransformMonad(typeof(Result<>), typeof(EnumerableT))]
 public readonly partial record struct ResultEnumerable<A>;
@@ -191,12 +219,14 @@ public partial class ResultEnumerable
 {
     public static ResultEnumerable<B> Bind2<A, B>(this ResultEnumerable<A> ma, Func<A, ResultEnumerable<B>> fn) =>
         ((ResultMonad<IEnumerable<B>>) EnumerableT.Bind<A, B>((ResultMonad<IEnumerable<A>>) ma.M, a => (ResultMonad<IEnumerable<B>>) fn(a).M)).M;
-
+    
     private readonly record struct ResultMonad<A>(Result<A> M) : Monad<A>
     {
         public Monad<B> Bind<B>(Func<A, Monad<B>> fn) => (ResultMonad<B>) M.Bind<B>(a => (ResultMonad<B>) fn(a));
 
         public Monad<B> Return<B>(B value) => (ResultMonad<B>) Result.Ok(value);
+
+        public B Cast<B>() => (B)(object)M;
 
         public static implicit operator ResultMonad<A>(Result<A> ma) => new(ma);
 
