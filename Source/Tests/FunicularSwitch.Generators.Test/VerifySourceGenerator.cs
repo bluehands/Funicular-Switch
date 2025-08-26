@@ -57,6 +57,7 @@ public abstract class BaseVerifySourceGenerators(params IIncrementalGenerator[] 
             var diagnostics = compilation.GetDiagnostics();
             var errors = string.Join(Environment.NewLine, diagnostics
                 .Where(d => d.Severity == DiagnosticSeverity.Error));
-            errors.Should().BeNullOrEmpty($"Compilation failed: {compilation.SyntaxTrees.LastOrDefault(s => !s.ToString().Contains("ReSharper disable once CheckNamespace"))}");
+            // errors.Should().BeNullOrEmpty($"Compilation failed: {compilation.SyntaxTrees.LastOrDefault(s => !s.ToString().Contains("ReSharper disable once CheckNamespace"))}");
+            errors.Should().BeNullOrEmpty($"Compilation failed: {string.Join("\n", compilation.SyntaxTrees.Skip(1).Select(x => $"---\n{x.FilePath}\n---\n{x}"))}");
         });
 }

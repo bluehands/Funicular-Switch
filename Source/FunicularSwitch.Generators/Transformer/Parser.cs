@@ -54,8 +54,8 @@ internal static class Parser
 
         Func<string, string> genericTypeName = t => outerMonad.GenericTypeName(innerMonad.GenericTypeName(t));
         Func<string, string, string> returnMethodInvoke = (t, x) => outerMonad.ReturnMethod.Invoke([innerMonad.GenericTypeName(t)], [innerMonad.ReturnMethod.Invoke([t], [x])]);
-        Func<string, string, string, string, string> bindMethodInvoke = (ta, tb, ma, fn) => $"global::{transformerType.FullTypeNameWithNamespace()}.Bind<{ta}, {tb}, {genericTypeName(ta)}, {genericTypeName(tb)}>({ma}, x => {fn}(x), {outerMonad.ReturnMethod.Construct([innerMonad.GenericTypeName(tb)])}, {outerMonad.BindMethod.Construct([innerMonad.GenericTypeName(ta), innerMonad.GenericTypeName(tb)])})";
-
+        InvokeMethod bindMethodInvoke = (t, p) => $"(({outerMonad.MonadImplementation.GenericTypeName(innerMonad.GenericTypeName(t[1]))})global::{transformerType.FullTypeNameWithNamespace()}.Bind<{string.Join(", ", t)}>(({outerMonad.MonadImplementation.GenericTypeName(innerMonad.GenericTypeName(t[0]))}){p[0]}.M, a => ({outerMonad.MonadImplementation.GenericTypeName(innerMonad.GenericTypeName(t[1]))}){p[1]}(a).M)).M";
+        
         var returnMethodName = DetermineReturnName(outerMonad, innerMonad);
         var bindMethodName = DetermineBindName(outerMonad, innerMonad);
 
@@ -65,13 +65,23 @@ internal static class Parser
             (t, p) => returnMethodInvoke(t[0], p[0]));
         var bindMethodInfo = new MethodInfo(
             bindMethodName,
-            t => $"(ma, fn) => {bindMethodInvoke(t[0], t[1], "ma", "fn")}",
-            (t, p) => bindMethodInvoke(t[0], t[1], p[0], p[1]));
+            t => $"(ma, fn) => {bindMethodInvoke(t, ["ma", "fn"])}",
+            bindMethodInvoke);
+
+        var implementationInfo = GenerateImplementationForType(innerMonadWithSymbol.Symbol);
+        var implementationInfoEx = new MonadImplementationInfoEx(
+            implementationInfo,
+            t => $"{implementationInfo.FullName}<{innerMonad.GenericTypeName(t)}>",
+            genericTypeName,
+            innerMonad.ReturnMethod,
+            innerMonad.BindMethod);
 
         return new(
             new MonadDataWithSymbol(
                 new MonadData(
                     genericTypeName,
+                    t => implementationInfoEx.GenericTypeName(innerMonad.GenericTypeName(t)),
+                    implementationInfoEx,
                     returnMethodInfo,
                     bindMethodInfo),
                 innerMonadWithSymbol.Symbol),
@@ -93,9 +103,19 @@ internal static class Parser
             t => bindMethodFunc(t[0], t[1]),
             (t, p) => bindMethodInvoke(t[0], t[1], p[0], p[1]));
 
+        Func<string, string> typeName = typeParameter => $"{genericTypeName}<{typeParameter}>";
+        var implementationInfo = GenerateImplementationForType(genericType);
+        var monadImplementationEx = new MonadImplementationInfoEx(
+            implementationInfo,
+            t => $"{implementationInfo.FullName}<{t}>",
+            typeName,
+            returnMethodInfo,
+            bindMethodInfo);
         return new MonadDataWithSymbol(
             new MonadData(
-                typeParameter => $"{genericTypeName}<{typeParameter}>",
+                typeName,
+                monadImplementationEx.GenericTypeName,
+                monadImplementationEx,
                 returnMethodInfo,
                 bindMethodInfo),
             genericType);
@@ -200,9 +220,17 @@ internal static class Parser
                 transformedMonadData.Monad.BindMethod.Name,
                 t => $"(ma, fn) => ma.{transformedMonadData.Monad.BindMethod.Name}(fn)",
                 (t, p) => $"{p[0]}.{transformedMonadData.Monad.BindMethod.Name}({p[1]})");
+            var monadImplementation = new MonadImplementationInfoEx(
+                GenerateImplementationForType(genericMonadType),
+                transformedMonadData.FullGenericType,
+                transformedMonadData.FullGenericType,
+                returnMethodInfo,
+                bindMethodInfo);
             return new MonadDataWithSymbol(
                 new MonadData(
                     transformedMonadData.FullGenericType,
+                    transformedMonadData.Monad.GenericImplementationName,
+                    monadImplementation,
                     returnMethodInfo,
                     bindMethodInfo),
                 genericMonadType);
@@ -246,9 +274,18 @@ internal static class Parser
             "Bind",
             t => "(ma, fn) => ma.Bind(fn)",
             (t, p) => $"{p[0]}.Bind({p[1]})");
+        var implementationInfo = GenerateImplementationForType(resultType);
+        var monadImplementationEx = new MonadImplementationInfoEx(
+            implementationInfo,
+            t => $"{implementationInfo.FullName}<{t}>",
+            genericTypeName,
+            returnMethod,
+            bindMethod);
         return new MonadDataWithSymbol(
             new MonadData(
                 genericTypeName,
+                monadImplementationEx.GenericTypeName,
+                monadImplementationEx,
                 returnMethod,
                 bindMethod),
             resultType);
@@ -300,10 +337,18 @@ internal static class Parser
         var monadData = ResolveMonadDataFromMonadType(staticMonadType);
         return monadData;
     }
+
+    private static MonadImplementationInfo GenerateImplementationForType(INamedTypeSymbol type)
+    {
+        var substituteName = $"Impl__{type.FullTypeNameWithNamespace().Replace('.', '_')}";
+        return new MonadImplementationInfo(substituteName, substituteName);
+    }
 }
 
 internal record MonadData(
     Func<string, string> GenericTypeName,
+    Func<string, string> GenericImplementationName,
+    MonadImplementationInfoEx MonadImplementation,
     MethodInfo ReturnMethod,
     MethodInfo BindMethod);
 
@@ -320,6 +365,21 @@ internal record MonadDataWithSymbolEx(
     MonadDataWithSymbol Data,
     IReadOnlyList<MonadData> MonadsWithoutImplementation);
 
+internal record TypeInfo(string FullName, IReadOnlyList<string> TypeParameters);
+
+internal record MonadImplementationInfo(
+    string Name,
+    string FullName);
+
+internal record MonadImplementationInfoEx(
+    MonadImplementationInfo Info,
+    Func<string, string> GenericTypeName,
+    Func<string, string> GenericMonadTypeName,
+    MethodInfo ReturnMethod,
+    MethodInfo BindMethod);
+
 internal delegate string ConstructDelegate(IReadOnlyList<string> typeParameters);
+
+internal delegate string ConstructMonadImplementationType(IReadOnlyList<string> typeParameters);
 
 internal delegate string InvokeMethod(IReadOnlyList<string> typeParameters, IReadOnlyList<string> parameters);

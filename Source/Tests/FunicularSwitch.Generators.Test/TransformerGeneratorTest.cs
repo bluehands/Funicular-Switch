@@ -41,7 +41,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             [MonadTransformer(typeof(MonadB))]
             public class MonadBT
             {
-                public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadB<B>, TMB> returnM, Func<TMA, Func<MonadB<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+                public static Monad<MonadB<B>> Bind<A, B>(Monad<MonadB<A>> ma, Func<A, Monad<MonadB<B>>> fn) => throw new NotImplementedException();
             }
 
             [TransformMonad(typeof(MonadA), typeof(MonadBT))]
@@ -80,7 +80,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
               [MonadTransformer(typeof(MonadB))]
               public class MonadBT
               {
-                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadB<B>, TMB> returnM, Func<TMA, Func<MonadB<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+                  public static Monad<MonadB<B>> Bind<A, B>(Monad<MonadB<A>> ma, Func<A, Monad<MonadB<B>>> fn) => throw new NotImplementedException();
               }
 
               [TransformMonad(typeof(MonadA), typeof(MonadBT))]
@@ -119,7 +119,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
               [MonadTransformer(typeof(MonadB))]
               public class MonadBT
               {
-                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadB<B>, TMB> returnM, Func<TMA, Func<MonadB<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+                  public static Monad<MonadB<B>> Bind<A, B>(Monad<MonadB<A>> ma, Func<A, Monad<MonadB<B>>> fn) => throw new NotImplementedException();
               }
 
               [TransformMonad(typeof(MonadA), typeof(MonadBT))]
@@ -156,7 +156,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
               [MonadTransformer(typeof(MonadB<>))]
               public class MonadBT
               {
-                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadB<B>, TMB> returnM, Func<TMA, Func<MonadB<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+                  public static Monad<MonadB<B>> Bind<A, B>(Monad<MonadB<A>> ma, Func<A, Monad<MonadB<B>>> fn) => throw new NotImplementedException();
               }
 
               [TransformMonad(typeof(MonadA<>), typeof(MonadBT))]
@@ -193,13 +193,13 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
               [MonadTransformer(typeof(MonadA<>))]
               public class MonadAT
               {
-                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadA<B>, TMB> returnM, Func<TMA, Func<MonadA<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+                  public static Monad<MonadA<B>> Bind<A, B>(Monad<MonadA<A>> ma, Func<A, Monad<MonadA<B>>> fn) => throw new NotImplementedException();
               }
               
               [MonadTransformer(typeof(MonadB<>))]
               public class MonadBT
               {
-                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadB<B>, TMB> returnM, Func<TMA, Func<MonadB<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+                  public static Monad<MonadB<B>> Bind<A, B>(Monad<MonadB<A>> ma, Func<A, Monad<MonadB<B>>> fn) => throw new NotImplementedException();
               }
               
               [TransformMonad(typeof(MonadA<>), typeof(MonadBT), typeof(MonadAT))]
@@ -242,13 +242,13 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
               [MonadTransformer(typeof(MonadB<>))]
               public class MonadBT
               {
-                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadB<B>, TMB> returnM, Func<TMA, Func<MonadB<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+                  public static Monad<MonadB<B>> Bind<A, B>(Monad<MonadB<A>> ma, Func<A, Monad<MonadB<B>>> fn) => throw new NotImplementedException();
               }
               
               [MonadTransformer(typeof(MonadC<>))]
               public class MonadCT
               {
-                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadC<B>, TMB> returnM, Func<TMA, Func<MonadC<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+                  public static Monad<MonadC<B>> Bind<A, B>(Monad<MonadC<A>> ma, Func<A, Monad<MonadC<B>>> fn) => throw new NotImplementedException();
               }
               
               [TransformMonad(typeof(MonadA<>), typeof(MonadBT))]
@@ -285,7 +285,7 @@ public class TransformerGeneratorInteropTest : VerifyTransformerInteropSourceGen
               [MonadTransformer(typeof(MonadB<>))]
               public class MonadBT
               {
-                  public static TMB Bind<A, B, TMA, TMB>(TMA ma, Func<A, TMB> fn, Func<MonadB<B>, TMB> returnM, Func<TMA, Func<MonadB<A>, TMB>, TMB> bindM) => throw new NotImplementedException();
+                  public static Monad<MonadB<B>> Bind<A, B>(Monad<MonadB<A>> ma, Func<A, Monad<MonadB<B>>> fn) => throw new NotImplementedException();
               }
 
               [TransformMonad(typeof(MonadA<>), typeof(MonadBT))]
