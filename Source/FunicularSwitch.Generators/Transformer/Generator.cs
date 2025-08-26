@@ -17,10 +17,7 @@ internal static class Generator
         {
             WriteGenericMonad(data, builder);
             BlankLine(builder);
-            if(data.StaticMonadGenerationInfo is null)
-                WriteStaticMonad(data, builder);
-            else
-                WriteStaticMonad(data.StaticMonadGenerationInfo, builder);
+            WriteStaticMonad(data.StaticMonadGenerationInfo, builder);
         }
 
         return (filename, builder);
@@ -47,23 +44,6 @@ internal static class Generator
         builder.WriteLine($"{monadInterfaceAlt} {monadInterface}.Return<{altTypeParameter}>({altTypeParameter} a) => {data.TypeName}.{data.Monad.ReturnMethod.Name}(a);");
         builder.WriteLine($"{monadInterfaceAlt} {monadInterface}.Bind<{altTypeParameter}>(global::System.Func<{data.TypeParameter}, {monadInterfaceAlt}> fn) => this.{data.Monad.BindMethod.Name}(a => ({data.TypeName}<{altTypeParameter}>)fn(a));");
         builder.WriteLine($"{altTypeParameter} {monadInterface}.Cast<{altTypeParameter}>() => ({altTypeParameter})(object)M;");
-    }
-
-    private static void WriteStaticMonad(TransformMonadData data, CSharpBuilder builder)
-    {
-        using var _ = builder.StaticPartialClass(data.TypeName, data.AccessModifier);
-        
-        foreach (var generationInfo in data.MonadsWithoutImplementation)
-        {
-            WriteMonadInterfaceImplementation(generationInfo, builder);
-            BlankLine(builder);
-        }
-        
-        builder.WriteLine($"public static {data.FullGenericType("A")} {data.Monad.ReturnMethod.Name}<A>(A a) => {data.Monad.ReturnMethod.Invoke(["A"], ["a"])};");
-        BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("B")} {data.Monad.BindMethod.Name}<A, B>(this {data.FullGenericType("A")} ma, global::System.Func<A, {data.FullGenericType("B")}> fn) => {data.Monad.BindMethod.Invoke(["A", "B"], [$"({data.Monad.GenericTypeName("A")})ma", "fn"])};");
-        BlankLine(builder);
-        builder.WriteLine($"public static {data.FullGenericType("A")} Lift<A>({data.OuterMonad.GenericTypeName("A")} ma) => {data.OuterMonad.BindMethod.Invoke(["A", "B"], ["ma", $"a => {data.Monad.ReturnMethod.Invoke(["A"], ["a"])}"])};");
     }
 
     private static void WriteStaticMonad(StaticMonadGenerationInfo data, CSharpBuilder builder)
@@ -93,9 +73,8 @@ internal static class Generator
 
     private static void WriteMonadInterfaceImplementation(MonadImplementationGenerationInfo data, CSharpBuilder cs)
     {
-        var interfaceFn = (string t) => $"global::FunicularSwitch.Generators.Monad<{t}>";
-        var interfaceA = interfaceFn("A");
-        var interfaceB = interfaceFn("B");
+        var interfaceA = InterfaceFn("A");
+        var interfaceB = InterfaceFn("B");
         var typeNameA = data.GenericTypeName("A");
         var typeNameB = data.GenericTypeName("B");
         var monadTypeNameA = data.Monad.GenericTypeName("A");
@@ -108,18 +87,7 @@ internal static class Generator
         cs.WriteLine($"public {interfaceB} Return<B>(B a) => ({typeNameB}){data.Monad.ReturnMethod.Invoke(["B"], ["a"])};");
         cs.WriteLine($"public {interfaceB} Bind<B>(global::System.Func<A, {interfaceB}> fn) => ({typeNameB}){data.Monad.BindMethod.Invoke(["A", "B"], ["M", $"a => ({monadTypeNameB})({typeNameB})fn(a)"])};");
         cs.WriteLine($"public B Cast<B>() => (B)(object)M;");
-    }
-
-    public static string GetMonadInterfaceImplementationName(MonadImplementationInfoEx info, IReadOnlyList<string> typeParameters)
-    {
-        // return info.GenericTypeName(typeParameters[0]);
-        return $"{info.Info.FullName}<{string.Join(", ", typeParameters)}>";
-        
-        // var dataGenericTypeName = data.GenericTypeName(typeParameters[0]);
-        // var typeArgumentsIndex = dataGenericTypeName.IndexOf('<');
-        // var implName = dataGenericTypeName[8..typeArgumentsIndex].Replace('.', '_');
-        // var arguments = dataGenericTypeName[typeArgumentsIndex..];
-        // return $"Impl__{implName}{arguments}";
+        static string InterfaceFn(string t) => $"global::FunicularSwitch.Generators.Monad<{t}>";
     }
 }
 
