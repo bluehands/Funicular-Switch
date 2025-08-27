@@ -260,6 +260,50 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
 
         return Verify(code);
     }
+
+    [TestMethod]
+    public Task WithMonadImplementingInterface()
+    {
+        var code =
+            /*lang=csharp*/
+            $$"""
+              using System;
+              using FunicularSwitch.Generators;
+              
+              namespace FunicularSwitch.Test;
+              
+              public record MonadA<A>(A Value) : Monad<A>
+              {
+                  public static MonadA<A> Return(A a) => throw new NotImplementedException();
+                  
+                  public MonadA<B> Bind<B>(Func<A, MonadA<B>> fn) => throw new NotImplementedException();
+                  
+                  Monad<B> Monad<A>.Return<B>(B value) => throw new NotImplementedException();
+                  
+                  Monad<B> Monad<A>.Bind<B>(Func<A, Monad<B>> fn) => throw new NotImplementedException();
+                  
+                  B Monad<A>.Cast<B>() => throw new NotImplementedException();
+              }
+              
+              public record MonadB<B>(B Value)
+              {
+                  public static MonadB<B> Return(B a) => throw new NotImplementedException();
+                  
+                  public MonadB<A> Bind<A>(Func<B, MonadB<A>> fn) => throw new NotImplementedException();
+              }
+              
+              [MonadTransformer(typeof(MonadB<>))]
+              public class MonadBT
+              {
+                  public static Monad<MonadB<B>> BindT<A, B>(Monad<MonadB<A>> ma, Func<A, Monad<MonadB<B>>> fn) => throw new NotImplementedException();
+              }
+              
+              [TransformMonad(typeof(MonadA<>), typeof(MonadBT))]
+              public readonly partial record struct MonadAB<A>;
+              """;
+
+        return Verify(code);
+    }
 }
 
 [TestClass]

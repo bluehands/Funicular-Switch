@@ -170,7 +170,7 @@ internal static class Parser
             [new(outerMonad.GenericTypeName("A"), "ma")],
             new(
                 "Lift",
-                (t, p) => $"{outerMonad.BindMethod.Invoke([t[0], $"{innerMonad.GenericTypeName("A")}"], ["ma", $"a => {chainedMonad.ReturnMethod.Invoke(t, ["a"])}"])}" // implicit cast
+                (t, _) => $"{outerMonad.BindMethod.Invoke([t[0], $"{innerMonad.GenericTypeName("A")}"], ["ma", $"a => {chainedMonad.ReturnMethod.Invoke(t, ["a"])}"])}" // implicit cast
             )
         );
 
@@ -220,7 +220,8 @@ internal static class Parser
         return new MonadData(
             TypeName,
             returnMethodInfo,
-            bindMethodInfo);
+            bindMethodInfo,
+            ImplementsMonadInterface(genericType));
 
         string TypeName(string typeParameter) => $"{genericTypeName}<{typeParameter}>";
 
@@ -313,17 +314,10 @@ internal static class Parser
             data);
     }
 
-    private static string GenerateImplementationForType(INamedTypeSymbol type)
-    {
-        if (ImplementsMonadInterface(type))
-            return $"global::{type.FullTypeNameWithNamespace()}";
-        return $"Impl__{type.FullTypeNameWithNamespace().Replace('.', '_')}";
-    }
-
-    private static bool ImplementsMonadInterface(INamedTypeSymbol type) =>
-        type.GetAttributes().Any(x =>
+    private static bool ImplementsMonadInterface(INamedTypeSymbol genericType) =>
+        genericType.GetAttributes().Any(x =>
             x.AttributeClass?.FullTypeNameWithNamespace() == TransformMonadAttribute.ATTRIBUTE_NAME) ||
-        type.Interfaces.Any(x => x.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.Monad");
+        genericType.OriginalDefinition.AllInterfaces.Any(x => x.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.Monad");
 
     private static MonadData ResolveMonadDataFromGenericMonadType(INamedTypeSymbol genericMonadType)
     {
@@ -449,13 +443,9 @@ internal record MethodInfo(
     string Name,
     InvokeMethod Invoke);
 
-internal record MonadImplementationInfo(string FullName);
-
 internal record MonadImplementationGenerationInfo(
     Func<string, string> GenericTypeName,
     MonadData Monad);
-
-internal delegate string ConstructDelegate(IReadOnlyList<string> typeParameters);
 
 internal delegate string InvokeMethod(IReadOnlyList<string> typeParameters, IReadOnlyList<string> parameters);
 
