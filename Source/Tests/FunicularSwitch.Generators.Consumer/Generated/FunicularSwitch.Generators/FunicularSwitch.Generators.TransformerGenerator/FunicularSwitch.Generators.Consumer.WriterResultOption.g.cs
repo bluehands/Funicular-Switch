@@ -4,7 +4,7 @@
     {
         public static implicit operator WriterResultOption<A>(global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>> ma) => new(ma);
         public static implicit operator global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>>(WriterResultOption<A> ma) => ma.M;
-        global::FunicularSwitch.Generators.Monad<A_> global::FunicularSwitch.Generators.Monad<A>.Return<A_>(A_ a) => WriterResultOption.InitOk(a);
+        global::FunicularSwitch.Generators.Monad<A_> global::FunicularSwitch.Generators.Monad<A>.Return<A_>(A_ a) => WriterResultOption.InitOkSome(a);
         global::FunicularSwitch.Generators.Monad<A_> global::FunicularSwitch.Generators.Monad<A>.Bind<A_>(global::System.Func<A, global::FunicularSwitch.Generators.Monad<A_>> fn) => this.Bind(a => (WriterResultOption<A_>)fn(a));
         A_ global::FunicularSwitch.Generators.Monad<A>.Cast<A_>() => (A_)(object)M;
     }
@@ -29,7 +29,7 @@
             public B Cast<B>() => (B)(object)M;
         }
 
-        public static global::FunicularSwitch.Generators.Consumer.WriterResultOption<A> InitOk<A>(A a) => global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>>.Init(global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Generators.Consumer.OptionM.Return(a)));
+        public static global::FunicularSwitch.Generators.Consumer.WriterResultOption<A> InitOkSome<A>(A a) => global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>>.Init(global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Option<A>.Some(a)));
 
         public static global::FunicularSwitch.Generators.Consumer.WriterResultOption<B> Bind<A, B>(this global::FunicularSwitch.Generators.Consumer.WriterResultOption<A> ma, global::System.Func<A, global::FunicularSwitch.Generators.Consumer.WriterResultOption<B>> fn) => global::FunicularSwitch.Generators.Consumer.OptionT.BindT<A, B>((Impl__FunicularSwitch_Generators_Consumer_Writer_global__FunicularSwitch_Generators_Consumer_Result<global::FunicularSwitch.Option<A>>)((global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>>)ma), a => (Impl__FunicularSwitch_Generators_Consumer_Writer_global__FunicularSwitch_Generators_Consumer_Result<global::FunicularSwitch.Option<B>>)(new global::System.Func<A, global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<B>>>>(a => fn(a)).Invoke(a))).Cast<global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<B>>>>();
 
@@ -43,10 +43,10 @@
 
         public static global::FunicularSwitch.Generators.Consumer.WriterResultOption<C> SelectMany<A, B, C>(this global::FunicularSwitch.Generators.Consumer.WriterResultOption<A> ma, global::System.Func<A, global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<B>>>> fn, global::System.Func<A, B, C> selector) => ma.SelectMany(a => ((global::FunicularSwitch.Generators.Consumer.WriterResultOption<B>)fn(a)).Map(b => selector(a, b)));
 
-        public static global::FunicularSwitch.Generators.Consumer.WriterResultOption<A> Lift<A>(global::FunicularSwitch.Generators.Consumer.Writer<A> ma) => ma.Bind(a => global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>>.Init(global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Generators.Consumer.OptionM.Return(a))));
+        public static global::FunicularSwitch.Generators.Consumer.WriterResultOption<A> Lift<A>(global::FunicularSwitch.Generators.Consumer.Writer<A> ma) => ma.Bind(a => global::FunicularSwitch.Generators.Consumer.Writer<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>>.Init(global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Option<A>.Some(a))));
 
-        public static global::FunicularSwitch.Generators.Consumer.WriterResultOption<B> Map<A, B>(this global::FunicularSwitch.Generators.Consumer.WriterResultOption<A> ma, global::System.Func<A, B> fn) => ma.Bind(a => WriterResultOption.InitOk(fn(a)));
+        public static global::FunicularSwitch.Generators.Consumer.WriterResultOption<B> Map<A, B>(this global::FunicularSwitch.Generators.Consumer.WriterResultOption<A> ma, global::System.Func<A, B> fn) => ma.Bind(a => WriterResultOption.InitOkSome(fn(a)));
 
-        public static global::FunicularSwitch.Generators.Consumer.WriterResultOption<B> Select<A, B>(this global::FunicularSwitch.Generators.Consumer.WriterResultOption<A> ma, global::System.Func<A, B> fn) => ma.Bind(a => WriterResultOption.InitOk(fn(a)));
+        public static global::FunicularSwitch.Generators.Consumer.WriterResultOption<B> Select<A, B>(this global::FunicularSwitch.Generators.Consumer.WriterResultOption<A> ma, global::System.Func<A, B> fn) => ma.Bind(a => WriterResultOption.InitOkSome(fn(a)));
     }
 }

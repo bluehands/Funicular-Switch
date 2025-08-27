@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+// ReSharper disable InconsistentNaming
 
 namespace FunicularSwitch.Generators.Consumer;
 
@@ -14,7 +15,7 @@ public class TransformerSpecs
         var expected = new ResultOption<string>(Result.Error<Option<string>>("test"));
 
         // Act
-        var result = value.Bind(x => ResultOption.Return(x.ToString()));
+        var result = value.Bind(x => ResultOption.OkSome(x.ToString()));
 
         // Assert
         result.Should().BeEquivalentTo(expected);
@@ -28,7 +29,7 @@ public class TransformerSpecs
         var expected = new ResultOption<string>(Result.Ok(Option.None<string>()));
 
         // Act
-        var result = value.Bind(x => ResultOption.Return(x.ToString()));
+        var result = value.Bind(x => ResultOption.OkSome(x.ToString()));
 
         // Assert
         result.Should().BeEquivalentTo(expected);
@@ -38,11 +39,11 @@ public class TransformerSpecs
     public void ResultOption_Bind_WithOkSome()
     {
         // Arrange
-        var value = ResultOption.Return(1337);
+        var value = ResultOption.OkSome(1337);
         var expected = new ResultOption<string>(Result.Ok(Option.Some("1337")));
 
         // Act
-        var result = value.Bind(x => ResultOption.Return(x.ToString()));
+        var result = value.Bind(x => ResultOption.OkSome(x.ToString()));
 
         // Assert
         result.Should().BeEquivalentTo(expected);
@@ -53,7 +54,7 @@ public class TransformerSpecs
     {
         // Arrange
         var value = Result.Ok(1337);
-        var expected = ResultOption.Return(1337);
+        var expected = ResultOption.OkSome(1337);
 
         // Act
         var result = ResultOption.Lift(value);
@@ -65,15 +66,12 @@ public class TransformerSpecs
     [TestMethod]
     public void ResultOption_Return()
     {
-        var x = ResultOption.Return(1337);
-        var y = x.Bind(x_ => ResultOption.Return("hi"));
-
         // Arrange
         var value = 1337;
         var expected = new ResultOption<int>(Result.Ok(Option.Some(value)));
 
         // Act
-        var result = ResultOption.Return(value);
+        var result = ResultOption.OkSome(value);
 
         // Assert
         result.Should().BeEquivalentTo(expected);
@@ -83,10 +81,12 @@ public class TransformerSpecs
     public void TODO_ResultEnumerable()
     {
         Console.WriteLine("ResultEnumerable<>");
-        var r = ResultEnumerable.OkYield(24)
-            .Bind(x => (ResultEnumerable<int>) Result<IEnumerable<int>>.Ok(Enumerable.Range(0, x)))
-            .Bind(x => ResultEnumerable.OkYield(x.ToString("X2")))
-            .Bind(x => (ResultEnumerable<string>) Result<IEnumerable<string>>.Error("meh"));
+        var r =
+            from a in ResultEnumerable.OkYield(24)
+            from b in Result<IEnumerable<int>>.Ok(Enumerable.Range(0, a))
+            from c in ResultEnumerable.OkYield(b.ToString("X2"))
+            from d in Result<IEnumerable<int>>.Error("meh")
+            select d;
         Console.WriteLine(r.M.Map(x => string.Join("\n", x)));
     }
 
@@ -102,10 +102,12 @@ public class TransformerSpecs
 
         Console.WriteLine();
         Console.WriteLine("WriterResult<>");
-        var w2 = WriterResult.InitOk(1337)
-            .Bind(x => Writer<Result<int>>.Append(x * 2, "multiplied by 2"))
-            .Bind(x => Writer<Result<int>>.Append(x + 100, "added 100"))
-            .Bind<int, string>(x => Writer<Result<string>>.Append(Result.Error<string>("conversion failed"), "to hex failed"));
+        var w2 =
+            from a in WriterResult.InitOk(1337)
+            from b in Writer<Result<int>>.Append(a * 2, "multiplied by 2")
+            from c in Writer<Result<int>>.Append(b + 100, "added 100")
+            from d in Writer<Result<string>>.Append(Result.Error<string>("conversion failed"), "to hex failed")
+            select d;
         Console.WriteLine(w2.M.Log);
     }
 
@@ -115,7 +117,7 @@ public class TransformerSpecs
         Console.WriteLine();
         Console.WriteLine("WriterResultOption<>");
         var w =
-            from a in WriterResultOption.InitOk(1337)
+            from a in WriterResultOption.InitOkSome(1337)
             from b in WriterResultOption.Append(a * 2, "multiplied by 2")
             from c in (WriterResultOption<int>) Writer<Result<Option<int>>>.Append(Option.None<int>(), "added 100 -> none")
             from d in (WriterResultOption<string>) Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"), "to hex failed")
@@ -127,36 +129,25 @@ public class TransformerSpecs
     public void TODO_WriterResultOption2()
     {
         Console.WriteLine("WriterResultOption2<>");
-        var w2 = WriterResultOption2.InitOk(1337)
-            .Bind(x => WriterResult.Append(Option.Some(x * 2), "multiplied by 2"))
-            .Bind(x => WriterResult.Append(Option.None<int>(), "added 100 -> none"))
-            .Bind<int, string>(x => (WriterResult<Option<string>>) Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"), "to hex failed"));
-        Console.WriteLine(w2.M.M.Log);
+        var w =
+            from a in WriterResultOption2.InitOkSome(1337)
+            from b in WriterResultOption2.Append(a * 2, "multiplied by 2")
+            from c in WriterResult.Append(Option.None<int>(), "added 100 -> none")
+            from d in (WriterResult<Option<string>>) Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"),
+                "to hex failed")
+            select d;
+        Console.WriteLine(w.M.M.Log);
     }
 }
 
-public static class ResultM
-{
-    public static Result<B> Bind<A, B>(this Result<A> ma, Func<A, Result<B>> fn) => ma.Bind(fn);
-
-    public static Result<A> Return<A>(A a) => Result.Ok(a);
-}
-
-public static class OptionM
-{
-    public static Option<B> Bind<A, B>(this Option<A> ma, Func<A, Option<B>> fn) => ma.Bind(fn);
-
-    public static Option<A> Return<A>(A a) => Option.Some(a);
-}
-
-[MonadTransformer(typeof(OptionM))]
+[MonadTransformer(typeof(Option<>))]
 public static class OptionT
 {
     public static Monad<Option<B>> BindT<A, B>(Monad<Option<A>> ma, Func<A, Monad<Option<B>>> fn) =>
         ma.Bind(aOption => aOption.Match(fn, () => ma.Return(Option.None<B>())));
 }
 
-[TransformMonad(typeof(ResultM), typeof(OptionT))]
+[TransformMonad(typeof(Result<>), typeof(OptionT))]
 public partial record ResultOption<A>;
 
 [MonadTransformer(typeof(Result<>))]
@@ -166,7 +157,7 @@ public static class ResultT
         ma.Bind(aResult => aResult.Match(fn, e => ma.Return(Result.Error<B>(e))));
 }
 
-[TransformMonad(typeof(OptionM), typeof(ResultT))]
+[TransformMonad(typeof(Option<>), typeof(ResultT))]
 public partial record OptionResult<A>;
 
 public record Writer<A>
@@ -229,6 +220,11 @@ public static partial class WriterResultOption
 
 [TransformMonad(typeof(WriterResult<>), typeof(OptionT))]
 public readonly partial record struct WriterResultOption2<A>;
+
+public static partial class WriterResultOption2
+{
+    public static WriterResultOption2<A> Append<A>(A a, string text) => WriterResult.Append(Option.Some(a), text);
+}
 
 // TODO: use like enumerable
 [TransformMonad(typeof(Result<>), typeof(EnumerableT))]
