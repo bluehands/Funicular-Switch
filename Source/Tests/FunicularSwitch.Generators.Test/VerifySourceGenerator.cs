@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using FluentAssertions;
+using FunicularSwitch.Transformers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using PolyType;
@@ -24,13 +25,15 @@ public abstract class BaseVerifySourceGenerators(params IIncrementalGenerator[] 
             {
                 typeof(object),
                 typeof(Enumerable),
+                typeof(Monad<>),
             }
             .Select(t => t.Assembly)
             .Concat(additionalAssemblies)
             .Select(a => MetadataReference.CreateFromFile(a.Location))
             .Concat([
                 MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll"))
+                MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "netstandard.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll")),
             ]);
 
         var compilation = CSharpCompilation.Create(

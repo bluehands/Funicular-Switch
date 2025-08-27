@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Location: : (12,14)-(12,20),
+      Location: : (13,14)-(13,20),
       Message: FunicularSwitch.Test.MonadB<> is missing a return method - Add return method (A -> M<A>) to type,
       Severity: Error,
       Descriptor: {

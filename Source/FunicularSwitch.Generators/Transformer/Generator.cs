@@ -28,9 +28,9 @@ internal static class Generator
     private static void WriteGenericMonad(TransformMonadData data, CSharpBuilder cs)
     {
         var nestedTypeName = data.Monad.GenericTypeName(data.TypeParameter);
-        var monadInterface = $"global::FunicularSwitch.Generators.Monad<{data.TypeParameter}>";
+        var monadInterface = $"global::FunicularSwitch.Transformers.Monad<{data.TypeParameter}>";
         var altTypeParameter = $"{data.TypeParameter}_";
-        var monadInterfaceAlt = $"global::FunicularSwitch.Generators.Monad<{altTypeParameter}>";
+        var monadInterfaceAlt = $"global::FunicularSwitch.Transformers.Monad<{altTypeParameter}>";
         using var _ = new Scope(cs, $"{data.AccessModifier} {data.Modifier} {data.TypeNameWithTypeParameters}({nestedTypeName} M) : {monadInterface}");
 
         if (!data.IsRecord)
@@ -100,7 +100,7 @@ internal static class Generator
         cs.WriteLine($"public {interfaceB} Bind<B>(global::System.Func<A, {interfaceB}> fn) => ({typeNameB}){data.Monad.BindMethod.Invoke(["A", "B"], ["M", $"a => ({monadTypeNameB})({typeNameB})fn(a)"])};");
         WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public B Cast<B>() => (B)(object)M;");
-        static string InterfaceFn(string t) => $"global::FunicularSwitch.Generators.Monad<{t}>";
+        static string InterfaceFn(string t) => $"global::FunicularSwitch.Transformers.Monad<{t}>";
     }
     
     private static void WriteCommonMethodAttributes(CSharpBuilder cs) =>

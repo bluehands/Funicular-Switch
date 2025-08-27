@@ -325,7 +325,7 @@ internal static class Parser
     private static bool ImplementsMonadInterface(INamedTypeSymbol genericType) =>
         genericType.GetAttributes().Any(x =>
             x.AttributeClass?.FullTypeNameWithNamespace() == TransformMonadAttribute.ATTRIBUTE_NAME) ||
-        genericType.OriginalDefinition.AllInterfaces.Any(x => x.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.Monad");
+        genericType.OriginalDefinition.AllInterfaces.Any(x => x.FullTypeNameWithNamespace() == "FunicularSwitch.Transformers.Monad");
 
     private static GenerationResult<MonadData> ResolveMonadDataFromGenericMonadType(INamedTypeSymbol genericMonadType,
         CancellationToken cancellationToken)

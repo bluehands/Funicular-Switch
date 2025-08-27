@@ -1,18 +1,18 @@
 ﻿//HintName: FunicularSwitch.Test.MonadABC.g.cs
 namespace FunicularSwitch.Test
 {
-    public readonly partial record struct MonadABC<A>(global::FunicularSwitch.Test.MonadAB<global::FunicularSwitch.Test.MonadC<A>> M) : global::FunicularSwitch.Generators.Monad<A>
+    public readonly partial record struct MonadABC<A>(global::FunicularSwitch.Test.MonadAB<global::FunicularSwitch.Test.MonadC<A>> M) : global::FunicularSwitch.Transformers.Monad<A>
     {
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
         public static implicit operator MonadABC<A>(global::FunicularSwitch.Test.MonadAB<global::FunicularSwitch.Test.MonadC<A>> ma) => new(ma);
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
         public static implicit operator global::FunicularSwitch.Test.MonadAB<global::FunicularSwitch.Test.MonadC<A>>(MonadABC<A> ma) => ma.M;
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        global::FunicularSwitch.Generators.Monad<A_> global::FunicularSwitch.Generators.Monad<A>.Return<A_>(A_ a) => MonadABC.Return(a);
+        global::FunicularSwitch.Transformers.Monad<A_> global::FunicularSwitch.Transformers.Monad<A>.Return<A_>(A_ a) => MonadABC.Return(a);
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        global::FunicularSwitch.Generators.Monad<A_> global::FunicularSwitch.Generators.Monad<A>.Bind<A_>(global::System.Func<A, global::FunicularSwitch.Generators.Monad<A_>> fn) => this.Bind(a => (MonadABC<A_>)fn(a));
+        global::FunicularSwitch.Transformers.Monad<A_> global::FunicularSwitch.Transformers.Monad<A>.Bind<A_>(global::System.Func<A, global::FunicularSwitch.Transformers.Monad<A_>> fn) => this.Bind(a => (MonadABC<A_>)fn(a));
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        A_ global::FunicularSwitch.Generators.Monad<A>.Cast<A_>() => (A_)(object)M;
+        A_ global::FunicularSwitch.Transformers.Monad<A>.Cast<A_>() => (A_)(object)M;
     }
 
     public static partial class MonadABC

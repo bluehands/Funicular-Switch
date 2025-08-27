@@ -8,15 +8,10 @@ namespace FunicularSwitch.Generators;
 [Generator]
 public class TransformerGenerator : IIncrementalGenerator
 {
-    private const string AttributesFilename = "Attributes.g.cs";
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(TransformMonadAttribute.AddTo);
         context.RegisterPostInitializationOutput(MonadTransformerAttribute.AddTo);
-        context.RegisterPostInitializationOutput(static ctx => ctx.AddSource(
-            AttributesFilename,
-            TransformerTemplates.StaticCode));
 
         var transformedMonadTypes = TransformMonadAttribute.Find(
             context.SyntaxProvider,

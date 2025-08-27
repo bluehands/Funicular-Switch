@@ -22,6 +22,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
             using System;
             using FunicularSwitch.Generators;
+            using FunicularSwitch.Transformers;
 
             namespace FunicularSwitch.Test;
 
@@ -61,6 +62,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
 
               namespace FunicularSwitch.Test;
 
@@ -100,6 +102,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
 
               namespace FunicularSwitch.Test;
 
@@ -139,6 +142,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
 
               namespace FunicularSwitch.Test;
 
@@ -176,6 +180,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
               
               namespace FunicularSwitch.Test;
               
@@ -219,6 +224,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
               
               namespace FunicularSwitch.Test;
               
@@ -271,6 +277,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
               
               namespace FunicularSwitch.Test;
               
@@ -315,6 +322,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
 
               namespace FunicularSwitch.Test;
 
@@ -352,6 +360,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
 
               namespace FunicularSwitch.Test;
 
@@ -388,7 +397,8 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
-
+              using FunicularSwitch.Transformers;
+              
               namespace FunicularSwitch.Test;
 
               public record MonadA<A>(A Value)
@@ -424,6 +434,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
 
               namespace FunicularSwitch.Test;
 
@@ -459,6 +470,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
 
               namespace FunicularSwitch.Test;
 
@@ -493,6 +505,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
 
               namespace FunicularSwitch.Test;
 
@@ -528,6 +541,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
 
               namespace FunicularSwitch.Test;
 
@@ -569,6 +583,7 @@ public class TransformerGeneratorInteropTest : VerifyTransformerInteropSourceGen
             $$"""
               using System;
               using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
 
               namespace FunicularSwitch.Test;
 

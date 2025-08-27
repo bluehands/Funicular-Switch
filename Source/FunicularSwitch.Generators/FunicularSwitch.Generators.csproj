@@ -61,7 +61,6 @@
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeAttributes.cs" Link="Templates\ResultTypeAttributes.cs"/>
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\UnionTypeAttributes.cs" Link="Templates\UnionTypeAttributes.cs"/>
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\EnumTypeAttributes.cs" Link="Templates\EnumTypeAttributes.cs"/>
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\TransformerAttributes.cs" Link="Templates\TransformerAttributes.cs"/>
 	</ItemGroup>
 
 	<ItemGroup>

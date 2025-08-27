@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Location: : (20,13)-(20,20),
+      Location: : (21,13)-(21,20),
       Message: FunicularSwitch.Test.MonadBT is missing a transformer bind method - Add BindT method (Monad<M<A>> -> (A -> Monad<M<B>>) -> Monad<M<B>>) to type,
       Severity: Error,
       Descriptor: {
