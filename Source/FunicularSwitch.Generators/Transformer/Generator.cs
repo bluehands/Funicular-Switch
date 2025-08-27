@@ -39,10 +39,15 @@ internal static class Generator
         }
 
         // TODO: add missing global::
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public static implicit operator {data.TypeNameWithTypeParameters}({nestedTypeName} ma) => new(ma);");
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public static implicit operator {nestedTypeName}({data.TypeNameWithTypeParameters} ma) => ma.M;");
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"{monadInterfaceAlt} {monadInterface}.Return<{altTypeParameter}>({altTypeParameter} a) => {data.TypeName}.{data.Monad.ReturnMethod.Name}(a);");
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"{monadInterfaceAlt} {monadInterface}.Bind<{altTypeParameter}>(global::System.Func<{data.TypeParameter}, {monadInterfaceAlt}> fn) => this.{data.Monad.BindMethod.Name}(a => ({data.TypeName}<{altTypeParameter}>)fn(a));");
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"{altTypeParameter} {monadInterface}.Cast<{altTypeParameter}>() => ({altTypeParameter})(object)M;");
     }
 
@@ -57,11 +62,13 @@ internal static class Generator
             BlankLine(cs);
         }
 
+        WriteCommonMethodAttributes(cs);
         WriteMethod(data.Methods.First(), cs);
         foreach (var method in data.Methods.Skip(1))
         {
             cancellationToken.ThrowIfCancellationRequested();
             BlankLine(cs);
+            WriteCommonMethodAttributes(cs);
             WriteMethod(method, cs);
         }
     }
@@ -84,11 +91,19 @@ internal static class Generator
         
         cs.WriteLine($"private readonly record struct {typeNameA}({monadTypeNameA} M) : {interfaceA}");
         using var _ = cs.Scope();
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public static implicit operator {typeNameA}({monadTypeNameA} ma) => new(ma);");
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public static implicit operator {monadTypeNameA}({typeNameA} ma) => ma.M;");
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public {interfaceB} Return<B>(B a) => ({typeNameB}){data.Monad.ReturnMethod.Invoke(["B"], ["a"])};");
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public {interfaceB} Bind<B>(global::System.Func<A, {interfaceB}> fn) => ({typeNameB}){data.Monad.BindMethod.Invoke(["A", "B"], ["M", $"a => ({monadTypeNameB})({typeNameB})fn(a)"])};");
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public B Cast<B>() => (B)(object)M;");
         static string InterfaceFn(string t) => $"global::FunicularSwitch.Generators.Monad<{t}>";
     }
+    
+    private static void WriteCommonMethodAttributes(CSharpBuilder cs) =>
+        cs.WriteLine("[global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]");
 }
