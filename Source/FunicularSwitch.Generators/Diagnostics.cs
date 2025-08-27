@@ -76,8 +76,16 @@ static class Diagnostics
 		    title: "Invalid attribute usage",
 		    messageFormat: $"{message} -  Valid UnionType attribute usages: [UnionType], [UnionType(StaticFactoryMethods = false)], [UnionType(CaseOder = CaseOrder.AsDeclared, StaticFactoryMethods = true)].", 
 		    severity: DiagnosticSeverity.Error);
+
+    // TODO: this should be in another class/category with own id range
+    public static Diagnostic MonadTransformerNoAttribute(string message, Location? location) =>
+        Create(location,
+            id: "FUN0012",
+            title: "Missing monad transformer attribute",
+            messageFormat: $"{message} - Add MonadTransformer attribute to type",
+            severity: DiagnosticSeverity.Error);
     
-    static Diagnostic Create(Location location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
+    static Diagnostic Create(Location? location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
         Diagnostic.Create(
             new(
                 id: id,

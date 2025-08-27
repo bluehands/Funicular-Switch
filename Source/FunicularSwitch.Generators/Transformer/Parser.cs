@@ -20,38 +20,46 @@ internal static class Parser
             .Concat(transformMonadAttribute.ExtraTransformerTypes)
             .ToList();
 
-        var chainedMonads = transformerTypes
-            .Aggregate<INamedTypeSymbol, IReadOnlyList<MonadData>>([outerMonadData], (acc, cur) => [..acc, TransformMonad(acc.Last(), cur)]);
-        var chainedMonad = chainedMonads.Last();
+        var chainedMonadsResult = transformerTypes
+            .Aggregate(
+                (GenerationResult<IReadOnlyList<MonadData>>)new[]{outerMonadData},
+                (acc, cur) =>
+                    acc.Bind(acc_ =>
+                        TransformMonad(acc_.Last(), cur).Map<IReadOnlyList<MonadData>>(transformMonad =>
+                            [..acc_, transformMonad])));
+        return chainedMonadsResult.Map(chainedMonads =>
+        {
+            var chainedMonad = chainedMonads.Last();
 
-        var implementations = chainedMonads
-            .Take(chainedMonads.Count - 1)
-            .Where(x => !x.ImplementsMonadInterface)
-            .Select(GenerateImplementationForMonad)
-            .ToList();
+            var implementations = chainedMonads
+                .Take(chainedMonads.Count - 1)
+                .Where(x => !x.ImplementsMonadInterface)
+                .Select(GenerateImplementationForMonad)
+                .ToList();
 
-        var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
+            var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
 
-        return new TransformMonadData(
-            transformedMonadSymbol.GetFullNamespace()!,
-            accessModifier,
-            typeModifier,
-            transformedMonadSymbol.Name,
-            $"{transformedMonadSymbol.Name}<{typeParameter}>",
-            typeParameter,
-            transformedMonadSymbol.FullTypeNameWithNamespace(),
-            FullGenericType,
-            isRecord,
-            chainedMonad,
-            BuildStaticMonad(
-                transformedMonadSymbol.Name,
-                FullGenericType,
+            return new TransformMonadData(
+                transformedMonadSymbol.GetFullNamespace()!,
                 accessModifier,
-                implementations,
+                typeModifier,
+                transformedMonadSymbol.Name,
+                $"{transformedMonadSymbol.Name}<{typeParameter}>",
+                typeParameter,
+                transformedMonadSymbol.FullTypeNameWithNamespace(),
+                FullGenericType,
+                isRecord,
                 chainedMonad,
-                outerMonadData,
-                outerMonadData // TODO: determine actual inner monad
-            ));
+                BuildStaticMonad(
+                    transformedMonadSymbol.Name,
+                    FullGenericType,
+                    accessModifier,
+                    implementations,
+                    chainedMonad,
+                    outerMonadData,
+                    outerMonadData // TODO: determine actual inner monad
+                ));
+        });
 
         string FullGenericType(string t) => $"global::{transformedMonadSymbol.FullTypeNameWithNamespace()}<{t}>";
 
@@ -79,21 +87,22 @@ internal static class Parser
                 });
         }
 
-        static MonadData TransformMonad(MonadData outer, INamedTypeSymbol transformerType)
-        {
-            var innerMonad = ResolveMonadDataFromTransformerType(transformerType);
-            var transformerTypeName = $"global::{transformerType.FullTypeNameWithNamespace()}";
-            var outerInterfaceImplementation =
-                !outer.ImplementsMonadInterface ? GenerateImplementationForMonad(outer) : null;
-            var outerInterfaceName =
-                outerInterfaceImplementation?.GenericTypeName ?? outer.GenericTypeName;
+        static GenerationResult<MonadData> TransformMonad(MonadData outer, INamedTypeSymbol transformerType) =>
+            ResolveMonadDataFromTransformerType(transformerType)
+                .Map(innerMonad =>
+                {
+                    var transformerTypeName = $"global::{transformerType.FullTypeNameWithNamespace()}";
+                    var outerInterfaceImplementation =
+                        !outer.ImplementsMonadInterface ? GenerateImplementationForMonad(outer) : null;
+                    var outerInterfaceName =
+                        outerInterfaceImplementation?.GenericTypeName ?? outer.GenericTypeName;
 
-            var transformedMonad = new MonadData(
-                ChainGenericTypeName(outer.GenericTypeName, innerMonad.GenericTypeName),
-                CombineReturn(outer.ReturnMethod, innerMonad),
-                TransformBind(outer, innerMonad, transformerTypeName, outerInterfaceName));
-            return transformedMonad;
-        }
+                    var transformedMonad = new MonadData(
+                        ChainGenericTypeName(outer.GenericTypeName, innerMonad.GenericTypeName),
+                        CombineReturn(outer.ReturnMethod, innerMonad),
+                        TransformBind(outer, innerMonad, transformerTypeName, outerInterfaceName));
+                    return transformedMonad;
+                });
     }
 
     private static StaticMonadGenerationInfo BuildStaticMonad(
@@ -424,9 +433,17 @@ internal static class Parser
         }
     }
 
-    private static MonadData ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType)
+    private static GenerationResult<MonadData> ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType)
     {
-        var monadTransformerAttribute = MonadTransformerAttribute.From(transformerType.GetAttributes()[0]);
+        var attributeData = transformerType.GetAttributes()
+            .FirstOrDefault(x =>
+                x.AttributeClass?.FullTypeNameWithNamespace() == MonadTransformerAttribute.ATTRIBUTE_NAME);
+        if (attributeData is null)
+            return new DiagnosticInfo(Diagnostics.MonadTransformerNoAttribute(
+                $"{transformerType.FullTypeNameWithNamespace()} is missing the MonadTransformer attribute",
+                transformerType.Locations.FirstOrDefault()));
+        
+        var monadTransformerAttribute = MonadTransformerAttribute.From(attributeData);
         var staticMonadType = monadTransformerAttribute.MonadType;
         var monadData = ResolveMonadDataFromMonadType(staticMonadType);
         return monadData;

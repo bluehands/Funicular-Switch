@@ -1,0 +1,17 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: : (19,13)-(19,20),
+      Message: Type {0} has no MonadTransformer attribute,
+      Severity: Error,
+      Descriptor: {
+        Id: FUN9999,
+        Title: Type has no MonadTransformer attribute,
+        MessageFormat: Type {0} has no MonadTransformer attribute,
+        Category: ,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}
