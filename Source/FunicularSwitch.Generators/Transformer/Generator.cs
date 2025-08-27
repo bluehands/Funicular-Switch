@@ -12,55 +12,57 @@ internal static class Generator
     {
         var filename = $"{data.FullTypeName}.g.cs";
 
-        var builder = new CSharpBuilder(defaultIntent: "    ");
-        using (builder.Namespace(data.Namespace))
+        var cs = new CSharpBuilder(defaultIntent: "    ");
+        using (cs.Namespace(data.Namespace))
         {
-            WriteGenericMonad(data, builder);
-            BlankLine(builder);
-            WriteStaticMonad(data.StaticMonadGenerationInfo, builder);
+            WriteGenericMonad(data, cs);
+            BlankLine(cs);
+            WriteStaticMonad(data.StaticMonadGenerationInfo, cs, cancellationToken);
         }
 
-        return (filename, builder);
+        return (filename, cs);
     }
 
-    private static void BlankLine(CSharpBuilder builder) => builder.Content.AppendLine();
+    private static void BlankLine(CSharpBuilder cs) => cs.Content.AppendLine();
 
-    private static void WriteGenericMonad(TransformMonadData data, CSharpBuilder builder)
+    private static void WriteGenericMonad(TransformMonadData data, CSharpBuilder cs)
     {
         var nestedTypeName = data.Monad.GenericTypeName(data.TypeParameter);
         var monadInterface = $"global::FunicularSwitch.Generators.Monad<{data.TypeParameter}>";
         var altTypeParameter = $"{data.TypeParameter}_";
         var monadInterfaceAlt = $"global::FunicularSwitch.Generators.Monad<{altTypeParameter}>";
-        using var _ = new Scope(builder, $"{data.AccessModifier} {data.Modifier} {data.TypeNameWithTypeParameters}({nestedTypeName} M) : {monadInterface}");
+        using var _ = new Scope(cs, $"{data.AccessModifier} {data.Modifier} {data.TypeNameWithTypeParameters}({nestedTypeName} M) : {monadInterface}");
 
         if (!data.IsRecord)
         {
-            builder.WriteGetOnlyProperty(nestedTypeName, "M", "M");
+            cs.WriteGetOnlyProperty(nestedTypeName, "M", "M");
         }
 
         // TODO: add missing global::
-        builder.WriteLine($"public static implicit operator {data.TypeNameWithTypeParameters}({nestedTypeName} ma) => new(ma);");
-        builder.WriteLine($"public static implicit operator {nestedTypeName}({data.TypeNameWithTypeParameters} ma) => ma.M;");
-        builder.WriteLine($"{monadInterfaceAlt} {monadInterface}.Return<{altTypeParameter}>({altTypeParameter} a) => {data.TypeName}.{data.Monad.ReturnMethod.Name}(a);");
-        builder.WriteLine($"{monadInterfaceAlt} {monadInterface}.Bind<{altTypeParameter}>(global::System.Func<{data.TypeParameter}, {monadInterfaceAlt}> fn) => this.{data.Monad.BindMethod.Name}(a => ({data.TypeName}<{altTypeParameter}>)fn(a));");
-        builder.WriteLine($"{altTypeParameter} {monadInterface}.Cast<{altTypeParameter}>() => ({altTypeParameter})(object)M;");
+        cs.WriteLine($"public static implicit operator {data.TypeNameWithTypeParameters}({nestedTypeName} ma) => new(ma);");
+        cs.WriteLine($"public static implicit operator {nestedTypeName}({data.TypeNameWithTypeParameters} ma) => ma.M;");
+        cs.WriteLine($"{monadInterfaceAlt} {monadInterface}.Return<{altTypeParameter}>({altTypeParameter} a) => {data.TypeName}.{data.Monad.ReturnMethod.Name}(a);");
+        cs.WriteLine($"{monadInterfaceAlt} {monadInterface}.Bind<{altTypeParameter}>(global::System.Func<{data.TypeParameter}, {monadInterfaceAlt}> fn) => this.{data.Monad.BindMethod.Name}(a => ({data.TypeName}<{altTypeParameter}>)fn(a));");
+        cs.WriteLine($"{altTypeParameter} {monadInterface}.Cast<{altTypeParameter}>() => ({altTypeParameter})(object)M;");
     }
 
-    private static void WriteStaticMonad(StaticMonadGenerationInfo data, CSharpBuilder builder)
+    private static void WriteStaticMonad(StaticMonadGenerationInfo data, CSharpBuilder cs, CancellationToken cancellationToken)
     {
-        using var _ = builder.StaticPartialClass(data.TypeName, data.AccessModifier);
+        using var _ = cs.StaticPartialClass(data.TypeName, data.AccessModifier);
         
         foreach (var generationInfo in data.MonadsWithoutImplementation)
         {
-            WriteMonadInterfaceImplementation(generationInfo, builder);
-            BlankLine(builder);
+            cancellationToken.ThrowIfCancellationRequested();
+            WriteMonadInterfaceImplementation(generationInfo, cs);
+            BlankLine(cs);
         }
 
-        WriteMethod(data.Methods.First(), builder);
+        WriteMethod(data.Methods.First(), cs);
         foreach (var method in data.Methods.Skip(1))
         {
-            BlankLine(builder);
-            WriteMethod(method, builder);
+            cancellationToken.ThrowIfCancellationRequested();
+            BlankLine(cs);
+            WriteMethod(method, cs);
         }
     }
 
@@ -90,41 +92,3 @@ internal static class Generator
         static string InterfaceFn(string t) => $"global::FunicularSwitch.Generators.Monad<{t}>";
     }
 }
-
-internal record StaticMonadGenerationInfo(
-    string TypeName,
-    string AccessModifier,
-    IReadOnlyList<MonadImplementationGenerationInfo> MonadsWithoutImplementation,
-    IReadOnlyList<MethodGenerationInfo> Methods);
-
-internal record MethodGenerationInfo(
-    string ReturnType,
-    IReadOnlyList<string> TypeParameters,
-    IReadOnlyList<ParameterGenerationInfo> Parameters,
-    string Name,
-    MethodBody Body)
-{
-    public MethodGenerationInfo(string ReturnType,
-        IReadOnlyList<string> TypeParameters,
-        IReadOnlyList<ParameterGenerationInfo> Parameters,
-        MethodInfo info) : this(
-        ReturnType,
-        TypeParameters,
-        Parameters,
-        info.Name,
-        info.Invoke(TypeParameters, Parameters.Select(x => x.Name).ToList()))
-    {
-    }
-}
-
-internal readonly record struct MethodBody(string Value)
-{
-    public static implicit operator MethodBody(string value) => new(value);
-
-    public override string ToString() => Value;
-}
-
-internal record ParameterGenerationInfo(
-    string Type,
-    string Name,
-    bool IsExtension = false);

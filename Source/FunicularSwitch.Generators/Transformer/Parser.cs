@@ -493,27 +493,3 @@ internal static class Parser
         }
     }
 }
-
-internal record MonadData(
-    Func<string, string> GenericTypeName,
-    MethodInfo ReturnMethod,
-    MethodInfo BindMethod,
-    bool ImplementsMonadInterface = false);
-
-internal record MethodInfo(
-    string Name,
-    InvokeMethod Invoke);
-
-internal record MonadImplementationGenerationInfo(
-    Func<string, string> GenericTypeName,
-    MonadData Monad);
-
-internal delegate string InvokeMethod(IReadOnlyList<string> typeParameters, IReadOnlyList<string> parameters);
-
-internal record TypeInfo(string Name, IReadOnlyList<TypeInfo> TypeParameters)
-{
-    public override string ToString() =>
-        TypeParameters.Count > 0
-            ? $"{Name}<{string.Join(", ", TypeParameters)}>"
-            : Name;
-}
