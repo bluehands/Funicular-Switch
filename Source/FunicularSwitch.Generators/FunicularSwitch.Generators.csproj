@@ -45,25 +45,26 @@
 	<ItemGroup>
 		<None Include="../../README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
-
+	
 	<ItemGroup>
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultType.cs" Link="Templates\ResultType.cs" />
-		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeWithMerge.cs" Link="Templates\ResultTypeWithMerge.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="DarkLink.RoslynHelpers.AttributeGenerator" Version="0.1.6" PrivateAssets="All" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0"/>
+		<PackageReference Include="DarkLink.RoslynHelpers.AttributeGenerator" Version="0.1.6" PrivateAssets="All" />
 		<PackageReference Include="PolySharp" Version="1.15.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+	</ItemGroup>
 
+	<ItemGroup>
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultType.cs" Link="Templates\ResultType.cs" />
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeWithMerge.cs" Link="Templates\ResultTypeWithMerge.cs" />
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeAttributes.cs" Link="Templates\ResultTypeAttributes.cs"/>
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\UnionTypeAttributes.cs" Link="Templates\UnionTypeAttributes.cs"/>
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\EnumTypeAttributes.cs" Link="Templates\EnumTypeAttributes.cs"/>
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\TransformerAttributes.cs" Link="Templates\TransformerAttributes.cs"/>
+	</ItemGroup>
 
+	<ItemGroup>
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
 	</ItemGroup>
 
