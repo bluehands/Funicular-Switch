@@ -144,22 +144,8 @@ public class TransformerSpecs
     }
 }
 
-[MonadTransformer(typeof(Option<>))]
-public static class OptionT
-{
-    public static Monad<Option<B>> BindT<A, B>(Monad<Option<A>> ma, Func<A, Monad<Option<B>>> fn) =>
-        ma.Bind(aOption => aOption.Match(fn, () => ma.Return(Option.None<B>())));
-}
-
 [TransformMonad(typeof(Result<>), typeof(OptionT))]
 public partial record ResultOption<A>;
-
-[MonadTransformer(typeof(Result<>))]
-public static class ResultT
-{
-    public static Monad<Result<B>> BindT<A, B>(Monad<Result<A>> ma, Func<A, Monad<Result<B>>> fn) =>
-        ma.Bind(aResult => aResult.Match(fn, e => ma.Return(Result.Error<B>(e))));
-}
 
 [TransformMonad(typeof(Option<>), typeof(ResultT))]
 public partial record OptionResult<A>;
@@ -203,11 +189,11 @@ public readonly partial record struct WriterResult<A>;
 
 public static partial class WriterResult
 {
-    public static WriterResult<A> Append<A>(A value, string text) => Writer.Append<Result<A>>(value, text);
+    public static WriterResult<A> Append<A>(A value, string text) => Writer.Append<FunicularSwitch.Result<A>>(value, text);
     
     public static WriterResult<A> Append<A>(A value, Func<A, string> textFn) => Append(value, textFn(value));
 
-    public static WriterResult<A> Error<A>(string error) => Writer.Append(Result.Error<A>(error), error);
+    public static WriterResult<A> Error<A>(string error) => Writer.Append(FunicularSwitch.Result.Error<A>(error), error);
 }
 
 [TransformMonad(typeof(Result<>), typeof(EnumerableT))]
