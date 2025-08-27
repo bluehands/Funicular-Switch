@@ -519,6 +519,43 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
 
         return Verify(code);
     }
+    
+    [TestMethod]
+    public Task MonadTransformerMissingBindTMethod()
+    {
+        var code =
+            /*lang=csharp*/
+            $$"""
+              using System;
+              using FunicularSwitch.Generators;
+
+              namespace FunicularSwitch.Test;
+
+              public record MonadA<A>(A Value)
+              {
+                  public static MonadA<A> Return(A a) => throw new NotImplementedException();
+                  
+                  public MonadA<B> Bind<B>(Func<A, MonadA<B>> fn) => throw new NotImplementedException();
+              }
+              
+              public record MonadB<B>(B Value)
+              {
+                  public static MonadB<B> Return(B a) => throw new NotImplementedException();
+                  
+                  public MonadB<A> Bind<A>(Func<B, MonadB<A>> fn) => throw new NotImplementedException();
+              }
+
+              [MonadTransformer(typeof(MonadB<>))]
+              public class MonadBT
+              {
+              }
+
+              [TransformMonad(typeof(MonadA<>), typeof(MonadBT))]
+              public readonly partial record struct MonadAB<A>;
+              """;
+
+        return Verify(code);
+    }
 }
 
 [TestClass]

@@ -1,0 +1,17 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: : (20,13)-(20,20),
+      Message: FunicularSwitch.Test.MonadBT is missing a transformer bind method - Add BindT method (Monad<M<A>> -> (A -> Monad<M<B>>) -> Monad<M<B>>) to type,
+      Severity: Error,
+      Descriptor: {
+        Id: FUN0015,
+        Title: Missing transformer bind method,
+        MessageFormat: FunicularSwitch.Test.MonadBT is missing a transformer bind method - Add BindT method (Monad<M<A>> -> (A -> Monad<M<B>>) -> Monad<M<B>>) to type,
+        Category: ResultTypeGenerator,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

@@ -100,6 +100,13 @@ static class Diagnostics
             messageFormat: $"{type} is missing a bind method - Add bind method (M<A> -> (A -> M<B>) -> M<B>) to type",
             severity: DiagnosticSeverity.Error);
     
+    public static Diagnostic MissingBindTMethod(INamedTypeSymbol type) =>
+        Create(type.Locations.FirstOrDefault(),
+            id: "FUN0015",
+            title: "Missing transformer bind method",
+            messageFormat: $"{type} is missing a transformer bind method - Add BindT method (Monad<M<A>> -> (A -> Monad<M<B>>) -> Monad<M<B>>) to type",
+            severity: DiagnosticSeverity.Error);
+    
     static Diagnostic Create(Location? location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
         Diagnostic.Create(
             new(

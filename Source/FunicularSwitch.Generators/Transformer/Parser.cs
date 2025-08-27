@@ -463,13 +463,28 @@ internal static class Parser
         var attributeData = transformerType.GetAttributes()
             .FirstOrDefault(x =>
                 x.AttributeClass?.FullTypeNameWithNamespace() == MonadTransformerAttribute.ATTRIBUTE_NAME);
+        
         if (attributeData is null)
             return new DiagnosticInfo(Diagnostics.MonadTransformerNoAttribute(transformerType));
+
+        var hasBindTMethod = transformerType
+            .GetMembers()
+            .OfType<IMethodSymbol>()
+            .Any(IsBindTMethod);
+        
+        if (!hasBindTMethod)
+            return new DiagnosticInfo(Diagnostics.MissingBindTMethod(transformerType));
         
         var monadTransformerAttribute = MonadTransformerAttribute.From(attributeData);
         var staticMonadType = monadTransformerAttribute.MonadType;
         var monadData = ResolveMonadDataFromMonadType(staticMonadType);
         return monadData;
+
+        static bool IsBindTMethod(IMethodSymbol method)
+        {
+            if (method.Name != "BindT") return false;
+            return true;
+        }
     }
 }
 
