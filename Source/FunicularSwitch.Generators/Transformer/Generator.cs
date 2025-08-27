@@ -1,6 +1,5 @@
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
-using Vogen;
 
 namespace FunicularSwitch.Generators.Transformer;
 
