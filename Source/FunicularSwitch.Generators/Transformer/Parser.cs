@@ -353,9 +353,7 @@ internal static class Parser
             .FirstOrDefault(IsReturnMethod);
 
         if (returnMethod is null)
-            return new DiagnosticInfo(Diagnostics.MissingReturnMethod(
-                $"{genericMonadType.FullTypeNameWithNamespace()} is missing a return method",
-                genericMonadType.Locations.FirstOrDefault()));
+            return new DiagnosticInfo(Diagnostics.MissingReturnMethod(genericMonadType));
 
         return CreateMonadData(default, genericMonadType, returnMethod);
 
@@ -402,9 +400,7 @@ internal static class Parser
             .OfType<IMethodSymbol>()
             .FirstOrDefault(IsStaticReturnMethod);
         if (returnMethod is null)
-            return new DiagnosticInfo(Diagnostics.MissingReturnMethod(
-                $"{staticMonadType.FullTypeNameWithNamespace()} is missing a return method",
-                staticMonadType.Locations.FirstOrDefault()));
+            return new DiagnosticInfo(Diagnostics.MissingReturnMethod(staticMonadType));
         
         var genericMonadType = ((INamedTypeSymbol) returnMethod.ReturnType).ConstructUnboundGenericType();
 
@@ -445,9 +441,7 @@ internal static class Parser
             .FirstOrDefault(x =>
                 x.AttributeClass?.FullTypeNameWithNamespace() == MonadTransformerAttribute.ATTRIBUTE_NAME);
         if (attributeData is null)
-            return new DiagnosticInfo(Diagnostics.MonadTransformerNoAttribute(
-                $"{transformerType.FullTypeNameWithNamespace()} is missing the MonadTransformer attribute",
-                transformerType.Locations.FirstOrDefault()));
+            return new DiagnosticInfo(Diagnostics.MonadTransformerNoAttribute(transformerType));
         
         var monadTransformerAttribute = MonadTransformerAttribute.From(attributeData);
         var staticMonadType = monadTransformerAttribute.MonadType;

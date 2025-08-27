@@ -2,12 +2,12 @@
   Diagnostics: [
     {
       Location: : (5,14)-(5,20),
-      Message: FunicularSwitch.Test.MonadA is missing a return method - Add return method (A -> M<A>) to type,
+      Message: FunicularSwitch.Test.MonadA<> is missing a return method - Add return method (A -> M<A>) to type,
       Severity: Error,
       Descriptor: {
         Id: FUN0013,
         Title: Missing return method,
-        MessageFormat: FunicularSwitch.Test.MonadA is missing a return method - Add return method (A -> M<A>) to type,
+        MessageFormat: FunicularSwitch.Test.MonadA<> is missing a return method - Add return method (A -> M<A>) to type,
         Category: ResultTypeGenerator,
         DefaultSeverity: Error,
         IsEnabledByDefault: true

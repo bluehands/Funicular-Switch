@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using FunicularSwitch.Generators.Common;
+using Microsoft.CodeAnalysis;
 
 namespace FunicularSwitch.Generators;
 
@@ -78,18 +79,18 @@ static class Diagnostics
 		    severity: DiagnosticSeverity.Error);
 
     // TODO: this should be in another class/category with own id range
-    public static Diagnostic MonadTransformerNoAttribute(string message, Location? location) =>
-        Create(location,
+    public static Diagnostic MonadTransformerNoAttribute(INamedTypeSymbol type) =>
+        Create(type.Locations.FirstOrDefault(),
             id: "FUN0012",
             title: "Missing monad transformer attribute",
-            messageFormat: $"{message} - Add MonadTransformer attribute to type",
+            messageFormat: $"{type} is missing the MonadTransformer attribute - Add MonadTransformer attribute to type",
             severity: DiagnosticSeverity.Error);
     
-    public static Diagnostic MissingReturnMethod(string message, Location? location) =>
-        Create(location,
+    public static Diagnostic MissingReturnMethod(INamedTypeSymbol type) =>
+        Create(type.Locations.FirstOrDefault(),
             id: "FUN0013",
             title: "Missing return method",
-            messageFormat: $"{message} - Add return method (A -> M<A>) to type",
+            messageFormat: $"{type} is missing a return method - Add return method (A -> M<A>) to type",
             severity: DiagnosticSeverity.Error);
     
     static Diagnostic Create(Location? location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
