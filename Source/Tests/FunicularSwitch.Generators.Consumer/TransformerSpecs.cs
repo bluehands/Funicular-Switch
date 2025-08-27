@@ -152,7 +152,7 @@ public static class OptionM
 [MonadTransformer(typeof(OptionM))]
 public static class OptionT
 {
-    public static Monad<Option<B>> Bind<A, B>(Monad<Option<A>> ma, Func<A, Monad<Option<B>>> fn) =>
+    public static Monad<Option<B>> BindT<A, B>(Monad<Option<A>> ma, Func<A, Monad<Option<B>>> fn) =>
         ma.Bind(aOption => aOption.Match(fn, () => ma.Return(Option.None<B>())));
 }
 
@@ -162,7 +162,7 @@ public partial record ResultOption<A>;
 [MonadTransformer(typeof(Result<>))]
 public static class ResultT
 {
-    public static Monad<Result<B>> Bind<A, B>(Monad<Result<A>> ma, Func<A, Monad<Result<B>>> fn) =>
+    public static Monad<Result<B>> BindT<A, B>(Monad<Result<A>> ma, Func<A, Monad<Result<B>>> fn) =>
         ma.Bind(aResult => aResult.Match(fn, e => ma.Return(Result.Error<B>(e))));
 }
 
@@ -204,7 +204,7 @@ public static class EnumerableM
 [MonadTransformer(typeof(EnumerableM))]
 public static class EnumerableT
 {
-    public static Monad<IEnumerable<B>> Bind<A, B>(Monad<IEnumerable<A>> ma, Func<A, Monad<IEnumerable<B>>> fn) =>
+    public static Monad<IEnumerable<B>> BindT<A, B>(Monad<IEnumerable<A>> ma, Func<A, Monad<IEnumerable<B>>> fn) =>
         ma.Bind(xs => xs.Aggregate(
             ma.Return<IEnumerable<B>>([]),
             (cur, acc) => cur.Bind(xs_ =>
@@ -233,22 +233,3 @@ public readonly partial record struct WriterResultOption2<A>;
 // TODO: use like enumerable
 [TransformMonad(typeof(Result<>), typeof(EnumerableT))]
 public readonly partial record struct ResultEnumerable<A>;
-
-public partial class ResultEnumerable
-{
-    public static ResultEnumerable<B> Bind2<A, B>(this ResultEnumerable<A> ma, Func<A, ResultEnumerable<B>> fn) =>
-        ((ResultMonad<IEnumerable<B>>) EnumerableT.Bind<A, B>((ResultMonad<IEnumerable<A>>) ma.M, a => (ResultMonad<IEnumerable<B>>) fn(a).M)).M;
-
-    private readonly record struct ResultMonad<A>(Result<A> M) : Monad<A>
-    {
-        public Monad<B> Bind<B>(Func<A, Monad<B>> fn) => (ResultMonad<B>) M.Bind<B>(a => (ResultMonad<B>) fn(a));
-
-        public B Cast<B>() => (B) (object) M;
-
-        public Monad<B> Return<B>(B value) => (ResultMonad<B>) Result.Ok(value);
-
-        public static implicit operator ResultMonad<A>(Result<A> ma) => new(ma);
-
-        public static implicit operator Result<A>(ResultMonad<A> ma) => ma.M;
-    }
-}

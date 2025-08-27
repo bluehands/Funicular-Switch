@@ -73,7 +73,7 @@ internal static class Parser
                     var ma = $"({outerInterfaceImplName(inner.GenericTypeName(t[0]))}){p[0]}";
                     var fn = $"a => ({outerInterfaceImplName(inner.GenericTypeName(t[1]))})(new global::System.Func<{t[0]}, {chainedGenericType(t[1])}>({p[1]}).Invoke(a))"; // A -> Monad<X<B>>
 
-                    var call = $"{transformerTypeName}.Bind<{t[0]}, {t[1]}>({ma}, {fn}).Cast<{chainedGenericType(t[1])}>()";
+                    var call = $"{transformerTypeName}.BindT<{t[0]}, {t[1]}>({ma}, {fn}).Cast<{chainedGenericType(t[1])}>()";
                     return call;
                 });
         }
