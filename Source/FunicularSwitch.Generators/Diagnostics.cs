@@ -93,6 +93,13 @@ static class Diagnostics
             messageFormat: $"{type} is missing a return method - Add return method (A -> M<A>) to type",
             severity: DiagnosticSeverity.Error);
     
+    public static Diagnostic MissingBindMethod(INamedTypeSymbol type) =>
+        Create(type.Locations.FirstOrDefault(),
+            id: "FUN0014",
+            title: "Missing bind method",
+            messageFormat: $"{type} is missing a bind method - Add bind method (M<A> -> (A -> M<B>) -> M<B>) to type",
+            severity: DiagnosticSeverity.Error);
+    
     static Diagnostic Create(Location? location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
         Diagnostic.Create(
             new(

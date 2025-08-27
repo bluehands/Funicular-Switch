@@ -355,6 +355,14 @@ internal static class Parser
         if (returnMethod is null)
             return new DiagnosticInfo(Diagnostics.MissingReturnMethod(genericMonadType));
 
+        var bindMethod = genericMonadType.OriginalDefinition
+            .GetMembers()
+            .OfType<IMethodSymbol>()
+            .FirstOrDefault(IsBindMethod);
+
+        if (bindMethod is null)
+            return new DiagnosticInfo(Diagnostics.MissingBindMethod(genericMonadType));
+
         return CreateMonadData(default, genericMonadType, returnMethod);
 
         bool IsReturnMethod(IMethodSymbol method)
@@ -364,6 +372,16 @@ internal static class Parser
             if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: 1} genericReturnType) return false;
             if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType)) return false;
             if (genericReturnType.TypeArguments[0].Name != genericMonadType.OriginalDefinition.TypeParameters[0].Name) return false;
+            return true;
+        }
+
+        bool IsBindMethod(IMethodSymbol method)
+        {
+            if (method.TypeParameters.Length != 1) return false;
+            if (method.Parameters.Length != 1) return false;
+            if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: 1} genericReturnType) return false;
+            if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType)) return false;
+            if (genericReturnType.TypeArguments[0].Name == genericMonadType.OriginalDefinition.TypeParameters[0].Name) return false;
             return true;
         }
     }
@@ -399,6 +417,7 @@ internal static class Parser
             .GetMembers()
             .OfType<IMethodSymbol>()
             .FirstOrDefault(IsStaticReturnMethod);
+        
         if (returnMethod is null)
             return new DiagnosticInfo(Diagnostics.MissingReturnMethod(staticMonadType));
         
@@ -407,7 +426,11 @@ internal static class Parser
         var bindMethod = staticMonadType
             .GetMembers()
             .OfType<IMethodSymbol>()
-            .First(x => IsStaticBindMethod(genericMonadType, x));
+            .FirstOrDefault(x => IsStaticBindMethod(genericMonadType, x));
+
+        if (bindMethod is null)
+            return new DiagnosticInfo(Diagnostics.MissingBindMethod(staticMonadType));
+        
         return CreateMonadData(staticMonadType, genericMonadType, returnMethod, bindMethod);
 
         bool IsStaticReturnMethod(IMethodSymbol method)

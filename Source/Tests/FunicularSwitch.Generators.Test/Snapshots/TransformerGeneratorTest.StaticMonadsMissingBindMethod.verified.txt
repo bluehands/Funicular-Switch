@@ -1,0 +1,17 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: : (6,13)-(6,19),
+      Message: FunicularSwitch.Test.MonadA is missing a bind method - Add bind method (M<A> -> (A -> M<B>) -> M<B>) to type,
+      Severity: Error,
+      Descriptor: {
+        Id: FUN0014,
+        Title: Missing bind method,
+        MessageFormat: FunicularSwitch.Test.MonadA is missing a bind method - Add bind method (M<A> -> (A -> M<B>) -> M<B>) to type,
+        Category: ResultTypeGenerator,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}
