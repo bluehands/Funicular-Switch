@@ -2,13 +2,13 @@
   Diagnostics: [
     {
       Location: : (19,13)-(19,20),
-      Message: Type {0} has no MonadTransformer attribute,
+      Message: FunicularSwitch.Test.MonadBT is missing the MonadTransformer attribute - Add MonadTransformer attribute to type,
       Severity: Error,
       Descriptor: {
-        Id: FUN9999,
-        Title: Type has no MonadTransformer attribute,
-        MessageFormat: Type {0} has no MonadTransformer attribute,
-        Category: ,
+        Id: FUN0012,
+        Title: Missing monad transformer attribute,
+        MessageFormat: FunicularSwitch.Test.MonadBT is missing the MonadTransformer attribute - Add MonadTransformer attribute to type,
+        Category: ResultTypeGenerator,
         DefaultSeverity: Error,
         IsEnabledByDefault: true
       }

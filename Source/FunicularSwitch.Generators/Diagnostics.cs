@@ -85,6 +85,13 @@ static class Diagnostics
             messageFormat: $"{message} - Add MonadTransformer attribute to type",
             severity: DiagnosticSeverity.Error);
     
+    public static Diagnostic MissingReturnMethod(string message, Location? location) =>
+        Create(location,
+            id: "FUN0013",
+            title: "Missing return method",
+            messageFormat: $"{message} - Add return method (A -> M<A>) to type",
+            severity: DiagnosticSeverity.Error);
+    
     static Diagnostic Create(Location? location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
         Diagnostic.Create(
             new(
