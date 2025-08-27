@@ -103,8 +103,8 @@ public class TransformerSpecs
         Console.WriteLine();
         Console.WriteLine("WriterResult<>");
         var w2 = WriterResult.InitOk(1337)
-            .Bind<int, int>(x => Writer<Result<int>>.Append(x * 2, "multiplied by 2"))
-            .Bind<int, int>(x => Writer<Result<int>>.Append(x + 100, "added 100"))
+            .Bind(x => Writer<Result<int>>.Append(x * 2, "multiplied by 2"))
+            .Bind(x => Writer<Result<int>>.Append(x + 100, "added 100"))
             .Bind<int, string>(x => Writer<Result<string>>.Append(Result.Error<string>("conversion failed"), "to hex failed"));
         Console.WriteLine(w2.M.Log);
     }
@@ -128,8 +128,8 @@ public class TransformerSpecs
     {
         Console.WriteLine("WriterResultOption2<>");
         var w2 = WriterResultOption2.InitOk(1337)
-            .Bind<int, int>(x => WriterResult.Append(Option.Some(x * 2), "multiplied by 2"))
-            .Bind<int, int>(x => WriterResult.Append(Option.None<int>(), "added 100 -> none"))
+            .Bind(x => WriterResult.Append(Option.Some(x * 2), "multiplied by 2"))
+            .Bind(x => WriterResult.Append(Option.None<int>(), "added 100 -> none"))
             .Bind<int, string>(x => (WriterResult<Option<string>>) Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"), "to hex failed"));
         Console.WriteLine(w2.M.M.Log);
     }

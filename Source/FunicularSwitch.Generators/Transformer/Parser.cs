@@ -108,12 +108,9 @@ internal static class Parser
             monadImplementations,
             [
                 BuildReturnMethod(),
-                BuildBindMethod(),
+                ..BindMethods(),
                 BuildLiftMethod(),
-                BuildMapMethod(),
-                BuildSelectMethod(),
-                BuildSelectManyMethod(),
-                BuildSelectManyMethod2(),
+                ..MapMethods(),
             ]
         );
         return staticMonadInfo;
@@ -125,18 +122,44 @@ internal static class Parser
             chainedMonad.ReturnMethod // implicit cast
         );
 
-        MethodGenerationInfo BuildBindMethod() => new(
-            genericTypeName("B"),
-            ["A", "B"],
+        IEnumerable<MethodGenerationInfo> BindMethods()
+        {
+            return
             [
-                new(genericTypeName("A"), "ma", true),
-                new($"global::System.Func<A, {genericTypeName("B")}>", "fn"),
-            ],
-            new(
-                chainedMonad.BindMethod.Name,
-                (t, p) => $"{chainedMonad.BindMethod.Invoke(t, [$"(({chainedMonad.GenericTypeName(t[0])}){p[0]})", $"a => {p[1]}(a)"])}" // implicit cast
-            )
-        );
+                Build(chainedMonad.BindMethod.Name, genericTypeName("B")),
+                Build(chainedMonad.BindMethod.Name, chainedMonad.GenericTypeName("B")),
+                Build("SelectMany", genericTypeName("B")),
+                Build("SelectMany", chainedMonad.GenericTypeName("B")),
+                Build2("SelectMany", genericTypeName("B")),
+                Build2("SelectMany", chainedMonad.GenericTypeName("B")),
+            ];
+
+            MethodGenerationInfo Build(string name, string fnReturnType) => new(
+                genericTypeName("B"),
+                ["A", "B"],
+                [
+                    new(genericTypeName("A"), "ma", true),
+                    new(FuncType("A", fnReturnType), "fn"),
+                ],
+                new(
+                    name,
+                    (t, p) =>
+                        $"{chainedMonad.BindMethod.Invoke(t, [$"(({chainedMonad.GenericTypeName(t[0])}){p[0]})", $"a => {p[1]}(a)"])}" // implicit cast
+                )
+            );
+
+            MethodGenerationInfo Build2(string name, string fnReturnType) => new(
+                genericTypeName("C"),
+                ["A", "B", "C"],
+                [
+                    new(genericTypeName("A"), "ma", true),
+                    new(FuncType("A", fnReturnType), "fn"),
+                    new(FuncType("A", "B", "C"), "selector"),
+                ],
+                name,
+                $"ma.SelectMany(a => (({genericTypeName("B")})fn(a)).Map(b => selector(a, b)))"
+            );
+        }
 
         MethodGenerationInfo BuildLiftMethod() => new(
             genericTypeName("A"),
@@ -148,57 +171,34 @@ internal static class Parser
             )
         );
 
-        MethodGenerationInfo BuildMapMethod() => new(
-            genericTypeName("B"),
-            ["A", "B"],
-            [
-                new(genericTypeName("A"), "ma", true),
-                new("global::System.Func<A, B>", "fn"),
-            ],
-            new(
-                "Map",
-                (t, p) => $"{p[0]}.{chainedMonad.BindMethod.Name}(a => {typeName}.{chainedMonad.ReturnMethod.Name}({p[1]}(a)))"
-            )
-        );
-
-        MethodGenerationInfo BuildSelectManyMethod() => new(
-            genericTypeName("B"),
-            ["A", "B"],
-            [
-                new ParameterGenerationInfo(genericTypeName("A"), "ma", true),
-                new ParameterGenerationInfo($"global::System.Func<A, {genericTypeName("B")}>", "fn"),
-            ],
-            new MethodInfo(
-                "SelectMany",
-                (t, p) => $"ma.{chainedMonad.BindMethod.Name}(fn)"
-            )
-        );
-
-        MethodGenerationInfo BuildSelectManyMethod2() => new(
-            genericTypeName("C"),
-            ["A", "B", "C"],
-            [
-                new ParameterGenerationInfo(genericTypeName("A"), "ma", true),
-                new ParameterGenerationInfo($"global::System.Func<A, {genericTypeName("B")}>", "fn"),
-                new ParameterGenerationInfo("global::System.Func<A, B, C>", "selector"),
-            ],
-            new MethodInfo(
-                "SelectMany",
-                (t, p) => $"ma.{chainedMonad.BindMethod.Name}(a => fn(a).Map(b => selector(a, b)))"
-            )
-        );
-
-        MethodGenerationInfo BuildSelectMethod()
+        IEnumerable<MethodGenerationInfo> MapMethods()
         {
-            var mapMethod = BuildMapMethod();
-            return mapMethod with
-            {
-                Info = mapMethod.Info with
-                {
-                    Name = "Select",
-                },
-            };
+            return
+            [
+                Build("Map"),
+                Build("Select"),
+            ];
+
+            MethodGenerationInfo Build(string name) => new(
+                genericTypeName("B"),
+                ["A", "B"],
+                [
+                    new(genericTypeName("A"), "ma", true),
+                    new("global::System.Func<A, B>", "fn"),
+                ],
+                name,
+                $"ma.{chainedMonad.BindMethod.Name}(a => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))"
+            );
         }
+
+        static string FuncType(params string[] typeParameters) =>
+            GenericType("global::System.Func", typeParameters);
+        
+        static string TaskType(string typeParameter) =>
+            GenericType("global::System.Threading.Tasks.Task", typeParameter);
+        
+        static string GenericType(string name, params string[] typeParameters) =>
+            $"{name}<{string.Join(", ", typeParameters)}>";
     }
 
     private static MonadData CreateMonadData(INamedTypeSymbol? staticType, INamedTypeSymbol genericType, IMethodSymbol returnMethod, IMethodSymbol? bindMethod = default)

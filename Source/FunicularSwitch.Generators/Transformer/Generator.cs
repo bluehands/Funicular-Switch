@@ -1,5 +1,6 @@
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
+using Vogen;
 
 namespace FunicularSwitch.Generators.Transformer;
 
@@ -68,8 +69,7 @@ internal static class Generator
     {
         var typeArgs = info.TypeParameters.Count > 0 ? $"<{string.Join(", ", info.TypeParameters)}>" : string.Empty;
         var args = string.Join(", ", info.Parameters.Select(x => ($"{(x.IsExtension ? "this " : string.Empty)}{x.Type} {x.Name}")));
-        cs.WriteLine(
-            $"public static {info.ReturnType} {info.Info.Name}{typeArgs}({args}) => {info.Info.Invoke(info.TypeParameters, info.Parameters.Select(x => x.Name).ToList())};");
+        cs.WriteLine($"public static {info.ReturnType} {info.Name}{typeArgs}({args}) => {info.Body};");
     }
 
     private static void WriteMonadInterfaceImplementation(MonadImplementationGenerationInfo data, CSharpBuilder cs)
@@ -102,7 +102,28 @@ internal record MethodGenerationInfo(
     string ReturnType,
     IReadOnlyList<string> TypeParameters,
     IReadOnlyList<ParameterGenerationInfo> Parameters,
-    MethodInfo Info);
+    string Name,
+    MethodBody Body)
+{
+    public MethodGenerationInfo(string ReturnType,
+        IReadOnlyList<string> TypeParameters,
+        IReadOnlyList<ParameterGenerationInfo> Parameters,
+        MethodInfo info) : this(
+        ReturnType,
+        TypeParameters,
+        Parameters,
+        info.Name,
+        info.Invoke(TypeParameters, Parameters.Select(x => x.Name).ToList()))
+    {
+    }
+}
+
+internal readonly record struct MethodBody(string Value)
+{
+    public static implicit operator MethodBody(string value) => new(value);
+
+    public override string ToString() => Value;
+}
 
 internal record ParameterGenerationInfo(
     string Type,
