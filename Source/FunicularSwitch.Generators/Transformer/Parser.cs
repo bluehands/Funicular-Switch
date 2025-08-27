@@ -395,12 +395,17 @@ internal static class Parser
         string GenericTypeName(string t) => $"global::{resultType.FullTypeNameWithNamespace()}<{t}>";
     }
 
-    private static MonadData ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
+    private static GenerationResult<MonadData> ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
     {
         var returnMethod = staticMonadType
             .GetMembers()
             .OfType<IMethodSymbol>()
-            .First(IsStaticReturnMethod);
+            .FirstOrDefault(IsStaticReturnMethod);
+        if (returnMethod is null)
+            return new DiagnosticInfo(Diagnostics.MissingReturnMethod(
+                $"{staticMonadType.FullTypeNameWithNamespace()} is missing a return method",
+                staticMonadType.Locations.FirstOrDefault()));
+        
         var genericMonadType = ((INamedTypeSymbol) returnMethod.ReturnType).ConstructUnboundGenericType();
 
         var bindMethod = staticMonadType
