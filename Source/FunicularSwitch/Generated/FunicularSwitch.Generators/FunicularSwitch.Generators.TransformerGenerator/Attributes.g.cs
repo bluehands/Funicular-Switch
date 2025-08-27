@@ -9,6 +9,8 @@ namespace FunicularSwitch.Generators
         public Monad<B> Bind<B>(Func<A, Monad<B>> fn);
 
         public Monad<B> Return<B>(B value);
+
+        public B Cast<B>();
     }
 
     // TODO: move to own library
