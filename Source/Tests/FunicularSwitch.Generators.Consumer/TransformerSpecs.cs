@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 // ReSharper disable InconsistentNaming
 
@@ -91,52 +92,45 @@ public class TransformerSpecs
     }
 
     [TestMethod]
-    public void TODO_WriterResult()
+    [DataRow(1, 1, "Ok 0", """
+                            1/1 = 1
+                            1-1 = 0
+                            sqrt(0) = 0
+                            """)]
+    [DataRow(2, 2, "Error sqrt(-1) -> Cannot get square root of negative number", """
+                                                                                    2/2 = 1
+                                                                                    1-2 = -1
+                                                                                    sqrt(-1) -> Cannot get square root of negative number
+                                                                                    """)]
+    [DataRow(2, 0, "Error 2/0 -> Cannot divide by 0", "2/0 -> Cannot divide by 0")]
+    public void WriterResult_UseCase(int a, int b, string expectedResult, string expectedLog)
     {
-        Console.WriteLine("Writer<>");
-        var w = Writer<int>.Init(1337)
-            .Bind(x => Writer<int>.Append(x * 2, "multiplied by 2"))
-            .Bind(x => Writer<int>.Append(x + 100, "added 100"))
-            .Bind(x => Writer<string>.Append(Convert.ToHexString(BitConverter.GetBytes(x)), "to hex"));
-        Console.WriteLine(w.Log);
+        // Act
+        var result =
+            from x in Div(a, b)
+            from y in Subtract(x, b)
+            from z in Sqrt(y)
+            select y;
 
-        Console.WriteLine();
-        Console.WriteLine("WriterResult<>");
-        var w2 =
-            from a in WriterResult.InitOk(1337)
-            from b in Writer<Result<int>>.Append(a * 2, "multiplied by 2")
-            from c in Writer<Result<int>>.Append(b + 100, "added 100")
-            from d in Writer<Result<string>>.Append(Result.Error<string>("conversion failed"), "to hex failed")
-            select d;
-        Console.WriteLine(w2.M.Log);
-    }
+        // Assert
+        using (new AssertionScope())
+        {
+            string.Join("\n", result.M.Log).Should().Be(expectedLog);
+            result.M.Value.ToString().Should().Be(expectedResult);
+        }
 
-    [TestMethod]
-    public void TODO_WriterResultOption()
-    {
-        Console.WriteLine();
-        Console.WriteLine("WriterResultOption<>");
-        var w =
-            from a in WriterResultOption.InitOkSome(1337)
-            from b in WriterResultOption.Append(a * 2, "multiplied by 2")
-            from c in (WriterResultOption<int>) Writer<Result<Option<int>>>.Append(Option.None<int>(), "added 100 -> none")
-            from d in (WriterResultOption<string>) Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"), "to hex failed")
-            select d;
-        Console.WriteLine(w.M.Log);
-    }
+        static WriterResult<int> Sqrt(int a) =>
+            a < 0
+                ? WriterResult.Error<int>($"sqrt({a}) -> Cannot get square root of negative number")
+                : WriterResult.Append((int)Math.Sqrt(a), v => $"sqrt({a}) = {v}");
 
-    [TestMethod]
-    public void TODO_WriterResultOption2()
-    {
-        Console.WriteLine("WriterResultOption2<>");
-        var w =
-            from a in WriterResultOption2.InitOkSome(1337)
-            from b in WriterResultOption2.Append(a * 2, "multiplied by 2")
-            from c in WriterResult.Append(Option.None<int>(), "added 100 -> none")
-            from d in (WriterResult<Option<string>>) Writer<Result<Option<string>>>.Append(Result.Error<Option<string>>("conversion failed"),
-                "to hex failed")
-            select d;
-        Console.WriteLine(w.M.M.Log);
+        static WriterResult<int> Div(int a, int b) =>
+            b == 0
+                ? WriterResult.Error<int>($"{a}/{b} -> Cannot divide by 0")
+                : WriterResult.Append(a / b, v => $"{a}/{b} = {v}");
+
+        static WriterResult<int> Subtract(int a, int b) =>
+            WriterResult.Append(a - b, v => $"{a}-{b} = {v}");
     }
 }
 
@@ -160,28 +154,20 @@ public static class ResultT
 [TransformMonad(typeof(Option<>), typeof(ResultT))]
 public partial record OptionResult<A>;
 
-public record Writer<A>
+public record Writer<A>(A Value, IReadOnlyList<string> Log);
+
+public static class Writer
 {
-    private Writer(A Value, Option<string> Log)
+    public static Writer<A> Init<A>(A v) => new(v, []);
+    
+    public static Writer<A> Append<A>(A v, string log) => new(v, [log]);
+    
+    public static Writer<B> Bind<A, B>(this Writer<A> ma, Func<A, Writer<B>> fn)
     {
-        this.Value = Value;
-        this.Log = Log.Map(log => $"{log,-21}: {Value}");
-    }
-
-    public Option<string> Log { get; init; }
-
-    public A Value { get; init; }
-
-    public static Writer<A> Append(A v, string text) => new(v, text);
-
-    public Writer<B> Bind<B>(Func<A, Writer<B>> fn)
-    {
-        var tmp = fn(Value);
-        var result = tmp with {Log = string.Join("\n", [..Log, ..tmp.Log])};
+        var tmp = fn(ma.Value);
+        var result = tmp with {Log = [..ma.Log, ..tmp.Log]};
         return result;
     }
-
-    public static Writer<A> Init(A v) => new(v, Option<string>.None);
 }
 
 public static class EnumerableM
@@ -202,28 +188,16 @@ public static class EnumerableT
                 fn(acc).Map(y => (IEnumerable<B>) [..xs_, ..y]))));
 }
 
-[TransformMonad(typeof(Writer<>), typeof(ResultT))]
+[TransformMonad(typeof(Writer), typeof(ResultT))]
 public readonly partial record struct WriterResult<A>;
 
 public static partial class WriterResult
 {
-    public static WriterResult<A> Append<A>(A value, string text) => Writer<Result<A>>.Append(value, text);
-}
+    public static WriterResult<A> Append<A>(A value, string text) => Writer.Append<Result<A>>(value, text);
+    
+    public static WriterResult<A> Append<A>(A value, Func<A, string> textFn) => Append(value, textFn(value));
 
-[TransformMonad(typeof(Writer<>), typeof(ResultT), typeof(OptionT))]
-public readonly partial record struct WriterResultOption<A>;
-
-public static partial class WriterResultOption
-{
-    public static WriterResultOption<A> Append<A>(A a, string text) => Writer<Result<Option<A>>>.Append(Result.Ok(Option.Some(a)), text);
-}
-
-[TransformMonad(typeof(WriterResult<>), typeof(OptionT))]
-public readonly partial record struct WriterResultOption2<A>;
-
-public static partial class WriterResultOption2
-{
-    public static WriterResultOption2<A> Append<A>(A a, string text) => WriterResult.Append(Option.Some(a), text);
+    public static WriterResult<A> Error<A>(string error) => Writer.Append(Result.Error<A>(error), error);
 }
 
 // TODO: use like enumerable
