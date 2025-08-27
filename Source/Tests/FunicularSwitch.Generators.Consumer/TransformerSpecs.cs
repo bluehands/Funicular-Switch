@@ -79,19 +79,6 @@ public class TransformerSpecs
     }
 
     [TestMethod]
-    public void TODO_ResultEnumerable()
-    {
-        Console.WriteLine("ResultEnumerable<>");
-        var r =
-            from a in ResultEnumerable.OkYield(24)
-            from b in Result<IEnumerable<int>>.Ok(Enumerable.Range(0, a))
-            from c in ResultEnumerable.OkYield(b.ToString("X2"))
-            from d in Result<IEnumerable<int>>.Error("meh")
-            select d;
-        Console.WriteLine(r.M.Map(x => string.Join("\n", x)));
-    }
-
-    [TestMethod]
     [DataRow(1, 1, "Ok 0", """
                             1/1 = 1
                             1-1 = 0
@@ -131,6 +118,28 @@ public class TransformerSpecs
 
         static WriterResult<int> Subtract(int a, int b) =>
             WriterResult.Append(a - b, v => $"{a}-{b} = {v}");
+    }
+
+    [TestMethod]
+    [DataRow(0, 1, "Ok ")]
+    [DataRow(-1, 0, "Ok ")]
+    [DataRow(-1, 1, "Error A value is 2")]
+    [DataRow(-2, 1, "Ok 4")]
+    [DataRow(-2, 2, "Error A value is 2")]
+    [DataRow(-10, 5, "Ok 20,18,16,14,12")]
+    public void ResultEnumerable_UseCase(int start, int end, string expectedResult)
+    {
+        // Arrange
+        var initial = Enumerable.Range(start, end);
+
+        // Act
+        var result = ResultEnumerable.Ok(initial)
+            .Select(x => x * -2)
+            .Where(x => x > 0)
+            .Assert(x => x != 2, () => "A value is 2");
+
+        // Assert
+        result.M.Map(x => string.Join(",", x)).ToString().Should().Be(expectedResult);
     }
 }
 
@@ -200,6 +209,21 @@ public static partial class WriterResult
     public static WriterResult<A> Error<A>(string error) => Writer.Append(Result.Error<A>(error), error);
 }
 
-// TODO: use like enumerable
 [TransformMonad(typeof(Result<>), typeof(EnumerableT))]
 public readonly partial record struct ResultEnumerable<A>;
+
+public static partial class ResultEnumerable
+{
+    public static ResultEnumerable<A> Empty<A>() => Ok<A>([]);
+    
+    public static ResultEnumerable<A> Ok<A>(IEnumerable<A> xs) => Result.Ok(xs);
+    
+    public static ResultEnumerable<A> Error<A>(string details) => Result.Error<IEnumerable<A>>(details);
+
+    public static ResultEnumerable<A> Where<A>(this ResultEnumerable<A> ma, Func<A, bool> predicate) =>
+        ma.Bind(a => predicate(a) ? OkYield(a) : Empty<A>());
+
+    public static ResultEnumerable<A> Assert<A>(this ResultEnumerable<A> ma, Func<A, bool> assertion,
+        Func<string> getError) =>
+        ma.Bind(a => assertion(a) ? OkYield(a) : Error<A>(getError()));
+}
