@@ -26,6 +26,7 @@ internal static class Parser
 
         var implementations = chainedMonads
             .Take(chainedMonads.Count - 1)
+            .Where(x => !x.ImplementsMonadInterface)
             .Select(GenerateImplementationForMonad)
             .ToList();
 
@@ -82,13 +83,15 @@ internal static class Parser
         {
             var innerMonad = ResolveMonadDataFromTransformerType(transformerType);
             var transformerTypeName = $"global::{transformerType.FullTypeNameWithNamespace()}";
-            var outerInterfaceImplementation = GenerateImplementationForMonad(outer);
+            var outerInterfaceImplementation =
+                !outer.ImplementsMonadInterface ? GenerateImplementationForMonad(outer) : null;
+            var outerInterfaceName =
+                outerInterfaceImplementation?.GenericTypeName ?? outer.GenericTypeName;
 
             var transformedMonad = new MonadData(
                 ChainGenericTypeName(outer.GenericTypeName, innerMonad.GenericTypeName),
-                _ => throw new InvalidOperationException(),
                 CombineReturn(outer.ReturnMethod, innerMonad),
-                TransformBind(outer, innerMonad, transformerTypeName, outerInterfaceImplementation.GenericTypeName));
+                TransformBind(outer, innerMonad, transformerTypeName, outerInterfaceName));
             return transformedMonad;
         }
     }
@@ -214,10 +217,8 @@ internal static class Parser
             bindMethodName,
             (t, p) => bindMethodInvoke(t[0], t[1], p[0], p[1]));
 
-        var implementationInfo = GenerateImplementationForType(genericType);
         return new MonadData(
             TypeName,
-            t => $"{implementationInfo.FullName}<{t}>",
             returnMethodInfo,
             bindMethodInfo);
 
@@ -312,13 +313,17 @@ internal static class Parser
             data);
     }
 
-    private static MonadImplementationInfo GenerateImplementationForType(INamedTypeSymbol type)
+    private static string GenerateImplementationForType(INamedTypeSymbol type)
     {
-        var substituteName = $"Impl__{type.FullTypeNameWithNamespace().Replace('.', '_')}";
-        return new MonadImplementationInfo(substituteName);
+        if (ImplementsMonadInterface(type))
+            return $"global::{type.FullTypeNameWithNamespace()}";
+        return $"Impl__{type.FullTypeNameWithNamespace().Replace('.', '_')}";
     }
 
-    private static bool ImplementsMonadInterface(INamedTypeSymbol type) => type.Interfaces.Any(x => x.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.Monad");
+    private static bool ImplementsMonadInterface(INamedTypeSymbol type) =>
+        type.GetAttributes().Any(x =>
+            x.AttributeClass?.FullTypeNameWithNamespace() == TransformMonadAttribute.ATTRIBUTE_NAME) ||
+        type.Interfaces.Any(x => x.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.Monad");
 
     private static MonadData ResolveMonadDataFromGenericMonadType(INamedTypeSymbol genericMonadType)
     {
@@ -338,9 +343,9 @@ internal static class Parser
             };
             return new MonadData(
                 transformedMonadData.FullGenericType,
-                transformedMonadData.Monad.GenericImplementationName,
                 returnMethodInfo,
-                bindMethodInfo);
+                bindMethodInfo,
+                true);
         }
 
         var returnMethod = genericMonadType.OriginalDefinition
@@ -378,10 +383,8 @@ internal static class Parser
         var bindMethod = new MethodInfo(
             "Bind",
             (_, p) => $"{p[0]}.Bind({p[1]})");
-        var implementationInfo = GenerateImplementationForType(resultType);
         return new MonadData(
             GenericTypeName,
-            t => $"{implementationInfo.FullName}<{t}>",
             returnMethod,
             bindMethod);
 
@@ -438,9 +441,9 @@ internal static class Parser
 
 internal record MonadData(
     Func<string, string> GenericTypeName,
-    Func<string, string> GenericImplementationName,
     MethodInfo ReturnMethod,
-    MethodInfo BindMethod);
+    MethodInfo BindMethod,
+    bool ImplementsMonadInterface = false);
 
 internal record MethodInfo(
     string Name,
