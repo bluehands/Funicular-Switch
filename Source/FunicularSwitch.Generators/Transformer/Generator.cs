@@ -62,13 +62,11 @@ internal static class Generator
             BlankLine(cs);
         }
 
-        WriteCommonMethodAttributes(cs);
         WriteMethod(data.Methods.First(), cs);
         foreach (var method in data.Methods.Skip(1))
         {
             cancellationToken.ThrowIfCancellationRequested();
             BlankLine(cs);
-            WriteCommonMethodAttributes(cs);
             WriteMethod(method, cs);
         }
     }
@@ -77,6 +75,7 @@ internal static class Generator
     {
         var typeArgs = info.TypeParameters.Count > 0 ? $"<{string.Join(", ", info.TypeParameters)}>" : string.Empty;
         var args = string.Join(", ", info.Parameters.Select(x => ($"{(x.IsExtension ? "this " : string.Empty)}{x.Type} {x.Name}")));
+        WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public static {info.ReturnType} {info.Name}{typeArgs}({args}) => {info.Body};");
     }
 
