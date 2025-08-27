@@ -102,7 +102,7 @@ public class TransformerSpecs
         // Assert
         using (new AssertionScope())
         {
-            string.Join("\n", result.M.Log).Should().Be(expectedLog);
+            string.Join(Environment.NewLine, result.M.Log).Should().Be(expectedLog);
             result.M.Value.ToString().Should().Be(expectedResult);
         }
 
