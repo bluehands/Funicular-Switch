@@ -10,13 +10,15 @@ internal static class Parser
         TransformMonadAttribute transformMonadAttribute,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        
         var typeModifier = DetermineTypeModifier(transformedMonadSymbol);
         var accessModifier = DetermineAccessModifier(transformedMonadSymbol);
         var isRecord = transformedMonadSymbol.IsRecord;
         var outerMonadType = transformMonadAttribute.MonadType;
 
         return
-            from outerMonadData in ResolveMonadDataFromMonadType(outerMonadType)
+            from outerMonadData in ResolveMonadDataFromMonadType(outerMonadType, cancellationToken)
             let transformerTypes = new[] { transformMonadAttribute.TransformerType }
                 .Concat(transformMonadAttribute.ExtraTransformerTypes)
                 .ToList()
@@ -25,7 +27,7 @@ internal static class Parser
                     (GenerationResult<IReadOnlyList<MonadData>>)new[] { outerMonadData },
                     (acc, cur) =>
                         acc.Bind(acc_ =>
-                            TransformMonad(acc_.Last(), cur).Map<IReadOnlyList<MonadData>>(transformMonad =>
+                            TransformMonad(acc_.Last(), cur, cancellationToken).Map<IReadOnlyList<MonadData>>(transformMonad =>
                                 [..acc_, transformMonad])))
             let chainedMonad = chainedMonads.Last()
             let implementations = chainedMonads
@@ -83,8 +85,9 @@ internal static class Parser
                 });
         }
 
-        static GenerationResult<MonadData> TransformMonad(MonadData outer, INamedTypeSymbol transformerType) =>
-            ResolveMonadDataFromTransformerType(transformerType)
+        static GenerationResult<MonadData> TransformMonad(MonadData outer, INamedTypeSymbol transformerType,
+            CancellationToken cancellationToken1 = default) =>
+            ResolveMonadDataFromTransformerType(transformerType, cancellationToken1)
                 .Map(innerMonad =>
                 {
                     var transformerTypeName = $"global::{transformerType.FullTypeNameWithNamespace()}";
@@ -324,14 +327,15 @@ internal static class Parser
             x.AttributeClass?.FullTypeNameWithNamespace() == TransformMonadAttribute.ATTRIBUTE_NAME) ||
         genericType.OriginalDefinition.AllInterfaces.Any(x => x.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.Monad");
 
-    private static GenerationResult<MonadData> ResolveMonadDataFromGenericMonadType(INamedTypeSymbol genericMonadType)
+    private static GenerationResult<MonadData> ResolveMonadDataFromGenericMonadType(INamedTypeSymbol genericMonadType,
+        CancellationToken cancellationToken)
     {
         var transformMonadAttribute = genericMonadType
             .GetAttributes()
             .FirstOrDefault(x => x.AttributeClass?.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.TransformMonadAttribute");
         if (transformMonadAttribute is not null)
         {
-            var transformedMonadData = GetTransformedMonadSchema(genericMonadType, TransformMonadAttribute.From(transformMonadAttribute), CancellationToken.None).Value!;
+            var transformedMonadData = GetTransformedMonadSchema(genericMonadType, TransformMonadAttribute.From(transformMonadAttribute), cancellationToken).Value!;
             var returnMethodInfo = transformedMonadData.Monad.ReturnMethod with
             {
                 Invoke = (_, p) => $"global::{transformedMonadData.FullTypeName}.{transformedMonadData.Monad.ReturnMethod.Name}({p[0]})",
@@ -386,12 +390,13 @@ internal static class Parser
         }
     }
 
-    private static GenerationResult<MonadData> ResolveMonadDataFromMonadType(INamedTypeSymbol monadType)
+    private static GenerationResult<MonadData> ResolveMonadDataFromMonadType(INamedTypeSymbol monadType,
+        CancellationToken cancellationToken)
     {
         if (monadType.GetAttributes().Any(x => x.AttributeClass?.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.ResultTypeAttribute"))
             return ResolveMonadDataFromResultType(monadType);
         if (monadType.IsUnboundGenericType)
-            return ResolveMonadDataFromGenericMonadType(monadType);
+            return ResolveMonadDataFromGenericMonadType(monadType, cancellationToken);
         return ResolveMonadDataFromStaticMonadType(monadType);
     }
 
@@ -458,7 +463,8 @@ internal static class Parser
         }
     }
 
-    private static GenerationResult<MonadData> ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType)
+    private static GenerationResult<MonadData> ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType,
+        CancellationToken cancellationToken)
     {
         var attributeData = transformerType.GetAttributes()
             .FirstOrDefault(x =>
@@ -477,7 +483,7 @@ internal static class Parser
         
         var monadTransformerAttribute = MonadTransformerAttribute.From(attributeData);
         var staticMonadType = monadTransformerAttribute.MonadType;
-        var monadData = ResolveMonadDataFromMonadType(staticMonadType);
+        var monadData = ResolveMonadDataFromMonadType(staticMonadType, cancellationToken);
         return monadData;
 
         static bool IsBindTMethod(IMethodSymbol method)
