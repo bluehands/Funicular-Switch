@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <VersionSuffixLocal />
+        <!--When variable is set we are building a prerelease package-->
+        <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)'">
+            $(VersionSuffix)
+        </VersionSuffixLocal>
+
+        <!--#region adapt versions here-->
+        <MajorVersion>0</MajorVersion>
+        <MinorAndPatchVersion>1.0</MinorAndPatchVersion>
+        <!--#endregion-->
+
+        <AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
+        <Version>$(MajorVersion).$(MinorAndPatchVersion)$(VersionSuffixLocal)</Version>
+        <FileVersion>$(Version)</FileVersion>
+        <PackageVersion>$(Version)</PackageVersion>
+        
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <IsPackable>true</IsPackable>
+
+        <!-- Descriptions and information-->
+        <Titel>FunicularSwitch.Transformers</Titel>
+        <Authors>bluehands GmbH &amp; C.ommunication KG</Authors>
+        <PackageDescription>Funicular-Switch is a lightweight C# port of F# result and option types</PackageDescription>
+        <Copyright>Copyright 2025 bluehands GmbH &amp; C.ommunication KG</Copyright>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>FunicularSwitch.png</PackageIcon>
+        <PackageTags>F# Result, Result, Option, Match, Map, Bind, Railway oriented programming, Railway oriented, Railway, Pipeline</PackageTags>
+        <RepositoryUrl>https://github.com/bluehands/Funicular-Switch</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <RepositoryBranch>main</RepositoryBranch>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\FunicularSwitch\FunicularSwitch.csproj"/>
+    </ItemGroup>
+
+    <Import Project="..\FunicularSwitch.Common\FunicularSwitch.Common.projitems" Label="Shared" />
+</Project>
