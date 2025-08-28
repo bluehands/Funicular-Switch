@@ -13,8 +13,6 @@ internal static class Parser
         cancellationToken.ThrowIfCancellationRequested();
         var accessModifier = DetermineAccessModifier(transformedMonadSymbol);
         var outerMonadType = transformMonadAttribute.MonadType;
-        var typeModifier = transformedMonadSymbol.IsStatic ? "static partial class" : DetermineTypeModifier(transformedMonadSymbol);
-        var isRecord = transformedMonadSymbol is {IsStatic: false, IsRecord: true};
         
         return
             from outerMonadData in ResolveMonadDataFromMonadType(outerMonadType, cancellationToken)
@@ -34,19 +32,14 @@ internal static class Parser
                 .Where(x => !x.ImplementsMonadInterface)
                 .Select(GenerateImplementationForMonad)
                 .ToList()
-            let typeParameter = transformedMonadSymbol.IsStatic ? string.Empty : transformedMonadSymbol.TypeArguments[0].Name
             let transformMonadData = new TransformMonadData(
                 transformedMonadSymbol.GetFullNamespace()!,
                 transformedMonadSymbol.FullTypeNameWithNamespace(),
                 transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
                 chainedMonad,
-                transformedMonadSymbol.IsStatic ? null : new(
+                transformedMonadSymbol.IsStatic ? null : BuildGenericMonad(
+                    transformedMonadSymbol,
                     accessModifier,
-                    typeModifier,
-                    transformedMonadSymbol.Name,
-                    typeParameter,
-                    $"{transformedMonadSymbol.Name}<{typeParameter}>",
-                    isRecord,
                     chainedMonad
                 ),
                 BuildStaticMonad(
@@ -103,6 +96,26 @@ internal static class Parser
                         TransformBind(outer, innerMonad, transformerTypeName, outerInterfaceName));
                     return transformedMonad;
                 });
+    }
+
+    private static GenericMonadGenerationInfo BuildGenericMonad(
+        INamedTypeSymbol transformedMonadSymbol,
+        string accessModifier,
+        MonadData chainedMonad)
+    {
+        var typeModifier = DetermineTypeModifier(transformedMonadSymbol);
+        var isRecord = transformedMonadSymbol.IsRecord;
+        var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
+        
+        return new(
+            accessModifier,
+            typeModifier,
+            transformedMonadSymbol.Name,
+            typeParameter,
+            $"{transformedMonadSymbol.Name}<{typeParameter}>",
+            isRecord,
+            chainedMonad
+        );
     }
 
     private static StaticMonadGenerationInfo BuildStaticMonad(
