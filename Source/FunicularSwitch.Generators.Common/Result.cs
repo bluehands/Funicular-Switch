@@ -10,6 +10,15 @@ public static class GenerationResult
 {
     public static GenerationResult<T> Create<T>(T? value, EquatableArray<DiagnosticInfo> diagnostics, bool hasValue)
         => new(value, diagnostics, hasValue);
+
+    public static GenerationResult<T> Create<T>(T value) => Create(value, ImmutableArray<DiagnosticInfo>.Empty, true);
+
+    public static GenerationResult<C> SelectMany<A, B, C>(this GenerationResult<A> ma, Func<A, GenerationResult<B>> fn,
+        Func<A, B, C> selector) =>
+        ma.Bind(a => fn(a).Map(b => selector(a, b)));
+
+    public static GenerationResult<B> Select<A, B>(this GenerationResult<A> ma, Func<A, B> fn) =>
+        ma.Map(fn);
 }
     
 public readonly record struct GenerationResult<T>(T? Value, EquatableArray<DiagnosticInfo> Diagnostics, bool HasValue)

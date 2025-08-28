@@ -26,6 +26,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\FunicularSwitch.Generators\FunicularSwitch.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\..\FunicularSwitch.Generic\FunicularSwitch.Generic.csproj" />
+		<ProjectReference Include="..\..\FunicularSwitch.Transformers\FunicularSwitch.Transformers.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -419,6 +419,12 @@
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp": "[4.11.0, )"
         }
+      },
+      "funicularswitch.transformers": {
+        "type": "Project",
+        "dependencies": {
+          "FunicularSwitch": "[6.3.0, )"
+        }
       }
     }
   }

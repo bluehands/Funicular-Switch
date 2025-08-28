@@ -208,10 +208,10 @@
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
-      "intermediateconsumer": {
+      "funicularswitch.transformers": {
         "type": "Project",
         "dependencies": {
-          "FunicularSwitch.Generic": "[0.0.1, )"
+          "FunicularSwitch": "[6.3.0, )"
         }
       }
     }
