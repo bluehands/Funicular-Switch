@@ -29,6 +29,9 @@ internal static class Generator
 
     private static void BlankLine(CSharpBuilder cs) => cs.Content.AppendLine();
 
+    private static void WriteCommonMethodAttributes(CSharpBuilder cs) =>
+        cs.WriteLine($"[global::System.Diagnostics.Contracts.PureAttribute, {Constants.DebuggerStepThroughAttribute}]");
+
     private static void WriteGenericMonad(GenericMonadGenerationInfo data, CSharpBuilder cs)
     {
         var nestedTypeName = data.Monad.GenericTypeName(data.TypeParameter);
@@ -55,26 +58,6 @@ internal static class Generator
         cs.WriteLine($"{altTypeParameter} {monadInterface}.Cast<{altTypeParameter}>() => ({altTypeParameter})(object)M;");
     }
 
-    private static void WriteStaticMonad(StaticMonadGenerationInfo data, CSharpBuilder cs, CancellationToken cancellationToken)
-    {
-        using var _ = cs.StaticPartialClass(data.TypeName, data.AccessModifier);
-        
-        foreach (var generationInfo in data.MonadsWithoutImplementation)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            WriteMonadInterfaceImplementation(generationInfo, cs);
-            BlankLine(cs);
-        }
-
-        WriteMethod(data.Methods.First(), cs);
-        foreach (var method in data.Methods.Skip(1))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            BlankLine(cs);
-            WriteMethod(method, cs);
-        }
-    }
-
     private static void WriteMethod(MethodGenerationInfo info, CSharpBuilder cs)
     {
         var modifierList = new List<string>
@@ -82,10 +65,10 @@ internal static class Generator
             "public",
             "static",
         };
-        
-        if(info.IsAsync)
+
+        if (info.IsAsync)
             modifierList.Add("async");
-        
+
         var modifiers = string.Join(" ", modifierList);
         var typeArgs = info.TypeParameters.Count > 0 ? $"<{string.Join(", ", info.TypeParameters)}>" : string.Empty;
         var args = string.Join(", ", info.Parameters.Select(x => ($"{(x.IsExtension ? "this " : string.Empty)}{x.Type} {x.Name}")));
@@ -101,7 +84,7 @@ internal static class Generator
         var typeNameB = data.GenericTypeName("B");
         var monadTypeNameA = data.Monad.GenericTypeName("A");
         var monadTypeNameB = data.Monad.GenericTypeName("B");
-        
+
         cs.WriteLine($"private readonly record struct {typeNameA}({monadTypeNameA} M) : {interfaceA}");
         using var _ = cs.Scope();
         WriteCommonMethodAttributes(cs);
@@ -114,9 +97,27 @@ internal static class Generator
         cs.WriteLine($"public {interfaceB} Bind<B>(global::System.Func<A, {interfaceB}> fn) => ({typeNameB}){data.Monad.BindMethod.Invoke(["A", "B"], ["M", $"a => ({monadTypeNameB})({typeNameB})fn(a)"])};");
         WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public B Cast<B>() => (B)(object)M;");
+
         static string InterfaceFn(string t) => $"global::FunicularSwitch.Transformers.Monad<{t}>";
     }
-    
-    private static void WriteCommonMethodAttributes(CSharpBuilder cs) =>
-        cs.WriteLine("[global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]");
+
+    private static void WriteStaticMonad(StaticMonadGenerationInfo data, CSharpBuilder cs, CancellationToken cancellationToken)
+    {
+        using var _ = cs.StaticPartialClass(data.TypeName, data.AccessModifier);
+
+        foreach (var generationInfo in data.MonadsWithoutImplementation)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            WriteMonadInterfaceImplementation(generationInfo, cs);
+            BlankLine(cs);
+        }
+
+        WriteMethod(data.Methods.First(), cs);
+        foreach (var method in data.Methods.Skip(1))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            BlankLine(cs);
+            WriteMethod(method, cs);
+        }
+    }
 }

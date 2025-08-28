@@ -13,15 +13,15 @@ internal static class Parser
         cancellationToken.ThrowIfCancellationRequested();
         var accessModifier = DetermineAccessModifier(transformedMonadSymbol);
         var outerMonadType = transformMonadAttribute.MonadType;
-        
+
         return
             from outerMonadData in ResolveMonadDataFromMonadType(outerMonadType, cancellationToken)
-            let transformerTypes = new[] { transformMonadAttribute.TransformerType }
+            let transformerTypes = new[] {transformMonadAttribute.TransformerType}
                 .Concat(transformMonadAttribute.ExtraTransformerTypes)
                 .ToList()
             from chainedMonads in transformerTypes
                 .Aggregate(
-                    (GenerationResult<IReadOnlyList<MonadData>>)new[] {outerMonadData},
+                    (GenerationResult<IReadOnlyList<MonadData>>) new[] {outerMonadData},
                     (acc, cur) =>
                         acc.Bind(acc_ =>
                             TransformMonad(acc_.Last(), cur, cancellationToken).Map<IReadOnlyList<MonadData>>(transformMonad =>
@@ -37,11 +37,13 @@ internal static class Parser
                 transformedMonadSymbol.FullTypeNameWithNamespace(),
                 transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
                 chainedMonad,
-                transformedMonadSymbol.IsStatic ? null : BuildGenericMonad(
-                    transformedMonadSymbol,
-                    accessModifier,
-                    chainedMonad
-                ),
+                transformedMonadSymbol.IsStatic
+                    ? null
+                    : BuildGenericMonad(
+                        transformedMonadSymbol,
+                        accessModifier,
+                        chainedMonad
+                    ),
                 BuildStaticMonad(
                     transformedMonadSymbol.Name,
                     transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
@@ -52,7 +54,7 @@ internal static class Parser
                     outerMonadData // TODO: determine actual inner monad
                 ))
             select transformMonadData;
-        
+
         string FullGenericType(string t) => $"global::{transformedMonadSymbol.FullTypeNameWithNamespace()}<{t}>";
 
         static Func<string, string> ChainGenericTypeName(Func<string, string> outer, Func<string, string> inner) =>
@@ -72,7 +74,7 @@ internal static class Parser
                 (t, p) =>
                 {
                     var ma = $"({outerInterfaceImplName(inner.GenericTypeName(t[0]))}){p[0]}";
-                    var fn = $"a => ({outerInterfaceImplName(inner.GenericTypeName(t[1]))})(new global::System.Func<{t[0]}, {chainedGenericType(t[1])}>({p[1]}).Invoke(a))"; // A -> Monad<X<B>>
+                    var fn = $"[{Constants.DebuggerStepThroughAttribute}](a) => ({outerInterfaceImplName(inner.GenericTypeName(t[1]))})(new global::System.Func<{t[0]}, {chainedGenericType(t[1])}>({p[1]}).Invoke(a))"; // A -> Monad<X<B>>
 
                     var call = $"{transformerTypeName}.BindT<{t[0]}, {t[1]}>({ma}, {fn}).Cast<{chainedGenericType(t[1])}>()";
                     return call;
@@ -106,7 +108,7 @@ internal static class Parser
         var typeModifier = DetermineTypeModifier(transformedMonadSymbol);
         var isRecord = transformedMonadSymbol.IsRecord;
         var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
-        
+
         return new(
             accessModifier,
             typeModifier,
@@ -146,14 +148,14 @@ internal static class Parser
                 Build(),
                 BuildAsync(),
             ];
-            
+
             MethodGenerationInfo Build() => new(
                 genericTypeName("A"),
                 ["A"],
                 [new("A", "a")],
                 chainedMonad.ReturnMethod // implicit cast
             );
-            
+
             MethodGenerationInfo BuildAsync() => new(
                 TaskType(genericTypeName("A")),
                 ["A"],
@@ -190,7 +192,7 @@ internal static class Parser
                     new(FuncType("A", fnReturnType), "fn"),
                 ],
                 name,
-                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})ma)", "a => fn(a)"])}"
+                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})ma)", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}"
             );
 
             MethodGenerationInfo BuildAsync(string name, string fnReturnType) => new(
@@ -201,7 +203,7 @@ internal static class Parser
                     new(FuncType("A", fnReturnType), "fn"),
                 ],
                 name,
-                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})(await ma))", "a => fn(a)"])}",
+                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})(await ma))", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}",
                 true
             );
 
@@ -214,7 +216,7 @@ internal static class Parser
                     new(FuncType("A", "B", "C"), "selector"),
                 ],
                 name,
-                $"ma.SelectMany(a => (({genericTypeName("B")})fn(a)).Map(b => selector(a, b)))"
+                $"ma.SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName("B")})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))"
             );
 
             MethodGenerationInfo Build2Async(string name, string fnReturnType) => new(
@@ -226,36 +228,37 @@ internal static class Parser
                     new(FuncType("A", "B", "C"), "selector"),
                 ],
                 name,
-                $"(await ma).SelectMany(a => (({genericTypeName("B")})fn(a)).Map(b => selector(a, b)))",
+                $"(await ma).SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName("B")})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))",
                 true
             );
         }
 
         IEnumerable<MethodGenerationInfo> LiftMethods()
         {
-            return [
+            return
+            [
                 Build(),
                 BuildAsync(),
             ];
-            
+
             MethodGenerationInfo Build() => new(
                 genericTypeName("A"),
                 ["A"],
                 [new(outerMonad.GenericTypeName("A"), "ma")],
                 "Lift",
-                $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName("A")}"], ["ma", $"a => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}"
+                $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName("A")}"], ["ma", $"[{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}"
             );
-            
+
             MethodGenerationInfo BuildAsync() => new(
                 TaskType(genericTypeName("A")),
                 ["A"],
                 [new(TaskType(outerMonad.GenericTypeName("A")), "ma")],
                 "Lift",
-                $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName("A")}"], ["(await ma)", $"a => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}",
+                $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName("A")}"], ["(await ma)", $"[{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}",
                 true
             );
         }
-        
+
         IEnumerable<MethodGenerationInfo> MapMethods()
         {
             return
@@ -274,7 +277,7 @@ internal static class Parser
                     new(FuncType("A", "B"), "fn"),
                 ],
                 name,
-                $"ma.{chainedMonad.BindMethod.Name}(a => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))"
+                $"ma.{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))"
             );
 
             MethodGenerationInfo BuildAsync(string name) => new(
@@ -285,17 +288,17 @@ internal static class Parser
                     new(FuncType("A", "B"), "fn"),
                 ],
                 name,
-                $"(await ma).{chainedMonad.BindMethod.Name}(a => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))",
+                $"(await ma).{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))",
                 true
             );
         }
 
         static string FuncType(params string[] typeParameters) =>
             GenericType("global::System.Func", typeParameters);
-        
+
         static string TaskType(string typeParameter) =>
             GenericType("global::System.Threading.Tasks.Task", typeParameter);
-        
+
         static string GenericType(string name, params string[] typeParameters) =>
             $"{name}<{string.Join(", ", typeParameters)}>";
     }
@@ -510,10 +513,10 @@ internal static class Parser
             .GetMembers()
             .OfType<IMethodSymbol>()
             .FirstOrDefault(IsStaticReturnMethod);
-        
+
         if (returnMethod is null)
             return new DiagnosticInfo(Diagnostics.MissingReturnMethod(staticMonadType));
-        
+
         var genericMonadType = ((INamedTypeSymbol) returnMethod.ReturnType).ConstructUnboundGenericType();
 
         var bindMethod = staticMonadType
@@ -523,7 +526,7 @@ internal static class Parser
 
         if (bindMethod is null)
             return new DiagnosticInfo(Diagnostics.MissingBindMethod(staticMonadType));
-        
+
         return CreateMonadData(staticMonadType, genericMonadType, returnMethod, bindMethod);
 
         bool IsStaticReturnMethod(IMethodSymbol method)
@@ -557,7 +560,7 @@ internal static class Parser
         var attributeData = transformerType.GetAttributes()
             .FirstOrDefault(x =>
                 x.AttributeClass?.FullTypeNameWithNamespace() == MonadTransformerAttribute.ATTRIBUTE_NAME);
-        
+
         if (attributeData is null)
             return new DiagnosticInfo(Diagnostics.MonadTransformerNoAttribute(transformerType));
 
@@ -565,10 +568,10 @@ internal static class Parser
             .GetMembers()
             .OfType<IMethodSymbol>()
             .Any(IsBindTMethod);
-        
+
         if (!hasBindTMethod)
             return new DiagnosticInfo(Diagnostics.MissingBindTMethod(transformerType));
-        
+
         var monadTransformerAttribute = MonadTransformerAttribute.From(attributeData);
         var staticMonadType = monadTransformerAttribute.MonadType;
         var monadData = ResolveMonadDataFromMonadType(staticMonadType, cancellationToken);
