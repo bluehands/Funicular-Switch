@@ -10,31 +10,12 @@ internal static class Parser
         TransformMonadAttribute transformMonadAttribute,
         CancellationToken cancellationToken)
     {
-        if (transformedMonadSymbol.IsStatic)
-            return GetTransformedMonadSchema_Static(
-                transformedMonadSymbol,
-                transformMonadAttribute,
-                cancellationToken);
-        
-        return GetTransformedMonadSchema_Generic(
-            transformedMonadSymbol,
-            transformMonadAttribute,
-            cancellationToken);
-    }
-
-    public static GenerationResult<TransformMonadData> GetTransformedMonadSchema_Static(
-        INamedTypeSymbol transformedMonadSymbol,
-        TransformMonadAttribute transformMonadAttribute,
-        CancellationToken cancellationToken)
-    {
         cancellationToken.ThrowIfCancellationRequested();
-
-        var typeModifier = "static partial class";
         var accessModifier = DetermineAccessModifier(transformedMonadSymbol);
-        var isRecord = false;
         var outerMonadType = transformMonadAttribute.MonadType;
-        var typeParameter = string.Empty;
-
+        var typeModifier = transformedMonadSymbol.IsStatic ? "static partial class" : DetermineTypeModifier(transformedMonadSymbol);
+        var isRecord = transformedMonadSymbol is {IsStatic: false, IsRecord: true};
+        
         return
             from outerMonadData in ResolveMonadDataFromMonadType(outerMonadType, cancellationToken)
             let transformerTypes = new[] { transformMonadAttribute.TransformerType }
@@ -42,7 +23,7 @@ internal static class Parser
                 .ToList()
             from chainedMonads in transformerTypes
                 .Aggregate(
-                    (GenerationResult<IReadOnlyList<MonadData>>)new[] { outerMonadData },
+                    (GenerationResult<IReadOnlyList<MonadData>>)new[] {outerMonadData},
                     (acc, cur) =>
                         acc.Bind(acc_ =>
                             TransformMonad(acc_.Last(), cur, cancellationToken).Map<IReadOnlyList<MonadData>>(transformMonad =>
@@ -53,6 +34,7 @@ internal static class Parser
                 .Where(x => !x.ImplementsMonadInterface)
                 .Select(GenerateImplementationForMonad)
                 .ToList()
+            let typeParameter = transformedMonadSymbol.IsStatic ? string.Empty : transformedMonadSymbol.TypeArguments[0].Name
             let transformMonadData = new TransformMonadData(
                 transformedMonadSymbol.GetFullNamespace()!,
                 accessModifier,
@@ -61,119 +43,21 @@ internal static class Parser
                 $"{transformedMonadSymbol.Name}<{typeParameter}>",
                 typeParameter,
                 transformedMonadSymbol.FullTypeNameWithNamespace(),
-                chainedMonad.GenericTypeName,
+                transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
                 isRecord,
                 chainedMonad,
                 BuildStaticMonad(
                     transformedMonadSymbol.Name,
-                    chainedMonad.GenericTypeName,
+                    transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
                     accessModifier,
                     implementations,
                     chainedMonad,
                     outerMonadData,
                     outerMonadData // TODO: determine actual inner monad
                 ),
-                true)
+                transformedMonadSymbol.IsStatic)
             select transformMonadData;
-
-        static Func<string, string> ChainGenericTypeName(Func<string, string> outer, Func<string, string> inner) =>
-            x => outer(inner(x));
-
-        static MethodInfo CombineReturn(MethodInfo outer, MonadData inner) =>
-            new MethodInfo(
-                DetermineMethodName(outer.Name, inner.ReturnMethod.Name, "Return"),
-                (t, p) => $"{outer.Invoke([inner.GenericTypeName(t[0])], [inner.ReturnMethod.Invoke(t, p)])}");
-
-        static MethodInfo TransformBind(MonadData outer, MonadData inner, string transformerTypeName, Func<string, string> outerInterfaceImplName)
-        {
-            var chainedGenericType = ChainGenericTypeName(outer.GenericTypeName, inner.GenericTypeName);
-
-            return new MethodInfo(
-                DetermineMethodName(outer.BindMethod.Name, inner.BindMethod.Name, "Bind"),
-                (t, p) =>
-                {
-                    var ma = $"({outerInterfaceImplName(inner.GenericTypeName(t[0]))}){p[0]}";
-                    var fn = $"a => ({outerInterfaceImplName(inner.GenericTypeName(t[1]))})(new global::System.Func<{t[0]}, {chainedGenericType(t[1])}>({p[1]}).Invoke(a))"; // A -> Monad<X<B>>
-
-                    var call = $"{transformerTypeName}.BindT<{t[0]}, {t[1]}>({ma}, {fn}).Cast<{chainedGenericType(t[1])}>()";
-                    return call;
-                });
-        }
-
-        static GenerationResult<MonadData> TransformMonad(MonadData outer, INamedTypeSymbol transformerType,
-            CancellationToken cancellationToken1 = default) =>
-            ResolveMonadDataFromTransformerType(transformerType, cancellationToken1)
-                .Map(innerMonad =>
-                {
-                    var transformerTypeName = $"global::{transformerType.FullTypeNameWithNamespace()}";
-                    var outerInterfaceImplementation =
-                        !outer.ImplementsMonadInterface ? GenerateImplementationForMonad(outer) : null;
-                    var outerInterfaceName =
-                        outerInterfaceImplementation?.GenericTypeName ?? outer.GenericTypeName;
-
-                    var transformedMonad = new MonadData(
-                        ChainGenericTypeName(outer.GenericTypeName, innerMonad.GenericTypeName),
-                        CombineReturn(outer.ReturnMethod, innerMonad),
-                        TransformBind(outer, innerMonad, transformerTypeName, outerInterfaceName));
-                    return transformedMonad;
-                });
-    }
-
-    public static GenerationResult<TransformMonadData> GetTransformedMonadSchema_Generic(
-        INamedTypeSymbol transformedMonadSymbol,
-        TransformMonadAttribute transformMonadAttribute,
-        CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
         
-        var typeModifier = DetermineTypeModifier(transformedMonadSymbol);
-        var accessModifier = DetermineAccessModifier(transformedMonadSymbol);
-        var isRecord = transformedMonadSymbol.IsRecord;
-        var outerMonadType = transformMonadAttribute.MonadType;
-
-        return
-            from outerMonadData in ResolveMonadDataFromMonadType(outerMonadType, cancellationToken)
-            let transformerTypes = new[] { transformMonadAttribute.TransformerType }
-                .Concat(transformMonadAttribute.ExtraTransformerTypes)
-                .ToList()
-            from chainedMonads in transformerTypes
-                .Aggregate(
-                    (GenerationResult<IReadOnlyList<MonadData>>)new[] { outerMonadData },
-                    (acc, cur) =>
-                        acc.Bind(acc_ =>
-                            TransformMonad(acc_.Last(), cur, cancellationToken).Map<IReadOnlyList<MonadData>>(transformMonad =>
-                                [..acc_, transformMonad])))
-            let chainedMonad = chainedMonads.Last()
-            let implementations = chainedMonads
-                .Take(chainedMonads.Count - 1)
-                .Where(x => !x.ImplementsMonadInterface)
-                .Select(GenerateImplementationForMonad)
-                .ToList()
-            let typeParameter = transformedMonadSymbol.TypeArguments[0].Name
-            let transformMonadData = new TransformMonadData(
-                transformedMonadSymbol.GetFullNamespace()!,
-                accessModifier,
-                typeModifier,
-                transformedMonadSymbol.Name,
-                $"{transformedMonadSymbol.Name}<{typeParameter}>",
-                typeParameter,
-                transformedMonadSymbol.FullTypeNameWithNamespace(),
-                FullGenericType,
-                isRecord,
-                chainedMonad,
-                BuildStaticMonad(
-                    transformedMonadSymbol.Name,
-                    FullGenericType,
-                    accessModifier,
-                    implementations,
-                    chainedMonad,
-                    outerMonadData,
-                    outerMonadData // TODO: determine actual inner monad
-                ),
-                false)
-            select transformMonadData;
-
-
         string FullGenericType(string t) => $"global::{transformedMonadSymbol.FullTypeNameWithNamespace()}<{t}>";
 
         static Func<string, string> ChainGenericTypeName(Func<string, string> outer, Func<string, string> inner) =>
