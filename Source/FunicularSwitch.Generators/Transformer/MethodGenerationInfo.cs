@@ -5,7 +5,8 @@ internal record MethodGenerationInfo(
     IReadOnlyList<string> TypeParameters,
     IReadOnlyList<ParameterGenerationInfo> Parameters,
     string Name,
-    MethodBody Body)
+    MethodBody Body,
+    bool IsAsync = false)
 {
     public MethodGenerationInfo(string ReturnType,
         IReadOnlyList<string> TypeParameters,

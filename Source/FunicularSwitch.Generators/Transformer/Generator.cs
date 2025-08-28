@@ -77,10 +77,20 @@ internal static class Generator
 
     private static void WriteMethod(MethodGenerationInfo info, CSharpBuilder cs)
     {
+        var modifierList = new List<string>
+        {
+            "public",
+            "static",
+        };
+        
+        if(info.IsAsync)
+            modifierList.Add("async");
+        
+        var modifiers = string.Join(" ", modifierList);
         var typeArgs = info.TypeParameters.Count > 0 ? $"<{string.Join(", ", info.TypeParameters)}>" : string.Empty;
         var args = string.Join(", ", info.Parameters.Select(x => ($"{(x.IsExtension ? "this " : string.Empty)}{x.Type} {x.Name}")));
         WriteCommonMethodAttributes(cs);
-        cs.WriteLine($"public static {info.ReturnType} {info.Name}{typeArgs}({args}) => {info.Body};");
+        cs.WriteLine($"{modifiers} {info.ReturnType} {info.Name}{typeArgs}({args}) => {info.Body};");
     }
 
     private static void WriteMonadInterfaceImplementation(MonadImplementationGenerationInfo data, CSharpBuilder cs)
