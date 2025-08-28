@@ -8,18 +8,14 @@ namespace FunicularSwitch.Generators.AwesomeAssertions;
 [Generator]
 public class AssertionMethodsGenerator : IIncrementalGenerator
 {
+    const string FunicularSwitchNamespace = "FunicularSwitch";
+    
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
         {
-            const string funicularSwitchAssertionsNamespace = "FunicularSwitch";
-    
-            var optionAssertionsText = Templates.GenerateAssertionsForTemplates.OptionAssertions.Replace(Generator.TemplateNamespace, funicularSwitchAssertionsNamespace);
-            ctx.AddSource($"{funicularSwitchAssertionsNamespace}.OptionAssertions.g.cs", optionAssertionsText);
-            var optionAssertionExtensionsText = Templates.GenerateAssertionsForTemplates.OptionAssertionExtensions.Replace(Generator.TemplateNamespace, funicularSwitchAssertionsNamespace);
-            ctx.AddSource($"{funicularSwitchAssertionsNamespace}.OptionAssertionExtensions.g.cs", optionAssertionExtensionsText);
-            var generateExtensionsForInternalTypeAttributesText = Templates.GenerateAssertionsForTemplates.GenerateExtensionsForInternalTypesAttribute.Replace(Generator.TemplateNamespace, funicularSwitchAssertionsNamespace);
-            ctx.AddSource($"{funicularSwitchAssertionsNamespace}.GenerateExtensionsForInternalTypesAttribute.g.cs", generateExtensionsForInternalTypeAttributesText);
+            var generateExtensionsForInternalTypeAttributesText = Templates.GenerateAssertionsForTemplates.GenerateExtensionsForInternalTypesAttribute.Replace(Generator.TemplateNamespace, FunicularSwitchNamespace);
+            ctx.AddSource($"{FunicularSwitchNamespace}.GenerateExtensionsForInternalTypesAttribute.g.cs", generateExtensionsForInternalTypeAttributesText);
         });
 
         var refAssemblies = context.CompilationProvider
@@ -43,13 +39,18 @@ public class AssertionMethodsGenerator : IIncrementalGenerator
         SourceProductionContext context)
     {
         IEnumerable<(string filename, string source)> generated;
-        if (assembly.Identity.Name == "FunicularSwitch")
+        if (assembly.Identity.Name == FunicularSwitchNamespace)
         {
-            var resultType = assembly.GetTypeByMetadataName("FunicularSwitch.Result");
+            var resultType = assembly.GetTypeByMetadataName($"{FunicularSwitchNamespace}.Result");
             generated = Generator.EmitForResultType(
                 new ResultTypeSchema(resultType!, null),
                 context.ReportDiagnostic,
                 context.CancellationToken);
+            
+            var optionAssertionsText = Templates.GenerateAssertionsForTemplates.OptionAssertions.Replace(Generator.TemplateNamespace, FunicularSwitchNamespace);
+            context.AddSource($"{FunicularSwitchNamespace}.OptionAssertions.g.cs", optionAssertionsText);
+            var optionAssertionExtensionsText = Templates.GenerateAssertionsForTemplates.OptionAssertionExtensions.Replace(Generator.TemplateNamespace, FunicularSwitchNamespace);
+            context.AddSource($"{FunicularSwitchNamespace}.OptionAssertionExtensions.g.cs", optionAssertionExtensionsText);
         }
         else
         {

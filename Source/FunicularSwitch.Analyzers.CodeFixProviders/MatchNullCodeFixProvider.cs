@@ -42,7 +42,7 @@ public class MatchNullCodeFixProvider : CodeFixProvider
             CodeAction.Create(
                 title: $"Use .Map().GetValueOrDefault()",
                 equivalenceKey: DiagnosticId.MatchNull,
-                createChangedDocument: c => MigrateMatch(context.Document, diagnostic.Id, invocationExpressionSyntax, m, context.CancellationToken)),
+                createChangedDocument: c => MigrateMatch(context.Document, diagnostic.Id, invocationExpressionSyntax, m, c)),
             diagnostic);
     }
 
