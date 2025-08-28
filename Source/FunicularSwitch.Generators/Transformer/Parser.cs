@@ -37,15 +37,18 @@ internal static class Parser
             let typeParameter = transformedMonadSymbol.IsStatic ? string.Empty : transformedMonadSymbol.TypeArguments[0].Name
             let transformMonadData = new TransformMonadData(
                 transformedMonadSymbol.GetFullNamespace()!,
-                accessModifier,
-                typeModifier,
-                transformedMonadSymbol.Name,
-                $"{transformedMonadSymbol.Name}<{typeParameter}>",
-                typeParameter,
                 transformedMonadSymbol.FullTypeNameWithNamespace(),
                 transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
-                isRecord,
                 chainedMonad,
+                transformedMonadSymbol.IsStatic ? null : new(
+                    accessModifier,
+                    typeModifier,
+                    transformedMonadSymbol.Name,
+                    typeParameter,
+                    $"{transformedMonadSymbol.Name}<{typeParameter}>",
+                    isRecord,
+                    chainedMonad
+                ),
                 BuildStaticMonad(
                     transformedMonadSymbol.Name,
                     transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
@@ -54,8 +57,7 @@ internal static class Parser
                     chainedMonad,
                     outerMonadData,
                     outerMonadData // TODO: determine actual inner monad
-                ),
-                transformedMonadSymbol.IsStatic)
+                ))
             select transformMonadData;
         
         string FullGenericType(string t) => $"global::{transformedMonadSymbol.FullTypeNameWithNamespace()}<{t}>";

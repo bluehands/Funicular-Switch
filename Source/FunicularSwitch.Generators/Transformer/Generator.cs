@@ -15,9 +15,9 @@ internal static class Generator
         var cs = new CSharpBuilder(defaultIntent: "    ");
         using (cs.Namespace(data.Namespace))
         {
-            if (!data.IsStatic)
+            if (data.GenericMonadGenerationInfo is not null)
             {
-                WriteGenericMonad(data, cs);
+                WriteGenericMonad(data.GenericMonadGenerationInfo, cs);
                 BlankLine(cs);
             }
 
@@ -29,7 +29,7 @@ internal static class Generator
 
     private static void BlankLine(CSharpBuilder cs) => cs.Content.AppendLine();
 
-    private static void WriteGenericMonad(TransformMonadData data, CSharpBuilder cs)
+    private static void WriteGenericMonad(GenericMonadGenerationInfo data, CSharpBuilder cs)
     {
         var nestedTypeName = data.Monad.GenericTypeName(data.TypeParameter);
         var monadInterface = $"global::FunicularSwitch.Transformers.Monad<{data.TypeParameter}>";
