@@ -11,4 +11,5 @@ internal record TransformMonadData(
     Func<string, string> FullGenericType,
     bool IsRecord,
     MonadData Monad,
-    StaticMonadGenerationInfo StaticMonadGenerationInfo);
+    StaticMonadGenerationInfo StaticMonadGenerationInfo,
+    bool IsStatic);

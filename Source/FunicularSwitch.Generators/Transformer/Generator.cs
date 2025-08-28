@@ -15,8 +15,12 @@ internal static class Generator
         var cs = new CSharpBuilder(defaultIntent: "    ");
         using (cs.Namespace(data.Namespace))
         {
-            WriteGenericMonad(data, cs);
-            BlankLine(cs);
+            if (!data.IsStatic)
+            {
+                WriteGenericMonad(data, cs);
+                BlankLine(cs);
+            }
+
             WriteStaticMonad(data.StaticMonadGenerationInfo, cs, cancellationToken);
         }
 
