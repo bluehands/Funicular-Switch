@@ -166,11 +166,8 @@ internal static class Parser
                     new(genericTypeName("A"), "ma", true),
                     new(FuncType("A", fnReturnType), "fn"),
                 ],
-                new(
-                    name,
-                    (t, p) =>
-                        $"{chainedMonad.BindMethod.Invoke(t, [$"(({chainedMonad.GenericTypeName(t[0])}){p[0]})", $"a => {p[1]}(a)"])}" // implicit cast
-                )
+                name,
+                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})ma)", "a => fn(a)"])}" // implicit cast
             );
 
             MethodGenerationInfo Build2(string name, string fnReturnType) => new(
@@ -190,10 +187,8 @@ internal static class Parser
             genericTypeName("A"),
             ["A"],
             [new(outerMonad.GenericTypeName("A"), "ma")],
-            new(
-                "Lift",
-                (t, _) => $"{outerMonad.BindMethod.Invoke([t[0], $"{innerMonad.GenericTypeName("A")}"], ["ma", $"a => {chainedMonad.ReturnMethod.Invoke(t, ["a"])}"])}" // implicit cast
-            )
+            "Lift",
+            $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName("A")}"], ["ma", $"a => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}"
         );
 
         IEnumerable<MethodGenerationInfo> MapMethods()
