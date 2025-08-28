@@ -11,7 +11,6 @@ public class TransformerGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(TransformMonadAttribute.AddTo);
-        context.RegisterPostInitializationOutput(MonadTransformerAttribute.AddTo);
 
         var transformedMonadTypes = TransformMonadAttribute.Find(
             context.SyntaxProvider,
