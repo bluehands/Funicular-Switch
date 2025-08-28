@@ -1,5 +1,3 @@
-using System;
-
 namespace FunicularSwitch.Generators.Transformer;
 
 internal record GenericMonadGenerationInfo(
@@ -9,4 +7,4 @@ internal record GenericMonadGenerationInfo(
     string TypeParameter,
     string TypeNameWithTypeParameters,
     bool IsRecord,
-    MonadData Monad);
+    MonadInfo Monad);

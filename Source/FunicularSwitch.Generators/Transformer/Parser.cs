@@ -5,7 +5,7 @@ namespace FunicularSwitch.Generators.Transformer;
 
 internal static class Parser
 {
-    public static GenerationResult<TransformMonadData> GetTransformedMonadSchema(
+    public static GenerationResult<TransformMonadInfo> GetTransformedMonadSchema(
         INamedTypeSymbol transformedMonadSymbol,
         TransformMonadAttribute transformMonadAttribute,
         CancellationToken cancellationToken)
@@ -21,10 +21,10 @@ internal static class Parser
                 .ToList()
             from chainedMonads in transformerTypes
                 .Aggregate(
-                    (GenerationResult<IReadOnlyList<MonadData>>) new[] {outerMonadData},
+                    (GenerationResult<IReadOnlyList<MonadInfo>>) new[] {outerMonadData},
                     (acc, cur) =>
                         acc.Bind(acc_ =>
-                            TransformMonad(acc_.Last(), cur, cancellationToken).Map<IReadOnlyList<MonadData>>(transformMonad =>
+                            TransformMonad(acc_.Last(), cur, cancellationToken).Map<IReadOnlyList<MonadInfo>>(transformMonad =>
                                 [..acc_, transformMonad])))
             let chainedMonad = chainedMonads.Last()
             let implementations = chainedMonads
@@ -32,7 +32,7 @@ internal static class Parser
                 .Where(x => !x.ImplementsMonadInterface)
                 .Select(GenerateImplementationForMonad)
                 .ToList()
-            let transformMonadData = new TransformMonadData(
+            let transformMonadData = new TransformMonadInfo(
                 transformedMonadSymbol.GetFullNamespace()!,
                 transformedMonadSymbol.FullTypeNameWithNamespace(),
                 transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
@@ -60,12 +60,12 @@ internal static class Parser
         static Func<string, string> ChainGenericTypeName(Func<string, string> outer, Func<string, string> inner) =>
             x => outer(inner(x));
 
-        static MethodInfo CombineReturn(MethodInfo outer, MonadData inner) =>
+        static MethodInfo CombineReturn(MethodInfo outer, MonadInfo inner) =>
             new MethodInfo(
                 DetermineMethodName(outer.Name, inner.ReturnMethod.Name, "Return"),
                 (t, p) => $"{outer.Invoke([inner.GenericTypeName(t[0])], [inner.ReturnMethod.Invoke(t, p)])}");
 
-        static MethodInfo TransformBind(MonadData outer, MonadData inner, string transformerTypeName, Func<string, string> outerInterfaceImplName)
+        static MethodInfo TransformBind(MonadInfo outer, MonadInfo inner, string transformerTypeName, Func<string, string> outerInterfaceImplName)
         {
             var chainedGenericType = ChainGenericTypeName(outer.GenericTypeName, inner.GenericTypeName);
 
@@ -81,7 +81,7 @@ internal static class Parser
                 });
         }
 
-        static GenerationResult<MonadData> TransformMonad(MonadData outer, INamedTypeSymbol transformerType,
+        static GenerationResult<MonadInfo> TransformMonad(MonadInfo outer, INamedTypeSymbol transformerType,
             CancellationToken cancellationToken1 = default) =>
             ResolveMonadDataFromTransformerType(transformerType, cancellationToken1)
                 .Map(innerMonad =>
@@ -92,7 +92,7 @@ internal static class Parser
                     var outerInterfaceName =
                         outerInterfaceImplementation?.GenericTypeName ?? outer.GenericTypeName;
 
-                    var transformedMonad = new MonadData(
+                    var transformedMonad = new MonadInfo(
                         ChainGenericTypeName(outer.GenericTypeName, innerMonad.GenericTypeName),
                         CombineReturn(outer.ReturnMethod, innerMonad),
                         TransformBind(outer, innerMonad, transformerTypeName, outerInterfaceName));
@@ -103,7 +103,7 @@ internal static class Parser
     private static GenericMonadGenerationInfo BuildGenericMonad(
         INamedTypeSymbol transformedMonadSymbol,
         string accessModifier,
-        MonadData chainedMonad)
+        MonadInfo chainedMonad)
     {
         var typeModifier = DetermineTypeModifier(transformedMonadSymbol);
         var isRecord = transformedMonadSymbol.IsRecord;
@@ -125,9 +125,9 @@ internal static class Parser
         Func<string, string> genericTypeName,
         string accessModifier,
         IReadOnlyList<MonadImplementationGenerationInfo> monadImplementations,
-        MonadData chainedMonad,
-        MonadData outerMonad,
-        MonadData innerMonad)
+        MonadInfo chainedMonad,
+        MonadInfo outerMonad,
+        MonadInfo innerMonad)
     {
         return new StaticMonadGenerationInfo(
             typeName,
@@ -303,7 +303,7 @@ internal static class Parser
             $"{name}<{string.Join(", ", typeParameters)}>";
     }
 
-    private static MonadData CreateMonadData(INamedTypeSymbol? staticType, INamedTypeSymbol genericType, IMethodSymbol returnMethod, IMethodSymbol? bindMethod = default)
+    private static MonadInfo CreateMonadData(INamedTypeSymbol? staticType, INamedTypeSymbol genericType, IMethodSymbol returnMethod, IMethodSymbol? bindMethod = default)
     {
         var genericTypeName = $"global::{genericType.FullTypeNameWithNamespace()}";
         var (returnMethodName, returnMethodInvoke) = GetReturnMethod();
@@ -316,7 +316,7 @@ internal static class Parser
             bindMethodName,
             (t, p) => bindMethodInvoke(t[0], t[1], p[0], p[1]));
 
-        return new MonadData(
+        return new MonadInfo(
             TypeName,
             returnMethodInfo,
             bindMethodInfo,
@@ -399,9 +399,9 @@ internal static class Parser
         return string.Join(" ", modifiers);
     }
 
-    private static MonadImplementationGenerationInfo GenerateImplementationForMonad(MonadData data)
+    private static MonadImplementationGenerationInfo GenerateImplementationForMonad(MonadInfo info)
     {
-        var baseName = data.GenericTypeName("_")
+        var baseName = info.GenericTypeName("_")
             .Replace('.', '_')
             .Replace('<', '_')
             .Replace('>', '_')
@@ -410,7 +410,7 @@ internal static class Parser
             [8..];
         return new MonadImplementationGenerationInfo(
             t => $"Impl__{baseName}<{t}>",
-            data);
+            info);
     }
 
     private static bool ImplementsMonadInterface(INamedTypeSymbol genericType) =>
@@ -418,7 +418,7 @@ internal static class Parser
             x.AttributeClass?.FullTypeNameWithNamespace() == TransformMonadAttribute.ATTRIBUTE_NAME) ||
         genericType.OriginalDefinition.AllInterfaces.Any(x => x.FullTypeNameWithNamespace() == "FunicularSwitch.Transformers.Monad");
 
-    private static GenerationResult<MonadData> ResolveMonadDataFromGenericMonadType(INamedTypeSymbol genericMonadType,
+    private static GenerationResult<MonadInfo> ResolveMonadDataFromGenericMonadType(INamedTypeSymbol genericMonadType,
         CancellationToken cancellationToken)
     {
         var transformMonadAttribute = genericMonadType
@@ -435,7 +435,7 @@ internal static class Parser
             {
                 Invoke = (_, p) => $"{p[0]}.{transformedMonadData.Monad.BindMethod.Name}({p[1]})",
             };
-            return new MonadData(
+            return new MonadInfo(
                 transformedMonadData.FullGenericType,
                 returnMethodInfo,
                 bindMethodInfo,
@@ -481,7 +481,7 @@ internal static class Parser
         }
     }
 
-    private static GenerationResult<MonadData> ResolveMonadDataFromMonadType(INamedTypeSymbol monadType,
+    private static GenerationResult<MonadInfo> ResolveMonadDataFromMonadType(INamedTypeSymbol monadType,
         CancellationToken cancellationToken)
     {
         if (monadType.GetAttributes().Any(x => x.AttributeClass?.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.ResultTypeAttribute"))
@@ -491,7 +491,7 @@ internal static class Parser
         return ResolveMonadDataFromStaticMonadType(monadType);
     }
 
-    private static MonadData ResolveMonadDataFromResultType(INamedTypeSymbol resultType)
+    private static MonadInfo ResolveMonadDataFromResultType(INamedTypeSymbol resultType)
     {
         var returnMethod = new MethodInfo(
             "Ok",
@@ -499,7 +499,7 @@ internal static class Parser
         var bindMethod = new MethodInfo(
             "Bind",
             (_, p) => $"{p[0]}.Bind({p[1]})");
-        return new MonadData(
+        return new MonadInfo(
             GenericTypeName,
             returnMethod,
             bindMethod);
@@ -507,7 +507,7 @@ internal static class Parser
         string GenericTypeName(string t) => $"global::{resultType.FullTypeNameWithNamespace()}<{t}>";
     }
 
-    private static GenerationResult<MonadData> ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
+    private static GenerationResult<MonadInfo> ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
     {
         var returnMethod = staticMonadType
             .GetMembers()
@@ -554,7 +554,7 @@ internal static class Parser
         }
     }
 
-    private static GenerationResult<MonadData> ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType,
+    private static GenerationResult<MonadInfo> ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType,
         CancellationToken cancellationToken)
     {
         var attributeData = transformerType.GetAttributes()

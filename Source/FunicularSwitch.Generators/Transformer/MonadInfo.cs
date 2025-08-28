@@ -1,6 +1,6 @@
 namespace FunicularSwitch.Generators.Transformer;
 
-internal record MonadData(
+internal record MonadInfo(
     Func<string, string> GenericTypeName,
     MethodInfo ReturnMethod,
     MethodInfo BindMethod,

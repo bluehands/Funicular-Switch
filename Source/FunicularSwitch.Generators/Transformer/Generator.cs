@@ -6,22 +6,22 @@ namespace FunicularSwitch.Generators.Transformer;
 internal static class Generator
 {
     public static (string filename, string source) Emit(
-        TransformMonadData data,
+        TransformMonadInfo info,
         Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken)
     {
-        var filename = $"{data.FullTypeName}.g.cs";
+        var filename = $"{info.FullTypeName}.g.cs";
 
         var cs = new CSharpBuilder(defaultIntent: "    ");
-        using (cs.Namespace(data.Namespace))
+        using (cs.Namespace(info.Namespace))
         {
-            if (data.GenericMonadGenerationInfo is not null)
+            if (info.GenericMonadGenerationInfo is not null)
             {
-                WriteGenericMonad(data.GenericMonadGenerationInfo, cs);
+                WriteGenericMonad(info.GenericMonadGenerationInfo, cs);
                 BlankLine(cs);
             }
 
-            WriteStaticMonad(data.StaticMonadGenerationInfo, cs, cancellationToken);
+            WriteStaticMonad(info.StaticMonadGenerationInfo, cs, cancellationToken);
         }
 
         return (filename, cs);
@@ -45,7 +45,6 @@ internal static class Generator
             cs.WriteGetOnlyProperty(nestedTypeName, "M", "M");
         }
 
-        // TODO: add missing global::
         WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public static implicit operator {data.TypeNameWithTypeParameters}({nestedTypeName} ma) => new(ma);");
         WriteCommonMethodAttributes(cs);

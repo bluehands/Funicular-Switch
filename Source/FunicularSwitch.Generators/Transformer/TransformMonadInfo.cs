@@ -1,9 +1,9 @@
 namespace FunicularSwitch.Generators.Transformer;
 
-internal record TransformMonadData(
+internal record TransformMonadInfo(
     string Namespace,
     string FullTypeName,
     Func<string, string> FullGenericType,
-    MonadData Monad,
+    MonadInfo Monad,
     GenericMonadGenerationInfo? GenericMonadGenerationInfo,
     StaticMonadGenerationInfo StaticMonadGenerationInfo);
