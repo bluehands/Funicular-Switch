@@ -103,21 +103,21 @@ public class TransformerSpecs
         // Assert
         using (new AssertionScope())
         {
-            string.Join(Environment.NewLine, result.M.Log).Should().Be(expectedLog);
-            result.M.Value.ToString().Should().Be(expectedResult);
+            string.Join(Environment.NewLine, result.Log).Should().Be(expectedLog);
+            result.Value.ToString().Should().Be(expectedResult);
         }
 
-        static WriterResult<int> Sqrt(int a) =>
+        static Writer<FunicularSwitch.Result<int>> Sqrt(int a) =>
             a < 0
                 ? WriterResult.Error<int>($"sqrt({a}) -> Cannot get square root of negative number")
                 : WriterResult.Append((int)Math.Sqrt(a), v => $"sqrt({a}) = {v}");
 
-        static WriterResult<int> Div(int a, int b) =>
+        static Writer<FunicularSwitch.Result<int>> Div(int a, int b) =>
             b == 0
                 ? WriterResult.Error<int>($"{a}/{b} -> Cannot divide by 0")
                 : WriterResult.Append(a / b, v => $"{a}/{b} = {v}");
 
-        static WriterResult<int> Subtract(int a, int b) =>
+        static Writer<FunicularSwitch.Result<int>> Subtract(int a, int b) =>
             WriterResult.Append(a - b, v => $"{a}-{b} = {v}");
     }
 
@@ -167,15 +167,13 @@ public static class Writer
 }
 
 [TransformMonad(typeof(Writer), typeof(ResultT))]
-public readonly partial record struct WriterResult<A>;
-
 public static partial class WriterResult
 {
-    public static WriterResult<A> Append<A>(A value, string text) => Writer.Append<FunicularSwitch.Result<A>>(value, text);
+    public static Writer<FunicularSwitch.Result<A>> Append<A>(A value, string text) => Writer.Append<FunicularSwitch.Result<A>>(value, text);
     
-    public static WriterResult<A> Append<A>(A value, Func<A, string> textFn) => Append(value, textFn(value));
+    public static Writer<FunicularSwitch.Result<A>> Append<A>(A value, Func<A, string> textFn) => Append(value, textFn(value));
 
-    public static WriterResult<A> Error<A>(string error) => Writer.Append(FunicularSwitch.Result.Error<A>(error), error);
+    public static Writer<FunicularSwitch.Result<A>> Error<A>(string error) => Writer.Append(FunicularSwitch.Result.Error<A>(error), error);
 }
 
 [TransformMonad(typeof(Result<>), typeof(EnumerableT))]
