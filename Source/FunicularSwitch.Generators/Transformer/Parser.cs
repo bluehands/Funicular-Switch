@@ -1,264 +1,11 @@
 using FunicularSwitch.Generators.Common;
+using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
 
 namespace FunicularSwitch.Generators.Transformer;
 
 internal static class Parser
 {
-    public static StaticMonadGenerationInfo BuildStaticMonad(
-        string typeName,
-        Func<string, string> genericTypeName,
-        string accessModifier,
-        IReadOnlyList<MonadImplementationGenerationInfo> monadImplementations,
-        MonadInfo chainedMonad,
-        MonadInfo outerMonad,
-        MonadInfo innerMonad,
-        bool generateCoreMethods = true)
-    {
-        return new StaticMonadGenerationInfo(
-            typeName,
-            accessModifier,
-            monadImplementations,
-            [
-                ..generateCoreMethods
-                    ? CreateCoreMonadMethods(genericTypeName,
-                        chainedMonad,
-                        outerMonad,
-                        innerMonad
-                    )
-                    : [],
-                ..CreateExtendMonadMethods(genericTypeName,
-                    chainedMonad
-                ),
-            ]
-        );
-    }
-
-    public static IReadOnlyList<MethodGenerationInfo> CreateCoreMonadMethods(
-        Func<string, string> genericTypeName,
-        MonadInfo chainedMonad,
-        MonadInfo outerMonad,
-        MonadInfo innerMonad)
-    {
-        return
-        [
-            ..ReturnMethods(),
-            ..BindMethods().Distinct(MethodGenerationInfo.Comparer.Instance),
-            ..LiftMethods(),
-        ];
-
-        IEnumerable<MethodGenerationInfo> ReturnMethods()
-        {
-            return
-            [
-                Build(),
-                BuildAsync(),
-            ];
-
-            MethodGenerationInfo Build() => new(
-                genericTypeName("A"),
-                ["A"],
-                [new ParameterGenerationInfo("A", "a")],
-                chainedMonad.ReturnMethod // implicit cast
-            );
-
-            MethodGenerationInfo BuildAsync() => new(
-                TaskType(genericTypeName("A")),
-                ["A"],
-                [new ParameterGenerationInfo(TaskType("A"), "a")],
-                chainedMonad.ReturnMethod.Name,
-                chainedMonad.ReturnMethod.Invoke(["A"], ["(await a)"]),
-                true
-            );
-        }
-
-        IEnumerable<MethodGenerationInfo> BindMethods()
-        {
-            return
-            [
-                Build(chainedMonad.BindMethod.Name, genericTypeName("B")),
-                Build(chainedMonad.BindMethod.Name, chainedMonad.GenericTypeName("B")),
-                BuildAsync(chainedMonad.BindMethod.Name, genericTypeName("B")),
-                BuildAsync(chainedMonad.BindMethod.Name, chainedMonad.GenericTypeName("B")),
-            ];
-
-            MethodGenerationInfo Build(string name, string fnReturnType) => new(
-                genericTypeName("B"),
-                ["A", "B"],
-                [
-                    new ParameterGenerationInfo(genericTypeName("A"), "ma", true),
-                    new ParameterGenerationInfo(FuncType("A", fnReturnType), "fn"),
-                ],
-                name,
-                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})ma)", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}"
-            );
-
-            MethodGenerationInfo BuildAsync(string name, string fnReturnType) => new(
-                TaskType(genericTypeName("B")),
-                ["A", "B"],
-                [
-                    new ParameterGenerationInfo(TaskType(genericTypeName("A")), "ma", true),
-                    new ParameterGenerationInfo(FuncType("A", fnReturnType), "fn"),
-                ],
-                name,
-                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})(await ma))", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}",
-                true
-            );
-        }
-
-        IEnumerable<MethodGenerationInfo> LiftMethods()
-        {
-            return
-            [
-                Build(),
-                BuildAsync(),
-            ];
-
-            MethodGenerationInfo Build() => new(
-                genericTypeName("A"),
-                ["A"],
-                [new ParameterGenerationInfo(outerMonad.GenericTypeName("A"), "ma")],
-                "Lift",
-                $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName("A")}"], ["ma", $"[{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}"
-            );
-
-            MethodGenerationInfo BuildAsync() => new(
-                TaskType(genericTypeName("A")),
-                ["A"],
-                [new ParameterGenerationInfo(TaskType(outerMonad.GenericTypeName("A")), "ma")],
-                "Lift",
-                $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName("A")}"], ["(await ma)", $"[{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}",
-                true
-            );
-        }
-
-        static string FuncType(params string[] typeParameters) =>
-            GenericType("global::System.Func", typeParameters);
-
-        static string TaskType(string typeParameter) =>
-            GenericType("global::System.Threading.Tasks.Task", typeParameter);
-
-        static string GenericType(string name, params string[] typeParameters) =>
-            $"{name}<{string.Join(", ", typeParameters)}>";
-    }
-
-    public static IReadOnlyList<MethodGenerationInfo> CreateExtendMonadMethods(
-        Func<string, string> genericTypeName,
-        MonadInfo chainedMonad)
-    {
-        return
-        [
-            ..BindMethods().Distinct(MethodGenerationInfo.Comparer.Instance),
-            ..MapMethods(),
-        ];
-
-        IEnumerable<MethodGenerationInfo> BindMethods()
-        {
-            return
-            [
-                Build("SelectMany", genericTypeName("B")),
-                Build("SelectMany", chainedMonad.GenericTypeName("B")),
-                BuildAsync("SelectMany", genericTypeName("B")),
-                BuildAsync("SelectMany", chainedMonad.GenericTypeName("B")),
-                Build2("SelectMany", genericTypeName("B")),
-                Build2("SelectMany", chainedMonad.GenericTypeName("B")),
-                Build2Async("SelectMany", genericTypeName("B")),
-                Build2Async("SelectMany", chainedMonad.GenericTypeName("B")),
-            ];
-
-            MethodGenerationInfo Build(string name, string fnReturnType) => new(
-                genericTypeName("B"),
-                ["A", "B"],
-                [
-                    new ParameterGenerationInfo(genericTypeName("A"), "ma", true),
-                    new ParameterGenerationInfo(FuncType("A", fnReturnType), "fn"),
-                ],
-                name,
-                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})ma)", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}"
-            );
-
-            MethodGenerationInfo BuildAsync(string name, string fnReturnType) => new(
-                TaskType(genericTypeName("B")),
-                ["A", "B"],
-                [
-                    new ParameterGenerationInfo(TaskType(genericTypeName("A")), "ma", true),
-                    new ParameterGenerationInfo(FuncType("A", fnReturnType), "fn"),
-                ],
-                name,
-                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})(await ma))", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}",
-                true
-            );
-
-            MethodGenerationInfo Build2(string name, string fnReturnType) => new(
-                genericTypeName("C"),
-                ["A", "B", "C"],
-                [
-                    new ParameterGenerationInfo(genericTypeName("A"), "ma", true),
-                    new ParameterGenerationInfo(FuncType("A", fnReturnType), "fn"),
-                    new ParameterGenerationInfo(FuncType("A", "B", "C"), "selector"),
-                ],
-                name,
-                $"ma.SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName("B")})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))"
-            );
-
-            MethodGenerationInfo Build2Async(string name, string fnReturnType) => new(
-                TaskType(genericTypeName("C")),
-                ["A", "B", "C"],
-                [
-                    new ParameterGenerationInfo(TaskType(genericTypeName("A")), "ma", true),
-                    new ParameterGenerationInfo(FuncType("A", fnReturnType), "fn"),
-                    new ParameterGenerationInfo(FuncType("A", "B", "C"), "selector"),
-                ],
-                name,
-                $"(await ma).SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName("B")})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))",
-                true
-            );
-        }
-
-        IEnumerable<MethodGenerationInfo> MapMethods()
-        {
-            return
-            [
-                Build("Map"),
-                BuildAsync("Map"),
-                Build("Select"),
-                BuildAsync("Select"),
-            ];
-
-            MethodGenerationInfo Build(string name) => new(
-                genericTypeName("B"),
-                ["A", "B"],
-                [
-                    new ParameterGenerationInfo(genericTypeName("A"), "ma", true),
-                    new ParameterGenerationInfo(FuncType("A", "B"), "fn"),
-                ],
-                name,
-                $"ma.{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["B"], ["fn(a)"])})"
-            );
-
-            MethodGenerationInfo BuildAsync(string name) => new(
-                TaskType(genericTypeName("B")),
-                ["A", "B"],
-                [
-                    new ParameterGenerationInfo(TaskType(genericTypeName("A")), "ma", true),
-                    new ParameterGenerationInfo(FuncType("A", "B"), "fn"),
-                ],
-                name,
-                $"(await ma).{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["B"], ["fn(a)"])})",
-                true
-            );
-        }
-
-        static string FuncType(params string[] typeParameters) =>
-            GenericType("global::System.Func", typeParameters);
-
-        static string TaskType(string typeParameter) =>
-            GenericType("global::System.Threading.Tasks.Task", typeParameter);
-
-        static string GenericType(string name, params string[] typeParameters) =>
-            $"{name}<{string.Join(", ", typeParameters)}>";
-    }
-
     public static string DetermineAccessModifier(INamedTypeSymbol type) =>
         type.DeclaredAccessibility switch
         {
@@ -391,6 +138,33 @@ internal static class Parser
             chainedMonad
         );
     }
+
+    private static StaticMonadGenerationInfo BuildStaticMonad(
+        string typeName,
+        Func<string, string> genericTypeName,
+        string accessModifier,
+        IReadOnlyList<MonadImplementationGenerationInfo> monadImplementations,
+        MonadInfo chainedMonad,
+        MonadInfo outerMonad,
+        MonadInfo innerMonad,
+        bool generateCoreMethods = true) =>
+        new(
+            typeName,
+            accessModifier,
+            monadImplementations,
+            [
+                ..generateCoreMethods
+                    ? MonadMethods.CreateCoreMonadMethods(genericTypeName,
+                        chainedMonad,
+                        outerMonad,
+                        innerMonad
+                    )
+                    : [],
+                ..MonadMethods.CreateExtendMonadMethods(genericTypeName,
+                    chainedMonad
+                ),
+            ]
+        );
 
     private static MonadInfo CreateMonadData(INamedTypeSymbol? staticType, INamedTypeSymbol genericType, IMethodSymbol returnMethod, IMethodSymbol? bindMethod = default)
     {
