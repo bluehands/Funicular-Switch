@@ -9,7 +9,7 @@ namespace FunicularSwitch.Generators.Test;
 
 public abstract class VerifySourceGenerator : VerifyBase
 {
-    protected Task Verify(string source, IReadOnlyList<Assembly> additionalAssemblies, Action<Compilation, ImmutableArray<Diagnostic>>? verifyCompilation)
+    protected Task Verify(string source, IReadOnlyList<Assembly> additionalAssemblies, Action<GeneratorDriver, Compilation, ImmutableArray<Diagnostic>>? verifyCompilation)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source);
 
@@ -40,15 +40,17 @@ public abstract class VerifySourceGenerator : VerifyBase
 
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var updatedCompilation, out var diagnostics);
 
-        verifyCompilation?.Invoke(updatedCompilation, diagnostics);
+        verifyCompilation?.Invoke(driver, updatedCompilation, diagnostics);
 
         return Verify(driver)
             .UseDirectory("Snapshots");
     }
 
-    protected Task Verify(string source, bool referencePolyType = false) =>
-        Verify(source, additionalAssemblies: referencePolyType ? [typeof(DerivedTypeShapeAttribute).Assembly] : [], (compilation, _) =>
+    protected Task Verify(string source, int numberOfGeneratedFiles = 1, bool referencePolyType = false) =>
+        Verify(source, additionalAssemblies: referencePolyType ? [typeof(DerivedTypeShapeAttribute).Assembly] : [], (driver, compilation, _) =>
         {
+            const int numberOfAttributeFiles = 3;
+            driver.GetRunResult().GeneratedTrees.Should().HaveCount(numberOfAttributeFiles + numberOfGeneratedFiles);
             var diagnostics = compilation.GetDiagnostics();
             var errors = string.Join(Environment.NewLine, diagnostics
                 .Where(d => d.Severity == DiagnosticSeverity.Error));

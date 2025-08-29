@@ -46,7 +46,7 @@ public static class MyErrorExtension
     public static string MergeErrors(this string error, string other) => $""{error}{System.Environment.NewLine}{other}"";
 }
 ";
-        return Verify(code);
+        return Verify(code, numberOfGeneratedFiles: 4);
     }
 
     [TestMethod]
@@ -82,7 +82,7 @@ namespace FunicularSwitch.Test.Extensions
     }
 }
 ";
-        return Verify(code);
+        return Verify(code, numberOfGeneratedFiles: 2);
     }
 
     [TestMethod]
@@ -103,7 +103,7 @@ public enum MyError
     Unauthorized
 }
 ";
-	    return Verify(code);
+	    return Verify(code, numberOfGeneratedFiles: 0);
     }
 
 
@@ -231,6 +231,6 @@ public abstract class MyError
     public override int GetHashCode() => (int)UnionCase;
 }
 ";
-        return Verify(code);
+        return Verify(code, numberOfGeneratedFiles: 2);
     }
 }
