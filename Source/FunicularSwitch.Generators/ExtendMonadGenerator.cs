@@ -5,13 +5,13 @@ using Microsoft.CodeAnalysis;
 namespace FunicularSwitch.Generators;
 
 [Generator]
-public class MonadGenerator : IIncrementalGenerator
+public class ExtendMonadGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(MonadAttribute.AddTo);
+        context.RegisterPostInitializationOutput(ExtendMonadAttribute.AddTo);
 
-        var transformedMonadTypes = MonadAttribute.Find(
+        var transformedMonadTypes = ExtendMonadAttribute.Find(
             context.SyntaxProvider,
             static (_, _) => true,
             Parse);
@@ -32,7 +32,7 @@ public class MonadGenerator : IIncrementalGenerator
         context.AddSource(filename, source);
     }
 
-    private static GenerationResult<ExtendMonadInfo> Parse(GeneratorAttributeSyntaxContext syntaxContext, IReadOnlyList<MonadAttribute> attributes, CancellationToken token) =>
+    private static GenerationResult<ExtendMonadInfo> Parse(GeneratorAttributeSyntaxContext syntaxContext, IReadOnlyList<ExtendMonadAttribute> attributes, CancellationToken token) =>
         Parser.GetExtendedMonadSchema(
             (INamedTypeSymbol) syntaxContext.TargetSymbol,
             attributes.First(),

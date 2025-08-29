@@ -1,3 +1,8 @@
+using FunicularSwitch.Generators.Transformer;
+
 namespace FunicularSwitch.Generators.Monad;
 
-public record ExtendMonadInfo;
+internal record ExtendMonadInfo(
+    string FullTypeName,
+    string Namespace,
+    StaticMonadGenerationInfo StaticMonadGenerationInfo);

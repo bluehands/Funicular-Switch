@@ -27,6 +27,26 @@ internal static class Generator
         return (filename, cs);
     }
 
+    public static void WriteStaticMonad(StaticMonadGenerationInfo data, CSharpBuilder cs, CancellationToken cancellationToken)
+    {
+        using var _ = cs.StaticPartialClass(data.TypeName, data.AccessModifier);
+
+        foreach (var generationInfo in data.MonadsWithoutImplementation)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            WriteMonadInterfaceImplementation(generationInfo, cs);
+            BlankLine(cs);
+        }
+
+        WriteMethod(data.Methods.First(), cs);
+        foreach (var method in data.Methods.Skip(1))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            BlankLine(cs);
+            WriteMethod(method, cs);
+        }
+    }
+
     private static void BlankLine(CSharpBuilder cs) => cs.Content.AppendLine();
 
     private static void WriteCommonMethodAttributes(CSharpBuilder cs) =>
@@ -98,25 +118,5 @@ internal static class Generator
         cs.WriteLine($"public B Cast<B>() => (B)(object)M;");
 
         static string InterfaceFn(string t) => $"global::FunicularSwitch.Transformers.Monad<{t}>";
-    }
-
-    private static void WriteStaticMonad(StaticMonadGenerationInfo data, CSharpBuilder cs, CancellationToken cancellationToken)
-    {
-        using var _ = cs.StaticPartialClass(data.TypeName, data.AccessModifier);
-
-        foreach (var generationInfo in data.MonadsWithoutImplementation)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            WriteMonadInterfaceImplementation(generationInfo, cs);
-            BlankLine(cs);
-        }
-
-        WriteMethod(data.Methods.First(), cs);
-        foreach (var method in data.Methods.Skip(1))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            BlankLine(cs);
-            WriteMethod(method, cs);
-        }
     }
 }

@@ -1,7 +1,7 @@
 namespace FunicularSwitch.Generators.Test;
 
 [TestClass]
-public class MonadGeneratorTest : VerifySourceGenerator<MonadGenerator>
+public class ExtendMonadGeneratorTest : VerifySourceGenerator<ExtendMonadGenerator>
 {
     [TestMethod]
     public Task StaticMonad()
@@ -16,6 +16,7 @@ public class MonadGeneratorTest : VerifySourceGenerator<MonadGenerator>
 
             public readonly record struct MonadA<A>;
 
+            [ExtendMonad]
             public static partial class MonadA
             {
                 public static MonadA<A> Return<A>(A a) => throw new NotImplementedException();
