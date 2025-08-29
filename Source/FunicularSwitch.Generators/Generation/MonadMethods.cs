@@ -42,6 +42,28 @@ internal static class MonadMethods
         ];
     }
 
+    private static IEnumerable<MethodGenerationInfo> AsyncVariants(string parameterName, Func<string, MethodGenerationInfo> fn)
+    {
+        var sync = fn(parameterName);
+        var parameter = sync.Parameters.First(x => x.Name == parameterName);
+        var async = fn($"(await {parameterName})") with
+        {
+            ReturnType = Types.Task(sync.ReturnType),
+            Parameters =
+            [
+                parameter with {Type = Types.Task(parameter.Type)},
+                ..sync.Parameters.Skip(1),
+            ],
+            IsAsync = true,
+        };
+
+        return
+        [
+            sync,
+            async,
+        ];
+    }
+
     private static IEnumerable<MethodGenerationInfo> Bind(string name, Func<string, string> genericTypeName, MonadInfo chainedMonad)
     {
         return
@@ -51,8 +73,7 @@ internal static class MonadMethods
         ];
 
         IEnumerable<MethodGenerationInfo> ForFnType(string fnReturnType) =>
-        [
-            new(
+            AsyncVariants("ma", p => new(
                 genericTypeName("B"),
                 ["A", "B"],
                 [
@@ -60,20 +81,8 @@ internal static class MonadMethods
                     new ParameterGenerationInfo(Types.Func("A", fnReturnType), "fn"),
                 ],
                 name,
-                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})ma)", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}"
-            ),
-            new(
-                Types.Task(genericTypeName("B")),
-                ["A", "B"],
-                [
-                    new ParameterGenerationInfo(Types.Task(genericTypeName("A")), "ma", true),
-                    new ParameterGenerationInfo(Types.Func("A", fnReturnType), "fn"),
-                ],
-                name,
-                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")})(await ma))", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}",
-                true
-            ),
-        ];
+                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName("A")}){p})", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}"
+            ));
     }
 
     private static IEnumerable<MethodGenerationInfo> Bind2(string name, Func<string, string> genericTypeName, MonadInfo chainedMonad)
@@ -85,8 +94,7 @@ internal static class MonadMethods
         ];
 
         IEnumerable<MethodGenerationInfo> ForFnType(string fnReturnType) =>
-        [
-            new(
+            AsyncVariants("ma", p => new(
                 genericTypeName("C"),
                 ["A", "B", "C"],
                 [
@@ -95,45 +103,21 @@ internal static class MonadMethods
                     new ParameterGenerationInfo(Types.Func("A", "B", "C"), "selector"),
                 ],
                 name,
-                $"ma.SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName("B")})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))"
-            ),
-            new(
-                Types.Task(genericTypeName("C")),
-                ["A", "B", "C"],
-                [
-                    new ParameterGenerationInfo(Types.Task(genericTypeName("A")), "ma", true),
-                    new ParameterGenerationInfo(Types.Func("A", fnReturnType), "fn"),
-                    new ParameterGenerationInfo(Types.Func("A", "B", "C"), "selector"),
-                ],
-                name,
-                $"(await ma).SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName("B")})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))",
-                true
-            ),
-        ];
+                $"{p}.SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName("B")})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))"
+            ));
     }
 
     private static IEnumerable<MethodGenerationInfo> Lift(Func<string, string> genericTypeName, MonadInfo chainedMonad, MonadInfo outerMonad, MonadInfo innerMonad) =>
-    [
-        new(
+        AsyncVariants("ma", p => new(
             genericTypeName("A"),
             ["A"],
             [new ParameterGenerationInfo(outerMonad.GenericTypeName("A"), "ma")],
             "Lift",
-            $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName("A")}"], ["ma", $"[{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}"
-        ),
-        new(
-            Types.Task(genericTypeName("A")),
-            ["A"],
-            [new ParameterGenerationInfo(Types.Task(outerMonad.GenericTypeName("A")), "ma")],
-            "Lift",
-            $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName("A")}"], ["(await ma)", $"[{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}",
-            true
-        ),
-    ];
+            $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName("A")}"], [p, $"[{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}"
+        ));
 
     private static IEnumerable<MethodGenerationInfo> Map(string name, Func<string, string> genericTypeName, MonadInfo monad) =>
-    [
-        new(
+        AsyncVariants("ma", p => new(
             genericTypeName("B"),
             ["A", "B"],
             [
@@ -141,36 +125,15 @@ internal static class MonadMethods
                 new ParameterGenerationInfo(Types.Func("A", "B"), "fn"),
             ],
             name,
-            $"ma.{monad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {monad.ReturnMethod.Invoke(["B"], ["fn(a)"])})"
-        ),
-        new(
-            Types.Task(genericTypeName("B")),
-            ["A", "B"],
-            [
-                new ParameterGenerationInfo(Types.Task(genericTypeName("A")), "ma", true),
-                new ParameterGenerationInfo(Types.Func("A", "B"), "fn"),
-            ],
-            name,
-            $"(await ma).{monad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {monad.ReturnMethod.Invoke(["B"], ["fn(a)"])})",
-            true
-        ),
-    ];
+            $"{p}.{monad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {monad.ReturnMethod.Invoke(["B"], ["fn(a)"])})"
+        ));
 
     private static IEnumerable<MethodGenerationInfo> Return(Func<string, string> genericTypeName, MonadInfo chainedMonad) =>
-    [
-        new(
+        AsyncVariants("a", p => new(
             genericTypeName("A"),
             ["A"],
             [new ParameterGenerationInfo("A", "a")],
-            chainedMonad.ReturnMethod // implicit cast
-        ),
-        new(
-            Types.Task(genericTypeName("A")),
-            ["A"],
-            [new ParameterGenerationInfo(Types.Task("A"), "a")],
             chainedMonad.ReturnMethod.Name,
-            chainedMonad.ReturnMethod.Invoke(["A"], ["(await a)"]),
-            true
-        ),
-    ];
+            chainedMonad.ReturnMethod.Invoke(["A"], [p])
+        ));
 }
