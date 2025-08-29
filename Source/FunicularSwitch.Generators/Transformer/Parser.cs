@@ -22,7 +22,7 @@ internal static class Parser
             [
                 ..generateCoreMethods ? ReturnMethods() : [],
                 ..BindMethods().Distinct(MethodGenerationInfo.Comparer.Instance),
-                ..LiftMethods(),
+                ..generateCoreMethods ? LiftMethods() : [],
                 ..MapMethods(),
             ]
         );
