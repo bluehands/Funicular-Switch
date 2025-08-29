@@ -471,6 +471,11 @@ This will generate extension methods for `Option<Result<>>` to be able to bind t
 It also adds a static return method `OptionResult.SomeOk` (It's called `SomeOk` in this case because the name of the return method of `Option<>` is `Some` and of `Result<>` is `Ok`) and a lift method to raise a `Option<>` to the `Result<Option<>>` domain.
 Additionally, it adds async variants, a map method and also methods to support LINQ query syntax.
 
+## ExtendMonad attribute
+
+Attaching the `ExtendMonad` attribute to a monad type will generate a map method, methods to allow using LINQ query
+syntax and also async variants.
+
 ### Additional documentation
 
 [Tutorial markdown](https://github.com/bluehands/Funicular-Switch/blob/main/TUTORIAL.md)
