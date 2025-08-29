@@ -6,6 +6,5 @@ namespace FunicularSwitch.Generators
     internal class ExtendMonadAttribute : Attribute
     {
         public ExtendMonadAttribute() { }
-        public bool __ignore_me { get; set; }
     }
 }
