@@ -66,15 +66,15 @@ namespace FunicularSwitch.Test
         public static async global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadABC<C>> SelectMany<A, B, C>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadABC<A>> ma, global::System.Func<A, global::FunicularSwitch.Test.MonadAB<global::FunicularSwitch.Test.MonadC<B>>> fn, global::System.Func<A, B, C> selector) => (await ma).SelectMany([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => ((global::FunicularSwitch.Test.MonadABC<B>)fn(a)).Map([global::System.Diagnostics.DebuggerStepThroughAttribute](b) => selector(a, b)));
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        public static global::FunicularSwitch.Test.MonadABC<B> Map<A, B>(this global::FunicularSwitch.Test.MonadABC<A> ma, global::System.Func<A, B> fn) => ma.Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => MonadABC.Return(fn(a)));
+        public static global::FunicularSwitch.Test.MonadABC<B> Map<A, B>(this global::FunicularSwitch.Test.MonadABC<A> ma, global::System.Func<A, B> fn) => ma.Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Test.MonadAB.Return(global::FunicularSwitch.Test.MonadC<B>.Return(fn(a))));
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        public static async global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadABC<B>> Map<A, B>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadABC<A>> ma, global::System.Func<A, B> fn) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => MonadABC.Return(fn(a)));
+        public static async global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadABC<B>> Map<A, B>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadABC<A>> ma, global::System.Func<A, B> fn) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Test.MonadAB.Return(global::FunicularSwitch.Test.MonadC<B>.Return(fn(a))));
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        public static global::FunicularSwitch.Test.MonadABC<B> Select<A, B>(this global::FunicularSwitch.Test.MonadABC<A> ma, global::System.Func<A, B> fn) => ma.Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => MonadABC.Return(fn(a)));
+        public static global::FunicularSwitch.Test.MonadABC<B> Select<A, B>(this global::FunicularSwitch.Test.MonadABC<A> ma, global::System.Func<A, B> fn) => ma.Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Test.MonadAB.Return(global::FunicularSwitch.Test.MonadC<B>.Return(fn(a))));
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        public static async global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadABC<B>> Select<A, B>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadABC<A>> ma, global::System.Func<A, B> fn) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => MonadABC.Return(fn(a)));
+        public static async global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadABC<B>> Select<A, B>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadABC<A>> ma, global::System.Func<A, B> fn) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Test.MonadAB.Return(global::FunicularSwitch.Test.MonadC<B>.Return(fn(a))));
     }
 }

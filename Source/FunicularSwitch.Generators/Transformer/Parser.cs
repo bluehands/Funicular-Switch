@@ -27,10 +27,7 @@ internal static class Parser
                         innerMonad
                     )
                     : [],
-                ..CreateExtendMonadMethods(
-                    generateCoreMethods,
-                    typeName,
-                    genericTypeName,
+                ..CreateExtendMonadMethods(genericTypeName,
                     chainedMonad
                 ),
             ]
@@ -146,8 +143,6 @@ internal static class Parser
     }
 
     public static IReadOnlyList<MethodGenerationInfo> CreateExtendMonadMethods(
-        bool generateCoreMethods,
-        string typeName,
         Func<string, string> genericTypeName,
         MonadInfo chainedMonad)
     {
@@ -238,9 +233,7 @@ internal static class Parser
                     new ParameterGenerationInfo(FuncType("A", "B"), "fn"),
                 ],
                 name,
-                generateCoreMethods
-                    ? $"ma.{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))"
-                    : $"ma.{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["B"], ["fn(a)"])})"
+                $"ma.{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["B"], ["fn(a)"])})"
             );
 
             MethodGenerationInfo BuildAsync(string name) => new(
@@ -251,9 +244,7 @@ internal static class Parser
                     new ParameterGenerationInfo(FuncType("A", "B"), "fn"),
                 ],
                 name,
-                generateCoreMethods
-                    ? $"(await ma).{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))"
-                    : $"(await ma).{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["B"], ["fn(a)"])})",
+                $"(await ma).{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["B"], ["fn(a)"])})",
                 true
             );
         }
