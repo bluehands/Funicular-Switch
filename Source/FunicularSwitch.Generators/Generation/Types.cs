@@ -17,6 +17,8 @@ internal static class Types
 
     public static string Task(string typeParameter) => GenericType("global::System.Threading.Tasks.Task", typeParameter);
 
+    public static string ValueTask(string typeParameter) => GenericType("global::System.Threading.Tasks.ValueTask", typeParameter);
+
     private static string GenericType(string name, params string[] typeParameters) =>
         $"{name}<{string.Join(", ", typeParameters)}>";
 }

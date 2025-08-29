@@ -46,22 +46,26 @@ internal static class MonadMethods
     {
         var sync = fn(parameterName);
         var parameter = sync.Parameters.First(x => x.Name == parameterName);
-        var async = fn($"(await {parameterName})") with
-        {
-            ReturnType = Types.Task(sync.ReturnType),
-            Parameters =
-            [
-                parameter with {Type = Types.Task(parameter.Type)},
-                ..sync.Parameters.Skip(1),
-            ],
-            IsAsync = true,
-        };
+        var asyncBase = fn($"(await {parameterName})");
 
         return
         [
             sync,
-            async,
+            WithAsyncType(Types.Task),
+            WithAsyncType(Types.ValueTask),
         ];
+
+        MethodGenerationInfo WithAsyncType(Func<string, string> taskType) =>
+            asyncBase with
+            {
+                ReturnType = taskType(sync.ReturnType),
+                Parameters =
+                [
+                    parameter with {Type = taskType(parameter.Type)},
+                    ..sync.Parameters.Skip(1),
+                ],
+                IsAsync = true,
+            };
     }
 
     private static IEnumerable<MethodGenerationInfo> Bind(string name, Func<string, string> genericTypeName, MonadInfo chainedMonad)
