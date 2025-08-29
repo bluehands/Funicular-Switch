@@ -1,7 +1,7 @@
 using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 
-namespace FunicularSwitch.Generators.Monad;
+namespace FunicularSwitch.Generators.ExtendMonad;
 
 internal class Parser
 {

@@ -1,6 +1,6 @@
 using FunicularSwitch.Generators.Transformer;
 
-namespace FunicularSwitch.Generators.Monad;
+namespace FunicularSwitch.Generators.ExtendMonad;
 
 internal record ExtendMonadInfo(
     string FullTypeName,

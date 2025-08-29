@@ -1,6 +1,7 @@
 using FunicularSwitch.Generators.Common;
-using FunicularSwitch.Generators.Monad;
+using FunicularSwitch.Generators.ExtendMonad;
 using Microsoft.CodeAnalysis;
+using ExtendMonadAttribute = FunicularSwitch.Generators.ExtendMonad.ExtendMonadAttribute;
 
 namespace FunicularSwitch.Generators;
 
