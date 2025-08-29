@@ -1,30 +1,22 @@
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
+using FunicularSwitch.Generators.Parsing;
 using Microsoft.CodeAnalysis;
 
 namespace FunicularSwitch.Generators.Transformer;
 
 internal static class Parser
 {
-    public static string DetermineAccessModifier(INamedTypeSymbol type) =>
-        type.DeclaredAccessibility switch
-        {
-            Accessibility.Public => "public",
-            Accessibility.Internal => "internal",
-            _ => throw new ArgumentOutOfRangeException(),
-        };
-
     public static GenerationResult<TransformMonadInfo> GetTransformedMonadSchema(
         INamedTypeSymbol transformedMonadSymbol,
         TransformMonadAttribute transformMonadAttribute,
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var accessModifier = DetermineAccessModifier(transformedMonadSymbol);
         var outerMonadType = transformMonadAttribute.MonadType;
 
         return
-            from outerMonadData in ResolveMonadDataFromMonadType(outerMonadType, cancellationToken)
+            from outerMonadData in MonadParser.ResolveMonadDataFromMonadType(outerMonadType, cancellationToken)
             let transformerTypes = new[] {transformMonadAttribute.TransformerType}
                 .Concat(transformMonadAttribute.ExtraTransformerTypes)
                 .ToList()
@@ -50,13 +42,12 @@ internal static class Parser
                     ? null
                     : BuildGenericMonad(
                         transformedMonadSymbol,
-                        accessModifier,
                         chainedMonad
                     ),
                 BuildStaticMonad(
                     transformedMonadSymbol.Name,
                     transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
-                    accessModifier,
+                    transformedMonadSymbol.GetActualAccessibility(),
                     implementations,
                     chainedMonad,
                     outerMonadData,
@@ -109,19 +100,8 @@ internal static class Parser
                 });
     }
 
-    public static GenerationResult<MonadInfo> ResolveMonadDataFromMonadType(INamedTypeSymbol monadType,
-        CancellationToken cancellationToken)
-    {
-        if (monadType.GetAttributes().Any(x => x.AttributeClass?.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.ResultTypeAttribute"))
-            return ResolveMonadDataFromResultType(monadType);
-        if (monadType.IsGenericType)
-            return ResolveMonadDataFromGenericMonadType(monadType, cancellationToken);
-        return ResolveMonadDataFromStaticMonadType(monadType);
-    }
-
     private static GenericMonadGenerationInfo BuildGenericMonad(
         INamedTypeSymbol transformedMonadSymbol,
-        string accessModifier,
         MonadInfo chainedMonad)
     {
         var typeModifier = DetermineTypeModifier(transformedMonadSymbol);
@@ -129,7 +109,7 @@ internal static class Parser
         var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
 
         return new(
-            accessModifier,
+            transformedMonadSymbol.GetActualAccessibility(),
             typeModifier,
             transformedMonadSymbol.Name,
             typeParameter,
@@ -142,7 +122,7 @@ internal static class Parser
     private static StaticMonadGenerationInfo BuildStaticMonad(
         string typeName,
         Func<string, string> genericTypeName,
-        string accessModifier,
+        Accessibility accessibility,
         IReadOnlyList<MonadImplementationGenerationInfo> monadImplementations,
         MonadInfo chainedMonad,
         MonadInfo outerMonad,
@@ -150,7 +130,7 @@ internal static class Parser
         bool generateCoreMethods = true) =>
         new(
             typeName,
-            accessModifier,
+            accessibility,
             monadImplementations,
             [
                 ..generateCoreMethods
@@ -165,60 +145,6 @@ internal static class Parser
                 ),
             ]
         );
-
-    private static MonadInfo CreateMonadData(INamedTypeSymbol? staticType, INamedTypeSymbol genericType, IMethodSymbol returnMethod, IMethodSymbol? bindMethod = default)
-    {
-        var genericTypeName = $"global::{genericType.FullTypeNameWithNamespace()}";
-        var (returnMethodName, returnMethodInvoke) = GetReturnMethod();
-        var (bindMethodName, bindMethodInvoke) = GetBindMethod();
-
-        var returnMethodInfo = new MethodInfo(
-            returnMethodName,
-            (t, p) => returnMethodInvoke(t[0], p[0]));
-        var bindMethodInfo = new MethodInfo(
-            bindMethodName,
-            (t, p) => bindMethodInvoke(t[0], t[1], p[0], p[1]));
-
-        return new MonadInfo(
-            TypeName,
-            returnMethodInfo,
-            bindMethodInfo,
-            ImplementsMonadInterface(genericType));
-
-        string TypeName(string typeParameter) => $"{genericTypeName}<{typeParameter}>";
-
-        (string Name, string FullName) GetMethodFullName(IMethodSymbol? method, string defaultName) =>
-            method is not null
-                ? (method.Name, $"global::{method.ContainingType.FullTypeNameWithNamespace()}.{method.Name}")
-                : (defaultName, $"global::{staticType}.{defaultName}");
-
-        (string Name, Func<string, string, string, string, string> Invoke) GetBindMethod()
-        {
-            if (staticType is not null)
-            {
-                var (name, fullName) = GetMethodFullName(bindMethod, "Bind");
-                return (name, (_, _, ma, fn) => $"{fullName}({ma}, {fn})");
-            }
-            else
-            {
-                var name = "Bind";
-                return (name, Invoke);
-
-                string Invoke(string s, string s1, string ma, string fn) => $"{ma}.Bind({fn})";
-            }
-        }
-
-        (string Name, Func<string, string, string> Invoke) GetReturnMethod()
-        {
-            var name = returnMethod.Name;
-            var func = returnMethod.ContainingType.IsGenericType
-                ? new Func<string, string>(t => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}<{t}>.{name}")
-                : _ => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}.{name}";
-            return (name, Invoke);
-
-            string Invoke(string t, string a) => $"{func(t)}({a})";
-        }
-    }
 
     private static string DetermineMethodName(string outerName, string innerName, string defaultName)
     {
@@ -268,137 +194,6 @@ internal static class Parser
             info);
     }
 
-    private static bool ImplementsMonadInterface(INamedTypeSymbol genericType) =>
-        genericType.GetAttributes().Any(x =>
-            x.AttributeClass?.FullTypeNameWithNamespace() == TransformMonadAttribute.ATTRIBUTE_NAME) ||
-        genericType.OriginalDefinition.AllInterfaces.Any(x => x.FullTypeNameWithNamespace() == "FunicularSwitch.Transformers.Monad");
-
-    private static GenerationResult<MonadInfo> ResolveMonadDataFromGenericMonadType(INamedTypeSymbol genericMonadType,
-        CancellationToken cancellationToken)
-    {
-        var transformMonadAttribute = genericMonadType
-            .GetAttributes()
-            .FirstOrDefault(x => x.AttributeClass?.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.TransformMonadAttribute");
-        if (transformMonadAttribute is not null)
-        {
-            var transformedMonadData = GetTransformedMonadSchema(genericMonadType, TransformMonadAttribute.From(transformMonadAttribute), cancellationToken).Value!;
-            var returnMethodInfo = transformedMonadData.Monad.ReturnMethod with
-            {
-                Invoke = (_, p) => $"global::{transformedMonadData.FullTypeName}.{transformedMonadData.Monad.ReturnMethod.Name}({p[0]})",
-            };
-            var bindMethodInfo = transformedMonadData.Monad.BindMethod with
-            {
-                Invoke = (_, p) => $"{p[0]}.{transformedMonadData.Monad.BindMethod.Name}({p[1]})",
-            };
-            return new MonadInfo(
-                transformedMonadData.FullGenericType,
-                returnMethodInfo,
-                bindMethodInfo,
-                true);
-        }
-
-        var returnMethod = genericMonadType.OriginalDefinition
-            .GetMembers()
-            .OfType<IMethodSymbol>()
-            .FirstOrDefault(IsReturnMethod);
-
-        if (returnMethod is null)
-            return new DiagnosticInfo(Diagnostics.MissingReturnMethod(genericMonadType));
-
-        var bindMethod = genericMonadType.OriginalDefinition
-            .GetMembers()
-            .OfType<IMethodSymbol>()
-            .FirstOrDefault(IsBindMethod);
-
-        if (bindMethod is null)
-            return new DiagnosticInfo(Diagnostics.MissingBindMethod(genericMonadType));
-
-        return CreateMonadData(default, genericMonadType, returnMethod);
-
-        bool IsReturnMethod(IMethodSymbol method)
-        {
-            if (method.TypeParameters.Length != 0) return false;
-            if (method.Parameters.Length != 1) return false;
-            if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: 1} genericReturnType) return false;
-            if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType.ConstructUnboundGenericType())) return false;
-            if (genericReturnType.TypeArguments[0].Name != genericMonadType.OriginalDefinition.TypeParameters[0].Name) return false;
-            return true;
-        }
-
-        bool IsBindMethod(IMethodSymbol method)
-        {
-            if (method.TypeParameters.Length != 1) return false;
-            if (method.Parameters.Length != 1) return false;
-            if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: 1} genericReturnType) return false;
-            if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType.ConstructUnboundGenericType())) return false;
-            if (genericReturnType.TypeArguments[0].Name == genericMonadType.OriginalDefinition.TypeParameters[0].Name) return false;
-            return true;
-        }
-    }
-
-    private static MonadInfo ResolveMonadDataFromResultType(INamedTypeSymbol resultType)
-    {
-        var returnMethod = new MethodInfo(
-            "Ok",
-            (t, p) => $"{GenericTypeName(t[0])}.Ok({p[0]})");
-        var bindMethod = new MethodInfo(
-            "Bind",
-            (_, p) => $"{p[0]}.Bind({p[1]})");
-        return new MonadInfo(
-            GenericTypeName,
-            returnMethod,
-            bindMethod);
-
-        string GenericTypeName(string t) => $"global::{resultType.FullTypeNameWithNamespace()}<{t}>";
-    }
-
-    private static GenerationResult<MonadInfo> ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
-    {
-        var returnMethod = staticMonadType
-            .GetMembers()
-            .OfType<IMethodSymbol>()
-            .FirstOrDefault(IsStaticReturnMethod);
-
-        if (returnMethod is null)
-            return new DiagnosticInfo(Diagnostics.MissingReturnMethod(staticMonadType));
-
-        var genericMonadType = ((INamedTypeSymbol) returnMethod.ReturnType).ConstructUnboundGenericType();
-
-        var bindMethod = staticMonadType
-            .GetMembers()
-            .OfType<IMethodSymbol>()
-            .FirstOrDefault(x => IsStaticBindMethod(genericMonadType, x));
-
-        if (bindMethod is null)
-            return new DiagnosticInfo(Diagnostics.MissingBindMethod(staticMonadType));
-
-        return CreateMonadData(staticMonadType, genericMonadType, returnMethod, bindMethod);
-
-        bool IsStaticReturnMethod(IMethodSymbol method)
-        {
-            if (method.TypeParameters.Length != 1) return false;
-            if (method.Parameters.Length != 1) return false;
-            if (!IsGenericMonadType(method.ReturnType, method.TypeParameters[0])) return false;
-            return method.Parameters[0].Type.Name == method.TypeParameters[0].Name;
-        }
-
-        bool IsGenericMonadType(ITypeSymbol type, ITypeParameterSymbol typeParameter)
-        {
-            if (type is not INamedTypeSymbol {IsGenericType: true, TypeParameters.Length: 1} genericType) return false;
-            return genericType.TypeArguments[0].Name == typeParameter.Name;
-        }
-
-        static bool IsStaticBindMethod(INamedTypeSymbol genericMonadType, IMethodSymbol method)
-        {
-            if (method.TypeParameters.Length != 2) return false;
-            if (method.Parameters.Length != 2) return false;
-            if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: 1} genericReturnType) return false;
-            if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType)) return false;
-            if (genericReturnType.TypeArguments[0].Name != method.TypeParameters[1].Name) return false;
-            return true;
-        }
-    }
-
     private static GenerationResult<MonadInfo> ResolveMonadDataFromTransformerType(INamedTypeSymbol transformerType,
         CancellationToken cancellationToken)
     {
@@ -419,7 +214,7 @@ internal static class Parser
 
         var monadTransformerAttribute = MonadTransformerAttribute.From(attributeData);
         var staticMonadType = monadTransformerAttribute.MonadType;
-        var monadData = ResolveMonadDataFromMonadType(staticMonadType, cancellationToken);
+        var monadData = MonadParser.ResolveMonadDataFromMonadType(staticMonadType, cancellationToken);
         return monadData;
 
         static bool IsBindTMethod(IMethodSymbol method)

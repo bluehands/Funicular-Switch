@@ -29,7 +29,7 @@ internal static class Generator
 
     public static void WriteStaticMonad(StaticMonadGenerationInfo data, CSharpBuilder cs, CancellationToken cancellationToken)
     {
-        using var _ = cs.StaticPartialClass(data.TypeName, data.AccessModifier);
+        using var _ = cs.StaticPartialClass(data.TypeName, Types.DetermineAccessModifier(data.Accessibility));
 
         foreach (var generationInfo in data.MonadsWithoutImplementation)
         {
@@ -58,7 +58,7 @@ internal static class Generator
         var monadInterface = $"global::FunicularSwitch.Transformers.Monad<{data.TypeParameter}>";
         var altTypeParameter = $"{data.TypeParameter}_";
         var monadInterfaceAlt = $"global::FunicularSwitch.Transformers.Monad<{altTypeParameter}>";
-        using var _ = new Scope(cs, $"{data.AccessModifier} {data.Modifier} {data.TypeNameWithTypeParameters}({nestedTypeName} M) : {monadInterface}");
+        using var _ = new Scope(cs, $"{Types.DetermineAccessModifier(data.Accessibility)} {data.Modifier} {data.TypeNameWithTypeParameters}({nestedTypeName} M) : {monadInterface}");
 
         if (!data.IsRecord)
         {

@@ -1,7 +1,9 @@
+using Microsoft.CodeAnalysis;
+
 namespace FunicularSwitch.Generators.Transformer;
 
 internal record GenericMonadGenerationInfo(
-    string AccessModifier,
+    Accessibility Accessibility,
     string Modifier,
     string TypeName,
     string TypeParameter,
