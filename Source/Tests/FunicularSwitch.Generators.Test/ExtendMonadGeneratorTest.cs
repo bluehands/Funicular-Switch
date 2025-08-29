@@ -4,6 +4,29 @@ namespace FunicularSwitch.Generators.Test;
 public class ExtendMonadGeneratorTest : VerifySourceGenerator<ExtendMonadGenerator>
 {
     [TestMethod]
+    public Task GenericMonad()
+    {
+        var source =
+            /*lang=csharp*/
+            """
+            using System;
+            using FunicularSwitch.Generators;
+
+            namespace FunicularSwitch.Test;
+
+            [ExtendMonad]
+            public readonly record struct MonadA<A>
+            {
+                public static MonadA<A> Return(A a) => throw new NotImplementedException();
+                
+                public MonadA<B> Bind<B>(Func<A, MonadA<B>> fn) => throw new NotImplementedException();
+            }
+            """;
+
+        return Verify(source);
+    }
+
+    [TestMethod]
     public Task StaticMonad()
     {
         var source =

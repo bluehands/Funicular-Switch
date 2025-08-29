@@ -169,7 +169,9 @@ internal static class Parser
                     new ParameterGenerationInfo(FuncType("A", "B"), "fn"),
                 ],
                 name,
-                $"ma.{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))"
+                generateCoreMethods
+                    ? $"ma.{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))"
+                    : $"ma.{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["B"], ["fn(a)"])})"
             );
 
             MethodGenerationInfo BuildAsync(string name) => new(
@@ -180,7 +182,9 @@ internal static class Parser
                     new ParameterGenerationInfo(FuncType("A", "B"), "fn"),
                 ],
                 name,
-                $"(await ma).{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))",
+                generateCoreMethods
+                    ? $"(await ma).{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {typeName}.{chainedMonad.ReturnMethod.Name}(fn(a)))"
+                    : $"(await ma).{chainedMonad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["B"], ["fn(a)"])})",
                 true
             );
         }
@@ -303,7 +307,7 @@ internal static class Parser
     {
         if (monadType.GetAttributes().Any(x => x.AttributeClass?.FullTypeNameWithNamespace() == "FunicularSwitch.Generators.ResultTypeAttribute"))
             return ResolveMonadDataFromResultType(monadType);
-        if (monadType.IsUnboundGenericType)
+        if (monadType.IsGenericType)
             return ResolveMonadDataFromGenericMonadType(monadType, cancellationToken);
         return ResolveMonadDataFromStaticMonadType(monadType);
     }
@@ -482,7 +486,7 @@ internal static class Parser
             if (method.TypeParameters.Length != 0) return false;
             if (method.Parameters.Length != 1) return false;
             if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: 1} genericReturnType) return false;
-            if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType)) return false;
+            if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType.ConstructUnboundGenericType())) return false;
             if (genericReturnType.TypeArguments[0].Name != genericMonadType.OriginalDefinition.TypeParameters[0].Name) return false;
             return true;
         }
@@ -492,7 +496,7 @@ internal static class Parser
             if (method.TypeParameters.Length != 1) return false;
             if (method.Parameters.Length != 1) return false;
             if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: 1} genericReturnType) return false;
-            if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType)) return false;
+            if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType.ConstructUnboundGenericType())) return false;
             if (genericReturnType.TypeArguments[0].Name == genericMonadType.OriginalDefinition.TypeParameters[0].Name) return false;
             return true;
         }
