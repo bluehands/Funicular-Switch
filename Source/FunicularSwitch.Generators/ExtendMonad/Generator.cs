@@ -12,7 +12,7 @@ internal class Generator
         var cs = new CSharpBuilder("    ");
         using (cs.Namespace(info.Namespace))
         {
-            Transformer.Generator.WriteStaticMonad(info.StaticMonadGenerationInfo, cs, cancellationToken);
+            GeneralGenerator.WriteStaticMonad(info.StaticMonadGenerationInfo, cs, cancellationToken);
         }
 
         return (filename, cs);
