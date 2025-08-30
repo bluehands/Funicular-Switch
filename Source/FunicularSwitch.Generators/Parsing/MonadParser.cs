@@ -142,7 +142,7 @@ internal static class MonadParser
         var typeInfo = TypeInfo.From(resultType);
         var returnMethod = new MethodInfo(
             "Ok",
-            (t, p) => $"{typeInfo.Construct(t)}.Ok({p[0]})");
+            (t, p) => $"{typeInfo.Construct(t.Select(TypeInfo.Parameter).ToList())}.Ok({p[0]})");
         var bindMethod = new MethodInfo(
             "Bind",
             (_, p) => $"{p[0]}.Bind({p[1]})");

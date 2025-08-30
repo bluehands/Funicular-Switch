@@ -33,18 +33,46 @@ internal record MethodGenerationInfo(
 internal record TypeInfo(
     string TypeName,
     bool IsFullType,
-    IReadOnlyList<string> Parameters)
+    // bool IsParameter,
+    IReadOnlyList<TypeInfo> Parameters)
 {
     public ConstructType Construct => parameters => this with {Parameters = parameters};
 
     public static TypeInfo From(INamedTypeSymbol type) => new(
         type.FullTypeNameWithNamespace(),
         true,
-        type.TypeArguments.Select(x => x.ToString()).ToList());
+        // false,
+        type.TypeArguments.Select(From).ToList());
 
+    public static TypeInfo From(ITypeSymbol type) =>
+        type switch
+        {
+            INamedTypeSymbol namedTypeSymbol => From(namedTypeSymbol),
+            ITypeParameterSymbol typeParameterSymbol => From(typeParameterSymbol),
+            _ => throw new NotImplementedException(),
+        };
+
+    public static TypeInfo From(ITypeParameterSymbol type) => Parameter(type.Name);
+
+    public static TypeInfo LocalType(string name,
+        IReadOnlyList<TypeInfo> typeParameters) => new(
+        name,
+        false,
+        // false,
+        typeParameters);
+
+    // TODO: remove
     public static implicit operator string(TypeInfo type) => type.ToString();
 
-    public override string ToString() => $"{(IsFullType ? "global::" : string.Empty)}{TypeName}<{string.Join(", ", Parameters)}>";
+    public static implicit operator TypeInfo(string typeParameter) => Parameter(typeParameter);
+
+    public static TypeInfo Parameter(string name) => new(
+        name,
+        false,
+        // true,
+        []);
+
+    public override string ToString() => $"{(IsFullType ? "global::" : string.Empty)}{TypeName}{(Parameters.Count > 0 ? $"<{string.Join(", ", Parameters)}>" : string.Empty)}";
 }
 
-internal delegate TypeInfo ConstructType(IReadOnlyList<string> typeParameters);
+internal delegate TypeInfo ConstructType(IReadOnlyList<TypeInfo> typeParameters);

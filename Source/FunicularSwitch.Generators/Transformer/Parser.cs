@@ -196,7 +196,7 @@ internal static class Parser
             .TrimEnd('_')
             [8..];
         return new MonadImplementationGenerationInfo(
-            new TypeInfo($"Impl__{baseName}", false, []).Construct,
+            TypeInfo.LocalType($"Impl__{baseName}", []).Construct,
             info);
     }
 
