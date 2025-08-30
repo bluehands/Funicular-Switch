@@ -33,10 +33,11 @@ internal static class Parser
                 .Where(x => !x.ImplementsMonadInterface)
                 .Select(GenerateImplementationForMonad)
                 .ToList()
+            let constructTransformedMonadType = transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : TypeInfo.From(transformedMonadSymbol).Construct
             let transformMonadData = new TransformMonadInfo(
                 transformedMonadSymbol.GetFullNamespace()!,
                 transformedMonadSymbol.FullTypeNameWithNamespace(),
-                transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
+                constructTransformedMonadType,
                 chainedMonad,
                 transformedMonadSymbol.IsStatic
                     ? null
@@ -46,7 +47,7 @@ internal static class Parser
                     ),
                 BuildStaticMonad(
                     transformedMonadSymbol.Name,
-                    transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : FullGenericType,
+                    constructTransformedMonadType,
                     transformedMonadSymbol.GetActualAccessibility(),
                     implementations,
                     chainedMonad,
@@ -54,8 +55,6 @@ internal static class Parser
                     outerMonadData // TODO: determine actual inner monad
                 ))
             select transformMonadData;
-
-        string FullGenericType(IReadOnlyList<string> t) => $"global::{transformedMonadSymbol.FullTypeNameWithNamespace()}<{string.Join(", ", t)}>";
 
         static ConstructType ChainGenericTypeName(ConstructType outer, ConstructType inner) =>
             x => outer([inner(x)]);
@@ -196,7 +195,7 @@ internal static class Parser
             .TrimEnd('_')
             [8..];
         return new MonadImplementationGenerationInfo(
-            t => $"Impl__{baseName}<{string.Join(", ", t)}>",
+            new TypeInfo($"Impl__{baseName}", false).Construct,
             info);
     }
 

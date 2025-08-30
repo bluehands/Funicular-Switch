@@ -1,3 +1,6 @@
+using FunicularSwitch.Generators.Common;
+using Microsoft.CodeAnalysis;
+
 namespace FunicularSwitch.Generators.Transformer;
 
 internal record MethodGenerationInfo(
@@ -27,12 +30,13 @@ internal record MethodGenerationInfo(
     }
 }
 
-// internal record TypeInfo(
-//     string Name,
-//     IReadOnlyList<TypeInfo> Arguments,
-//     bool IsParameter)
-// {
-//     
-// }
+internal record TypeInfo(
+    string TypeNameWithNamespace,
+    bool IsFullType)
+{
+    public ConstructType Construct { get; } = t => $"{(IsFullType ? "global::" : string.Empty)}{TypeNameWithNamespace}<{string.Join(", ", t)}>";
+
+    public static TypeInfo From(INamedTypeSymbol type) => new(type.FullTypeNameWithNamespace(), true);
+}
 
 internal delegate string ConstructType(IReadOnlyList<string> typeParameters);

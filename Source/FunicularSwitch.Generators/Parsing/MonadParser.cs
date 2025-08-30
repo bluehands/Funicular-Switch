@@ -1,6 +1,7 @@
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Transformer;
 using Microsoft.CodeAnalysis;
+using TypeInfo = FunicularSwitch.Generators.Transformer.TypeInfo;
 
 namespace FunicularSwitch.Generators.Parsing;
 
@@ -18,7 +19,7 @@ internal static class MonadParser
 
     private static MonadInfo CreateMonadData(INamedTypeSymbol? staticType, INamedTypeSymbol genericType, IMethodSymbol returnMethod, IMethodSymbol? bindMethod = default)
     {
-        var genericTypeName = $"global::{genericType.FullTypeNameWithNamespace()}";
+        var genericTypeInfo = TypeInfo.From(genericType);
         var (returnMethodName, returnMethodInvoke) = GetReturnMethod();
         var (bindMethodName, bindMethodInvoke) = GetBindMethod();
 
@@ -30,12 +31,10 @@ internal static class MonadParser
             (t, p) => bindMethodInvoke(t[0], t[1], p[0], p[1]));
 
         return new MonadInfo(
-            TypeName,
+            genericTypeInfo.Construct,
             returnMethodInfo,
             bindMethodInfo,
             ImplementsMonadInterface(genericType));
-
-        string TypeName(IReadOnlyList<string> typeParameter) => $"{genericTypeName}<{string.Join(", ", typeParameter)}>";
 
         (string Name, string FullName) GetMethodFullName(IMethodSymbol? method, string defaultName) =>
             method is not null
@@ -140,18 +139,17 @@ internal static class MonadParser
 
     private static MonadInfo ResolveMonadDataFromResultType(INamedTypeSymbol resultType)
     {
+        var typeInfo = TypeInfo.From(resultType);
         var returnMethod = new MethodInfo(
             "Ok",
-            (t, p) => $"{GenericTypeName(t)}.Ok({p[0]})");
+            (t, p) => $"{typeInfo.Construct(t)}.Ok({p[0]})");
         var bindMethod = new MethodInfo(
             "Bind",
             (_, p) => $"{p[0]}.Bind({p[1]})");
         return new MonadInfo(
-            GenericTypeName,
+            typeInfo.Construct,
             returnMethod,
             bindMethod);
-
-        string GenericTypeName(IReadOnlyList<string> t) => $"global::{resultType.FullTypeNameWithNamespace()}<{string.Join(", ", t)}>";
     }
 
     private static GenerationResult<MonadInfo> ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)
