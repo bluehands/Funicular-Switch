@@ -8,9 +8,9 @@ internal record MethodGenerationInfo(
     MethodBody Body,
     bool IsAsync = false)
 {
-    public class Comparer : IEqualityComparer<MethodGenerationInfo>
+    public class SignatureComparer : IEqualityComparer<MethodGenerationInfo>
     {
-        public static Comparer Instance { get; } = new();
+        public static SignatureComparer Instance { get; } = new();
 
         public bool Equals(MethodGenerationInfo? x, MethodGenerationInfo? y)
         {
@@ -18,13 +18,11 @@ internal record MethodGenerationInfo(
             if (x is null) return false;
             if (y is null) return false;
             if (x.GetType() != y.GetType()) return false;
-            return x.ReturnType == y.ReturnType
-                   && x.Name == y.Name
-                   && x.Body.Equals(y.Body)
-                   && x.Parameters.SequenceEqual(y.Parameters);
+            return x.Name == y.Name
+                   && x.Parameters.Select(x => x.Type).SequenceEqual(y.Parameters.Select(x => x.Type));
         }
 
         public int GetHashCode(MethodGenerationInfo obj) =>
-            obj.Name.GetHashCode() ^ obj.Body.GetHashCode() ^ obj.ReturnType.GetHashCode();
+            obj.Name.GetHashCode();
     }
 }

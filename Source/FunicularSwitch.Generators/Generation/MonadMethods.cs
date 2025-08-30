@@ -14,23 +14,30 @@ internal static class MonadMethods
         [
             ..Return(genericTypeName, chainedMonad),
             ..Bind(chainedMonad.BindMethod.Name, genericTypeName, chainedMonad)
-                .Distinct(MethodGenerationInfo.Comparer.Instance),
+                .Distinct(MethodGenerationInfo.SignatureComparer.Instance),
             ..Lift(genericTypeName, chainedMonad, outerMonad, innerMonad),
         ];
     }
 
     public static IReadOnlyList<MethodGenerationInfo> CreateExtendMonadMethods(
         Func<string, string> genericTypeName,
-        MonadInfo monad)
+        MonadInfo monad,
+        IReadOnlyList<MethodGenerationInfo> existingMethods)
     {
-        return
+        IReadOnlyList<MethodGenerationInfo> methodGenerationInfos =
         [
-            ..BindMethods().Distinct(MethodGenerationInfo.Comparer.Instance),
+            ..Return(genericTypeName, monad),
+            ..BindMethods(),
             ..MapMethods(),
         ];
+        return methodGenerationInfos
+            .Distinct(MethodGenerationInfo.SignatureComparer.Instance)
+            .Except(existingMethods, MethodGenerationInfo.SignatureComparer.Instance)
+            .ToList();
 
         IEnumerable<MethodGenerationInfo> BindMethods() =>
         [
+            ..Bind(monad.BindMethod.Name, genericTypeName, monad),
             ..Bind("SelectMany", genericTypeName, monad),
             ..Bind2("SelectMany", genericTypeName, monad),
         ];

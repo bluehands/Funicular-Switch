@@ -127,24 +127,30 @@ internal static class Parser
         MonadInfo chainedMonad,
         MonadInfo outerMonad,
         MonadInfo innerMonad,
-        bool generateCoreMethods = true) =>
-        new(
+        bool generateCoreMethods = true)
+    {
+        var coreMethods = generateCoreMethods
+            ? MonadMethods.CreateCoreMonadMethods(genericTypeName,
+                chainedMonad,
+                outerMonad,
+                innerMonad
+            )
+            : [];
+
+        return new StaticMonadGenerationInfo(
             typeName,
             accessibility,
             monadImplementations,
             [
-                ..generateCoreMethods
-                    ? MonadMethods.CreateCoreMonadMethods(genericTypeName,
-                        chainedMonad,
-                        outerMonad,
-                        innerMonad
-                    )
-                    : [],
-                ..MonadMethods.CreateExtendMonadMethods(genericTypeName,
-                    chainedMonad
+                ..coreMethods,
+                ..MonadMethods.CreateExtendMonadMethods(
+                    genericTypeName,
+                    chainedMonad,
+                    coreMethods
                 ),
             ]
         );
+    }
 
     private static string DetermineMethodName(string outerName, string innerName, string defaultName)
     {

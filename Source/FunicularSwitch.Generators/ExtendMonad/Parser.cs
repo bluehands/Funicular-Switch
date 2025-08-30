@@ -16,7 +16,28 @@ internal class Parser
             [],
             MonadMethods.CreateExtendMonadMethods(
                 monadInfo.GenericTypeName,
-                monadInfo
+                monadInfo,
+                [
+                    new MethodGenerationInfo(
+                        string.Empty,
+                        ["A"],
+                        [
+                            new ParameterGenerationInfo("A", string.Empty),
+                        ],
+                        monadInfo.ReturnMethod.Name,
+                        string.Empty
+                    ),
+                    new MethodGenerationInfo(
+                        string.Empty,
+                        ["A", "B"],
+                        [
+                            new ParameterGenerationInfo(monadInfo.GenericTypeName("A"), string.Empty),
+                            new ParameterGenerationInfo(Types.Func("A", monadInfo.GenericTypeName("B")), string.Empty),
+                        ],
+                        monadInfo.BindMethod.Name,
+                        string.Empty
+                    ),
+                ]
             )
         )
         select new ExtendMonadInfo(
