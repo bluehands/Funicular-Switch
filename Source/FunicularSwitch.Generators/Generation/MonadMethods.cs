@@ -12,9 +12,6 @@ internal static class MonadMethods
     {
         return
         [
-            ..Return(genericTypeName, chainedMonad),
-            ..Bind(chainedMonad.BindMethod.Name, genericTypeName, chainedMonad)
-                .Distinct(MethodGenerationInfo.SignatureComparer.Instance),
             ..Lift(genericTypeName, chainedMonad, outerMonad, innerMonad),
         ];
     }

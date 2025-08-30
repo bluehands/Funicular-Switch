@@ -32,6 +32,15 @@ namespace FunicularSwitch.Test
         }
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
+        public static global::FunicularSwitch.Test.MonadAB<A> Lift<A>(global::FunicularSwitch.Test.MonadA<A> ma) => ma.Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<A>>.Ok(global::FunicularSwitch.Test.MonadB<A>.Ok(a)));
+
+        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
+        public static async global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadAB<A>> Lift<A>(global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadA<A>> ma) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<A>>.Ok(global::FunicularSwitch.Test.MonadB<A>.Ok(a)));
+
+        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
+        public static async global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Test.MonadAB<A>> Lift<A>(global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Test.MonadA<A>> ma) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<A>>.Ok(global::FunicularSwitch.Test.MonadB<A>.Ok(a)));
+
+        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
         public static global::FunicularSwitch.Test.MonadAB<A> Ok<A>(A a) => global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<A>>.Ok(global::FunicularSwitch.Test.MonadB<A>.Ok(a));
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
@@ -57,15 +66,6 @@ namespace FunicularSwitch.Test
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
         public static async global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Test.MonadAB<B>> Bind<A, B>(this global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Test.MonadAB<A>> ma, global::System.Func<A, global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<B>>> fn) => global::FunicularSwitch.Test.MonadBT.BindT<A, B>((Impl__FunicularSwitch_Test_MonadA<global::FunicularSwitch.Test.MonadB<A>>)((global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<A>>)(await ma)), [global::System.Diagnostics.DebuggerStepThroughAttribute](a) => (Impl__FunicularSwitch_Test_MonadA<global::FunicularSwitch.Test.MonadB<B>>)(new global::System.Func<A, global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<B>>>([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => fn(a)).Invoke(a))).Cast<global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<B>>>();
-
-        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        public static global::FunicularSwitch.Test.MonadAB<A> Lift<A>(global::FunicularSwitch.Test.MonadA<A> ma) => ma.Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<A>>.Ok(global::FunicularSwitch.Test.MonadB<A>.Ok(a)));
-
-        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        public static async global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadAB<A>> Lift<A>(global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.MonadA<A>> ma) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<A>>.Ok(global::FunicularSwitch.Test.MonadB<A>.Ok(a)));
-
-        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        public static async global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Test.MonadAB<A>> Lift<A>(global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Test.MonadA<A>> ma) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<A>>.Ok(global::FunicularSwitch.Test.MonadB<A>.Ok(a)));
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
         public static global::FunicularSwitch.Test.MonadAB<B> SelectMany<A, B>(this global::FunicularSwitch.Test.MonadAB<A> ma, global::System.Func<A, global::FunicularSwitch.Test.MonadAB<B>> fn) => global::FunicularSwitch.Test.MonadBT.BindT<A, B>((Impl__FunicularSwitch_Test_MonadA<global::FunicularSwitch.Test.MonadB<A>>)((global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<A>>)ma), [global::System.Diagnostics.DebuggerStepThroughAttribute](a) => (Impl__FunicularSwitch_Test_MonadA<global::FunicularSwitch.Test.MonadB<B>>)(new global::System.Func<A, global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<B>>>([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => fn(a)).Invoke(a))).Cast<global::FunicularSwitch.Test.MonadA<global::FunicularSwitch.Test.MonadB<B>>>();

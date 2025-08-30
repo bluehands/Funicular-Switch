@@ -31,6 +31,15 @@
         }
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
+        public static global::FunicularSwitch.Generators.Consumer.ResultOption<A> Lift<A>(global::FunicularSwitch.Generators.Consumer.Result<A> ma) => ma.Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Option<A>.Some(a)));
+
+        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
+        public static async global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.ResultOption<A>> Lift<A>(global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.Result<A>> ma) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Option<A>.Some(a)));
+
+        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
+        public static async global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Generators.Consumer.ResultOption<A>> Lift<A>(global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Generators.Consumer.Result<A>> ma) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Option<A>.Some(a)));
+
+        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
         public static global::FunicularSwitch.Generators.Consumer.ResultOption<A> OkSome<A>(A a) => global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Option<A>.Some(a));
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
@@ -56,15 +65,6 @@
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
         public static async global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Generators.Consumer.ResultOption<B>> Bind<A, B>(this global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Generators.Consumer.ResultOption<A>> ma, global::System.Func<A, global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<B>>> fn) => global::FunicularSwitch.Transformers.OptionT.BindT<A, B>((Impl__FunicularSwitch_Generators_Consumer_Result<global::FunicularSwitch.Option<A>>)((global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>)(await ma)), [global::System.Diagnostics.DebuggerStepThroughAttribute](a) => (Impl__FunicularSwitch_Generators_Consumer_Result<global::FunicularSwitch.Option<B>>)(new global::System.Func<A, global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<B>>>([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => fn(a)).Invoke(a))).Cast<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<B>>>();
-
-        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        public static global::FunicularSwitch.Generators.Consumer.ResultOption<A> Lift<A>(global::FunicularSwitch.Generators.Consumer.Result<A> ma) => ma.Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Option<A>.Some(a)));
-
-        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        public static async global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.ResultOption<A>> Lift<A>(global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.Result<A>> ma) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Option<A>.Some(a)));
-
-        [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
-        public static async global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Generators.Consumer.ResultOption<A>> Lift<A>(global::System.Threading.Tasks.ValueTask<global::FunicularSwitch.Generators.Consumer.Result<A>> ma) => (await ma).Bind([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>.Ok(global::FunicularSwitch.Option<A>.Some(a)));
 
         [global::System.Diagnostics.Contracts.PureAttribute, global::System.Diagnostics.DebuggerStepThroughAttribute]
         public static global::FunicularSwitch.Generators.Consumer.ResultOption<B> SelectMany<A, B>(this global::FunicularSwitch.Generators.Consumer.ResultOption<A> ma, global::System.Func<A, global::FunicularSwitch.Generators.Consumer.ResultOption<B>> fn) => global::FunicularSwitch.Transformers.OptionT.BindT<A, B>((Impl__FunicularSwitch_Generators_Consumer_Result<global::FunicularSwitch.Option<A>>)((global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<A>>)ma), [global::System.Diagnostics.DebuggerStepThroughAttribute](a) => (Impl__FunicularSwitch_Generators_Consumer_Result<global::FunicularSwitch.Option<B>>)(new global::System.Func<A, global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<B>>>([global::System.Diagnostics.DebuggerStepThroughAttribute](a) => fn(a)).Invoke(a))).Cast<global::FunicularSwitch.Generators.Consumer.Result<global::FunicularSwitch.Option<B>>>();
