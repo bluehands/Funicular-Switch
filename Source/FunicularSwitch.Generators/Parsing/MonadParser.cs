@@ -35,7 +35,7 @@ internal static class MonadParser
             bindMethodInfo,
             ImplementsMonadInterface(genericType));
 
-        string TypeName(string typeParameter) => $"{genericTypeName}<{typeParameter}>";
+        string TypeName(IReadOnlyList<string> typeParameter) => $"{genericTypeName}<{string.Join(", ", typeParameter)}>";
 
         (string Name, string FullName) GetMethodFullName(IMethodSymbol? method, string defaultName) =>
             method is not null
@@ -142,7 +142,7 @@ internal static class MonadParser
     {
         var returnMethod = new MethodInfo(
             "Ok",
-            (t, p) => $"{GenericTypeName(t[0])}.Ok({p[0]})");
+            (t, p) => $"{GenericTypeName(t)}.Ok({p[0]})");
         var bindMethod = new MethodInfo(
             "Bind",
             (_, p) => $"{p[0]}.Bind({p[1]})");
@@ -151,7 +151,7 @@ internal static class MonadParser
             returnMethod,
             bindMethod);
 
-        string GenericTypeName(string t) => $"global::{resultType.FullTypeNameWithNamespace()}<{t}>";
+        string GenericTypeName(IReadOnlyList<string> t) => $"global::{resultType.FullTypeNameWithNamespace()}<{string.Join(", ", t)}>";
     }
 
     private static GenerationResult<MonadInfo> ResolveMonadDataFromStaticMonadType(INamedTypeSymbol staticMonadType)

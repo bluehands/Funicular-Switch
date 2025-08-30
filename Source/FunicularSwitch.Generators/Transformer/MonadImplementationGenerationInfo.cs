@@ -1,5 +1,5 @@
 namespace FunicularSwitch.Generators.Transformer;
 
 internal record MonadImplementationGenerationInfo(
-    Func<string, string> GenericTypeName,
+    ConstructType GenericTypeName,
     MonadInfo Monad);

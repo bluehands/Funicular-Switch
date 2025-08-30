@@ -55,17 +55,17 @@ internal static class Parser
                 ))
             select transformMonadData;
 
-        string FullGenericType(string t) => $"global::{transformedMonadSymbol.FullTypeNameWithNamespace()}<{t}>";
+        string FullGenericType(IReadOnlyList<string> t) => $"global::{transformedMonadSymbol.FullTypeNameWithNamespace()}<{string.Join(", ", t)}>";
 
-        static Func<string, string> ChainGenericTypeName(Func<string, string> outer, Func<string, string> inner) =>
-            x => outer(inner(x));
+        static ConstructType ChainGenericTypeName(ConstructType outer, ConstructType inner) =>
+            x => outer([inner(x)]);
 
         static MethodInfo CombineReturn(MethodInfo outer, MonadInfo inner) =>
             new MethodInfo(
                 DetermineMethodName(outer.Name, inner.ReturnMethod.Name, "Return"),
-                (t, p) => $"{outer.Invoke([inner.GenericTypeName(t[0])], [inner.ReturnMethod.Invoke(t, p)])}");
+                (t, p) => $"{outer.Invoke([inner.GenericTypeName([t[0]])], [inner.ReturnMethod.Invoke(t, p)])}");
 
-        static MethodInfo TransformBind(MonadInfo outer, MonadInfo inner, string transformerTypeName, Func<string, string> outerInterfaceImplName)
+        static MethodInfo TransformBind(MonadInfo outer, MonadInfo inner, string transformerTypeName, ConstructType outerInterfaceImplName)
         {
             var chainedGenericType = ChainGenericTypeName(outer.GenericTypeName, inner.GenericTypeName);
 
@@ -73,10 +73,10 @@ internal static class Parser
                 DetermineMethodName(outer.BindMethod.Name, inner.BindMethod.Name, "Bind"),
                 (t, p) =>
                 {
-                    var ma = $"({outerInterfaceImplName(inner.GenericTypeName(t[0]))}){p[0]}";
-                    var fn = $"[{Constants.DebuggerStepThroughAttribute}](a) => ({outerInterfaceImplName(inner.GenericTypeName(t[1]))})(new global::System.Func<{t[0]}, {chainedGenericType(t[1])}>({p[1]}).Invoke(a))"; // A -> Monad<X<B>>
+                    var ma = $"({outerInterfaceImplName([inner.GenericTypeName([t[0]])])}){p[0]}";
+                    var fn = $"[{Constants.DebuggerStepThroughAttribute}](a) => ({outerInterfaceImplName([inner.GenericTypeName([t[1]])])})(new global::System.Func<{t[0]}, {chainedGenericType([t[1]])}>({p[1]}).Invoke(a))"; // A -> Monad<X<B>>
 
-                    var call = $"{transformerTypeName}.BindT<{t[0]}, {t[1]}>({ma}, {fn}).Cast<{chainedGenericType(t[1])}>()";
+                    var call = $"{transformerTypeName}.BindT<{t[0]}, {t[1]}>({ma}, {fn}).Cast<{chainedGenericType([t[1]])}>()";
                     return call;
                 });
         }
@@ -121,7 +121,7 @@ internal static class Parser
 
     private static StaticMonadGenerationInfo BuildStaticMonad(
         string typeName,
-        Func<string, string> genericTypeName,
+        ConstructType genericTypeName,
         Accessibility accessibility,
         IReadOnlyList<MonadImplementationGenerationInfo> monadImplementations,
         MonadInfo chainedMonad,
@@ -188,7 +188,7 @@ internal static class Parser
 
     private static MonadImplementationGenerationInfo GenerateImplementationForMonad(MonadInfo info)
     {
-        var baseName = info.GenericTypeName("_")
+        var baseName = info.GenericTypeName(["_"])
             .Replace('.', '_')
             .Replace('<', '_')
             .Replace('>', '_')
@@ -196,7 +196,7 @@ internal static class Parser
             .TrimEnd('_')
             [8..];
         return new MonadImplementationGenerationInfo(
-            t => $"Impl__{baseName}<{t}>",
+            t => $"Impl__{baseName}<{string.Join(", ", t)}>",
             info);
     }
 

@@ -29,7 +29,7 @@ internal static class Generator
 
     private static void WriteGenericMonad(GenericMonadGenerationInfo data, CSharpBuilder cs)
     {
-        var nestedTypeName = data.Monad.GenericTypeName(data.TypeParameter);
+        var nestedTypeName = data.Monad.GenericTypeName([data.TypeParameter]);
         var monadInterface = $"global::FunicularSwitch.Transformers.Monad<{data.TypeParameter}>";
         var altTypeParameter = $"{data.TypeParameter}_";
         var monadInterfaceAlt = $"global::FunicularSwitch.Transformers.Monad<{altTypeParameter}>";

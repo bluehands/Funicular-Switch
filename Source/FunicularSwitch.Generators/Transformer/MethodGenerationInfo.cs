@@ -26,3 +26,13 @@ internal record MethodGenerationInfo(
             obj.Name.GetHashCode();
     }
 }
+
+// internal record TypeInfo(
+//     string Name,
+//     IReadOnlyList<TypeInfo> Arguments,
+//     bool IsParameter)
+// {
+//     
+// }
+
+internal delegate string ConstructType(IReadOnlyList<string> typeParameters);

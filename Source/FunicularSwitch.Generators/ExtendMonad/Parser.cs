@@ -31,8 +31,8 @@ internal class Parser
                         string.Empty,
                         ["A", "B"],
                         [
-                            new ParameterGenerationInfo(monadInfo.GenericTypeName("A"), string.Empty),
-                            new ParameterGenerationInfo(Types.Func("A", monadInfo.GenericTypeName("B")), string.Empty),
+                            new ParameterGenerationInfo(monadInfo.GenericTypeName(["A"]), string.Empty),
+                            new ParameterGenerationInfo(Types.Func("A", monadInfo.GenericTypeName(["B"])), string.Empty),
                         ],
                         monadInfo.BindMethod.Name,
                         string.Empty

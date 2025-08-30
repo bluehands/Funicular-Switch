@@ -51,10 +51,10 @@ internal static class GeneralGenerator
     {
         var interfaceA = InterfaceFn("A");
         var interfaceB = InterfaceFn("B");
-        var typeNameA = data.GenericTypeName("A");
-        var typeNameB = data.GenericTypeName("B");
-        var monadTypeNameA = data.Monad.GenericTypeName("A");
-        var monadTypeNameB = data.Monad.GenericTypeName("B");
+        var typeNameA = data.GenericTypeName(["A"]);
+        var typeNameB = data.GenericTypeName(["B"]);
+        var monadTypeNameA = data.Monad.GenericTypeName(["A"]);
+        var monadTypeNameB = data.Monad.GenericTypeName(["B"]);
 
         cs.WriteLine($"private readonly record struct {typeNameA}({monadTypeNameA} M) : {interfaceA}");
         using var _ = cs.Scope();
