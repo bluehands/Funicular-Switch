@@ -1,10 +1,12 @@
+using System.Collections.Immutable;
+using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 
 namespace FunicularSwitch.Generators.Transformer;
 
 internal record MethodGenerationInfo(
-    string ReturnType,
+    TypeInfo ReturnType,
     IReadOnlyList<string> TypeParameters,
     IReadOnlyList<ParameterGenerationInfo> Parameters,
     string Name,
@@ -33,16 +35,14 @@ internal record MethodGenerationInfo(
 internal record TypeInfo(
     string TypeName,
     bool IsFullType,
-    // bool IsParameter,
-    IReadOnlyList<TypeInfo> Parameters)
+    EquatableArray<TypeInfo> Parameters)
 {
-    public ConstructType Construct => parameters => this with {Parameters = parameters};
+    public ConstructType Construct => parameters => this with {Parameters = parameters.ToImmutableArray()};
 
     public static TypeInfo From(INamedTypeSymbol type) => new(
         type.FullTypeNameWithNamespace(),
         true,
-        // false,
-        type.TypeArguments.Select(From).ToList());
+        type.TypeArguments.Select(From).ToImmutableArray());
 
     public static TypeInfo From(ITypeSymbol type) =>
         type switch
@@ -54,25 +54,25 @@ internal record TypeInfo(
 
     public static TypeInfo From(ITypeParameterSymbol type) => Parameter(type.Name);
 
+    public static TypeInfo FullType(string name, IReadOnlyList<TypeInfo> typeParameters) => new(
+        name,
+        true,
+        typeParameters.ToImmutableArray());
+
     public static TypeInfo LocalType(string name,
         IReadOnlyList<TypeInfo> typeParameters) => new(
         name,
         false,
-        // false,
-        typeParameters);
-
-    // TODO: remove
-    public static implicit operator string(TypeInfo type) => type.ToString();
+        typeParameters.ToImmutableArray());
 
     public static implicit operator TypeInfo(string typeParameter) => Parameter(typeParameter);
 
     public static TypeInfo Parameter(string name) => new(
         name,
         false,
-        // true,
-        []);
+        ImmutableArray<TypeInfo>.Empty);
 
-    public override string ToString() => $"{(IsFullType ? "global::" : string.Empty)}{TypeName}{(Parameters.Count > 0 ? $"<{string.Join(", ", Parameters)}>" : string.Empty)}";
+    public override string ToString() => $"{(IsFullType ? "global::" : string.Empty)}{TypeName}{(Parameters.Length > 0 ? $"<{string.Join(", ", Parameters)}>" : string.Empty)}";
 }
 
 internal delegate TypeInfo ConstructType(IReadOnlyList<TypeInfo> typeParameters);

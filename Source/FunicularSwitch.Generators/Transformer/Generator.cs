@@ -37,7 +37,7 @@ internal static class Generator
 
         if (!data.IsRecord)
         {
-            cs.WriteGetOnlyProperty(nestedTypeName, "M", "M");
+            cs.WriteGetOnlyProperty(nestedTypeName.ToString(), "M", "M");
         }
 
         GeneralGenerator.WriteCommonMethodAttributes(cs);

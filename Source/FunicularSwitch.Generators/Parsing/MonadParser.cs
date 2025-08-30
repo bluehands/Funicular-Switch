@@ -41,7 +41,7 @@ internal static class MonadParser
                 ? (method.Name, $"global::{method.ContainingType.FullTypeNameWithNamespace()}.{method.Name}")
                 : (defaultName, $"global::{staticType}.{defaultName}");
 
-        (string Name, Func<string, string, string, string, string> Invoke) GetBindMethod()
+        (string Name, Func<TypeInfo, TypeInfo, string, string, string> Invoke) GetBindMethod()
         {
             if (staticType is not null)
             {
@@ -53,19 +53,19 @@ internal static class MonadParser
                 var name = "Bind";
                 return (name, Invoke);
 
-                string Invoke(string s, string s1, string ma, string fn) => $"{ma}.Bind({fn})";
+                string Invoke(TypeInfo s, TypeInfo s1, string ma, string fn) => $"{ma}.Bind({fn})";
             }
         }
 
-        (string Name, Func<string, string, string> Invoke) GetReturnMethod()
+        (string Name, Func<TypeInfo, string, string> Invoke) GetReturnMethod()
         {
             var name = returnMethod.Name;
             var func = returnMethod.ContainingType.IsGenericType
-                ? new Func<string, string>(t => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}<{t}>.{name}")
+                ? new Func<TypeInfo, string>(t => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}<{t}>.{name}")
                 : _ => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}.{name}";
             return (name, Invoke);
 
-            string Invoke(string t, string a) => $"{func(t)}({a})";
+            string Invoke(TypeInfo t, string a) => $"{func(t)}({a})";
         }
     }
 
@@ -142,7 +142,7 @@ internal static class MonadParser
         var typeInfo = TypeInfo.From(resultType);
         var returnMethod = new MethodInfo(
             "Ok",
-            (t, p) => $"{typeInfo.Construct(t.Select(TypeInfo.Parameter).ToList())}.Ok({p[0]})");
+            (t, p) => $"{typeInfo.Construct(t)}.Ok({p[0]})");
         var bindMethod = new MethodInfo(
             "Bind",
             (_, p) => $"{p[0]}.Bind({p[1]})");

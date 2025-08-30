@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using TypeInfo = FunicularSwitch.Generators.Transformer.TypeInfo;
 
 namespace FunicularSwitch.Generators.Generation;
 
@@ -13,12 +14,12 @@ internal static class Types
             _ => throw new ArgumentOutOfRangeException(),
         };
 
-    public static string Func(params string[] typeParameters) => GenericType("global::System.Func", typeParameters);
+    public static TypeInfo Func(params TypeInfo[] typeParameters) =>
+        TypeInfo.FullType("System.Func", typeParameters);
 
-    public static string Task(string typeParameter) => GenericType("global::System.Threading.Tasks.Task", typeParameter);
+    public static TypeInfo Task(TypeInfo typeParameter) =>
+        TypeInfo.FullType("System.Threading.Tasks.Task", [typeParameter]);
 
-    public static string ValueTask(string typeParameter) => GenericType("global::System.Threading.Tasks.ValueTask", typeParameter);
-
-    private static string GenericType(string name, params string[] typeParameters) =>
-        $"{name}<{string.Join(", ", typeParameters)}>";
+    public static TypeInfo ValueTask(TypeInfo typeParameter) =>
+        TypeInfo.FullType("System.Threading.Tasks.ValueTask", [typeParameter]);
 }

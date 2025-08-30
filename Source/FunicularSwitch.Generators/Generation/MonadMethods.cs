@@ -59,7 +59,7 @@ internal static class MonadMethods
             WithAsyncType(Types.ValueTask),
         ];
 
-        MethodGenerationInfo WithAsyncType(Func<string, string> taskType) =>
+        MethodGenerationInfo WithAsyncType(Func<TypeInfo, TypeInfo> taskType) =>
             asyncBase with
             {
                 ReturnType = taskType(sync.ReturnType),
@@ -80,7 +80,7 @@ internal static class MonadMethods
             ..ForFnType(chainedMonad.GenericTypeName(["B"])),
         ];
 
-        IEnumerable<MethodGenerationInfo> ForFnType(string fnReturnType) =>
+        IEnumerable<MethodGenerationInfo> ForFnType(TypeInfo fnReturnType) =>
             AsyncVariants("ma", p => new(
                 genericTypeName(["B"]),
                 ["A", "B"],
@@ -101,7 +101,7 @@ internal static class MonadMethods
             ..ForFnType(chainedMonad.GenericTypeName(["B"])),
         ];
 
-        IEnumerable<MethodGenerationInfo> ForFnType(string fnReturnType) =>
+        IEnumerable<MethodGenerationInfo> ForFnType(TypeInfo fnReturnType) =>
             AsyncVariants("ma", p => new(
                 genericTypeName(["C"]),
                 ["A", "B", "C"],
