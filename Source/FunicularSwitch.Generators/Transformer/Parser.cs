@@ -188,6 +188,7 @@ internal static class Parser
     private static MonadImplementationGenerationInfo GenerateImplementationForMonad(MonadInfo info)
     {
         var baseName = info.GenericTypeName(["_"])
+            .ToString()
             .Replace('.', '_')
             .Replace('<', '_')
             .Replace('>', '_')
@@ -195,7 +196,7 @@ internal static class Parser
             .TrimEnd('_')
             [8..];
         return new MonadImplementationGenerationInfo(
-            new TypeInfo($"Impl__{baseName}", false).Construct,
+            new TypeInfo($"Impl__{baseName}", false, []).Construct,
             info);
     }
 

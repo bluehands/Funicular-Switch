@@ -31,12 +31,20 @@ internal record MethodGenerationInfo(
 }
 
 internal record TypeInfo(
-    string TypeNameWithNamespace,
-    bool IsFullType)
+    string TypeName,
+    bool IsFullType,
+    IReadOnlyList<string> Parameters)
 {
-    public ConstructType Construct { get; } = t => $"{(IsFullType ? "global::" : string.Empty)}{TypeNameWithNamespace}<{string.Join(", ", t)}>";
+    public ConstructType Construct => parameters => this with {Parameters = parameters};
 
-    public static TypeInfo From(INamedTypeSymbol type) => new(type.FullTypeNameWithNamespace(), true);
+    public static TypeInfo From(INamedTypeSymbol type) => new(
+        type.FullTypeNameWithNamespace(),
+        true,
+        type.TypeArguments.Select(x => x.ToString()).ToList());
+
+    public static implicit operator string(TypeInfo type) => type.ToString();
+
+    public override string ToString() => $"{(IsFullType ? "global::" : string.Empty)}{TypeName}<{string.Join(", ", Parameters)}>";
 }
 
-internal delegate string ConstructType(IReadOnlyList<string> typeParameters);
+internal delegate TypeInfo ConstructType(IReadOnlyList<string> typeParameters);
