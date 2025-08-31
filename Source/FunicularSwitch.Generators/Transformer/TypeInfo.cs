@@ -8,6 +8,7 @@ namespace FunicularSwitch.Generators.Transformer;
 internal record TypeInfo(
     string TypeName,
     bool IsFullType,
+    bool IsParameter,
     EquatableArray<TypeInfo> Parameters)
 {
     public ConstructType Construct => parameters => this with {Parameters = parameters.ToImmutableArray()};
@@ -15,6 +16,7 @@ internal record TypeInfo(
     public static TypeInfo From(INamedTypeSymbol type) => new(
         type.FullTypeNameWithNamespace(),
         true,
+        false,
         type.TypeArguments.Select(From).ToImmutableArray());
 
     public static TypeInfo From(ITypeSymbol type) =>
@@ -30,11 +32,13 @@ internal record TypeInfo(
     public static TypeInfo FullType(string name, IReadOnlyList<TypeInfo> typeParameters) => new(
         name,
         true,
+        false,
         typeParameters.ToImmutableArray());
 
     public static TypeInfo LocalType(string name,
         IReadOnlyList<TypeInfo> typeParameters) => new(
         name,
+        false,
         false,
         typeParameters.ToImmutableArray());
 
@@ -43,6 +47,7 @@ internal record TypeInfo(
     public static TypeInfo Parameter(string name) => new(
         name,
         false,
+        true,
         ImmutableArray<TypeInfo>.Empty);
 
     public override string ToString() => $"{(IsFullType ? "global::" : string.Empty)}{TypeName}{(Parameters.Length > 0 ? $"<{string.Join(", ", Parameters)}>" : string.Empty)}";

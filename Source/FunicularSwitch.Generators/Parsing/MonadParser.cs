@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Transformer;
 using Microsoft.CodeAnalysis;
@@ -25,13 +26,14 @@ internal static class MonadParser
 
         var returnMethodInfo = new MethodInfo(
             returnMethodName,
-            (t, p) => returnMethodInvoke(t[0], p[0]));
+            returnMethodInvoke);
         var bindMethodInfo = new MethodInfo(
             bindMethodName,
             (t, p) => bindMethodInvoke(t[0], t[1], p[0], p[1]));
 
         return new MonadInfo(
             genericTypeInfo.Construct,
+            genericType.TypeParameters.Length - 1,
             returnMethodInfo,
             bindMethodInfo,
             ImplementsMonadInterface(genericType));
@@ -57,15 +59,13 @@ internal static class MonadParser
             }
         }
 
-        (string Name, Func<TypeInfo, string, string> Invoke) GetReturnMethod()
+        (string Name, InvokeMethod Invoke) GetReturnMethod()
         {
             var name = returnMethod.Name;
             var func = returnMethod.ContainingType.IsGenericType
-                ? new Func<TypeInfo, string>(t => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}<{t}>.{name}")
-                : _ => $"global::{returnMethod.ContainingType.FullTypeNameWithNamespace()}.{name}";
-            return (name, Invoke);
-
-            string Invoke(TypeInfo t, string a) => $"{func(t)}({a})";
+                ? new InvokeMethod((t, p) => $"{TypeInfo.From(returnMethod.ContainingType).Construct(t)}.{name}({p[0]})")
+                : (t, p) => $"{TypeInfo.From(returnMethod.ContainingType)}.{name}<{string.Join(", ", t)}>({p[0]})";
+            return (name, func);
         }
     }
 
@@ -93,6 +93,7 @@ internal static class MonadParser
             };
             return new MonadInfo(
                 transformedMonadData.FullGenericType,
+                genericMonadType.TypeParameters.Length - 1,
                 returnMethodInfo,
                 bindMethodInfo,
                 true);
@@ -148,6 +149,7 @@ internal static class MonadParser
             (_, p) => $"{p[0]}.Bind({p[1]})");
         return new MonadInfo(
             typeInfo.Construct,
+            0,
             returnMethod,
             bindMethod);
     }
@@ -176,25 +178,26 @@ internal static class MonadParser
 
         bool IsStaticReturnMethod(IMethodSymbol method)
         {
-            if (method.TypeParameters.Length != 1) return false;
+            if (method.TypeParameters.Length == 0) return false;
             if (method.Parameters.Length != 1) return false;
-            if (!IsGenericMonadType(method.ReturnType, method.TypeParameters[0])) return false;
-            return method.Parameters[0].Type.Name == method.TypeParameters[0].Name;
+            if (!IsGenericMonadType(method.ReturnType, method.TypeParameters)) return false;
+            return method.Parameters[0].Type.Name == method.TypeParameters.Last().Name;
         }
 
-        bool IsGenericMonadType(ITypeSymbol type, ITypeParameterSymbol typeParameter)
+        bool IsGenericMonadType(ITypeSymbol type, ImmutableArray<ITypeParameterSymbol> typeParameters)
         {
-            if (type is not INamedTypeSymbol {IsGenericType: true, TypeParameters.Length: 1} genericType) return false;
-            return genericType.TypeArguments[0].Name == typeParameter.Name;
+            if (type is not INamedTypeSymbol {IsGenericType: true} genericType) return false;
+            if (!genericType.TypeArguments.SequenceEqual(typeParameters)) return false;
+            return true;
         }
 
         static bool IsStaticBindMethod(INamedTypeSymbol genericMonadType, IMethodSymbol method)
         {
-            if (method.TypeParameters.Length != 2) return false;
+            if (method.TypeParameters.Length != genericMonadType.Arity + 1) return false;
             if (method.Parameters.Length != 2) return false;
-            if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: 1} genericReturnType) return false;
+            if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true} genericReturnType) return false;
             if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType)) return false;
-            if (genericReturnType.TypeArguments[0].Name != method.TypeParameters[1].Name) return false;
+            if (genericReturnType.TypeArguments[^1].Name != method.TypeParameters[^1].Name) return false;
             return true;
         }
     }

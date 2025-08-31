@@ -18,24 +18,30 @@ internal class Parser
                 monadInfo.GenericTypeName,
                 monadInfo,
                 [
-                    new MethodGenerationInfo(
+                    MonadMethods.Create(
+                        monadInfo.ExtraArity,
                         string.Empty,
+                        _ => string.Empty,
                         ["A"],
+                        _ =>
                         [
                             new ParameterGenerationInfo("A", string.Empty),
                         ],
                         monadInfo.ReturnMethod.Name,
-                        string.Empty
+                        _ => string.Empty
                     ),
-                    new MethodGenerationInfo(
+                    MonadMethods.Create(
+                        monadInfo.ExtraArity,
                         string.Empty,
+                        _ => string.Empty,
                         ["A", "B"],
+                        t =>
                         [
-                            new ParameterGenerationInfo(monadInfo.GenericTypeName(["A"]), string.Empty),
-                            new ParameterGenerationInfo(Types.Func("A", monadInfo.GenericTypeName(["B"])), string.Empty),
+                            new ParameterGenerationInfo(monadInfo.GenericTypeName([..t, "A"]), string.Empty),
+                            new ParameterGenerationInfo(Types.Func("A", monadInfo.GenericTypeName([..t, "B"])), string.Empty),
                         ],
                         monadInfo.BindMethod.Name,
-                        string.Empty
+                        _ => string.Empty
                     ),
                 ]
             )

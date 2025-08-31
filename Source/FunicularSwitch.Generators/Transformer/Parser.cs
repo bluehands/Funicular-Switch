@@ -93,6 +93,7 @@ internal static class Parser
 
                     var transformedMonad = new MonadInfo(
                         ChainGenericTypeName(outer.GenericTypeName, innerMonad.GenericTypeName),
+                        outer.ExtraArity + innerMonad.ExtraArity,
                         CombineReturn(outer.ReturnMethod, innerMonad),
                         TransformBind(outer, innerMonad, transformerTypeName, outerInterfaceName));
                     return transformedMonad;

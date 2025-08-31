@@ -4,6 +4,31 @@ namespace FunicularSwitch.Generators.Generation;
 
 internal static class MonadMethods
 {
+    public static MethodGenerationInfo Create(
+        int arity,
+        string returnTypeParameter,
+        ConstructType genericTypeName,
+        IReadOnlyList<string> typeParameters,
+        Func<IReadOnlyList<TypeInfo>, IReadOnlyList<ParameterGenerationInfo>> parameters,
+        string name,
+        Func<IReadOnlyList<TypeInfo>, string> invoke)
+    {
+        var extraTypeParameters = Enumerable.Range(0, arity)
+            .Select(i => $"T{i}")
+            .Select(TypeInfo.Parameter)
+            .ToList();
+        var allTypeParameters = extraTypeParameters
+            .Select(x => x.ToString())
+            .Concat(typeParameters).ToList();
+
+        return new MethodGenerationInfo(
+            genericTypeName([..extraTypeParameters, returnTypeParameter]),
+            allTypeParameters,
+            parameters(extraTypeParameters),
+            name,
+            invoke(extraTypeParameters));
+    }
+
     public static IReadOnlyList<MethodGenerationInfo> CreateCoreMonadMethods(
         ConstructType genericTypeName,
         MonadInfo chainedMonad,
@@ -76,20 +101,23 @@ internal static class MonadMethods
     {
         return
         [
-            ..ForFnType(genericTypeName(["B"])),
-            ..ForFnType(chainedMonad.GenericTypeName(["B"])),
+            ..ForFnType(t => genericTypeName([..t, "B"])),
+            ..ForFnType(t => chainedMonad.GenericTypeName([..t, "B"])),
         ];
 
-        IEnumerable<MethodGenerationInfo> ForFnType(TypeInfo fnReturnType) =>
-            AsyncVariants("ma", p => new(
-                genericTypeName(["B"]),
+        IEnumerable<MethodGenerationInfo> ForFnType(Func<IReadOnlyList<TypeInfo>, TypeInfo> fnReturnType) =>
+            AsyncVariants("ma", p => Create(
+                chainedMonad.ExtraArity,
+                "B",
+                genericTypeName,
                 ["A", "B"],
+                t =>
                 [
-                    new ParameterGenerationInfo(genericTypeName(["A"]), "ma", true),
-                    new ParameterGenerationInfo(Types.Func("A", fnReturnType), "fn"),
+                    new ParameterGenerationInfo(genericTypeName([..t, "A"]), "ma", true),
+                    new ParameterGenerationInfo(Types.Func("A", fnReturnType(t)), "fn"),
                 ],
                 name,
-                $"{chainedMonad.BindMethod.Invoke(["A", "B"], [$"(({chainedMonad.GenericTypeName(["A"])}){p})", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}"
+                t => $"{chainedMonad.BindMethod.Invoke([..t, "A", "B"], [$"(({chainedMonad.GenericTypeName([..t, "A"])}){p})", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}"
             ));
     }
 
@@ -97,21 +125,24 @@ internal static class MonadMethods
     {
         return
         [
-            ..ForFnType(genericTypeName(["B"])),
-            ..ForFnType(chainedMonad.GenericTypeName(["B"])),
+            ..ForFnType(t => genericTypeName([..t, "B"])),
+            ..ForFnType(t => chainedMonad.GenericTypeName([..t, "B"])),
         ];
 
-        IEnumerable<MethodGenerationInfo> ForFnType(TypeInfo fnReturnType) =>
-            AsyncVariants("ma", p => new(
-                genericTypeName(["C"]),
+        IEnumerable<MethodGenerationInfo> ForFnType(Func<IReadOnlyList<TypeInfo>, TypeInfo> fnReturnType) =>
+            AsyncVariants("ma", p => Create(
+                chainedMonad.ExtraArity,
+                "C",
+                genericTypeName,
                 ["A", "B", "C"],
+                t =>
                 [
-                    new ParameterGenerationInfo(genericTypeName(["A"]), "ma", true),
-                    new ParameterGenerationInfo(Types.Func("A", fnReturnType), "fn"),
+                    new ParameterGenerationInfo(genericTypeName([..t, "A"]), "ma", true),
+                    new ParameterGenerationInfo(Types.Func("A", fnReturnType(t)), "fn"),
                     new ParameterGenerationInfo(Types.Func("A", "B", "C"), "selector"),
                 ],
                 name,
-                $"{p}.SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName(["B"])})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))"
+                t => $"{p}.SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName([..t, "B"])})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))"
             ));
     }
 
@@ -125,23 +156,28 @@ internal static class MonadMethods
         ));
 
     private static IEnumerable<MethodGenerationInfo> Map(string name, ConstructType genericTypeName, MonadInfo monad) =>
-        AsyncVariants("ma", p => new(
-            genericTypeName(["B"]),
+        AsyncVariants("ma", p => Create(
+            monad.ExtraArity,
+            "B",
+            genericTypeName,
             ["A", "B"],
+            t =>
             [
-                new ParameterGenerationInfo(genericTypeName(["A"]), "ma", true),
+                new ParameterGenerationInfo(genericTypeName([..t, "A"]), "ma", true),
                 new ParameterGenerationInfo(Types.Func("A", "B"), "fn"),
             ],
             name,
-            $"{p}.{monad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {monad.ReturnMethod.Invoke(["B"], ["fn(a)"])})"
+            t => $"{p}.{monad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {monad.ReturnMethod.Invoke([..t, "B"], ["fn(a)"])})"
         ));
 
     private static IEnumerable<MethodGenerationInfo> Return(ConstructType genericTypeName, MonadInfo chainedMonad) =>
-        AsyncVariants("a", p => new(
-            genericTypeName(["A"]),
+        AsyncVariants("a", p => Create(
+            chainedMonad.ExtraArity,
+            "A",
+            genericTypeName,
             ["A"],
-            [new ParameterGenerationInfo("A", "a")],
+            _ => [new ParameterGenerationInfo("A", "a")],
             chainedMonad.ReturnMethod.Name,
-            chainedMonad.ReturnMethod.Invoke(["A"], [p])
+            t => chainedMonad.ReturnMethod.Invoke([..t, "A"], [p])
         ));
 }

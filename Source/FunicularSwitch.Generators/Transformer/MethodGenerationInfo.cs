@@ -19,7 +19,10 @@ internal record MethodGenerationInfo(
             if (y is null) return false;
             if (x.GetType() != y.GetType()) return false;
             return x.Name == y.Name
-                   && x.Parameters.Select(x => x.Type).SequenceEqual(y.Parameters.Select(x => x.Type));
+                   && x.Parameters
+                       .Select(x => x.Type)
+                       .SequenceEqual(y.Parameters
+                           .Select(x => x.Type));
         }
 
         public int GetHashCode(MethodGenerationInfo obj) =>
