@@ -121,9 +121,9 @@ internal static class MonadParser
         {
             if (method.TypeParameters.Length != 0) return false;
             if (method.Parameters.Length != 1) return false;
-            if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: 1} genericReturnType) return false;
+            if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true} genericReturnType) return false;
             if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType.ConstructUnboundGenericType())) return false;
-            if (genericReturnType.TypeArguments[0].Name != genericMonadType.OriginalDefinition.TypeParameters[0].Name) return false;
+            if (genericReturnType.TypeArguments[^1].Name != genericMonadType.OriginalDefinition.TypeParameters[^1].Name) return false;
             return true;
         }
 
@@ -131,9 +131,9 @@ internal static class MonadParser
         {
             if (method.TypeParameters.Length != 1) return false;
             if (method.Parameters.Length != 1) return false;
-            if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true, TypeArguments.Length: 1} genericReturnType) return false;
+            if (method.ReturnType is not INamedTypeSymbol {IsGenericType: true} genericReturnType) return false;
             if (!SymbolEqualityComparer.IncludeNullability.Equals(genericReturnType.ConstructUnboundGenericType(), genericMonadType.ConstructUnboundGenericType())) return false;
-            if (genericReturnType.TypeArguments[0].Name == genericMonadType.OriginalDefinition.TypeParameters[0].Name) return false;
+            if (genericReturnType.TypeArguments[^1].Name == genericMonadType.OriginalDefinition.TypeParameters[^1].Name) return false;
             return true;
         }
     }

@@ -27,6 +27,34 @@ public class ExtendMonadGeneratorTest : VerifySourceGenerator<ExtendMonadGenerat
     }
 
     [TestMethod]
+    [DataRow("T")]
+    [DataRow("T, U")]
+    [DataRow("T, U, V")]
+    [DataRow("T, U, V, W")]
+    [DataRow("T, U, V, W, X")]
+    public Task GenericMonadMultipleParameters(string typeArguments)
+    {
+        var source =
+            /*lang=csharp*/
+            $$"""
+              using System;
+              using FunicularSwitch.Generators;
+
+              namespace FunicularSwitch.Test;
+
+              [ExtendMonad]
+              public readonly record struct MonadA<{{typeArguments}}, A>
+              {
+                  public static MonadA<{{typeArguments}}, A> Return(A a) => throw new NotImplementedException();
+                  
+                  public MonadA<{{typeArguments}}, B> Bind<B>(Func<A, MonadA<{{typeArguments}}, B>> fn) => throw new NotImplementedException();
+              }
+              """;
+
+        return Verify(source);
+    }
+
+    [TestMethod]
     public Task StaticMonad()
     {
         var source =
