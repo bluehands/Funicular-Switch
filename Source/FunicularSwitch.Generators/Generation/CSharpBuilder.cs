@@ -2,8 +2,10 @@
 
 namespace FunicularSwitch.Generators.Generation;
 
-public class CSharpBuilder
+public class CSharpBuilder(string defaultIntent = "\t")
 {
+    public string DefaultIntent { get; } = defaultIntent;
+
     readonly Stack<string> m_Indents = new();
 
     public StringBuilder Content { get; } = new();

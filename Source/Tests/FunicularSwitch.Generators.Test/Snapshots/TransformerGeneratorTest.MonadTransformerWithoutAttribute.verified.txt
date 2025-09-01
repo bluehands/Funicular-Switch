@@ -1,0 +1,31 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: : (20,13)-(20,20),
+      Message: FunicularSwitch.Test.MonadBT is missing the MonadTransformer attribute - Add MonadTransformer attribute to type,
+      Severity: Error,
+      Descriptor: {
+        Id: FUN0012,
+        Title: Missing monad transformer attribute,
+        MessageFormat: FunicularSwitch.Test.MonadBT is missing the MonadTransformer attribute - Add MonadTransformer attribute to type,
+        Category: ResultTypeGenerator,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Location: : (25,0)-(26,49),
+      Message: Generator for TransformMonadAttribute is considered experimental and might break,
+      Severity: Info,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: FUN0016,
+        Title: Generator is experimental,
+        MessageFormat: Generator for TransformMonadAttribute is considered experimental and might break,
+        Category: ResultTypeGenerator,
+        DefaultSeverity: Info,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

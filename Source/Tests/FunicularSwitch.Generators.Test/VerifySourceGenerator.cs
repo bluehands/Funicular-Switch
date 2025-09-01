@@ -1,13 +1,19 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using FluentAssertions;
+using FunicularSwitch.Transformers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using PolyType;
 
 namespace FunicularSwitch.Generators.Test;
 
-public abstract class VerifySourceGenerator : VerifyBase
+public abstract class VerifySourceGenerator()
+    : BaseVerifySourceGenerators(new ResultTypeGenerator(), new UnionTypeGenerator(), new EnumTypeGenerator());
+
+public abstract class VerifySourceGenerator<T>() : BaseVerifySourceGenerators(new T()) where T : IIncrementalGenerator, new();
+
+public abstract class BaseVerifySourceGenerators(params IIncrementalGenerator[] generators) : VerifyBase
 {
     protected Task Verify(string source, IReadOnlyList<Assembly> additionalAssemblies, Action<Compilation, ImmutableArray<Diagnostic>>? verifyCompilation)
     {
@@ -19,13 +25,15 @@ public abstract class VerifySourceGenerator : VerifyBase
             {
                 typeof(object),
                 typeof(Enumerable),
+                typeof(Monad<>),
             }
             .Select(t => t.Assembly)
             .Concat(additionalAssemblies)
             .Select(a => MetadataReference.CreateFromFile(a.Location))
             .Concat([
                 MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll"))
+                MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "netstandard.dll")),
+                MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll")),
             ]);
 
         var compilation = CSharpCompilation.Create(
@@ -36,7 +44,7 @@ public abstract class VerifySourceGenerator : VerifyBase
                 outputKind: OutputKind.DynamicallyLinkedLibrary,
                 nullableContextOptions: NullableContextOptions.Enable));
 
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(new ResultTypeGenerator(), new UnionTypeGenerator(), new EnumTypeGenerator());
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(generators);
 
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var updatedCompilation, out var diagnostics);
 
@@ -52,6 +60,7 @@ public abstract class VerifySourceGenerator : VerifyBase
             var diagnostics = compilation.GetDiagnostics();
             var errors = string.Join(Environment.NewLine, diagnostics
                 .Where(d => d.Severity == DiagnosticSeverity.Error));
-            errors.Should().BeNullOrEmpty($"Compilation failed: {compilation.SyntaxTrees.LastOrDefault(s => !s.ToString().Contains("ReSharper disable once CheckNamespace"))}");
+            // errors.Should().BeNullOrEmpty($"Compilation failed: {compilation.SyntaxTrees.LastOrDefault(s => !s.ToString().Contains("ReSharper disable once CheckNamespace"))}");
+            errors.Should().BeNullOrEmpty($"Compilation failed: {string.Join("\n", compilation.SyntaxTrees.Skip(1).Select(x => $"---\n{x.FilePath}\n---\n{x}"))}");
         });
 }

@@ -17,7 +17,7 @@
 
 		<!--#region adapt versions here-->
 		<MajorVersion>4</MajorVersion>
-		<MinorAndPatchVersion>3.0</MinorAndPatchVersion>
+		<MinorAndPatchVersion>4.0</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<VersionSuffixLocal />
@@ -45,24 +45,26 @@
 	<ItemGroup>
 		<None Include="../../README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0"/>
+		<PackageReference Include="DarkLink.RoslynHelpers.AttributeGenerator" Version="0.1.8" PrivateAssets="All"/>
+		<PackageReference Include="PolySharp" Version="1.15.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultType.cs" Link="Templates\ResultType.cs" />
 		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeWithMerge.cs" Link="Templates\ResultTypeWithMerge.cs" />
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeAttributes.cs" Link="Templates\ResultTypeAttributes.cs"/>
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\UnionTypeAttributes.cs" Link="Templates\UnionTypeAttributes.cs"/>
+		<EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\EnumTypeAttributes.cs" Link="Templates\EnumTypeAttributes.cs"/>
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\ResultTypeAttributes.cs" Link="Templates\ResultTypeAttributes.cs" />
-	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\UnionTypeAttributes.cs" Link="Templates\UnionTypeAttributes.cs" />
-	  <EmbeddedResource Include="..\FunicularSwitch.Generators.Templates\EnumTypeAttributes.cs" Link="Templates\EnumTypeAttributes.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
 	</ItemGroup>
 
 	<Import Project="..\FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems" Label="Shared" />

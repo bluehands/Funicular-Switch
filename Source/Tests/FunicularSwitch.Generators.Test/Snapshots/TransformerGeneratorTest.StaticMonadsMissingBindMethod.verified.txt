@@ -1,0 +1,31 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: : (7,13)-(7,19),
+      Message: FunicularSwitch.Test.MonadA is missing a bind method - Add bind method (M<A> -> (A -> M<B>) -> M<B>) to type,
+      Severity: Error,
+      Descriptor: {
+        Id: FUN0014,
+        Title: Missing bind method,
+        MessageFormat: FunicularSwitch.Test.MonadA is missing a bind method - Add bind method (M<A> -> (A -> M<B>) -> M<B>) to type,
+        Category: ResultTypeGenerator,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Location: : (23,0)-(24,49),
+      Message: Generator for TransformMonadAttribute is considered experimental and might break,
+      Severity: Info,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: FUN0016,
+        Title: Generator is experimental,
+        MessageFormat: Generator for TransformMonadAttribute is considered experimental and might break,
+        Category: ResultTypeGenerator,
+        DefaultSeverity: Info,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

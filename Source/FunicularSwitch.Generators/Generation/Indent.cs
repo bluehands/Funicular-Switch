@@ -15,7 +15,7 @@ public class Indent : IDisposable
         m_End = end;
         m_Start = start;
         if (start != null) Builder.WriteLine(start);
-        Builder.PushIndent("\t");
+        Builder.PushIndent(tt.DefaultIntent);
     }
 
     public virtual void Dispose()
@@ -191,9 +191,9 @@ public static class BuildExtensions
         tt.WriteLine("public {0} {1} {{ get; set; }}", returnType, propertyName);
     }
 
-    public static void WriteGetOnlyProperty(this CSharpBuilder tt, string returnType, string propertyName)
+    public static void WriteGetOnlyProperty(this CSharpBuilder tt, string returnType, string propertyName, string? initializer = default)
     {
-        tt.WriteLine("public {0} {1} {{ get; }}", returnType, propertyName);
+        tt.WriteLine("public {0} {1} {{ get; }}{2}", returnType, propertyName, initializer is not null ? $" = {initializer};" : string.Empty);
     }
 
     public static void InitializeListProperty(this CSharpBuilder tt, string type, string name, IEnumerable<string> values, bool withComma = true, string? emptyCondition = null)
