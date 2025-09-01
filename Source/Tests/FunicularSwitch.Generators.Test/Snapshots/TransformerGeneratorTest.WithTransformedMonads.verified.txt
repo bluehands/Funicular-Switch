@@ -1,20 +1,21 @@
 ﻿{
   Diagnostics: [
     {
-      Location: : (7,13)-(7,19),
-      Message: FunicularSwitch.Test.MonadA is missing a return method - Add return method (A -> M<A>) to type,
-      Severity: Error,
+      Location: : (37,0)-(38,49),
+      Message: Generator for TransformMonadAttribute is considered experimental and might break,
+      Severity: Info,
+      WarningLevel: 1,
       Descriptor: {
-        Id: FUN0013,
-        Title: Missing return method,
-        MessageFormat: FunicularSwitch.Test.MonadA is missing a return method - Add return method (A -> M<A>) to type,
+        Id: FUN0016,
+        Title: Generator is experimental,
+        MessageFormat: Generator for TransformMonadAttribute is considered experimental and might break,
         Category: ResultTypeGenerator,
-        DefaultSeverity: Error,
+        DefaultSeverity: Info,
         IsEnabledByDefault: true
       }
     },
     {
-      Location: : (23,0)-(24,49),
+      Location: : (40,0)-(41,50),
       Message: Generator for TransformMonadAttribute is considered experimental and might break,
       Severity: Info,
       WarningLevel: 1,

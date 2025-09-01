@@ -36,5 +36,6 @@ public class TransformerGenerator : IIncrementalGenerator
         Parser.GetTransformedMonadSchema(
             (INamedTypeSymbol) syntaxContext.TargetSymbol,
             attributes.First(),
-            token);
+            token)
+            .AddDiagnostics(new DiagnosticInfo(Diagnostics.ExperimentalGenerator(nameof(TransformMonadAttribute), syntaxContext.TargetNode.GetLocation())));
 }

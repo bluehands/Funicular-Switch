@@ -107,6 +107,13 @@ static class Diagnostics
             messageFormat: $"{type} is missing a transformer bind method - Add BindT method (Monad<M<A>> -> (A -> Monad<M<B>>) -> Monad<M<B>>) to type",
             severity: DiagnosticSeverity.Error);
     
+    public static Diagnostic ExperimentalGenerator(string name, Location location) =>
+        Create(location,
+            id: "FUN0016",
+            title: "Generator is experimental",
+            messageFormat: $"Generator for {name} is considered experimental and might break",
+            severity: DiagnosticSeverity.Info);
+    
     static Diagnostic Create(Location? location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
         Diagnostic.Create(
             new(

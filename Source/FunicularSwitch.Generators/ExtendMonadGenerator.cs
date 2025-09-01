@@ -35,7 +35,8 @@ public class ExtendMonadGenerator : IIncrementalGenerator
 
     private static GenerationResult<ExtendMonadInfo> Parse(GeneratorAttributeSyntaxContext syntaxContext, IReadOnlyList<ExtendMonadAttribute> attributes, CancellationToken token) =>
         Parser.GetExtendedMonadSchema(
-            (INamedTypeSymbol) syntaxContext.TargetSymbol,
+            (INamedTypeSymbol)syntaxContext.TargetSymbol,
             attributes.First(),
-            token);
+            token)
+            .AddDiagnostics(new DiagnosticInfo(Diagnostics.ExperimentalGenerator(nameof(ExtendMonadAttribute), syntaxContext.TargetNode.GetLocation())));
 }
