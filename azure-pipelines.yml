@@ -119,6 +119,15 @@ steps:
     packagesToPack: Source/FunicularSwitch.Analyzers.NuGet/FunicularSwitch.Analyzers.NuGet.csproj
     packDirectory: '$(Build.ArtifactStagingDirectory)/Analyzers'
     verbosityPack: Detailed
+    
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack funicular transformers'
+  inputs:
+    command: pack
+    nobuild: true
+    packagesToPack: Source/FunicularSwitch.Transformers/FunicularSwitch.Transformers.csproj
+    packDirectory: '$(Build.ArtifactStagingDirectory)/Transformers'
+    verbosityPack: Detailed
 
 - task: PublishBuildArtifacts@1
   inputs:
