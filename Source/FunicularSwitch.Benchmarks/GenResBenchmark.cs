@@ -8,8 +8,8 @@ public class GenResBenchmark
 {
     private GenericResult<int, int> _okRes;
     private GenericResult<int, int> _errorRes;
-    private Func<int, int> _identity;
-    private Func<int, GenericResult<int, int>> _monadicIdentity;
+    private Func<int, int> _identity = null!;
+    private Func<int, GenericResult<int, int>> _monadicIdentity = null!;
 
     [GlobalSetup]
     public void Setup()

@@ -42,7 +42,7 @@ static class Generator
             if (resultTypeSchema.IsInternal)
                 code = code
                     .Replace("public abstract partial", "abstract partial")
-                    .Replace("public partial", "partial")
+                    .Replace("public readonly partial struct", "readonly partial struct")
                     .Replace("public static partial", "static partial");
 
             code = code

@@ -1,6 +1,7 @@
 ﻿//HintName: FunicularSwitch.Test.MonadA.g.cs
 #nullable enable
-using System.Diagnostics.Contracts;
+
+using global::System.Diagnostics.Contracts;
 using global::System.Linq;
 using System;
 
@@ -67,7 +68,7 @@ namespace FunicularSwitch.Test
 
     public abstract partial class MonadA<T> : MonadA, global::System.Collections.Generic.IEnumerable<T>
     {
-        public static MonadA<T> Error(String message) => Error<T>(message);
+        public static new MonadA<T> Error(String message) => Error<T>(message);
         public static MonadA<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator MonadA<T>(T value) => MonadA.Ok(value);
@@ -332,14 +333,24 @@ namespace FunicularSwitch.Test
         }
     }
 
-    public partial class MonadAError
+    public readonly partial struct MonadAError : global::System.IEquatable<MonadAError>
     {
         readonly String _details;
 
-        public MonadAError(String details) => _details = details;
+        internal MonadAError(String details) => _details = details;
 
         [Pure]
         public MonadA<T> WithOk<T>() => MonadA.Error<T>(_details);
+
+        public bool Equals(MonadAError other) => _details.Equals(other._details);
+
+        public override bool Equals(object? obj) => obj is MonadAError other && Equals(other);
+
+        public override int GetHashCode() => _details.GetHashCode();
+
+        public static bool operator ==(MonadAError left, MonadAError right) => left.Equals(right);
+
+        public static bool operator !=(MonadAError left, MonadAError right) => !left.Equals(right);
     }
 
     public static partial class MonadAExtension

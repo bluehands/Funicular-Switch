@@ -1,6 +1,6 @@
 ﻿#nullable enable
-using System;
-using System.Diagnostics.Contracts;
+
+using global::System.Diagnostics.Contracts;
 using global::System.Linq;
 using System;
 
@@ -67,7 +67,7 @@ namespace FunicularSwitch
 
     public abstract partial class Result<T> : Result, global::System.Collections.Generic.IEnumerable<T>
     {
-        public static Result<T> Error(String message) => Error<T>(message);
+        public static new Result<T> Error(String message) => Error<T>(message);
         public static Result<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator Result<T>(T value) => Result.Ok(value);
@@ -332,35 +332,24 @@ namespace FunicularSwitch
         }
     }
 
-    public partial class ResultError : IEquatable<ResultError>
+    public readonly partial struct ResultError : global::System.IEquatable<ResultError>
     {
         readonly String _details;
 
-        public ResultError(String details) => _details = details;
+        internal ResultError(String details) => _details = details;
 
         [Pure]
         public Result<T> WithOk<T>() => Result.Error<T>(_details);
 
-        public bool Equals(ResultError? other)
-        {
-            if (other is null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return _details.Equals(other._details);
-        }
+        public bool Equals(ResultError other) => _details.Equals(other._details);
 
-        public override bool Equals(object? obj)
-        {
-            if (obj is null) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((ResultError)obj);
-        }
+        public override bool Equals(object? obj) => obj is ResultError other && Equals(other);
 
         public override int GetHashCode() => _details.GetHashCode();
 
-        public static bool operator ==(ResultError? left, ResultError? right) => Equals(left, right);
+        public static bool operator ==(ResultError left, ResultError right) => left.Equals(right);
 
-        public static bool operator !=(ResultError? left, ResultError? right) => !Equals(left, right);
+        public static bool operator !=(ResultError left, ResultError right) => !left.Equals(right);
     }
 
     public static partial class ResultExtension

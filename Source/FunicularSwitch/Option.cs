@@ -11,7 +11,7 @@ namespace FunicularSwitch
     {
         public static Option<T> Some<T>(T value) => Option<T>.Some(value);
         public static Option<T> None<T>() => Option<T>.None;
-        public static OptionNone None() => OptionNone.Instance;
+        public static OptionNone None() => default;
         public static async Task<Option<T>> Some<T>(Task<T> value) => Some(await value);
         public static Task<Option<T>> NoneAsync<T>() => Task.FromResult(Option<T>.None);
     }
@@ -153,20 +153,7 @@ namespace FunicularSwitch
         public static bool operator !=(Option<T> left, Option<T> right) => !left.Equals(right);
     }
 
-    public readonly struct OptionNone : IEquatable<OptionNone>
-    {
-        public static readonly OptionNone Instance = new();
-
-        public bool Equals(OptionNone other) => true;
-
-        public override bool Equals(object? obj) => obj is OptionNone;
-
-        public override int GetHashCode() => 0;
-
-        public static bool operator ==(OptionNone left, OptionNone right) => left.Equals(right);
-
-        public static bool operator !=(OptionNone left, OptionNone right) => !left.Equals(right);
-    }
+    public readonly record struct OptionNone;
 
     public static class OptionExtension
     {

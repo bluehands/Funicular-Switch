@@ -1,6 +1,6 @@
 ﻿#nullable enable
-using System;
-using System.Diagnostics.Contracts;
+
+using global::System.Diagnostics.Contracts;
 using global::System.Linq;
 using FunicularSwitch.Generic;
 
@@ -67,7 +67,7 @@ namespace FunicularSwitch.Generators.Consumer
 
     abstract partial class OperationResult<T> : OperationResult, global::System.Collections.Generic.IEnumerable<T>
     {
-        public static OperationResult<T> Error(Error message) => Error<T>(message);
+        public static new OperationResult<T> Error(Error message) => Error<T>(message);
         public static OperationResult<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator OperationResult<T>(T value) => OperationResult.Ok(value);
@@ -346,35 +346,24 @@ namespace FunicularSwitch.Generators.Consumer
         }
     }
 
-    partial class OperationResultError : IEquatable<OperationResultError>
+    readonly partial struct OperationResultError : global::System.IEquatable<OperationResultError>
     {
         readonly Error _details;
 
-        public OperationResultError(Error details) => _details = details;
+        internal OperationResultError(Error details) => _details = details;
 
         [Pure]
         public OperationResult<T> WithOk<T>() => OperationResult.Error<T>(_details);
 
-        public bool Equals(OperationResultError? other)
-        {
-            if (other is null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return _details.Equals(other._details);
-        }
+        public bool Equals(OperationResultError other) => _details.Equals(other._details);
 
-        public override bool Equals(object? obj)
-        {
-            if (obj is null) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((OperationResultError)obj);
-        }
+        public override bool Equals(object? obj) => obj is OperationResultError other && Equals(other);
 
         public override int GetHashCode() => _details.GetHashCode();
 
-        public static bool operator ==(OperationResultError? left, OperationResultError? right) => Equals(left, right);
+        public static bool operator ==(OperationResultError left, OperationResultError right) => left.Equals(right);
 
-        public static bool operator !=(OperationResultError? left, OperationResultError? right) => !Equals(left, right);
+        public static bool operator !=(OperationResultError left, OperationResultError right) => !left.Equals(right);
     }
 
     static partial class OperationResultExtension

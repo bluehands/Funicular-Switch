@@ -1,6 +1,7 @@
 ﻿//HintName: FunicularSwitch.Test.Result.g.cs
 #nullable enable
-using System.Diagnostics.Contracts;
+
+using global::System.Diagnostics.Contracts;
 using global::System.Linq;
 using System;
 
@@ -67,7 +68,7 @@ namespace FunicularSwitch.Test
 
     public abstract partial class Result<T> : Result, global::System.Collections.Generic.IEnumerable<T>
     {
-        public static Result<T> Error(String message) => Error<T>(message);
+        public static new Result<T> Error(String message) => Error<T>(message);
         public static Result<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator Result<T>(T value) => Result.Ok(value);
@@ -332,14 +333,24 @@ namespace FunicularSwitch.Test
         }
     }
 
-    public partial class ResultError
+    public readonly partial struct ResultError : global::System.IEquatable<ResultError>
     {
         readonly String _details;
 
-        public ResultError(String details) => _details = details;
+        internal ResultError(String details) => _details = details;
 
         [Pure]
         public Result<T> WithOk<T>() => Result.Error<T>(_details);
+
+        public bool Equals(ResultError other) => _details.Equals(other._details);
+
+        public override bool Equals(object? obj) => obj is ResultError other && Equals(other);
+
+        public override int GetHashCode() => _details.GetHashCode();
+
+        public static bool operator ==(ResultError left, ResultError right) => left.Equals(right);
+
+        public static bool operator !=(ResultError left, ResultError right) => !left.Equals(right);
     }
 
     public static partial class ResultExtension

@@ -1,6 +1,7 @@
 ﻿//HintName: FunicularSwitch.Test.OperationResult.g.cs
 #nullable enable
-using System.Diagnostics.Contracts;
+
+using global::System.Diagnostics.Contracts;
 using global::System.Linq;
 
 
@@ -67,7 +68,7 @@ namespace FunicularSwitch.Test
 
     public abstract partial class OperationResult<T> : OperationResult, global::System.Collections.Generic.IEnumerable<T>
     {
-        public static OperationResult<T> Error(MyError message) => Error<T>(message);
+        public static new OperationResult<T> Error(MyError message) => Error<T>(message);
         public static OperationResult<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator OperationResult<T>(T value) => OperationResult.Ok(value);
@@ -332,14 +333,24 @@ namespace FunicularSwitch.Test
         }
     }
 
-    public partial class OperationResultError
+    public readonly partial struct OperationResultError : global::System.IEquatable<OperationResultError>
     {
         readonly MyError _details;
 
-        public OperationResultError(MyError details) => _details = details;
+        internal OperationResultError(MyError details) => _details = details;
 
         [Pure]
         public OperationResult<T> WithOk<T>() => OperationResult.Error<T>(_details);
+
+        public bool Equals(OperationResultError other) => _details.Equals(other._details);
+
+        public override bool Equals(object? obj) => obj is OperationResultError other && Equals(other);
+
+        public override int GetHashCode() => _details.GetHashCode();
+
+        public static bool operator ==(OperationResultError left, OperationResultError right) => left.Equals(right);
+
+        public static bool operator !=(OperationResultError left, OperationResultError right) => !left.Equals(right);
     }
 
     public static partial class OperationResultExtension

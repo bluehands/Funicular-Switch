@@ -5,11 +5,11 @@ namespace FunicularSwitch.Benchmarks;
 [MemoryDiagnoser()]
 public class ResBenchmark
 {
-    private Result<int> _okRes;
-    private Result<int> _errorRes;
-    private Func<int, int> _identity;
-    private Func<string, int> _errorToInt;
-    private Func<int, Result<int>> _monadicIdentity;
+    private Result<int> _okRes = null!;
+    private Result<int> _errorRes = null!;
+    private Func<int, int> _identity = null!;
+    private Func<string, int> _errorToInt = null!;
+    private Func<int, Result<int>> _monadicIdentity = null!;
 
     [GlobalSetup]
     public void Setup()
