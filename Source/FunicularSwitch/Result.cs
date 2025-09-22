@@ -9,7 +9,7 @@ namespace FunicularSwitch
 {
 	public abstract partial class Result
 	{
-        public static Result<Unit> Try(Action action, Func<Exception, string> formatError)
+		public static Result<Unit> Try(Action action, Func<Exception, string> formatError)
         {
             try
             {
@@ -37,9 +37,8 @@ namespace FunicularSwitch
 	}
 
 	[ResultType(ErrorType = typeof(string))]
-	public abstract partial class Result<T>
-	{
-	}
+	public abstract partial class Result<T>;
+
 	public static partial class ResultExtension
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Global

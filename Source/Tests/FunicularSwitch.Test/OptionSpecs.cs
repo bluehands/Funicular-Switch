@@ -217,6 +217,17 @@ public class OptionSpecs
         nullOption.Equals(Option<MyClass?>.Some(null)).Should().BeTrue();
     }
 
+    [TestMethod]
+    public void IntermediateNoneOptionIsFine()
+    {
+        GetTuple().Should().BeNone();
+        return;
+
+        Option<(int x, int y)> GetTuple() => None();
+    }
+
+
+
     class MyClass;
 
     class MyOtherClass;

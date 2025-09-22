@@ -1,5 +1,6 @@
 ﻿//HintName: FunicularSwitch.Test.OperationResult.g.cs
 #nullable enable
+using System.Diagnostics.Contracts;
 using global::System.Linq;
 using FunicularSwitch.Test.Errors;
 
@@ -9,6 +10,7 @@ namespace FunicularSwitch.Test
     public abstract partial class OperationResult
     {
         public static OperationResult<T> Error<T>(MyError details) => new OperationResult<T>.Error_(details);
+        public static OperationResultError Error(MyError details) => new(details);
         public static OperationResult<T> Ok<T>(T value) => new OperationResult<T>.Ok_(value);
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(OperationResult<>.Error_);
         public bool IsOk => !IsError;
@@ -69,6 +71,8 @@ namespace FunicularSwitch.Test
         public static OperationResult<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator OperationResult<T>(T value) => OperationResult.Ok(value);
+
+        public static implicit operator OperationResult<T>(OperationResultError myResultError) => myResultError.WithOk<T>();
 
         public static bool operator true(OperationResult<T> result) => result.IsOk;
         public static bool operator false(OperationResult<T> result) => result.IsError;
@@ -326,7 +330,16 @@ namespace FunicularSwitch.Test
 
             public static bool operator !=(Error_ left, Error_ right) => !Equals(left, right);
         }
+    }
 
+    public partial class OperationResultError
+    {
+        readonly MyError _details;
+
+        public OperationResultError(MyError details) => _details = details;
+
+        [Pure]
+        public OperationResult<T> WithOk<T>() => OperationResult.Error<T>(_details);
     }
 
     public static partial class OperationResultExtension
@@ -443,7 +456,7 @@ namespace FunicularSwitch.Test.Extensions
                     }))
                 .Select(r => r.GetValueOrThrow());
 
-        public static OperationResult<T> As<T>(this object item, global::System.Func<MyError> error) =>
+        public static OperationResult<T> As<T>(this object? item, global::System.Func<MyError> error) =>
             !(item is T t) ? OperationResult.Error<T>(error()) : t;
 
         public static OperationResult<T> NotNull<T>(this T? item, global::System.Func<MyError> error) =>

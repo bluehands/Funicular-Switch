@@ -1,4 +1,6 @@
 ﻿#nullable enable
+using System;
+using System.Diagnostics.Contracts;
 using global::System.Linq;
 //additional using directives
 
@@ -8,6 +10,7 @@ namespace FunicularSwitch.Generators.Templates
     public abstract partial class MyResult
     {
         public static MyResult<T> Error<T>(MyError details) => new MyResult<T>.Error_(details);
+        public static MyResultError Error(MyError details) => new(details);
         public static MyResult<T> Ok<T>(T value) => new MyResult<T>.Ok_(value);
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(MyResult<>.Error_);
         public bool IsOk => !IsError;
@@ -68,6 +71,8 @@ namespace FunicularSwitch.Generators.Templates
         public static MyResult<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator MyResult<T>(T value) => MyResult.Ok(value);
+
+        public static implicit operator MyResult<T>(MyResultError myResultError) => myResultError.WithOk<T>();
 
         public static bool operator true(MyResult<T> result) => result.IsOk;
         public static bool operator false(MyResult<T> result) => result.IsError;
@@ -325,7 +330,37 @@ namespace FunicularSwitch.Generators.Templates
 
             public static bool operator !=(Error_ left, Error_ right) => !Equals(left, right);
         }
+    }
 
+    public partial class MyResultError : IEquatable<MyResultError>
+    {
+        readonly MyError _details;
+
+        public MyResultError(MyError details) => _details = details;
+
+        [Pure]
+        public MyResult<T> WithOk<T>() => MyResult.Error<T>(_details);
+
+        public bool Equals(MyResultError? other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return _details.Equals(other._details);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((MyResultError)obj);
+        }
+
+        public override int GetHashCode() => _details.GetHashCode();
+
+        public static bool operator ==(MyResultError? left, MyResultError? right) => Equals(left, right);
+
+        public static bool operator !=(MyResultError? left, MyResultError? right) => !Equals(left, right);
     }
 
     public static partial class MyResultExtension
@@ -442,7 +477,7 @@ namespace FunicularSwitch.Generators.Templates.Extensions
                     }))
                 .Select(r => r.GetValueOrThrow());
 
-        public static MyResult<T> As<T>(this object item, global::System.Func<MyError> error) =>
+        public static MyResult<T> As<T>(this object? item, global::System.Func<MyError> error) =>
             !(item is T t) ? MyResult.Error<T>(error()) : t;
 
         public static MyResult<T> NotNull<T>(this T? item, global::System.Func<MyError> error) =>

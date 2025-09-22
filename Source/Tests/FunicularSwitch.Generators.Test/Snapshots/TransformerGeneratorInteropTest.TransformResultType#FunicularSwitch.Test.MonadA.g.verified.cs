@@ -1,5 +1,6 @@
 ﻿//HintName: FunicularSwitch.Test.MonadA.g.cs
 #nullable enable
+using System.Diagnostics.Contracts;
 using global::System.Linq;
 using System;
 
@@ -9,6 +10,7 @@ namespace FunicularSwitch.Test
     public abstract partial class MonadA
     {
         public static MonadA<T> Error<T>(String details) => new MonadA<T>.Error_(details);
+        public static MonadAError Error(String details) => new(details);
         public static MonadA<T> Ok<T>(T value) => new MonadA<T>.Ok_(value);
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(MonadA<>.Error_);
         public bool IsOk => !IsError;
@@ -69,6 +71,8 @@ namespace FunicularSwitch.Test
         public static MonadA<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator MonadA<T>(T value) => MonadA.Ok(value);
+
+        public static implicit operator MonadA<T>(MonadAError myResultError) => myResultError.WithOk<T>();
 
         public static bool operator true(MonadA<T> result) => result.IsOk;
         public static bool operator false(MonadA<T> result) => result.IsError;
@@ -326,7 +330,16 @@ namespace FunicularSwitch.Test
 
             public static bool operator !=(Error_ left, Error_ right) => !Equals(left, right);
         }
+    }
 
+    public partial class MonadAError
+    {
+        readonly String _details;
+
+        public MonadAError(String details) => _details = details;
+
+        [Pure]
+        public MonadA<T> WithOk<T>() => MonadA.Error<T>(_details);
     }
 
     public static partial class MonadAExtension
@@ -443,7 +456,7 @@ namespace FunicularSwitch.Test.Extensions
                     }))
                 .Select(r => r.GetValueOrThrow());
 
-        public static MonadA<T> As<T>(this object item, global::System.Func<String> error) =>
+        public static MonadA<T> As<T>(this object? item, global::System.Func<String> error) =>
             !(item is T t) ? MonadA.Error<T>(error()) : t;
 
         public static MonadA<T> NotNull<T>(this T? item, global::System.Func<String> error) =>

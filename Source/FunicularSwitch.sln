@@ -201,11 +201,15 @@ Global
 		SolutionGuid = {0A6C53D4-8DAD-4DBF-B4A6-D02801D28BD4}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{27643a6e-1dbf-4a97-8cf0-eafa3391cebf}*SharedItemsImports = 5
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{283d39fc-e43f-47d3-8f96-724958c9c73c}*SharedItemsImports = 5
 		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{35633310-5f61-463b-a62e-1940e2dfae7d}*SharedItemsImports = 5
 		FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems*{35633310-5f61-463b-a62e-1940e2dfae7d}*SharedItemsImports = 5
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{563af842-9542-44ce-8d01-9d3662444b90}*SharedItemsImports = 5
 		FunicularSwitch.Analyzers.Common\FunicularSwitch.Analyzers.Common.projitems*{59aba78f-281e-4241-a892-f23f7e432756}*SharedItemsImports = 13
 		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{5cf89bde-0ae9-490c-ae0f-a8c1dd93024e}*SharedItemsImports = 5
 		FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems*{5dbc7d41-67a3-41c2-8e6d-453cf1334627}*SharedItemsImports = 13
+		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{864a9377-0a35-436d-9610-adcdd34fa39a}*SharedItemsImports = 5
 		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{bf664635-17e2-44eb-a99e-94d564542509}*SharedItemsImports = 13
 		FunicularSwitch.Common\FunicularSwitch.Common.projitems*{cc47aaaf-a8b4-4e03-ae78-e2011426f723}*SharedItemsImports = 5
 		FunicularSwitch.Generators.Common\FunicularSwitch.Generators.Common.projitems*{cc47aaaf-a8b4-4e03-ae78-e2011426f723}*SharedItemsImports = 5

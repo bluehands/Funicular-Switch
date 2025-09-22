@@ -1,5 +1,6 @@
 ﻿//HintName: FunicularSwitch.Test.MonadB.g.cs
 #nullable enable
+using System.Diagnostics.Contracts;
 using global::System.Linq;
 using System;
 
@@ -9,6 +10,7 @@ namespace FunicularSwitch.Test
     public abstract partial class MonadB
     {
         public static MonadB<T> Error<T>(Int32 details) => new MonadB<T>.Error_(details);
+        public static MonadBError Error(Int32 details) => new(details);
         public static MonadB<T> Ok<T>(T value) => new MonadB<T>.Ok_(value);
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(MonadB<>.Error_);
         public bool IsOk => !IsError;
@@ -69,6 +71,8 @@ namespace FunicularSwitch.Test
         public static MonadB<T> Ok(T value) => Ok<T>(value);
 
         public static implicit operator MonadB<T>(T value) => MonadB.Ok(value);
+
+        public static implicit operator MonadB<T>(MonadBError myResultError) => myResultError.WithOk<T>();
 
         public static bool operator true(MonadB<T> result) => result.IsOk;
         public static bool operator false(MonadB<T> result) => result.IsError;
@@ -326,7 +330,16 @@ namespace FunicularSwitch.Test
 
             public static bool operator !=(Error_ left, Error_ right) => !Equals(left, right);
         }
+    }
 
+    public partial class MonadBError
+    {
+        readonly Int32 _details;
+
+        public MonadBError(Int32 details) => _details = details;
+
+        [Pure]
+        public MonadB<T> WithOk<T>() => MonadB.Error<T>(_details);
     }
 
     public static partial class MonadBExtension
@@ -443,7 +456,7 @@ namespace FunicularSwitch.Test.Extensions
                     }))
                 .Select(r => r.GetValueOrThrow());
 
-        public static MonadB<T> As<T>(this object item, global::System.Func<Int32> error) =>
+        public static MonadB<T> As<T>(this object? item, global::System.Func<Int32> error) =>
             !(item is T t) ? MonadB.Error<T>(error()) : t;
 
         public static MonadB<T> NotNull<T>(this T? item, global::System.Func<Int32> error) =>
