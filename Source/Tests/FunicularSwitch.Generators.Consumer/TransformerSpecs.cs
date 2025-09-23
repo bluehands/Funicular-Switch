@@ -143,6 +143,48 @@ public class TransformerSpecs
         static Writer<FunicularSwitch.Result<int>> Subtract(int a, int b) =>
             WriterResult.Append(a - b, v => $"{a}-{b} = {v}");
     }
+
+    [TestMethod]
+    [DataRow(1, 1, "Right 0", """
+                           1/1 = 1
+                           1-1 = 0
+                           sqrt(0) = 0
+                           """)]
+    [DataRow(2, 2, "Left sqrt(-1) -> Cannot get square root of negative number", """
+        2/2 = 1
+        1-2 = -1
+        sqrt(-1) -> Cannot get square root of negative number
+        """)]
+    [DataRow(2, 0, "Left 2/0 -> Cannot divide by 0", "2/0 -> Cannot divide by 0")]
+    public void WriterEither_UseCase(int a, int b, string expectedResult, string expectedLog)
+    {
+        // Act
+        var result =
+            from x in Div(a, b)
+            from y in Subtract(x, b)
+            from z in Sqrt(y)
+            select y;
+
+        // Assert
+        using (new AssertionScope())
+        {
+            string.Join(Environment.NewLine, result.Log).Should().Be(expectedLog);
+            ((string) result.Value.ToString()).Should().Be(expectedResult);
+        }
+
+        static Writer2<string, Either<string, int>> Sqrt(int a) =>
+            a < 0
+                ? WriterEither.Left<string, string, int>($"sqrt({a}) -> Cannot get square root of negative number")
+                : WriterEither.Append<string, string, int>((int) Math.Sqrt(a), v => $"sqrt({a}) = {v}");
+
+        static Writer2<string, Either<string, int>> Div(int a, int b) =>
+            b == 0
+                ? WriterEither.Left<string, string, int>($"{a}/{b} -> Cannot divide by 0")
+                : WriterEither.Append<string, string, int>(a / b, v => $"{a}/{b} = {v}");
+
+        static Writer2<string, Either<string, int>> Subtract(int a, int b) =>
+            WriterEither.Append<string, string, int>(a - b, v => $"{a}-{b} = {v}");
+    }
 }
 
 [TransformMonad(typeof(Result<>), typeof(OptionT))]
@@ -195,4 +237,70 @@ public static partial class ResultEnumerable
 
     public static ResultEnumerable<A> Where<A>(this ResultEnumerable<A> ma, Func<A, bool> predicate) =>
         ma.Bind(a => predicate(a) ? OkYield(a) : Empty<A>());
+}
+
+public record Writer2<L, A>(A Value, IReadOnlyList<L> Log);
+
+[ExtendMonad]
+public static partial class Writer2
+{
+    public static Writer2<L, A> Append<L, A>(A v, L log) => new(v, [log]);
+
+    public static Writer2<L, B> Bind<L, A, B>(this Writer2<L, A> ma, Func<A, Writer2<L, B>> fn)
+    {
+        var tmp = fn(ma.Value);
+        var result = tmp with {Log = [..ma.Log, ..tmp.Log]};
+        return result;
+    }
+
+    public static Writer2<L, A> Init<L, A>(A v) => new(v, []);
+}
+
+public abstract record Either<B, A>
+{
+    public record Left(B Value) : Either<B, A>
+    {
+        public override string ToString() => $"Left {Value}";
+    }
+
+    public record Right(A Value) : Either<B, A>
+    {
+        public override string ToString() => $"Right {Value}";
+    }
+}
+
+[ExtendMonad]
+[MonadTransformer(typeof(Either))]
+public static partial class Either
+{
+    public static Either<B, A> Right<B, A>(A a) => new Either<B, A>.Right(a);
+    
+    public static Either<B, A> Left<B, A>(B b) => new Either<B, A>.Left(b);
+
+    public static Either<B, C> Bind<B, A, C>(this Either<B, A> ma, Func<A, Either<B, C>> fn) => ma switch
+    {
+        Either<B, A>.Left left => Left<B, C>(left.Value),
+        Either<B, A>.Right right => fn(right.Value),
+        _ => throw new ArgumentOutOfRangeException(),
+    };
+
+    public static Monad<Either<B, C>> BindT<B, A, C>(Monad<Either<B, A>> ma, Func<A, Monad<Either<B, C>>> fn) =>
+        ma.Bind(eitherA => eitherA switch
+        {
+            Either<B, A>.Left left => ma.Return(Left<B, C>(left.Value)),
+            Either<B, A>.Right right => fn(right.Value),
+            _ => throw new ArgumentOutOfRangeException(),
+        });
+}
+
+[TransformMonad(typeof(Writer2), typeof(Either))]
+public static partial class WriterEither
+{
+    public static Writer2<B, Either<B, A>> Left<L, B, A>(B b) => Writer2.Append(Either.Left<B, A>(b), b);
+
+    public static Writer2<L, Either<B, A>> Append<L, B, A>(A value, L log) =>
+        Writer2.Append(Either.Right<B, A>(value), log);
+
+    public static Writer2<L, Either<B, A>> Append<L, B, A>(A value, Func<A, L> logFn) =>
+        Append<L, B, A>(value, logFn(value));
 }
