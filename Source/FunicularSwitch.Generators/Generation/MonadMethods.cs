@@ -51,6 +51,7 @@ internal static class MonadMethods
             ..Return(genericTypeName, monad),
             ..BindMethods(),
             ..MapMethods(),
+            ..CombineMethods(),
         ];
         return methodGenerationInfos
             .Distinct(MethodGenerationInfo.SignatureComparer.Instance)
@@ -69,6 +70,9 @@ internal static class MonadMethods
             ..Map("Map", genericTypeName, monad),
             ..Map("Select", genericTypeName, monad),
         ];
+
+        IEnumerable<MethodGenerationInfo> CombineMethods() =>
+            Combine(genericTypeName, monad, 12);
     }
 
     private static IEnumerable<MethodGenerationInfo> AsyncVariants(string parameterName, Func<string, MethodGenerationInfo> fn)
@@ -144,6 +148,31 @@ internal static class MonadMethods
                 name,
                 t => $"{p}.SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName([..t, "B"])})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))"
             ));
+    }
+
+    private static IEnumerable<MethodGenerationInfo> Combine(ConstructType genericTypeName, MonadInfo chainedMonad, int maxCount)
+    {
+        return Enumerable.Range(2, maxCount - 1)
+            .SelectMany(ForCount);
+
+        IEnumerable<MethodGenerationInfo> ForCount(int count)
+        {
+            var typeParameters = Enumerable.Range(0, count).Select(x => $"S{x}").ToList();
+            yield return Create(
+                chainedMonad.ExtraArity,
+                $"({string.Join(", ", typeParameters)})",
+                genericTypeName,
+                typeParameters,
+                t => Enumerable.Range(0, count)
+                    .Select(i => new ParameterGenerationInfo(
+                        genericTypeName([..t, $"S{i}"]), $"s{i}"))
+                    .ToList(),
+                "Combine",
+                t => count > 2
+                    ? $"Combine({string.Join(", ", Enumerable.Range(0, count - 1).Select(i => $"s{i}"))}).Bind(prev => s{count - 1}.Map(last => ({string.Join(", ", Enumerable.Range(1, count - 1).Select(i => $"prev.Item{i}"))}, last)))"
+                    : "s0.Bind(v0 => s1.Map(v1 => (v0, v1)))"
+            );
+        }
     }
 
     private static IEnumerable<MethodGenerationInfo> Lift(ConstructType genericTypeName, MonadInfo chainedMonad, MonadInfo outerMonad, MonadInfo innerMonad) =>
