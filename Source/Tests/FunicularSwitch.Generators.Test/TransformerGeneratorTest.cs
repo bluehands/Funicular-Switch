@@ -611,6 +611,53 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
 
         return Verify(code);
     }
+
+    [TestMethod]
+    [DataRow("T, ", "")]
+    [DataRow("", "T, ")]
+    [DataRow("T, ", "U, ")]
+    [DataRow("T, U, ", "V, ")]
+    [DataRow("T, U, V, ", "W, X, ")]
+    [DataRow("T, U, V, ", "T, U, V, ")]
+    public Task StaticTransformedMonadWithMultipleParameters(string outerTypeParameters, string innerTypeParameters)
+    {
+        var code =
+            /*lang=csharp*/
+            $$"""
+              using System;
+              using FunicularSwitch.Generators;
+              using FunicularSwitch.Transformers;
+
+              namespace FunicularSwitch.Test;
+
+              public record MonadA<{{outerTypeParameters}}A>(A Value);
+              public class MonadA
+              {
+                  public static MonadA<{{outerTypeParameters}}A> Return<{{outerTypeParameters}}A>(A a) => throw new NotImplementedException();
+                  
+                  public static MonadA<{{outerTypeParameters}}B> Bind<{{outerTypeParameters}}A, B>(MonadA<{{outerTypeParameters}}A> ma, Func<A, MonadA<{{outerTypeParameters}}B>> fn) => throw new NotImplementedException();
+              }
+
+              public record MonadB<{{innerTypeParameters}}B>(B Value);
+              public class MonadB
+              {
+                  public static MonadB<{{innerTypeParameters}}A> Return<{{innerTypeParameters}}A>(A a) => throw new NotImplementedException();
+                  
+                  public static MonadB<{{innerTypeParameters}}B> Bind<{{innerTypeParameters}}A, B>(MonadB<{{innerTypeParameters}}A> ma, Func<A, MonadB<{{innerTypeParameters}}B>> fn) => throw new NotImplementedException();
+              }
+
+              [MonadTransformer(typeof(MonadB))]
+              public class MonadBT
+              {
+                  public static Monad<MonadB<{{innerTypeParameters}}B>> BindT<{{innerTypeParameters}}A, B>(Monad<MonadB<{{innerTypeParameters}}A>> ma, Func<A, Monad<MonadB<{{innerTypeParameters}}B>>> fn) => throw new NotImplementedException();
+              }
+
+              [TransformMonad(typeof(MonadA), typeof(MonadBT))]
+              public static partial class MonadAB;
+              """;
+
+        return Verify(code);
+    }
 }
 
 [TestClass]
