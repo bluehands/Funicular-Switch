@@ -174,12 +174,12 @@ public class TransformerSpecs
 
         static Writer2<string, Either<string, int>> Sqrt(int a) =>
             a < 0
-                ? WriterEither.Left<string, string, int>($"sqrt({a}) -> Cannot get square root of negative number")
+                ? WriterEither.Left<string, int>($"sqrt({a}) -> Cannot get square root of negative number")
                 : WriterEither.Append<string, string, int>((int) Math.Sqrt(a), v => $"sqrt({a}) = {v}");
 
         static Writer2<string, Either<string, int>> Div(int a, int b) =>
             b == 0
-                ? WriterEither.Left<string, string, int>($"{a}/{b} -> Cannot divide by 0")
+                ? WriterEither.Left<string, int>($"{a}/{b} -> Cannot divide by 0")
                 : WriterEither.Append<string, string, int>(a / b, v => $"{a}/{b} = {v}");
 
         static Writer2<string, Either<string, int>> Subtract(int a, int b) =>
@@ -296,7 +296,7 @@ public static partial class Either
 [TransformMonad(typeof(Writer2), typeof(Either))]
 public static partial class WriterEither
 {
-    public static Writer2<B, Either<B, A>> Left<L, B, A>(B b) => Writer2.Append(Either.Left<B, A>(b), b);
+    public static Writer2<B, Either<B, A>> Left<B, A>(B b) => Writer2.Append(Either.Left<B, A>(b), b);
 
     public static Writer2<L, Either<B, A>> Append<L, B, A>(A value, L log) =>
         Writer2.Append(Either.Right<B, A>(value), log);
