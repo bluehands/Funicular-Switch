@@ -1,4 +1,3 @@
-using System.Xml.Schema;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using FunicularSwitch.Generators.Parsing;
@@ -111,14 +110,14 @@ internal static class Parser
     {
         var typeModifier = DetermineTypeModifier(transformedMonadSymbol);
         var isRecord = transformedMonadSymbol.IsRecord;
-        var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
+        var typeParameters = transformedMonadSymbol.TypeArguments.Select(x => x.Name).ToList();
 
         return new(
             transformedMonadSymbol.GetActualAccessibility(),
             typeModifier,
             transformedMonadSymbol.Name,
-            typeParameter,
-            $"{transformedMonadSymbol.Name}<{typeParameter}>",
+            typeParameters,
+            $"{transformedMonadSymbol.Name}<{string.Join(", ", typeParameters)}>",
             isRecord,
             chainedMonad
         );

@@ -29,10 +29,12 @@ internal static class Generator
 
     private static void WriteGenericMonad(GenericMonadGenerationInfo data, CSharpBuilder cs)
     {
-        var nestedTypeName = data.Monad.GenericTypeName([data.TypeParameter]);
-        var monadInterface = $"global::FunicularSwitch.Transformers.Monad<{data.TypeParameter}>";
-        var altTypeParameter = $"{data.TypeParameter}_";
-        var monadInterfaceAlt = $"global::FunicularSwitch.Transformers.Monad<{altTypeParameter}>";
+        var nestedTypeName = data.Monad.GenericTypeName(data.TypeParameters.Select(TypeInfo.Parameter).ToList());
+        var extraTypeParametersString = string.Concat(data.TypeParameters.Take(data.TypeParameters.Count - 1).Select(x => $"{x}, "));
+        var valueTypeParameter = data.TypeParameters.Last();
+        var monadInterface = $"global::FunicularSwitch.Transformers.Monad<{valueTypeParameter}>";
+        var altValueTypeParameter = $"{data.TypeParameters.Last()}_";
+        var monadInterfaceAlt = $"global::FunicularSwitch.Transformers.Monad<{altValueTypeParameter}>";
         using var _ = new Scope(cs, $"{Types.DetermineAccessModifier(data.Accessibility)} {data.Modifier} {data.TypeNameWithTypeParameters}({nestedTypeName} M) : {monadInterface}");
 
         if (!data.IsRecord)
@@ -45,10 +47,10 @@ internal static class Generator
         GeneralGenerator.WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public static implicit operator {nestedTypeName}({data.TypeNameWithTypeParameters} ma) => ma.M;");
         GeneralGenerator.WriteCommonMethodAttributes(cs);
-        cs.WriteLine($"{monadInterfaceAlt} {monadInterface}.Return<{altTypeParameter}>({altTypeParameter} a) => {data.TypeName}.{data.Monad.ReturnMethod.Name}(a);");
+        cs.WriteLine($"{monadInterfaceAlt} {monadInterface}.Return<{altValueTypeParameter}>({altValueTypeParameter} a) => {data.TypeName}.{data.Monad.ReturnMethod.Name}<{extraTypeParametersString}{altValueTypeParameter}>(a);");
         GeneralGenerator.WriteCommonMethodAttributes(cs);
-        cs.WriteLine($"{monadInterfaceAlt} {monadInterface}.Bind<{altTypeParameter}>(global::System.Func<{data.TypeParameter}, {monadInterfaceAlt}> fn) => this.{data.Monad.BindMethod.Name}(a => ({data.TypeName}<{altTypeParameter}>)fn(a));");
+        cs.WriteLine($"{monadInterfaceAlt} {monadInterface}.Bind<{altValueTypeParameter}>(global::System.Func<{valueTypeParameter}, {monadInterfaceAlt}> fn) => this.{data.Monad.BindMethod.Name}(a => ({data.TypeName}<{extraTypeParametersString}{altValueTypeParameter}>)fn(a));");
         GeneralGenerator.WriteCommonMethodAttributes(cs);
-        cs.WriteLine($"{altTypeParameter} {monadInterface}.Cast<{altTypeParameter}>() => ({altTypeParameter})(object)M;");
+        cs.WriteLine($"{altValueTypeParameter} {monadInterface}.Cast<{altValueTypeParameter}>() => ({altValueTypeParameter})(object)M;");
     }
 }
