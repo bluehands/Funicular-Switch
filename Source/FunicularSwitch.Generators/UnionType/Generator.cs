@@ -13,7 +13,6 @@ public static class Generator
 
     public static (string filename, string source) Emit(
         UnionTypeSchema unionTypeSchema,
-        bool hasPolyTypeReference,
         Action<Diagnostic> reportDiagnostic,
         CancellationToken cancellationToken)
     {
@@ -30,7 +29,7 @@ public static class Generator
             if (unionTypeSchema is { IsPartial: true, StaticFactoryInfo: not null })
             {
                 builder.WriteLine("");
-                WritePartialWithStaticFactories(unionTypeSchema, hasPolyTypeReference, builder);
+                WritePartialWithStaticFactories(unionTypeSchema, builder);
             }
         }
 
@@ -89,7 +88,7 @@ public static class Generator
         }
     }
 
-    static void WritePartialWithStaticFactories(UnionTypeSchema unionTypeSchema, bool hasPolyTypeReference, CSharpBuilder builder)
+    static void WritePartialWithStaticFactories(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
     {
         var info = unionTypeSchema.StaticFactoryInfo!;
         var typeParameters = RoslynExtensions.FormatTypeParameters(unionTypeSchema.TypeParameters);
@@ -98,13 +97,6 @@ public static class Generator
         var actualModifiers = unionTypeSchema.Modifiers
             .Select(m => m == "public" ? (unionTypeSchema.IsInternal ? "internal" : "public") : m);
 
-        if (hasPolyTypeReference)
-        {
-            foreach (var derivedType in unionTypeSchema.Cases)
-            {
-                builder.WriteLine($"[global::PolyType.{UnionTypeGenerator.DerivedTypeShapeAttribute}(typeof(global::{derivedType.FullTypeName}))]");
-            }
-        }
         builder.WriteLine($"{(actualModifiers.ToSeparatedString(" "))} {typeKind} {unionTypeSchema.TypeName}{typeParameters}");
         using (builder.Indent())
         {

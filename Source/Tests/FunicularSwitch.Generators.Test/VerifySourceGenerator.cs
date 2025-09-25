@@ -4,7 +4,6 @@ using FluentAssertions;
 using FunicularSwitch.Transformers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using PolyType;
 
 namespace FunicularSwitch.Generators.Test;
 
@@ -54,8 +53,8 @@ public abstract class BaseVerifySourceGenerators(params IIncrementalGenerator[] 
             .UseDirectory("Snapshots");
     }
 
-    protected Task Verify(string source, bool referencePolyType = false) =>
-        Verify(source, additionalAssemblies: referencePolyType ? [typeof(DerivedTypeShapeAttribute).Assembly] : [], (compilation, _) =>
+    protected Task Verify(string source) =>
+        Verify(source, additionalAssemblies: [], (compilation, _) =>
         {
             var diagnostics = compilation.GetDiagnostics();
             var errors = string.Join(Environment.NewLine, diagnostics
