@@ -31,35 +31,21 @@ public class UnionTypeGenerator : IIncrementalGenerator
                             (INamedTypeSymbol)context.TargetSymbol,
                             context.Attributes[0]
                         )
-                )
-                .Combine(context.CompilationProvider
-                    .SelectMany(static (compilation, _) => compilation.GlobalNamespace.GetNamespaceMembers())
-                    .Where(static (namespaceMember) => namespaceMember.Name == "PolyType")
-                    .Select(static (namespaceMember, _) =>
-                    {
-                        foreach (var namedTypeSymbol in namespaceMember.GetTypeMembers())
-                        {
-                           if (namedTypeSymbol.Name == DerivedTypeShapeAttribute)
-                               return true;
-                        }
-                        return false;
-                    })
-                    .Where(t => t)
-                    .Collect());
+                );
         
         context.RegisterSourceOutput(
             unionTypeClasses, 
-            static (spc, source) => Execute(source.Left, source.Right.Length > 0, spc));
+            static (spc, source) => Execute(source, spc));
     }
 
-    static void Execute(GenerationResult<UnionTypeSchema> target, bool hasPolyTypeReference, SourceProductionContext context)
+    static void Execute(GenerationResult<UnionTypeSchema> target, SourceProductionContext context)
     {
         var (unionTypeSchema, errors, hasValue) = target;
         foreach (var error in errors) context.ReportDiagnostic(error);
         
         if (!hasValue || unionTypeSchema!.Cases.IsEmpty) return;
 
-        var (filename, source) = Generator.Emit(unionTypeSchema, hasPolyTypeReference, context.ReportDiagnostic, context.CancellationToken);
+        var (filename, source) = Generator.Emit(unionTypeSchema, context.ReportDiagnostic, context.CancellationToken);
         context.AddSource(filename, source);
     }
 }
