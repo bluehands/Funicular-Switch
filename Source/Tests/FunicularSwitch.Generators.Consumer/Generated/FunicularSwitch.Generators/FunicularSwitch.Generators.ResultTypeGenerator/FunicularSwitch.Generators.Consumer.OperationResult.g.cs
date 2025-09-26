@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using global::System.Diagnostics.Contracts;
 using global::System.Linq;
 using FunicularSwitch.Generic;
 
@@ -352,7 +351,7 @@ namespace FunicularSwitch.Generators.Consumer
 
         internal OperationResultError(Error details) => _details = details;
 
-        [Pure]
+        [global::System.Diagnostics.Contracts.Pure]
         public OperationResult<T> WithOk<T>() => OperationResult.Error<T>(_details);
 
         public bool Equals(OperationResultError other) => _details.Equals(other._details);

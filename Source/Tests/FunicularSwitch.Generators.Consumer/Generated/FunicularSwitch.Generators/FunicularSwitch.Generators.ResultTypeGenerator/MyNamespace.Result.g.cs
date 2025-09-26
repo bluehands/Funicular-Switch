@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using global::System.Diagnostics.Contracts;
 using global::System.Linq;
 using MyNamespace2;
 using FunicularSwitch.Generic;
@@ -353,7 +352,7 @@ namespace MyNamespace
 
         internal ResultError(ErrorInNamespaceWithDifferentResult details) => _details = details;
 
-        [Pure]
+        [global::System.Diagnostics.Contracts.Pure]
         public Result<T> WithOk<T>() => Result.Error<T>(_details);
 
         public bool Equals(ResultError other) => _details.Equals(other._details);

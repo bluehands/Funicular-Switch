@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using global::System.Diagnostics.Contracts;
 using global::System.Linq;
 //additional using directives
 
@@ -338,7 +337,7 @@ namespace FunicularSwitch.Generators.Templates
 
         internal MyResultError(MyError details) => _details = details;
 
-        [Pure]
+        [global::System.Diagnostics.Contracts.Pure]
         public MyResult<T> WithOk<T>() => MyResult.Error<T>(_details);
 
         public bool Equals(MyResultError other) => _details.Equals(other._details);
