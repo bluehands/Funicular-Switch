@@ -19,6 +19,7 @@ namespace FunicularSwitch.Generators.Consumer.System
         public bool IsOk => !IsError;
         public abstract Action? GetErrorOrDefault();
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static Result<T> Try<T>(global::System.Func<T> action, global::System.Func<global::System.Exception, Action> formatError)
         {
             try
@@ -31,6 +32,7 @@ namespace FunicularSwitch.Generators.Consumer.System
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<Result<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<T>> action, global::System.Func<global::System.Exception, Action> formatError)
         {
             try
@@ -43,6 +45,7 @@ namespace FunicularSwitch.Generators.Consumer.System
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static Result<T> Try<T>(global::System.Func<Result<T>> action, global::System.Func<global::System.Exception, Action> formatError)
         {
             try
@@ -55,6 +58,7 @@ namespace FunicularSwitch.Generators.Consumer.System
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<Result<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<Result<T>>> action, global::System.Func<global::System.Exception, Action> formatError)
         {
             try

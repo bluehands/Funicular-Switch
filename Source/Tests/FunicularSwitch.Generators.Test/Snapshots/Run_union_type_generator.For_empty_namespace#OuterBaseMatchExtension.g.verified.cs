@@ -3,6 +3,7 @@
 #nullable enable
 public static partial class BaseMatchExtension
 {
+	[global::System.Diagnostics.DebuggerStepThrough]
 	public static T Match<T>(this global::Outer.Base @base, global::System.Func<Outer.One, T> one, global::System.Func<Outer.Two, T> two) =>
 	@base switch
 	{
@@ -11,6 +12,7 @@ public static partial class BaseMatchExtension
 		_ => throw new global::System.ArgumentException($"Unknown type derived from Outer.Base: {@base.GetType().Name}")
 	};
 	
+	[global::System.Diagnostics.DebuggerStepThrough]
 	public static global::System.Threading.Tasks.Task<T> Match<T>(this global::Outer.Base @base, global::System.Func<Outer.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<Outer.Two, global::System.Threading.Tasks.Task<T>> two) =>
 	@base switch
 	{
@@ -19,12 +21,15 @@ public static partial class BaseMatchExtension
 		_ => throw new global::System.ArgumentException($"Unknown type derived from Outer.Base: {@base.GetType().Name}")
 	};
 	
+	[global::System.Diagnostics.DebuggerStepThrough]
 	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::Outer.Base> @base, global::System.Func<Outer.One, T> one, global::System.Func<Outer.Two, T> two) =>
 	(await @base.ConfigureAwait(false)).Match(one, two);
 	
+	[global::System.Diagnostics.DebuggerStepThrough]
 	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::Outer.Base> @base, global::System.Func<Outer.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<Outer.Two, global::System.Threading.Tasks.Task<T>> two) =>
 	await (await @base.ConfigureAwait(false)).Match(one, two).ConfigureAwait(false);
 	
+	[global::System.Diagnostics.DebuggerStepThrough]
 	public static void Switch(this global::Outer.Base @base, global::System.Action<Outer.One> one, global::System.Action<Outer.Two> two)
 	{
 		switch (@base)
@@ -40,6 +45,7 @@ public static partial class BaseMatchExtension
 		}
 	}
 	
+	[global::System.Diagnostics.DebuggerStepThrough]
 	public static async global::System.Threading.Tasks.Task Switch(this global::Outer.Base @base, global::System.Func<Outer.One, global::System.Threading.Tasks.Task> one, global::System.Func<Outer.Two, global::System.Threading.Tasks.Task> two)
 	{
 		switch (@base)
@@ -55,9 +61,11 @@ public static partial class BaseMatchExtension
 		}
 	}
 	
+	[global::System.Diagnostics.DebuggerStepThrough]
 	public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::Outer.Base> @base, global::System.Action<Outer.One> one, global::System.Action<Outer.Two> two) =>
 	(await @base.ConfigureAwait(false)).Switch(one, two);
 	
+	[global::System.Diagnostics.DebuggerStepThrough]
 	public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::Outer.Base> @base, global::System.Func<Outer.One, global::System.Threading.Tasks.Task> one, global::System.Func<Outer.Two, global::System.Threading.Tasks.Task> two) =>
 	await (await @base.ConfigureAwait(false)).Switch(one, two).ConfigureAwait(false);
 }

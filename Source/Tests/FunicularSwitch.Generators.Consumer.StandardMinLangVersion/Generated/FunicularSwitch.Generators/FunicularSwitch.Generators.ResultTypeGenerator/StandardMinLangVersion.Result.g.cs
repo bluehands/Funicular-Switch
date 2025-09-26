@@ -19,6 +19,7 @@ namespace StandardMinLangVersion
         public bool IsOk => !IsError;
         public abstract String? GetErrorOrDefault();
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static Result<T> Try<T>(global::System.Func<T> action, global::System.Func<global::System.Exception, String> formatError)
         {
             try
@@ -31,6 +32,7 @@ namespace StandardMinLangVersion
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<Result<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<T>> action, global::System.Func<global::System.Exception, String> formatError)
         {
             try
@@ -43,6 +45,7 @@ namespace StandardMinLangVersion
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static Result<T> Try<T>(global::System.Func<Result<T>> action, global::System.Func<global::System.Exception, String> formatError)
         {
             try
@@ -55,6 +58,7 @@ namespace StandardMinLangVersion
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<Result<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<Result<T>>> action, global::System.Func<global::System.Exception, String> formatError)
         {
             try
