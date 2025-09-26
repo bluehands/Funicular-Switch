@@ -4,6 +4,7 @@ namespace StandardMinLangVersion
 {
 	public static partial class MyUnionMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this global::StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, T> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, T> case2) =>
 		myUnion switch
 		{
@@ -12,6 +13,7 @@ namespace StandardMinLangVersion
 			_ => throw new global::System.ArgumentException($"Unknown type derived from StandardMinLangVersion.MyUnion: {myUnion.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task<T>> case2) =>
 		myUnion switch
 		{
@@ -20,12 +22,15 @@ namespace StandardMinLangVersion
 			_ => throw new global::System.ArgumentException($"Unknown type derived from StandardMinLangVersion.MyUnion: {myUnion.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::StandardMinLangVersion.MyUnion> myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, T> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, T> case2) =>
 		(await myUnion.ConfigureAwait(false)).Match(case1, case2);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::StandardMinLangVersion.MyUnion> myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task<T>> case2) =>
 		await (await myUnion.ConfigureAwait(false)).Match(case1, case2).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this global::StandardMinLangVersion.MyUnion myUnion, global::System.Action<StandardMinLangVersion.MyUnion.Case1_> case1, global::System.Action<StandardMinLangVersion.MyUnion.MyUnionCase2> case2)
 		{
 			switch (myUnion)
@@ -41,6 +46,7 @@ namespace StandardMinLangVersion
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task> case2)
 		{
 			switch (myUnion)
@@ -56,16 +62,20 @@ namespace StandardMinLangVersion
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::StandardMinLangVersion.MyUnion> myUnion, global::System.Action<StandardMinLangVersion.MyUnion.Case1_> case1, global::System.Action<StandardMinLangVersion.MyUnion.MyUnionCase2> case2) =>
 		(await myUnion.ConfigureAwait(false)).Switch(case1, case2);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::StandardMinLangVersion.MyUnion> myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task> case2) =>
 		await (await myUnion.ConfigureAwait(false)).Switch(case1, case2).ConfigureAwait(false);
 	}
 	
 	public abstract partial class MyUnion
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static StandardMinLangVersion.MyUnion Case1() => new StandardMinLangVersion.MyUnion.Case1_();
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static StandardMinLangVersion.MyUnion Case2() => new StandardMinLangVersion.MyUnion.MyUnionCase2();
 	}
 }

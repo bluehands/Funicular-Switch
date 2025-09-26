@@ -2,24 +2,25 @@
 
 using global::System.Diagnostics.Contracts;
 using global::System.Linq;
-//additional using directives
+using System;
+using FunicularSwitch.Generic;
 
-namespace FunicularSwitch.Generators.Templates
+namespace FunicularSwitch.Generators.Consumer
 {
 #pragma warning disable 1591
-    public abstract partial class MyResult
+    public abstract partial class CustomResult
     {
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<T> Error<T>(MyError details) => new MyResult<T>.Error_(details);
+        public static CustomResult<T> Error<T>(Guid details) => new CustomResult<T>.Error_(details);
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResultError Error(MyError details) => new(details);
+        public static CustomResultError Error(Guid details) => new(details);
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<T> Ok<T>(T value) => new MyResult<T>.Ok_(value);
-        public bool IsError => GetType().GetGenericTypeDefinition() == typeof(MyResult<>.Error_);
+        public static CustomResult<T> Ok<T>(T value) => new CustomResult<T>.Ok_(value);
+        public bool IsError => GetType().GetGenericTypeDefinition() == typeof(CustomResult<>.Error_);
         public bool IsOk => !IsError;
-        public abstract MyError? GetErrorOrDefault();
+        public abstract Guid? GetErrorOrDefault();
 
-        public static MyResult<T> Try<T>(global::System.Func<T> action, global::System.Func<global::System.Exception, MyError> formatError)
+        public static CustomResult<T> Try<T>(global::System.Func<T> action, global::System.Func<global::System.Exception, Guid> formatError)
         {
             try
             {
@@ -31,7 +32,7 @@ namespace FunicularSwitch.Generators.Templates
             }
         }
 
-        public static async global::System.Threading.Tasks.Task<MyResult<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<T>> action, global::System.Func<global::System.Exception, MyError> formatError)
+        public static async global::System.Threading.Tasks.Task<CustomResult<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<T>> action, global::System.Func<global::System.Exception, Guid> formatError)
         {
             try
             {
@@ -43,7 +44,7 @@ namespace FunicularSwitch.Generators.Templates
             }
         }
 
-        public static MyResult<T> Try<T>(global::System.Func<MyResult<T>> action, global::System.Func<global::System.Exception, MyError> formatError)
+        public static CustomResult<T> Try<T>(global::System.Func<CustomResult<T>> action, global::System.Func<global::System.Exception, Guid> formatError)
         {
             try
             {
@@ -55,7 +56,7 @@ namespace FunicularSwitch.Generators.Templates
             }
         }
 
-        public static async global::System.Threading.Tasks.Task<MyResult<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<MyResult<T>>> action, global::System.Func<global::System.Exception, MyError> formatError)
+        public static async global::System.Threading.Tasks.Task<CustomResult<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<CustomResult<T>>> action, global::System.Func<global::System.Exception, Guid> formatError)
         {
             try
             {
@@ -68,39 +69,39 @@ namespace FunicularSwitch.Generators.Templates
         }
     }
 
-    public abstract partial class MyResult<T> : MyResult, global::System.Collections.Generic.IEnumerable<T>
+    public abstract partial class CustomResult<T> : CustomResult, global::System.Collections.Generic.IEnumerable<T>
     {
         
         [global::System.Diagnostics.DebuggerNonUserCode]
-        public static new MyResult<T> Error(MyError message) => Error<T>(message);
+        public static new CustomResult<T> Error(Guid message) => Error<T>(message);
         
         [global::System.Diagnostics.DebuggerNonUserCode]
-        public static MyResult<T> Ok(T value) => Ok<T>(value);
+        public static CustomResult<T> Ok(T value) => Ok<T>(value);
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static implicit operator MyResult<T>(T value) => MyResult.Ok(value);
+        public static implicit operator CustomResult<T>(T value) => CustomResult.Ok(value);
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static implicit operator MyResult<T>(MyResultError myResultError) => myResultError.WithOk<T>();
+        public static implicit operator CustomResult<T>(CustomResultError myResultError) => myResultError.WithOk<T>();
 
-        public static bool operator true(MyResult<T> result) => result.IsOk;
-        public static bool operator false(MyResult<T> result) => result.IsError;
+        public static bool operator true(CustomResult<T> result) => result.IsOk;
+        public static bool operator false(CustomResult<T> result) => result.IsError;
 
-        public static bool operator !(MyResult<T> result) => result.IsError;
+        public static bool operator !(CustomResult<T> result) => result.IsError;
 
         //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
-        bool Equals(MyResult<T> other) => this switch
+        bool Equals(CustomResult<T> other) => this switch
         {
             Ok_ ok => ok.Equals((object)other),
             Error_ error => error.Equals((object)other),
-            _ => throw new global::System.InvalidOperationException($"Unexpected type derived from {nameof(MyResult<T>)}")
+            _ => throw new global::System.InvalidOperationException($"Unexpected type derived from {nameof(CustomResult<T>)}")
         };
 
         public override int GetHashCode() => this switch
         {
             Ok_ ok => ok.GetHashCode(),
             Error_ error => error.GetHashCode(),
-            _ => throw new global::System.InvalidOperationException($"Unexpected type derived from {nameof(MyResult<T>)}")
+            _ => throw new global::System.InvalidOperationException($"Unexpected type derived from {nameof(CustomResult<T>)}")
         };
 
         public override bool Equals(object? obj)
@@ -108,15 +109,15 @@ namespace FunicularSwitch.Generators.Templates
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((MyResult<T>)obj);
+            return Equals((CustomResult<T>)obj);
         }
 
-        public static bool operator ==(MyResult<T>? left, MyResult<T>? right) => Equals(left, right);
+        public static bool operator ==(CustomResult<T>? left, CustomResult<T>? right) => Equals(left, right);
 
-        public static bool operator !=(MyResult<T>? left, MyResult<T>? right) => !Equals(left, right);
+        public static bool operator !=(CustomResult<T>? left, CustomResult<T>? right) => !Equals(left, right);
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public void Match(global::System.Action<T> ok, global::System.Action<MyError>? error = null) => Match(
+        public void Match(global::System.Action<T> ok, global::System.Action<Guid>? error = null) => Match(
             v =>
             {
                 ok.Invoke(v);
@@ -129,42 +130,42 @@ namespace FunicularSwitch.Generators.Templates
             });
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public T1 Match<T1>(global::System.Func<T, T1> ok, global::System.Func<MyError, T1> error)
+        public T1 Match<T1>(global::System.Func<T, T1> ok, global::System.Func<Guid, T1> error)
         {
             return this switch
             {
-                Ok_ okMyResult => ok(okMyResult.Value),
-                Error_ errorMyResult => error(errorMyResult.Details),
+                Ok_ okCustomResult => ok(okCustomResult.Value),
+                Error_ errorCustomResult => error(errorCustomResult.Details),
                 _ => throw new global::System.InvalidOperationException($"Unexpected derived result type: {GetType()}")
             };
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public async global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<MyError, global::System.Threading.Tasks.Task<T1>> error)
+        public async global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<Guid, global::System.Threading.Tasks.Task<T1>> error)
         {
             return this switch
             {
-                Ok_ okMyResult => await ok(okMyResult.Value).ConfigureAwait(false),
-                Error_ errorMyResult => await error(errorMyResult.Details).ConfigureAwait(false),
+                Ok_ okCustomResult => await ok(okCustomResult.Value).ConfigureAwait(false),
+                Error_ errorCustomResult => await error(errorCustomResult.Details).ConfigureAwait(false),
                 _ => throw new global::System.InvalidOperationException($"Unexpected derived result type: {GetType()}")
             };
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<MyError, T1> error) =>
+        public global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<Guid, T1> error) =>
             Match(ok, e => global::System.Threading.Tasks.Task.FromResult(error(e)));
 
         [global::System.Diagnostics.DebuggerStepThrough]
         public async global::System.Threading.Tasks.Task Match(global::System.Func<T, global::System.Threading.Tasks.Task> ok)
         {
-            if (this is Ok_ okMyResult) await ok(okMyResult.Value).ConfigureAwait(false);
+            if (this is Ok_ okCustomResult) await ok(okCustomResult.Value).ConfigureAwait(false);
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public T Match(global::System.Func<MyError, T> error) => Match(v => v, error);
+        public T Match(global::System.Func<Guid, T> error) => Match(v => v, error);
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public MyResult<T1> Bind<T1>(global::System.Func<T, MyResult<T1>> bind)
+        public CustomResult<T1> Bind<T1>(global::System.Func<T, CustomResult<T1>> bind)
         {
             switch (this)
             {
@@ -188,7 +189,7 @@ namespace FunicularSwitch.Generators.Templates
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public async global::System.Threading.Tasks.Task<MyResult<T1>> Bind<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<MyResult<T1>>> bind)
+        public async global::System.Threading.Tasks.Task<CustomResult<T1>> Bind<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<CustomResult<T1>>> bind)
         {
             switch (this)
             {
@@ -212,14 +213,14 @@ namespace FunicularSwitch.Generators.Templates
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public MyResult<T1> Map<T1>(global::System.Func<T, T1> map)
+        public CustomResult<T1> Map<T1>(global::System.Func<T, T1> map)
         {
             switch (this)
             {
                 case Ok_ ok:
                     try
                     {
-                        return MyResult.Ok(map(ok.Value));
+                        return CustomResult.Ok(map(ok.Value));
                     }
                     // ReSharper disable once RedundantCatchClause
 #pragma warning disable CS0168 // Variable is declared but never used
@@ -236,7 +237,7 @@ namespace FunicularSwitch.Generators.Templates
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public async global::System.Threading.Tasks.Task<MyResult<T1>> Map<T1>(
+        public async global::System.Threading.Tasks.Task<CustomResult<T1>> Map<T1>(
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> map)
         {
             switch (this)
@@ -244,7 +245,7 @@ namespace FunicularSwitch.Generators.Templates
                 case Ok_ ok:
                     try
                     {
-                        return MyResult.Ok(await map(ok.Value).ConfigureAwait(false));
+                        return CustomResult.Ok(await map(ok.Value).ConfigureAwait(false));
                     }
                     // ReSharper disable once RedundantCatchClause
 #pragma warning disable CS0168 // Variable is declared but never used
@@ -260,7 +261,21 @@ namespace FunicularSwitch.Generators.Templates
             }
         }
         
-        //createGenericResultConversions
+        
+        public static implicit operator global::FunicularSwitch.Generic.GenericResult<T, Guid>(CustomResult<T> result) => 
+            result.Match(
+                global::FunicularSwitch.Generic.GenericResult<T, Guid>.Ok,
+                global::FunicularSwitch.Generic.GenericResult<T, Guid>.Error);
+        
+        public static implicit operator CustomResult<T>(global::FunicularSwitch.Generic.GenericResult<T, Guid> result) =>
+            result.Match<CustomResult<T>>(
+                CustomResult<T>.Ok,
+                CustomResult<T>.Error);
+        
+        public global::FunicularSwitch.Generic.GenericResult<T, Guid> ToGenericResult() =>
+            Match(
+                global::FunicularSwitch.Generic.GenericResult<T, Guid>.Ok,
+                global::FunicularSwitch.Generic.GenericResult<T, Guid>.Error);
 
         [global::System.Diagnostics.DebuggerStepThrough]
         public T? GetValueOrDefault()
@@ -294,7 +309,7 @@ namespace FunicularSwitch.Generators.Templates
         public override string ToString() => Match(ok => $"Ok {ok?.ToString()}", error => $"Error {error}");
         global::System.Collections.IEnumerator global::System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public sealed partial class Ok_ : MyResult<T>
+        public sealed partial class Ok_ : CustomResult<T>
         {
             public T Value { get; }
 
@@ -302,7 +317,7 @@ namespace FunicularSwitch.Generators.Templates
             public Ok_(T value) => Value = value;
 
             [global::System.Diagnostics.DebuggerStepThrough]
-            public override MyError? GetErrorOrDefault() => null;
+            public override Guid? GetErrorOrDefault() => null;
 
             public bool Equals(Ok_? other)
             {
@@ -325,18 +340,18 @@ namespace FunicularSwitch.Generators.Templates
             public static bool operator !=(Ok_ left, Ok_ right) => !Equals(left, right);
         }
 
-        public sealed partial class Error_ : MyResult<T>
+        public sealed partial class Error_ : CustomResult<T>
         {
-            public MyError Details { get; }
+            public Guid Details { get; }
 
             [global::System.Diagnostics.DebuggerStepThrough]
-            public Error_(MyError details) => Details = details;
+            public Error_(Guid details) => Details = details;
 
             [global::System.Diagnostics.DebuggerStepThrough]
-            public MyResult<T1>.Error_ Convert<T1>() => new MyResult<T1>.Error_(Details);
+            public CustomResult<T1>.Error_ Convert<T1>() => new CustomResult<T1>.Error_(Details);
 
             [global::System.Diagnostics.DebuggerStepThrough]
-            public override MyError? GetErrorOrDefault() => Details;
+            public override Guid? GetErrorOrDefault() => Details;
 
             public bool Equals(Error_? other)
             {
@@ -360,40 +375,40 @@ namespace FunicularSwitch.Generators.Templates
         }
     }
 
-    public readonly partial struct MyResultError : global::System.IEquatable<MyResultError>
+    public readonly partial struct CustomResultError : global::System.IEquatable<CustomResultError>
     {
-        readonly MyError _details;
+        readonly Guid _details;
 
-        internal MyResultError(MyError details) => _details = details;
+        internal CustomResultError(Guid details) => _details = details;
 
         [Pure]
-        public MyResult<T> WithOk<T>() => MyResult.Error<T>(_details);
+        public CustomResult<T> WithOk<T>() => CustomResult.Error<T>(_details);
 
-        public bool Equals(MyResultError other) => _details.Equals(other._details);
+        public bool Equals(CustomResultError other) => _details.Equals(other._details);
 
-        public override bool Equals(object? obj) => obj is MyResultError other && Equals(other);
+        public override bool Equals(object? obj) => obj is CustomResultError other && Equals(other);
 
         public override int GetHashCode() => _details.GetHashCode();
 
-        public static bool operator ==(MyResultError left, MyResultError right) => left.Equals(right);
+        public static bool operator ==(CustomResultError left, CustomResultError right) => left.Equals(right);
 
-        public static bool operator !=(MyResultError left, MyResultError right) => !left.Equals(right);
+        public static bool operator !=(CustomResultError left, CustomResultError right) => !left.Equals(right);
     }
 
-    public static partial class MyResultExtension
+    public static partial class CustomResultExtension
     {
         #region bind
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static async global::System.Threading.Tasks.Task<MyResult<T1>> Bind<T, T1>(
-            this global::System.Threading.Tasks.Task<MyResult<T>> result,
-            global::System.Func<T, MyResult<T1>> bind)
+        public static async global::System.Threading.Tasks.Task<CustomResult<T1>> Bind<T, T1>(
+            this global::System.Threading.Tasks.Task<CustomResult<T>> result,
+            global::System.Func<T, CustomResult<T1>> bind)
             => (await result.ConfigureAwait(false)).Bind(bind);
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static async global::System.Threading.Tasks.Task<MyResult<T1>> Bind<T, T1>(
-            this global::System.Threading.Tasks.Task<MyResult<T>> result,
-            global::System.Func<T, global::System.Threading.Tasks.Task<MyResult<T1>>> bind)
+        public static async global::System.Threading.Tasks.Task<CustomResult<T1>> Bind<T, T1>(
+            this global::System.Threading.Tasks.Task<CustomResult<T>> result,
+            global::System.Func<T, global::System.Threading.Tasks.Task<CustomResult<T1>>> bind)
             => await (await result.ConfigureAwait(false)).Bind(bind).ConfigureAwait(false);
 
         #endregion
@@ -401,27 +416,27 @@ namespace FunicularSwitch.Generators.Templates
         #region map
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static async global::System.Threading.Tasks.Task<MyResult<T1>> Map<T, T1>(
-            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+        public static async global::System.Threading.Tasks.Task<CustomResult<T1>> Map<T, T1>(
+            this global::System.Threading.Tasks.Task<CustomResult<T>> result,
             global::System.Func<T, T1> map)
             => (await result.ConfigureAwait(false)).Map(map);
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static global::System.Threading.Tasks.Task<MyResult<T1>> Map<T, T1>(
-            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+        public static global::System.Threading.Tasks.Task<CustomResult<T1>> Map<T, T1>(
+            this global::System.Threading.Tasks.Task<CustomResult<T>> result,
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> bind)
-            => Bind(result, async v => MyResult.Ok(await bind(v).ConfigureAwait(false)));
+            => Bind(result, async v => CustomResult.Ok(await bind(v).ConfigureAwait(false)));
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<T> MapError<T>(this MyResult<T> result, global::System.Func<MyError, MyError> mapError)
+        public static CustomResult<T> MapError<T>(this CustomResult<T> result, global::System.Func<Guid, Guid> mapError)
         {
-            if (result is MyResult<T>.Error_ e)
-                return MyResult.Error<T>(mapError(e.Details));
+            if (result is CustomResult<T>.Error_ e)
+                return CustomResult.Error<T>(mapError(e.Details));
             return result;
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static async global::System.Threading.Tasks.Task<MyResult<T>> MapError<T>(this global::System.Threading.Tasks.Task<MyResult<T>> result, global::System.Func<MyError, MyError> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
+        public static async global::System.Threading.Tasks.Task<CustomResult<T>> MapError<T>(this global::System.Threading.Tasks.Task<CustomResult<T>> result, global::System.Func<Guid, Guid> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
 
         #endregion
 
@@ -429,80 +444,97 @@ namespace FunicularSwitch.Generators.Templates
 
         [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
-            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+            this global::System.Threading.Tasks.Task<CustomResult<T>> result,
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
-            global::System.Func<MyError, global::System.Threading.Tasks.Task<T1>> error)
+            global::System.Func<Guid, global::System.Threading.Tasks.Task<T1>> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
         [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
-            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+            this global::System.Threading.Tasks.Task<CustomResult<T>> result,
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
-            global::System.Func<MyError, T1> error)
+            global::System.Func<Guid, T1> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
         [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
-            this global::System.Threading.Tasks.Task<MyResult<T>> result,
+            this global::System.Threading.Tasks.Task<CustomResult<T>> result,
             global::System.Func<T, T1> ok,
-            global::System.Func<MyError, T1> error)
+            global::System.Func<Guid, T1> error)
             => (await result.ConfigureAwait(false)).Match(ok, error);
 
         #endregion
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<T> Flatten<T>(this MyResult<MyResult<T>> result) => result.Bind(r => r);
+        public static CustomResult<T> Flatten<T>(this CustomResult<CustomResult<T>> result) => result.Bind(r => r);
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<T1> As<T, T1>(this MyResult<T> result, global::System.Func<MyError> errorTIsNotT1) =>
+        public static CustomResult<T1> As<T, T1>(this CustomResult<T> result, global::System.Func<Guid> errorTIsNotT1) =>
             result.Bind(r =>
             {
                 if (r is T1 converted)
                     return converted;
-                return MyResult.Error<T1>(errorTIsNotT1());
+                return CustomResult.Error<T1>(errorTIsNotT1());
             });
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<T1> As<T1>(this MyResult<object> result, global::System.Func<MyError> errorIsNotT1) =>
+        public static CustomResult<T1> As<T1>(this CustomResult<object> result, global::System.Func<Guid> errorIsNotT1) =>
             result.As<object, T1>(errorIsNotT1);
 
         #region query-expression pattern
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<T1> Select<T, T1>(this MyResult<T> result, global::System.Func<T, T1> selector) => result.Map(selector);
+        public static CustomResult<T1> Select<T, T1>(this CustomResult<T> result, global::System.Func<T, T1> selector) => result.Map(selector);
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static global::System.Threading.Tasks.Task<MyResult<T1>> Select<T, T1>(this global::System.Threading.Tasks.Task<MyResult<T>> result, global::System.Func<T, T1> selector) => result.Map(selector);
+        public static global::System.Threading.Tasks.Task<CustomResult<T1>> Select<T, T1>(this global::System.Threading.Tasks.Task<CustomResult<T>> result, global::System.Func<T, T1> selector) => result.Map(selector);
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<T2> SelectMany<T, T1, T2>(this MyResult<T> result, global::System.Func<T, MyResult<T1>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static CustomResult<T2> SelectMany<T, T1, T2>(this CustomResult<T> result, global::System.Func<T, CustomResult<T1>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static global::System.Threading.Tasks.Task<MyResult<T2>> SelectMany<T, T1, T2>(this global::System.Threading.Tasks.Task<MyResult<T>> result, global::System.Func<T, global::System.Threading.Tasks.Task<MyResult<T1>>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static global::System.Threading.Tasks.Task<CustomResult<T2>> SelectMany<T, T1, T2>(this global::System.Threading.Tasks.Task<CustomResult<T>> result, global::System.Func<T, global::System.Threading.Tasks.Task<CustomResult<T1>>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static global::System.Threading.Tasks.Task<MyResult<T2>> SelectMany<T, T1, T2>(this global::System.Threading.Tasks.Task<MyResult<T>> result, global::System.Func<T, MyResult<T1>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static global::System.Threading.Tasks.Task<CustomResult<T2>> SelectMany<T, T1, T2>(this global::System.Threading.Tasks.Task<CustomResult<T>> result, global::System.Func<T, CustomResult<T1>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static global::System.Threading.Tasks.Task<MyResult<T2>> SelectMany<T, T1, T2>(this MyResult<T> result, global::System.Func<T, global::System.Threading.Tasks.Task<MyResult<T1>>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        public static global::System.Threading.Tasks.Task<CustomResult<T2>> SelectMany<T, T1, T2>(this CustomResult<T> result, global::System.Func<T, global::System.Threading.Tasks.Task<CustomResult<T1>>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
         #endregion
         
-        //createGenericResultConversionExtensions
+        
+        public static CustomResult<T> ToCustomResult<T>(
+            this global::FunicularSwitch.Generic.GenericResult<T, Guid> result) =>
+                result.Match<CustomResult<T>>(
+                    CustomResult<T>.Ok,
+                    CustomResult<T>.Error);
+        
+        public static global::System.Threading.Tasks.Task<CustomResult<T>> ToCustomResult<T>(
+            this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generic.GenericResult<T, Guid>> result) =>
+                result.Match(
+                    CustomResult<T>.Ok,
+                    CustomResult<T>.Error);
+        
+        public static global::System.Threading.Tasks.Task<global::FunicularSwitch.Generic.GenericResult<T, Guid>> ToGenericResult<T>(
+            this global::System.Threading.Tasks.Task<CustomResult<T>> result) =>
+                result.Match(
+                    global::FunicularSwitch.Generic.GenericResult<T, Guid>.Ok,
+                    global::FunicularSwitch.Generic.GenericResult<T, Guid>.Error);
     }
 }
 
-namespace FunicularSwitch.Generators.Templates.Extensions
+namespace FunicularSwitch.Generators.Consumer.Extensions
 {
-    public static partial class MyResultExtension
+    public static partial class CustomResultExtension
     {
         public static global::System.Collections.Generic.IEnumerable<T1> Choose<T, T1>(
             this global::System.Collections.Generic.IEnumerable<T> items,
-            global::System.Func<T, MyResult<T1>> choose,
-            global::System.Action<MyError> onError)
+            global::System.Func<T, CustomResult<T1>> choose,
+            global::System.Action<Guid> onError)
             => items
                 .Select(i => choose(i))
                 .Choose(onError);
 
         public static global::System.Collections.Generic.IEnumerable<T> Choose<T>(
-            this global::System.Collections.Generic.IEnumerable<MyResult<T>> results,
-            global::System.Action<MyError> onError)
+            this global::System.Collections.Generic.IEnumerable<CustomResult<T>> results,
+            global::System.Action<Guid> onError)
             => results
                 .Where(r =>
                     r.Match(_ => true, error =>
@@ -513,22 +545,22 @@ namespace FunicularSwitch.Generators.Templates.Extensions
                 .Select(r => r.GetValueOrThrow());
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<T> As<T>(this object? item, global::System.Func<MyError> error) =>
-            !(item is T t) ? MyResult.Error<T>(error()) : t;
+        public static CustomResult<T> As<T>(this object? item, global::System.Func<Guid> error) =>
+            !(item is T t) ? CustomResult.Error<T>(error()) : t;
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<T> NotNull<T>(this T? item, global::System.Func<MyError> error) =>
-            item ?? MyResult.Error<T>(error());
+        public static CustomResult<T> NotNull<T>(this T? item, global::System.Func<Guid> error) =>
+            item ?? CustomResult.Error<T>(error());
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<string> NotNullOrEmpty(this string? s, global::System.Func<MyError> error)
-            => string.IsNullOrEmpty(s) ? MyResult.Error<string>(error()) : s!;
+        public static CustomResult<string> NotNullOrEmpty(this string? s, global::System.Func<Guid> error)
+            => string.IsNullOrEmpty(s) ? CustomResult.Error<string>(error()) : s!;
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static MyResult<string> NotNullOrWhiteSpace(this string? s, global::System.Func<MyError> error)
-            => string.IsNullOrWhiteSpace(s) ? MyResult.Error<string>(error()) : s!;
+        public static CustomResult<string> NotNullOrWhiteSpace(this string? s, global::System.Func<Guid> error)
+            => string.IsNullOrWhiteSpace(s) ? CustomResult.Error<string>(error()) : s!;
 
-        public static MyResult<T> First<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, bool> predicate, global::System.Func<MyError> noMatch) =>
+        public static CustomResult<T> First<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, bool> predicate, global::System.Func<Guid> noMatch) =>
             candidates
                 .FirstOrDefault(i => predicate(i))
                 .NotNull(noMatch);
