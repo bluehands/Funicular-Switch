@@ -5,6 +5,7 @@ namespace FunicularSwitch.Test
 {
 	internal static partial class InitResultMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this global::FunicularSwitch.Test.Outer.InitResult initResult, global::System.Func<FunicularSwitch.Test.Outer.InitResult.Sync_, T> sync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.OneTimeSync_, T> oneTimeSync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.NoSync_, T> noSync) =>
 		initResult switch
 		{
@@ -14,6 +15,7 @@ namespace FunicularSwitch.Test
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.InitResult: {initResult.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Outer.InitResult initResult, global::System.Func<FunicularSwitch.Test.Outer.InitResult.Sync_, global::System.Threading.Tasks.Task<T>> sync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.OneTimeSync_, global::System.Threading.Tasks.Task<T>> oneTimeSync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.NoSync_, global::System.Threading.Tasks.Task<T>> noSync) =>
 		initResult switch
 		{
@@ -23,12 +25,15 @@ namespace FunicularSwitch.Test
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.InitResult: {initResult.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Outer.InitResult> initResult, global::System.Func<FunicularSwitch.Test.Outer.InitResult.Sync_, T> sync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.OneTimeSync_, T> oneTimeSync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.NoSync_, T> noSync) =>
 		(await initResult.ConfigureAwait(false)).Match(sync, oneTimeSync, noSync);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Outer.InitResult> initResult, global::System.Func<FunicularSwitch.Test.Outer.InitResult.Sync_, global::System.Threading.Tasks.Task<T>> sync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.OneTimeSync_, global::System.Threading.Tasks.Task<T>> oneTimeSync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.NoSync_, global::System.Threading.Tasks.Task<T>> noSync) =>
 		await (await initResult.ConfigureAwait(false)).Match(sync, oneTimeSync, noSync).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this global::FunicularSwitch.Test.Outer.InitResult initResult, global::System.Action<FunicularSwitch.Test.Outer.InitResult.Sync_> sync, global::System.Action<FunicularSwitch.Test.Outer.InitResult.OneTimeSync_> oneTimeSync, global::System.Action<FunicularSwitch.Test.Outer.InitResult.NoSync_> noSync)
 		{
 			switch (initResult)
@@ -47,6 +52,7 @@ namespace FunicularSwitch.Test
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::FunicularSwitch.Test.Outer.InitResult initResult, global::System.Func<FunicularSwitch.Test.Outer.InitResult.Sync_, global::System.Threading.Tasks.Task> sync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.OneTimeSync_, global::System.Threading.Tasks.Task> oneTimeSync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.NoSync_, global::System.Threading.Tasks.Task> noSync)
 		{
 			switch (initResult)
@@ -65,9 +71,11 @@ namespace FunicularSwitch.Test
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Outer.InitResult> initResult, global::System.Action<FunicularSwitch.Test.Outer.InitResult.Sync_> sync, global::System.Action<FunicularSwitch.Test.Outer.InitResult.OneTimeSync_> oneTimeSync, global::System.Action<FunicularSwitch.Test.Outer.InitResult.NoSync_> noSync) =>
 		(await initResult.ConfigureAwait(false)).Switch(sync, oneTimeSync, noSync);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Outer.InitResult> initResult, global::System.Func<FunicularSwitch.Test.Outer.InitResult.Sync_, global::System.Threading.Tasks.Task> sync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.OneTimeSync_, global::System.Threading.Tasks.Task> oneTimeSync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.NoSync_, global::System.Threading.Tasks.Task> noSync) =>
 		await (await initResult.ConfigureAwait(false)).Switch(sync, oneTimeSync, noSync).ConfigureAwait(false);
 	}

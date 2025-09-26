@@ -4,6 +4,7 @@ namespace FunicularSwitch.Generators.Consumer
 {
 	internal static partial class CardTypeMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this global::FunicularSwitch.Generators.Consumer.CardType cardType, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.FemaleCardType, T> female, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.MaleCardType, T> male) =>
 		cardType switch
 		{
@@ -12,6 +13,7 @@ namespace FunicularSwitch.Generators.Consumer
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.CardType: {cardType.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.CardType cardType, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.FemaleCardType, global::System.Threading.Tasks.Task<T>> female, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.MaleCardType, global::System.Threading.Tasks.Task<T>> male) =>
 		cardType switch
 		{
@@ -20,12 +22,15 @@ namespace FunicularSwitch.Generators.Consumer
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.CardType: {cardType.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.CardType> cardType, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.FemaleCardType, T> female, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.MaleCardType, T> male) =>
 		(await cardType.ConfigureAwait(false)).Match(female, male);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.CardType> cardType, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.FemaleCardType, global::System.Threading.Tasks.Task<T>> female, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.MaleCardType, global::System.Threading.Tasks.Task<T>> male) =>
 		await (await cardType.ConfigureAwait(false)).Match(female, male).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this global::FunicularSwitch.Generators.Consumer.CardType cardType, global::System.Action<FunicularSwitch.Generators.Consumer.CardType.FemaleCardType> female, global::System.Action<FunicularSwitch.Generators.Consumer.CardType.MaleCardType> male)
 		{
 			switch (cardType)
@@ -41,6 +46,7 @@ namespace FunicularSwitch.Generators.Consumer
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::FunicularSwitch.Generators.Consumer.CardType cardType, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.FemaleCardType, global::System.Threading.Tasks.Task> female, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.MaleCardType, global::System.Threading.Tasks.Task> male)
 		{
 			switch (cardType)
@@ -56,16 +62,20 @@ namespace FunicularSwitch.Generators.Consumer
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.CardType> cardType, global::System.Action<FunicularSwitch.Generators.Consumer.CardType.FemaleCardType> female, global::System.Action<FunicularSwitch.Generators.Consumer.CardType.MaleCardType> male) =>
 		(await cardType.ConfigureAwait(false)).Switch(female, male);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.CardType> cardType, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.FemaleCardType, global::System.Threading.Tasks.Task> female, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.MaleCardType, global::System.Threading.Tasks.Task> male) =>
 		await (await cardType.ConfigureAwait(false)).Switch(female, male).ConfigureAwait(false);
 	}
 	
 	abstract partial record CardType
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static FunicularSwitch.Generators.Consumer.CardType Female() => new FunicularSwitch.Generators.Consumer.CardType.FemaleCardType();
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static FunicularSwitch.Generators.Consumer.CardType Male(int Age) => new FunicularSwitch.Generators.Consumer.CardType.MaleCardType(Age);
 	}
 }

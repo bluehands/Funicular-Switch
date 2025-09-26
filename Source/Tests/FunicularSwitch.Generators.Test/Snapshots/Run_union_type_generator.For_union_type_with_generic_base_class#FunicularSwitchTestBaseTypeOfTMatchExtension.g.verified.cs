@@ -5,6 +5,7 @@ namespace FunicularSwitch.Test
 {
 	public static partial class BaseTypeMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static TMatchResult Match<T, TMatchResult>(this global::FunicularSwitch.Test.BaseType<T> baseType, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving_, TMatchResult> deriving, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving2_, TMatchResult> deriving2) =>
 		baseType switch
 		{
@@ -13,6 +14,7 @@ namespace FunicularSwitch.Test
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.BaseType: {baseType.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static global::System.Threading.Tasks.Task<TMatchResult> Match<T, TMatchResult>(this global::FunicularSwitch.Test.BaseType<T> baseType, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving_, global::System.Threading.Tasks.Task<TMatchResult>> deriving, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving2_, global::System.Threading.Tasks.Task<TMatchResult>> deriving2) =>
 		baseType switch
 		{
@@ -21,12 +23,15 @@ namespace FunicularSwitch.Test
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.BaseType: {baseType.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<TMatchResult> Match<T, TMatchResult>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.BaseType<T>> baseType, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving_, TMatchResult> deriving, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving2_, TMatchResult> deriving2) =>
 		(await baseType.ConfigureAwait(false)).Match(deriving, deriving2);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<TMatchResult> Match<T, TMatchResult>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.BaseType<T>> baseType, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving_, global::System.Threading.Tasks.Task<TMatchResult>> deriving, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving2_, global::System.Threading.Tasks.Task<TMatchResult>> deriving2) =>
 		await (await baseType.ConfigureAwait(false)).Match(deriving, deriving2).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch<T>(this global::FunicularSwitch.Test.BaseType<T> baseType, global::System.Action<FunicularSwitch.Test.BaseType<T>.Deriving_> deriving, global::System.Action<FunicularSwitch.Test.BaseType<T>.Deriving2_> deriving2)
 		{
 			switch (baseType)
@@ -42,6 +47,7 @@ namespace FunicularSwitch.Test
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch<T>(this global::FunicularSwitch.Test.BaseType<T> baseType, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving_, global::System.Threading.Tasks.Task> deriving, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving2_, global::System.Threading.Tasks.Task> deriving2)
 		{
 			switch (baseType)
@@ -57,16 +63,20 @@ namespace FunicularSwitch.Test
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.BaseType<T>> baseType, global::System.Action<FunicularSwitch.Test.BaseType<T>.Deriving_> deriving, global::System.Action<FunicularSwitch.Test.BaseType<T>.Deriving2_> deriving2) =>
 		(await baseType.ConfigureAwait(false)).Switch(deriving, deriving2);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.BaseType<T>> baseType, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving_, global::System.Threading.Tasks.Task> deriving, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving2_, global::System.Threading.Tasks.Task> deriving2) =>
 		await (await baseType.ConfigureAwait(false)).Switch(deriving, deriving2).ConfigureAwait(false);
 	}
 	
 	public abstract partial record BaseType<T>
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static FunicularSwitch.Test.BaseType<T> Deriving(string Value, T Other) => new FunicularSwitch.Test.BaseType<T>.Deriving_(Value, Other);
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static FunicularSwitch.Test.BaseType<T> Deriving2(string Value) => new FunicularSwitch.Test.BaseType<T>.Deriving2_(Value);
 	}
 }

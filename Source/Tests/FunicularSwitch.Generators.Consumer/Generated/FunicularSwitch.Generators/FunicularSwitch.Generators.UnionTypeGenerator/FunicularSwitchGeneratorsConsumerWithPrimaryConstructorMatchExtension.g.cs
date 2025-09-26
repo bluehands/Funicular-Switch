@@ -4,6 +4,7 @@ namespace FunicularSwitch.Generators.Consumer
 {
 	public static partial class WithPrimaryConstructorMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this global::FunicularSwitch.Generators.Consumer.WithPrimaryConstructor withPrimaryConstructor, global::System.Func<FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor, T> derived) =>
 		withPrimaryConstructor switch
 		{
@@ -11,6 +12,7 @@ namespace FunicularSwitch.Generators.Consumer
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.WithPrimaryConstructor: {withPrimaryConstructor.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.WithPrimaryConstructor withPrimaryConstructor, global::System.Func<FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor, global::System.Threading.Tasks.Task<T>> derived) =>
 		withPrimaryConstructor switch
 		{
@@ -18,12 +20,15 @@ namespace FunicularSwitch.Generators.Consumer
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.WithPrimaryConstructor: {withPrimaryConstructor.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.WithPrimaryConstructor> withPrimaryConstructor, global::System.Func<FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor, T> derived) =>
 		(await withPrimaryConstructor.ConfigureAwait(false)).Match(derived);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.WithPrimaryConstructor> withPrimaryConstructor, global::System.Func<FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor, global::System.Threading.Tasks.Task<T>> derived) =>
 		await (await withPrimaryConstructor.ConfigureAwait(false)).Match(derived).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this global::FunicularSwitch.Generators.Consumer.WithPrimaryConstructor withPrimaryConstructor, global::System.Action<FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor> derived)
 		{
 			switch (withPrimaryConstructor)
@@ -36,6 +41,7 @@ namespace FunicularSwitch.Generators.Consumer
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::FunicularSwitch.Generators.Consumer.WithPrimaryConstructor withPrimaryConstructor, global::System.Func<FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor, global::System.Threading.Tasks.Task> derived)
 		{
 			switch (withPrimaryConstructor)
@@ -48,15 +54,18 @@ namespace FunicularSwitch.Generators.Consumer
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.WithPrimaryConstructor> withPrimaryConstructor, global::System.Action<FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor> derived) =>
 		(await withPrimaryConstructor.ConfigureAwait(false)).Switch(derived);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.WithPrimaryConstructor> withPrimaryConstructor, global::System.Func<FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor, global::System.Threading.Tasks.Task> derived) =>
 		await (await withPrimaryConstructor.ConfigureAwait(false)).Switch(derived).ConfigureAwait(false);
 	}
 	
 	public abstract partial class WithPrimaryConstructor
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static FunicularSwitch.Generators.Consumer.WithPrimaryConstructor Derived(string message, int test) => new FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor(message, test);
 	}
 }

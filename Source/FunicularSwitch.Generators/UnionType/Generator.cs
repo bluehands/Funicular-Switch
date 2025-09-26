@@ -149,6 +149,7 @@ public static class Generator
                             .Select(p => new ParameterInfo(p.parameterName, ImmutableArray<string>.Empty, p.requiredProperty.Type, null))
                         ).ToSeparatedString();
                     var constructorInvocation = $"new {derivedType.FullTypeName}({(constructor.Parameters.Select(p => p.Name).ToSeparatedString())})";
+                    builder.WriteAttribute("global::System.Diagnostics.DebuggerStepThrough");
                     builder.Write($"{(isInternal ? "internal" : "public")} static {unionTypeSchema.FullTypeName}{typeParameters} {methodName}({arguments}) => {constructorInvocation}");
 
                     if (requiredParametersToAdd.Count > 0)
@@ -269,6 +270,7 @@ public static class Generator
 
         var typeParameterList = unionTypeSchema.TypeParameters.Concat([t]).ToSeparatedString();
 
+        builder.WriteAttribute("global::System.Diagnostics.DebuggerStepThrough");
         builder.WriteMethodSignature(
             modifiers: modifiers,
             returnType: returnType,
@@ -299,6 +301,7 @@ public static class Generator
 
         var typeParameters = RoslynExtensions.FormatTypeParameters(unionTypeSchema.TypeParameters);
 
+        builder.WriteAttribute("global::System.Diagnostics.DebuggerStepThrough");
         builder.WriteMethodSignature(
             modifiers: modifiers,
             returnType: returnType,
