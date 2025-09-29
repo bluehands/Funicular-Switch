@@ -4,6 +4,7 @@ namespace FunicularSwitch.Generators.Consumer.System
 {
 	public static partial class ArgumentExceptionMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this global::FunicularSwitch.Generators.Consumer.System.ArgumentException argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_, T> action, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_, T> func) =>
 		argumentException switch
 		{
@@ -12,6 +13,7 @@ namespace FunicularSwitch.Generators.Consumer.System
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.System.ArgumentException: {argumentException.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.System.ArgumentException argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_, global::System.Threading.Tasks.Task<T>> action, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_, global::System.Threading.Tasks.Task<T>> func) =>
 		argumentException switch
 		{
@@ -20,12 +22,15 @@ namespace FunicularSwitch.Generators.Consumer.System
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.System.ArgumentException: {argumentException.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.System.ArgumentException> argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_, T> action, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_, T> func) =>
 		(await argumentException.ConfigureAwait(false)).Match(action, func);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.System.ArgumentException> argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_, global::System.Threading.Tasks.Task<T>> action, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_, global::System.Threading.Tasks.Task<T>> func) =>
 		await (await argumentException.ConfigureAwait(false)).Match(action, func).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this global::FunicularSwitch.Generators.Consumer.System.ArgumentException argumentException, global::System.Action<FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_> action, global::System.Action<FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_> func)
 		{
 			switch (argumentException)
@@ -41,6 +46,7 @@ namespace FunicularSwitch.Generators.Consumer.System
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::FunicularSwitch.Generators.Consumer.System.ArgumentException argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_, global::System.Threading.Tasks.Task> action, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_, global::System.Threading.Tasks.Task> func)
 		{
 			switch (argumentException)
@@ -56,16 +62,20 @@ namespace FunicularSwitch.Generators.Consumer.System
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.System.ArgumentException> argumentException, global::System.Action<FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_> action, global::System.Action<FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_> func) =>
 		(await argumentException.ConfigureAwait(false)).Switch(action, func);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Generators.Consumer.System.ArgumentException> argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_, global::System.Threading.Tasks.Task> action, global::System.Func<FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_, global::System.Threading.Tasks.Task> func) =>
 		await (await argumentException.ConfigureAwait(false)).Switch(action, func).ConfigureAwait(false);
 	}
 	
 	public abstract partial record ArgumentException
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static FunicularSwitch.Generators.Consumer.System.ArgumentException Action() => new FunicularSwitch.Generators.Consumer.System.ArgumentException.Action_();
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static FunicularSwitch.Generators.Consumer.System.ArgumentException Func() => new FunicularSwitch.Generators.Consumer.System.ArgumentException.Func_();
 	}
 }

@@ -9,13 +9,17 @@ namespace FunicularSwitch.Test
 #pragma warning disable 1591
     public abstract partial class MonadB
     {
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T> Error<T>(Int32 details) => new MonadB<T>.Error_(details);
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadBError Error(Int32 details) => new(details);
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T> Ok<T>(T value) => new MonadB<T>.Ok_(value);
         public bool IsError => GetType().GetGenericTypeDefinition() == typeof(MonadB<>.Error_);
         public bool IsOk => !IsError;
         public abstract Int32? GetErrorOrDefault();
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T> Try<T>(global::System.Func<T> action, global::System.Func<global::System.Exception, Int32> formatError)
         {
             try
@@ -28,6 +32,7 @@ namespace FunicularSwitch.Test
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<MonadB<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<T>> action, global::System.Func<global::System.Exception, Int32> formatError)
         {
             try
@@ -40,6 +45,7 @@ namespace FunicularSwitch.Test
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T> Try<T>(global::System.Func<MonadB<T>> action, global::System.Func<global::System.Exception, Int32> formatError)
         {
             try
@@ -52,6 +58,7 @@ namespace FunicularSwitch.Test
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<MonadB<T>> Try<T>(global::System.Func<global::System.Threading.Tasks.Task<MonadB<T>>> action, global::System.Func<global::System.Exception, Int32> formatError)
         {
             try
@@ -67,11 +74,17 @@ namespace FunicularSwitch.Test
 
     public abstract partial class MonadB<T> : MonadB, global::System.Collections.Generic.IEnumerable<T>
     {
+        
+        [global::System.Diagnostics.DebuggerNonUserCode]
         public static new MonadB<T> Error(Int32 message) => Error<T>(message);
+        
+        [global::System.Diagnostics.DebuggerNonUserCode]
         public static MonadB<T> Ok(T value) => Ok<T>(value);
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static implicit operator MonadB<T>(T value) => MonadB.Ok(value);
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static implicit operator MonadB<T>(MonadBError myResultError) => myResultError.WithOk<T>();
 
         public static bool operator true(MonadB<T> result) => result.IsOk;
@@ -106,6 +119,7 @@ namespace FunicularSwitch.Test
 
         public static bool operator !=(MonadB<T>? left, MonadB<T>? right) => !Equals(left, right);
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public void Match(global::System.Action<T> ok, global::System.Action<Int32>? error = null) => Match(
             v =>
             {
@@ -118,6 +132,7 @@ namespace FunicularSwitch.Test
                 return 42;
             });
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public T1 Match<T1>(global::System.Func<T, T1> ok, global::System.Func<Int32, T1> error)
         {
             return this switch
@@ -128,6 +143,7 @@ namespace FunicularSwitch.Test
             };
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public async global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<Int32, global::System.Threading.Tasks.Task<T1>> error)
         {
             return this switch
@@ -138,16 +154,20 @@ namespace FunicularSwitch.Test
             };
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public global::System.Threading.Tasks.Task<T1> Match<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, global::System.Func<Int32, T1> error) =>
             Match(ok, e => global::System.Threading.Tasks.Task.FromResult(error(e)));
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public async global::System.Threading.Tasks.Task Match(global::System.Func<T, global::System.Threading.Tasks.Task> ok)
         {
             if (this is Ok_ okMonadB) await ok(okMonadB.Value).ConfigureAwait(false);
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public T Match(global::System.Func<Int32, T> error) => Match(v => v, error);
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public MonadB<T1> Bind<T1>(global::System.Func<T, MonadB<T1>> bind)
         {
             switch (this)
@@ -171,6 +191,7 @@ namespace FunicularSwitch.Test
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public async global::System.Threading.Tasks.Task<MonadB<T1>> Bind<T1>(global::System.Func<T, global::System.Threading.Tasks.Task<MonadB<T1>>> bind)
         {
             switch (this)
@@ -194,6 +215,7 @@ namespace FunicularSwitch.Test
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public MonadB<T1> Map<T1>(global::System.Func<T, T1> map)
         {
             switch (this)
@@ -217,6 +239,7 @@ namespace FunicularSwitch.Test
             }
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public async global::System.Threading.Tasks.Task<MonadB<T1>> Map<T1>(
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> map)
         {
@@ -243,24 +266,28 @@ namespace FunicularSwitch.Test
         
         //createGenericResultConversions
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public T? GetValueOrDefault()
 	        => Match(
 		        v => (T?)v,
 		        _ => default
 	        );
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public T GetValueOrDefault(global::System.Func<T> defaultValue)
 	        => Match(
 		        v => v,
 		        _ => defaultValue()
 	        );
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public T GetValueOrDefault(T defaultValue)
 	        => Match(
 		        v => v,
 		        _ => defaultValue
 	        );
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public T GetValueOrThrow()
             => Match(
                 v => v,
@@ -275,8 +302,10 @@ namespace FunicularSwitch.Test
         {
             public T Value { get; }
 
+            [global::System.Diagnostics.DebuggerStepThrough]
             public Ok_(T value) => Value = value;
 
+            [global::System.Diagnostics.DebuggerStepThrough]
             public override Int32? GetErrorOrDefault() => null;
 
             public bool Equals(Ok_? other)
@@ -304,10 +333,13 @@ namespace FunicularSwitch.Test
         {
             public Int32 Details { get; }
 
+            [global::System.Diagnostics.DebuggerStepThrough]
             public Error_(Int32 details) => Details = details;
 
+            [global::System.Diagnostics.DebuggerStepThrough]
             public MonadB<T1>.Error_ Convert<T1>() => new MonadB<T1>.Error_(Details);
 
+            [global::System.Diagnostics.DebuggerStepThrough]
             public override Int32? GetErrorOrDefault() => Details;
 
             public bool Equals(Error_? other)
@@ -356,11 +388,13 @@ namespace FunicularSwitch.Test
     {
         #region bind
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<MonadB<T1>> Bind<T, T1>(
             this global::System.Threading.Tasks.Task<MonadB<T>> result,
             global::System.Func<T, MonadB<T1>> bind)
             => (await result.ConfigureAwait(false)).Bind(bind);
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<MonadB<T1>> Bind<T, T1>(
             this global::System.Threading.Tasks.Task<MonadB<T>> result,
             global::System.Func<T, global::System.Threading.Tasks.Task<MonadB<T1>>> bind)
@@ -370,16 +404,19 @@ namespace FunicularSwitch.Test
 
         #region map
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<MonadB<T1>> Map<T, T1>(
             this global::System.Threading.Tasks.Task<MonadB<T>> result,
             global::System.Func<T, T1> map)
             => (await result.ConfigureAwait(false)).Map(map);
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static global::System.Threading.Tasks.Task<MonadB<T1>> Map<T, T1>(
             this global::System.Threading.Tasks.Task<MonadB<T>> result,
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> bind)
             => Bind(result, async v => MonadB.Ok(await bind(v).ConfigureAwait(false)));
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T> MapError<T>(this MonadB<T> result, global::System.Func<Int32, Int32> mapError)
         {
             if (result is MonadB<T>.Error_ e)
@@ -387,24 +424,28 @@ namespace FunicularSwitch.Test
             return result;
         }
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<MonadB<T>> MapError<T>(this global::System.Threading.Tasks.Task<MonadB<T>> result, global::System.Func<Int32, Int32> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
 
         #endregion
 
         #region match
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
             this global::System.Threading.Tasks.Task<MonadB<T>> result,
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
             global::System.Func<Int32, global::System.Threading.Tasks.Task<T1>> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
             this global::System.Threading.Tasks.Task<MonadB<T>> result,
             global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
             global::System.Func<Int32, T1> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
             this global::System.Threading.Tasks.Task<MonadB<T>> result,
             global::System.Func<T, T1> ok,
@@ -413,8 +454,10 @@ namespace FunicularSwitch.Test
 
         #endregion
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T> Flatten<T>(this MonadB<MonadB<T>> result) => result.Bind(r => r);
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T1> As<T, T1>(this MonadB<T> result, global::System.Func<Int32> errorTIsNotT1) =>
             result.Bind(r =>
             {
@@ -423,17 +466,24 @@ namespace FunicularSwitch.Test
                 return MonadB.Error<T1>(errorTIsNotT1());
             });
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T1> As<T1>(this MonadB<object> result, global::System.Func<Int32> errorIsNotT1) =>
             result.As<object, T1>(errorIsNotT1);
-        
+
         #region query-expression pattern
-        
+
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T1> Select<T, T1>(this MonadB<T> result, global::System.Func<T, T1> selector) => result.Map(selector);
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static global::System.Threading.Tasks.Task<MonadB<T1>> Select<T, T1>(this global::System.Threading.Tasks.Task<MonadB<T>> result, global::System.Func<T, T1> selector) => result.Map(selector);
-        
+
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T2> SelectMany<T, T1, T2>(this MonadB<T> result, global::System.Func<T, MonadB<T1>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static global::System.Threading.Tasks.Task<MonadB<T2>> SelectMany<T, T1, T2>(this global::System.Threading.Tasks.Task<MonadB<T>> result, global::System.Func<T, global::System.Threading.Tasks.Task<MonadB<T1>>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static global::System.Threading.Tasks.Task<MonadB<T2>> SelectMany<T, T1, T2>(this global::System.Threading.Tasks.Task<MonadB<T>> result, global::System.Func<T, MonadB<T1>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static global::System.Threading.Tasks.Task<MonadB<T2>> SelectMany<T, T1, T2>(this MonadB<T> result, global::System.Func<T, global::System.Threading.Tasks.Task<MonadB<T1>>> selector, global::System.Func<T, T1, T2> resultSelector) => result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
         #endregion
@@ -466,15 +516,19 @@ namespace FunicularSwitch.Test.Extensions
                     }))
                 .Select(r => r.GetValueOrThrow());
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T> As<T>(this object? item, global::System.Func<Int32> error) =>
             !(item is T t) ? MonadB.Error<T>(error()) : t;
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<T> NotNull<T>(this T? item, global::System.Func<Int32> error) =>
             item ?? MonadB.Error<T>(error());
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<string> NotNullOrEmpty(this string? s, global::System.Func<Int32> error)
             => string.IsNullOrEmpty(s) ? MonadB.Error<string>(error()) : s!;
 
+        [global::System.Diagnostics.DebuggerStepThrough]
         public static MonadB<string> NotNullOrWhiteSpace(this string? s, global::System.Func<Int32> error)
             => string.IsNullOrWhiteSpace(s) ? MonadB.Error<string>(error()) : s!;
 

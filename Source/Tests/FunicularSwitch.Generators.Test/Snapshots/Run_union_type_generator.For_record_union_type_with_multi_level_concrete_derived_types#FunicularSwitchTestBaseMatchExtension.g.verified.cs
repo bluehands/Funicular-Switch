@@ -5,6 +5,7 @@ namespace FunicularSwitch.Test
 {
 	public static partial class BaseMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.Bbb, T> bbb, global::System.Func<FunicularSwitch.Test.Aaa, T> aaa, global::System.Func<FunicularSwitch.Test.BaseChild, T> child) =>
 		@base switch
 		{
@@ -14,6 +15,7 @@ namespace FunicularSwitch.Test
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.Bbb, global::System.Threading.Tasks.Task<T>> bbb, global::System.Func<FunicularSwitch.Test.Aaa, global::System.Threading.Tasks.Task<T>> aaa, global::System.Func<FunicularSwitch.Test.BaseChild, global::System.Threading.Tasks.Task<T>> child) =>
 		@base switch
 		{
@@ -23,12 +25,15 @@ namespace FunicularSwitch.Test
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Base> @base, global::System.Func<FunicularSwitch.Test.Bbb, T> bbb, global::System.Func<FunicularSwitch.Test.Aaa, T> aaa, global::System.Func<FunicularSwitch.Test.BaseChild, T> child) =>
 		(await @base.ConfigureAwait(false)).Match(bbb, aaa, child);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Base> @base, global::System.Func<FunicularSwitch.Test.Bbb, global::System.Threading.Tasks.Task<T>> bbb, global::System.Func<FunicularSwitch.Test.Aaa, global::System.Threading.Tasks.Task<T>> aaa, global::System.Func<FunicularSwitch.Test.BaseChild, global::System.Threading.Tasks.Task<T>> child) =>
 		await (await @base.ConfigureAwait(false)).Match(bbb, aaa, child).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this global::FunicularSwitch.Test.Base @base, global::System.Action<FunicularSwitch.Test.Bbb> bbb, global::System.Action<FunicularSwitch.Test.Aaa> aaa, global::System.Action<FunicularSwitch.Test.BaseChild> child)
 		{
 			switch (@base)
@@ -47,6 +52,7 @@ namespace FunicularSwitch.Test
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.Bbb, global::System.Threading.Tasks.Task> bbb, global::System.Func<FunicularSwitch.Test.Aaa, global::System.Threading.Tasks.Task> aaa, global::System.Func<FunicularSwitch.Test.BaseChild, global::System.Threading.Tasks.Task> child)
 		{
 			switch (@base)
@@ -65,9 +71,11 @@ namespace FunicularSwitch.Test
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Base> @base, global::System.Action<FunicularSwitch.Test.Bbb> bbb, global::System.Action<FunicularSwitch.Test.Aaa> aaa, global::System.Action<FunicularSwitch.Test.BaseChild> child) =>
 		(await @base.ConfigureAwait(false)).Switch(bbb, aaa, child);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::FunicularSwitch.Test.Base> @base, global::System.Func<FunicularSwitch.Test.Bbb, global::System.Threading.Tasks.Task> bbb, global::System.Func<FunicularSwitch.Test.Aaa, global::System.Threading.Tasks.Task> aaa, global::System.Func<FunicularSwitch.Test.BaseChild, global::System.Threading.Tasks.Task> child) =>
 		await (await @base.ConfigureAwait(false)).Switch(bbb, aaa, child).ConfigureAwait(false);
 	}
