@@ -1,7 +1,6 @@
 ﻿//HintName: FunicularSwitch.Test.Result.g.cs
 #nullable enable
 
-using global::System.Diagnostics.Contracts;
 using global::System.Linq;
 using System;
 
@@ -339,7 +338,7 @@ namespace FunicularSwitch.Test
 
         internal ResultError(String details) => _details = details;
 
-        [Pure]
+        [global::System.Diagnostics.Contracts.Pure]
         public Result<T> WithOk<T>() => Result.Error<T>(_details);
 
         public bool Equals(ResultError other) => _details.Equals(other._details);

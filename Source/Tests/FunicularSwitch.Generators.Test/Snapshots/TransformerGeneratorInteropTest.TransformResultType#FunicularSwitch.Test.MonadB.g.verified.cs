@@ -1,7 +1,6 @@
 ﻿//HintName: FunicularSwitch.Test.MonadB.g.cs
 #nullable enable
 
-using global::System.Diagnostics.Contracts;
 using global::System.Linq;
 using System;
 
@@ -339,7 +338,7 @@ namespace FunicularSwitch.Test
 
         internal MonadBError(Int32 details) => _details = details;
 
-        [Pure]
+        [global::System.Diagnostics.Contracts.Pure]
         public MonadB<T> WithOk<T>() => MonadB.Error<T>(_details);
 
         public bool Equals(MonadBError other) => _details.Equals(other._details);
