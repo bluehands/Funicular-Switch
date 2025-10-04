@@ -207,7 +207,7 @@ namespace FunicularSwitch
         public static IEnumerable<TOut> Choose<T, TOut>(this IEnumerable<T> items, Func<T, Option<TOut>> choose) =>
             items.SelectMany(i => choose(i));
 
-        public static Option<T> ToOption<T>(this Result<T> result) => ToOption(result, null);
+        public static Option<T> ToOption<T>(this Result<T> result) => result.ToOption(logError: null);
 
         public static Option<T> ToOption<T>(this Result<T> result, Action<string>? logError) =>
             result.Match(
@@ -221,6 +221,26 @@ namespace FunicularSwitch
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
             option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
 
+        public static Option<T> ToOption<T>(this T value, bool hasValue) => value.ToOption(_ => hasValue);
+
+        public static Option<T> ToOption<T>(this T value, Func<T, bool> hasValue) => hasValue(value) ? Option.Some(value) : Option.None();
+
+        public static Option<string> NoneIfEmpty(this string text)
+            => text.ToOption(x => !string.IsNullOrEmpty(x));
+
+        public static Option<T> NoneIfEmpty<T>(this Option<T> option, Func<T, string> property)
+            => option.Bind(some => property(some).NoneIfEmpty().Map(_ => some));
+    
+        public static Option<TCollection> NoneIfEmpty<TCollection>(this TCollection collection)
+            where TCollection : IEnumerable
+            => collection.ToOption(x => x.Cast<object>().Any());
+    
+        public static Option<T> NoneIfEmpty<T>(this Option<T> option)
+            where T : IEnumerable
+            => option.Bind(some => some.NoneIfEmpty());
+
+        public static IEnumerable<T> WhereSome<T>(this IEnumerable<Option<T>> option) => option.SelectMany(o => o);
+        
         #region query-expression pattern
 
         public static Option<T1> Select<T, T1>(this Option<T> result, Func<T, T1> selector) => result.Map(selector);
