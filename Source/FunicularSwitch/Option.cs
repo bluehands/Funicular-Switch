@@ -221,9 +221,14 @@ namespace FunicularSwitch
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
             option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
 
-        public static Option<T> ToOption<T>(this T value, bool hasValue) => value.ToOption(_ => hasValue);
+        public static Option<T> ToOption<T>(this T? value, bool hasValue) where T : class => value.ToOption(_ => hasValue);
+        public static Option<T> ToOption<T>(this T? value, bool hasValue) where T : struct => value.ToOption(_ => hasValue);
 
-        public static Option<T> ToOption<T>(this T value, Func<T, bool> hasValue) => hasValue(value) ? Option.Some(value) : Option.None();
+        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class 
+            => value is not null && hasValue(value) ? Option.Some(value) : Option.None();
+
+        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : struct
+            => value.HasValue && hasValue(value.Value) ? Option.Some(value.Value) : Option.None();
 
         public static Option<string> NoneIfEmpty(this string text)
             => text.ToOption(x => !string.IsNullOrEmpty(x));
@@ -231,13 +236,13 @@ namespace FunicularSwitch
         public static Option<T> NoneIfEmpty<T>(this Option<T> option, Func<T, string> property)
             => option.Bind(some => property(some).NoneIfEmpty().Map(_ => some));
     
-        public static Option<TCollection> NoneIfEmpty<TCollection>(this TCollection collection)
-            where TCollection : IEnumerable
-            => collection.ToOption(x => x.Cast<object>().Any());
+        public static Option<T> NoneIfEmpty<T, TElement>(this T collection)
+            where T : IEnumerable<TElement>
+            => collection.Any() ? Option<T>.Some(collection) : Option<T>.None;
     
-        public static Option<T> NoneIfEmpty<T>(this Option<T> option)
-            where T : IEnumerable
-            => option.Bind(some => some.NoneIfEmpty());
+        public static Option<T> NoneIfEmpty<T, TElement>(this Option<T> option)
+            where T : IEnumerable<TElement>
+            => option.Bind(some => some.NoneIfEmpty<T, TElement>());
 
         public static IEnumerable<T> WhereSome<T>(this IEnumerable<Option<T>> option) => option.SelectMany(o => o);
         
