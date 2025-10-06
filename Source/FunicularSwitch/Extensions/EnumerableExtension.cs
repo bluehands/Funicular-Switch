@@ -139,23 +139,16 @@ public static class EnumerableExtensions
         return Option<TElement>.None;
     }
 
-    public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source, Func<TElement, bool> predicate)
-    {
-        foreach (var element in source.Where(predicate))
-        {
-            return Option.Some(element);
-        }
-        return Option<TElement>.None;
-    }
+    public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source, Func<TElement, bool> predicate) 
+        => source.Where(predicate).FirstOrNone();
 
     public static Option<TElement> SingleOrNone<TElement>(this IEnumerable<TElement> source)
     {
-        var list = source.ToList();
+        var list = source.Take(2).ToList();
         return list.Count == 1 ? list[0] :  Option.None<TElement>();
     }
 
-    public static Option<TElement> SingleOrNone<TElement>(this IEnumerable<TElement> source, Func<TElement, bool> predicate)
-    {
-        return source.Where(predicate).SingleOrNone();
-    }
+    public static Option<TElement> SingleOrNone<TElement>(this IEnumerable<TElement> source, Func<TElement, bool> predicate) 
+        => source.Where(predicate).SingleOrNone();
+
 }
