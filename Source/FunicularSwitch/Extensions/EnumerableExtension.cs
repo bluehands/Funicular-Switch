@@ -151,4 +151,13 @@ public static class EnumerableExtensions
     public static Option<TElement> SingleOrNone<TElement>(this IEnumerable<TElement> source, Func<TElement, bool> predicate) 
         => source.Where(predicate).SingleOrNone();
 
+    public static Option<TElement> LastOrNone<TElement>(this IEnumerable<TElement> source) 
+        => source.Reverse().Take(1).FirstOrNone();
+
+    public static Option<TElement> LastOrNone<TElement>(
+        this IEnumerable<TElement> source, Func<TElement, bool> predicate)
+        => source.Where(predicate).LastOrNone();
+
+    public static Option<TElement> ElementAtOrNone<TElement>(this IEnumerable<TElement> source, int index) 
+        => source.Where((_, i) => i == index).SingleOrNone();
 }
