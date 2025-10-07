@@ -10,6 +10,7 @@ namespace FunicularSwitch
     public static class Option
     {
         public static Option<T> Some<T>(T value) => Option<T>.Some(value);
+        public static OptionNone None() => default;
         public static Option<T> None<T>() => Option<T>.None;
         public static OptionNone None() => default;
         public static async Task<Option<T>> Some<T>(Task<T> value) => Some(await value);
@@ -21,6 +22,8 @@ namespace FunicularSwitch
         bool IsSome();
         bool IsNone();
     }
+
+    public readonly record struct OptionNone;
 
     public readonly struct Option<T> : IEnumerable<T>, IEquatable<Option<T>>, IOption
     {
@@ -105,6 +108,8 @@ namespace FunicularSwitch
         }
 
         public static implicit operator Option<T>(T value) => Some(value);
+        
+        public static implicit operator Option<T>(OptionNone value) => None;
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
