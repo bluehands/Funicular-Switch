@@ -103,6 +103,82 @@ public class TransformerSpecs
     }
 
     [TestMethod]
+    [DataRow(2, 2, "Right 4", "")]
+    [DataRow(0, 2, "Right 2", "value == 0")]
+    [DataRow(2, 0, "Right 2", "value == 0")]
+    [DataRow(2, -1, "Left value < 0", "value < 0")]
+    [DataRow(-1, 2, "Left value < 0", "value < 0")]
+    [DataRow(0, -1, "Left value < 0", """
+                                      value == 0
+                                      value < 0
+                                      """)]
+    [DataRow(-1, 0, "Left value < 0", "value < 0")]
+    public void WriterEither_Combine(int a, int b, string expectedResult, string expectedLog)
+    {
+        // Act
+        var result =
+            from t in WriterEither.Combine(From(a), From(b))
+            let c = t.Item1 + t.Item2
+            select c;
+
+        // Assert
+        using (new AssertionScope())
+        {
+            string.Join(Environment.NewLine, result.Log).Should().Be(expectedLog);
+            ((string) result.Value.ToString()).Should().Be(expectedResult);
+        }
+
+        Writer2<string, Either<string, int>> From(int value) => value switch
+        {
+            < 0 => WriterEither.Left<string, int>("value < 0"),
+            0 => WriterEither.Append<string, string, int>(value, "value == 0"),
+            _ => WriterEither.InitRight<string, string, int>(value),
+        };
+    }
+
+    [TestMethod]
+    [DataRow(1, 1, "Right 0", """
+                              1/1 = 1
+                              1-1 = 0
+                              sqrt(0) = 0
+                              """)]
+    [DataRow(2, 2, "Left sqrt(-1) -> Cannot get square root of negative number", """
+                                                                                 2/2 = 1
+                                                                                 1-2 = -1
+                                                                                 sqrt(-1) -> Cannot get square root of negative number
+                                                                                 """)]
+    [DataRow(2, 0, "Left 2/0 -> Cannot divide by 0", "2/0 -> Cannot divide by 0")]
+    public void WriterEither_UseCase(int a, int b, string expectedResult, string expectedLog)
+    {
+        // Act
+        var result =
+            from x in Div(a, b)
+            from y in Subtract(x, b)
+            from z in Sqrt(y)
+            select y;
+
+        // Assert
+        using (new AssertionScope())
+        {
+            string.Join(Environment.NewLine, result.Log).Should().Be(expectedLog);
+            ((string) result.Value.ToString()).Should().Be(expectedResult);
+        }
+
+        static Writer2<string, Either<string, int>> Sqrt(int a) =>
+            a < 0
+                ? WriterEither.Left<string, int>($"sqrt({a}) -> Cannot get square root of negative number")
+                : WriterEither.Append<string, string, int>((int) Math.Sqrt(a), v => $"sqrt({a}) = {v}");
+
+        static Writer2<string, Either<string, int>> Div(int a, int b) =>
+            b == 0
+                ? WriterEither.Left<string, int>($"{a}/{b} -> Cannot divide by 0")
+                : WriterEither.Append<string, string, int>(a / b, v => $"{a}/{b} = {v}");
+
+        static Writer2<string, Either<string, int>> Subtract(int a, int b) =>
+            WriterEither.Append<string, string, int>(a - b, v => $"{a}-{b} = {v}");
+    }
+
+    [TestMethod]
     [DataRow(1, 1, "Ok 0", """
                            1/1 = 1
                            1-1 = 0
@@ -142,48 +218,6 @@ public class TransformerSpecs
 
         static Writer<FunicularSwitch.Result<int>> Subtract(int a, int b) =>
             WriterResult.Append(a - b, v => $"{a}-{b} = {v}");
-    }
-
-    [TestMethod]
-    [DataRow(1, 1, "Right 0", """
-                           1/1 = 1
-                           1-1 = 0
-                           sqrt(0) = 0
-                           """)]
-    [DataRow(2, 2, "Left sqrt(-1) -> Cannot get square root of negative number", """
-        2/2 = 1
-        1-2 = -1
-        sqrt(-1) -> Cannot get square root of negative number
-        """)]
-    [DataRow(2, 0, "Left 2/0 -> Cannot divide by 0", "2/0 -> Cannot divide by 0")]
-    public void WriterEither_UseCase(int a, int b, string expectedResult, string expectedLog)
-    {
-        // Act
-        var result =
-            from x in Div(a, b)
-            from y in Subtract(x, b)
-            from z in Sqrt(y)
-            select y;
-
-        // Assert
-        using (new AssertionScope())
-        {
-            string.Join(Environment.NewLine, result.Log).Should().Be(expectedLog);
-            ((string) result.Value.ToString()).Should().Be(expectedResult);
-        }
-
-        static Writer2<string, Either<string, int>> Sqrt(int a) =>
-            a < 0
-                ? WriterEither.Left<string, int>($"sqrt({a}) -> Cannot get square root of negative number")
-                : WriterEither.Append<string, string, int>((int) Math.Sqrt(a), v => $"sqrt({a}) = {v}");
-
-        static Writer2<string, Either<string, int>> Div(int a, int b) =>
-            b == 0
-                ? WriterEither.Left<string, int>($"{a}/{b} -> Cannot divide by 0")
-                : WriterEither.Append<string, string, int>(a / b, v => $"{a}/{b} = {v}");
-
-        static Writer2<string, Either<string, int>> Subtract(int a, int b) =>
-            WriterEither.Append<string, string, int>(a - b, v => $"{a}-{b} = {v}");
     }
 }
 
@@ -273,10 +307,6 @@ public abstract record Either<B, A>
 [MonadTransformer(typeof(Either))]
 public static partial class Either
 {
-    public static Either<B, A> Right<B, A>(A a) => new Either<B, A>.Right(a);
-    
-    public static Either<B, A> Left<B, A>(B b) => new Either<B, A>.Left(b);
-
     public static Either<B, C> Bind<B, A, C>(this Either<B, A> ma, Func<A, Either<B, C>> fn) => ma switch
     {
         Either<B, A>.Left left => Left<B, C>(left.Value),
@@ -291,16 +321,20 @@ public static partial class Either
             Either<B, A>.Right right => fn(right.Value),
             _ => throw new ArgumentOutOfRangeException(),
         });
+
+    public static Either<B, A> Left<B, A>(B b) => new Either<B, A>.Left(b);
+
+    public static Either<B, A> Right<B, A>(A a) => new Either<B, A>.Right(a);
 }
 
 [TransformMonad(typeof(Writer2), typeof(Either))]
 public static partial class WriterEither
 {
-    public static Writer2<B, Either<B, A>> Left<B, A>(B b) => Writer2.Append(Either.Left<B, A>(b), b);
-
     public static Writer2<L, Either<B, A>> Append<L, B, A>(A value, L log) =>
         Writer2.Append(Either.Right<B, A>(value), log);
 
     public static Writer2<L, Either<B, A>> Append<L, B, A>(A value, Func<A, L> logFn) =>
         Append<L, B, A>(value, logFn(value));
+
+    public static Writer2<B, Either<B, A>> Left<B, A>(B b) => Writer2.Append(Either.Left<B, A>(b), b);
 }

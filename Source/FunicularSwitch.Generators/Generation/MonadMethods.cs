@@ -52,6 +52,7 @@ internal static class MonadMethods
             ..BindMethods(),
             ..MapMethods(),
             ..CombineMethods(),
+            ..FlattenMethods(),
         ];
         return methodGenerationInfos
             .Distinct(MethodGenerationInfo.SignatureComparer.Instance)
@@ -73,6 +74,9 @@ internal static class MonadMethods
 
         IEnumerable<MethodGenerationInfo> CombineMethods() =>
             Combine(genericTypeName, monad, 12);
+
+        IEnumerable<MethodGenerationInfo> FlattenMethods() =>
+            Flatten("Flatten", genericTypeName, monad);
     }
 
     private static IEnumerable<MethodGenerationInfo> AsyncVariants(string parameterName, Func<string, MethodGenerationInfo> fn)
@@ -152,8 +156,14 @@ internal static class MonadMethods
 
     private static IEnumerable<MethodGenerationInfo> Combine(ConstructType genericTypeName, MonadInfo chainedMonad, int maxCount)
     {
+        var mapMethod = new InvokeMethod((t, p) => $"{p[0]}.Map<{string.Join(", ", t)}>({p[1]})");
+
         return Enumerable.Range(2, maxCount - 1)
             .SelectMany(ForCount);
+
+        string Tuple(int count) => $"({string.Join(", ", Enumerable.Range(0, count).Select(i => $"S{i}"))})";
+
+        string CombineArgs(int count) => string.Join(", ", Enumerable.Range(0, count).Select(i => $"s{i}"));
 
         IEnumerable<MethodGenerationInfo> ForCount(int count)
         {
@@ -169,11 +179,38 @@ internal static class MonadMethods
                     .ToList(),
                 "Combine",
                 t => count > 2
-                    ? $"Combine({string.Join(", ", Enumerable.Range(0, count - 1).Select(i => $"s{i}"))}).Bind(prev => s{count - 1}.Map(last => ({string.Join(", ", Enumerable.Range(1, count - 1).Select(i => $"prev.Item{i}"))}, last)))"
-                    : "s0.Bind(v0 => s1.Map(v1 => (v0, v1)))"
+                    ? CombineTail(t)
+                    : CombineHead(t)
             );
+
+            string CombineHead(IReadOnlyList<TypeInfo> t) =>
+                chainedMonad.BindMethod.Invoke([..t, "S0", "(S0, S1)"], ["s0", $"v0 => {mapMethod([..t, "S1", "(S0, S1)"], ["s1", "v1 => (v0, v1)"])}"]);
+
+            string CombineTail(IReadOnlyList<TypeInfo> t)
+            {
+                var fromTupleType = Tuple(count - 1);
+                var toTupleType = Tuple(count);
+                var lastType = $"S{count - 1}";
+                var lastArg = $"s{count - 1}";
+                var mapFn = $"last => ({string.Join(", ", Enumerable.Range(1, count - 1).Select(i => $"prev.Item{i}"))}, last)";
+                return chainedMonad.BindMethod.Invoke([..t, fromTupleType, toTupleType], [$"Combine({CombineArgs(count - 1)})", $"prev => {mapMethod([..t, lastType, toTupleType], [lastArg, mapFn])}"]);
+            }
         }
     }
+
+    private static IEnumerable<MethodGenerationInfo> Flatten(string name, ConstructType genericTypeName, MonadInfo monad) =>
+        AsyncVariants("ma", p => Create(
+            monad.ExtraArity,
+            "A",
+            genericTypeName,
+            ["A"],
+            t =>
+            [
+                new ParameterGenerationInfo(genericTypeName([..t, genericTypeName([..t, "A"])]), "ma", true),
+            ],
+            name,
+            t => $"{p}.{monad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => a)"
+        ));
 
     private static IEnumerable<MethodGenerationInfo> Lift(ConstructType genericTypeName, MonadInfo chainedMonad, MonadInfo outerMonad, MonadInfo innerMonad) =>
         AsyncVariants("ma", p => Create(

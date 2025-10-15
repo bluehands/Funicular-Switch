@@ -74,9 +74,15 @@ internal static class Parser
                 DetermineMethodName(outer.BindMethod.Name, inner.BindMethod.Name, "Bind"),
                 (t, p) =>
                 {
+                    var extraTypeArgs = t.Take(outer.ExtraArity + inner.ExtraArity).ToList();
                     var fromType = t.Skip(outer.ExtraArity + inner.ExtraArity).First();
                     var toType = t.Last();
-                    var ma = $"({outerInterfaceImplName([..t.Take(outer.ExtraArity), inner.GenericTypeName([..t.Skip(outer.ExtraArity).Take(inner.ExtraArity), fromType])])}){p[0]}";
+                    var fromInterfaceType = outerInterfaceImplName([..t.Take(outer.ExtraArity), inner.GenericTypeName([..t.Skip(outer.ExtraArity).Take(inner.ExtraArity), fromType])]);
+                    var fromNestedType = outer.GenericTypeName([
+                        ..extraTypeArgs.Take(outer.ExtraArity),
+                        inner.GenericTypeName([..extraTypeArgs.Skip(outer.ExtraArity), fromType]),
+                    ]);
+                    var ma = $"({fromInterfaceType})({fromNestedType}){p[0]}";
                     var fn = $"[{Constants.DebuggerStepThroughAttribute}](a) => ({outerInterfaceImplName([..t.Take(outer.ExtraArity), inner.GenericTypeName([..t.Skip(outer.ExtraArity).Take(inner.ExtraArity), toType])])})(new global::System.Func<{fromType}, {chainedGenericType([..t.Take(outer.ExtraArity + inner.ExtraArity), toType])}>({p[1]}).Invoke(a))"; // A -> Monad<X<B>>
 
                     var call = $"{transformerTypeName}.BindT<{string.Join(", ", t.Skip(outer.ExtraArity))}>({ma}, {fn}).Cast<{chainedGenericType([..t.Take(outer.ExtraArity + inner.ExtraArity), toType])}>()";
