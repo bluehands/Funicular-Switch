@@ -56,26 +56,36 @@ internal static class Parser
                 ))
             select transformMonadData;
 
-        static ConstructType ChainGenericTypeName(ConstructType outer, ConstructType inner) =>
-            x => outer([inner(x)]);
+        static ConstructType ChainGenericTypeName(MonadInfo outer, MonadInfo inner) =>
+            x => outer.GenericTypeName(
+                [..x.Take(outer.ExtraArity), inner.GenericTypeName([..x.Skip(outer.ExtraArity)])]);
 
-        static MethodInfo CombineReturn(MethodInfo outer, MonadInfo inner) =>
+        static MethodInfo CombineReturn(MonadInfo outer, MonadInfo inner) =>
             new MethodInfo(
-                DetermineMethodName(outer.Name, inner.ReturnMethod.Name, "Return"),
-                (t, p) => $"{outer.Invoke([inner.GenericTypeName([t[0]])], [inner.ReturnMethod.Invoke(t, p)])}");
+                DetermineMethodName(outer.ReturnMethod.Name, inner.ReturnMethod.Name, "Return"),
+                (t, p) =>
+                    $"{outer.ReturnMethod.Invoke([..t.Take(outer.ExtraArity), inner.GenericTypeName([..t.Skip(outer.ExtraArity)])], [inner.ReturnMethod.Invoke([..t.Skip(outer.ExtraArity)], p)])}");
 
         static MethodInfo TransformBind(MonadInfo outer, MonadInfo inner, string transformerTypeName, ConstructType outerInterfaceImplName)
         {
-            var chainedGenericType = ChainGenericTypeName(outer.GenericTypeName, inner.GenericTypeName);
+            var chainedGenericType = ChainGenericTypeName(outer, inner);
 
             return new MethodInfo(
                 DetermineMethodName(outer.BindMethod.Name, inner.BindMethod.Name, "Bind"),
                 (t, p) =>
                 {
-                    var ma = $"({outerInterfaceImplName([inner.GenericTypeName([t[0]])])}){p[0]}";
-                    var fn = $"[{Constants.DebuggerStepThroughAttribute}](a) => ({outerInterfaceImplName([inner.GenericTypeName([t[1]])])})(new global::System.Func<{t[0]}, {chainedGenericType([t[1]])}>({p[1]}).Invoke(a))"; // A -> Monad<X<B>>
+                    var extraTypeArgs = t.Take(outer.ExtraArity + inner.ExtraArity).ToList();
+                    var fromType = t.Skip(outer.ExtraArity + inner.ExtraArity).First();
+                    var toType = t.Last();
+                    var fromInterfaceType = outerInterfaceImplName([..t.Take(outer.ExtraArity), inner.GenericTypeName([..t.Skip(outer.ExtraArity).Take(inner.ExtraArity), fromType])]);
+                    var fromNestedType = outer.GenericTypeName([
+                        ..extraTypeArgs.Take(outer.ExtraArity),
+                        inner.GenericTypeName([..extraTypeArgs.Skip(outer.ExtraArity), fromType]),
+                    ]);
+                    var ma = $"({fromInterfaceType})({fromNestedType}){p[0]}";
+                    var fn = $"[{Constants.DebuggerStepThroughAttribute}](a) => ({outerInterfaceImplName([..t.Take(outer.ExtraArity), inner.GenericTypeName([..t.Skip(outer.ExtraArity).Take(inner.ExtraArity), toType])])})(new global::System.Func<{fromType}, {chainedGenericType([..t.Take(outer.ExtraArity + inner.ExtraArity), toType])}>({p[1]}).Invoke(a))"; // A -> Monad<X<B>>
 
-                    var call = $"{transformerTypeName}.BindT<{t[0]}, {t[1]}>({ma}, {fn}).Cast<{chainedGenericType([t[1]])}>()";
+                    var call = $"{transformerTypeName}.BindT<{string.Join(", ", t.Skip(outer.ExtraArity))}>({ma}, {fn}).Cast<{chainedGenericType([..t.Take(outer.ExtraArity + inner.ExtraArity), toType])}>()";
                     return call;
                 });
         }
@@ -92,9 +102,9 @@ internal static class Parser
                         outerInterfaceImplementation?.GenericTypeName ?? outer.GenericTypeName;
 
                     var transformedMonad = new MonadInfo(
-                        ChainGenericTypeName(outer.GenericTypeName, innerMonad.GenericTypeName),
+                        ChainGenericTypeName(outer, innerMonad),
                         outer.ExtraArity + innerMonad.ExtraArity,
-                        CombineReturn(outer.ReturnMethod, innerMonad),
+                        CombineReturn(outer, innerMonad),
                         TransformBind(outer, innerMonad, transformerTypeName, outerInterfaceName));
                     return transformedMonad;
                 });
@@ -106,14 +116,14 @@ internal static class Parser
     {
         var typeModifier = DetermineTypeModifier(transformedMonadSymbol);
         var isRecord = transformedMonadSymbol.IsRecord;
-        var typeParameter = transformedMonadSymbol.TypeArguments[0].Name;
+        var typeParameters = transformedMonadSymbol.TypeArguments.Select(x => x.Name).ToList();
 
         return new(
             transformedMonadSymbol.GetActualAccessibility(),
             typeModifier,
             transformedMonadSymbol.Name,
-            typeParameter,
-            $"{transformedMonadSymbol.Name}<{typeParameter}>",
+            typeParameters,
+            $"{transformedMonadSymbol.Name}<{string.Join(", ", typeParameters)}>",
             isRecord,
             chainedMonad
         );

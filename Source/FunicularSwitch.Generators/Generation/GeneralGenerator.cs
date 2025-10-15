@@ -49,12 +49,14 @@ internal static class GeneralGenerator
 
     private static void WriteMonadInterfaceImplementation(MonadImplementationGenerationInfo data, CSharpBuilder cs)
     {
+        var typeParameters = Enumerable.Range(0, data.Monad.ExtraArity).Select(x => $"T{x}").ToList();
+            
         var interfaceA = InterfaceFn("A");
         var interfaceB = InterfaceFn("B");
-        var typeNameA = data.GenericTypeName(["A"]);
-        var typeNameB = data.GenericTypeName(["B"]);
-        var monadTypeNameA = data.Monad.GenericTypeName(["A"]);
-        var monadTypeNameB = data.Monad.GenericTypeName(["B"]);
+        var typeNameA = data.GenericTypeName([..typeParameters, "A"]);
+        var typeNameB = data.GenericTypeName([..typeParameters, "B"]);
+        var monadTypeNameA = data.Monad.GenericTypeName([..typeParameters, "A"]);
+        var monadTypeNameB = data.Monad.GenericTypeName([..typeParameters, "B"]);
 
         cs.WriteLine($"private readonly record struct {typeNameA}({monadTypeNameA} M) : {interfaceA}");
         using var _ = cs.Scope();
@@ -63,9 +65,9 @@ internal static class GeneralGenerator
         WriteCommonMethodAttributes(cs);
         cs.WriteLine($"public static implicit operator {monadTypeNameA}({typeNameA} ma) => ma.M;");
         WriteCommonMethodAttributes(cs);
-        cs.WriteLine($"public {interfaceB} Return<B>(B a) => ({typeNameB}){data.Monad.ReturnMethod.Invoke(["B"], ["a"])};");
+        cs.WriteLine($"public {interfaceB} Return<B>(B a) => ({typeNameB}){data.Monad.ReturnMethod.Invoke([..typeParameters, "B"], ["a"])};");
         WriteCommonMethodAttributes(cs);
-        cs.WriteLine($"public {interfaceB} Bind<B>(global::System.Func<A, {interfaceB}> fn) => ({typeNameB}){data.Monad.BindMethod.Invoke(["A", "B"], ["M", $"a => ({monadTypeNameB})({typeNameB})fn(a)"])};");
+        cs.WriteLine($"public {interfaceB} Bind<B>(global::System.Func<A, {interfaceB}> fn) => ({typeNameB}){data.Monad.BindMethod.Invoke([..typeParameters, "A", "B"], ["M", $"a => ({monadTypeNameB})({typeNameB})fn(a)"])};");
         WriteCommonMethodAttributes(cs);
         cs.WriteLine("public B Cast<B>() => (B)(object)M;");
 
