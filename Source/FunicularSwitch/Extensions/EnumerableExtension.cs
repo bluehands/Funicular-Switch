@@ -186,6 +186,6 @@ public static class EnumerableExtensions
                 ? Option.Some(list[index])
                 : Option.None();
         }
-        return source.Skip(index - 1).FirstOrNone();
+        return source.Skip(index).FirstOrNone();
     }
 }
