@@ -114,20 +114,15 @@ public static class EnumerableExtensions
         yield return item;
     }
 
-    public static IEnumerable<TBase> Yield<T, TBase>(this T item) where TBase : T
+    public static IEnumerable<TBase> Yield<T, TBase>(this T item) where T : TBase
     {
-        yield return (TBase)item!;
+        yield return item;
     }
 
+    [Obsolete($"Use Enumerable.Concat with collection expression")]
     public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, T item, params T[] further)
     {
-        foreach (var i in items)
-            yield return i;
-
-        yield return item;
-
-        foreach (var i in further)
-            yield return i;
+        return items.Append(item).Concat(further);
     }
 
     public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source) 

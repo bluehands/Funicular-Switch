@@ -313,4 +313,158 @@ public class EnumerableExtensionSpecs
             result.Should().BeNone();
         }
     }
+
+    [TestMethod]
+    public async Task WhereAsync_FuncTTaskBool()
+    {
+        // Given
+        List<int> subject = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        await Assert(PureEnumerable(subject));
+        await Assert(ListEnumerable(subject));
+        return;
+
+        static async Task Assert(IEnumerable<int> subject)
+        {
+            // When
+            var result = await subject.WhereAsync(x => Task.FromResult(x % 2 == 0));
+            
+            // Then
+            result.Should().Equal([2, 4, 6, 8, 10]);
+        }
+    }
+
+    [TestMethod]
+    public async Task WhereAsync_FuncTTaskBool_int()
+    {
+        // Given
+        List<int> subject = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        await Assert(PureEnumerable(subject));
+        await Assert(ListEnumerable(subject));
+        return;
+
+        static async Task Assert(IEnumerable<int> subject)
+        {
+            // When
+            var result = await subject.WhereAsync(x => Task.FromResult(x % 2 == 0), maxDegreeOfParallelism: 3);
+            
+            // Then
+            result.Should().Equal([2, 4, 6, 8, 10]);
+        }
+    }
+
+    [TestMethod]
+    public async Task WhereAsyncSequential_FuncTTaskBool()
+    {
+        // Given
+        List<int> subject = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        await Assert(PureEnumerable(subject));
+        await Assert(ListEnumerable(subject));
+        return;
+
+        static async Task Assert(IEnumerable<int> subject)
+        {
+            // When
+            var result = await subject.WhereAsyncSequential(x => Task.FromResult(x % 2 == 0));
+            
+            // Then
+            result.Should().Equal([2, 4, 6, 8, 10]);
+        }
+    }
+
+    [TestMethod]
+    public async Task SelectAsync_FuncTTaskTOut()
+    {
+        // Given
+        List<int> subject = [1, 2, 3, 4, 5];
+        await Assert(PureEnumerable(subject));
+        await Assert(ListEnumerable(subject));
+        return;
+
+        static async Task Assert(IEnumerable<int> subject)
+        {
+            // When
+            var result = await subject.SelectAsync(x => Task.FromResult(2 * x));
+            
+            // Then
+            result.Should().Equal([2, 4, 6, 8, 10]);
+        }
+    }
+
+    [TestMethod]
+    public async Task SelectAsync_FuncTTaskTOut_int()
+    {
+        // Given
+        List<int> subject = [1, 2, 3, 4, 5];
+        await Assert(PureEnumerable(subject));
+        await Assert(ListEnumerable(subject));
+        return;
+
+        static async Task Assert(IEnumerable<int> subject)
+        {
+            // When
+            var result = await subject.SelectAsync(x => Task.FromResult(2 * x), maxDegreeOfParallelism: 3);
+            
+            // Then
+            result.Should().Equal([2, 4, 6, 8, 10]);
+        }
+    }
+
+    [TestMethod]
+    public async Task SelectAsyncSequential_FuncTTaskTOut()
+    {
+        // Given
+        List<int> subject = [1, 2, 3, 4, 5];
+        await Assert(PureEnumerable(subject));
+        await Assert(ListEnumerable(subject));
+        return;
+
+        static async Task Assert(IEnumerable<int> subject)
+        {
+            // When
+            var result = await subject.SelectAsyncSequential(x => Task.FromResult(2 * x));
+            
+            // Then
+            result.Should().Equal([2, 4, 6, 8, 10]);
+        }
+    }
+
+    [TestMethod]
+    public void Yield_TTBase()
+    {
+        // When
+        var target = "Hi".Yield<string, object>();
+        
+        // Then
+        target.Should().Equal([(object)"Hi"]);
+    }
+
+    [TestMethod]
+    public void Concat_OnlyOneExtraItem_ReturnsCorrectSequence()
+    {
+        // Given
+        IEnumerable<int> target = [1, 2, 3];
+        
+        // When
+#pragma warning disable CS0618 // Type or member is obsolete
+        var result = target.Concat(5);
+#pragma warning restore CS0618 // Type or member is obsolete
+        
+        // Then
+        result.Should().Equal([1, 2, 3, 5]);
+    }
+
+    [TestMethod]
+    public void Concat_WithParams_ReturnsCorrectSequence()
+    {
+        // Given
+        IEnumerable<int> target = [1, 2, 3];
+        
+        // When
+#pragma warning disable CS0618 // Type or member is obsolete
+        var result = target.Concat(5, 6, 7, 8);
+#pragma warning restore CS0618 // Type or member is obsolete
+        
+        // Then
+        result.Should().Equal([1, 2, 3, 5, 6, 7, 8]);
+    }
 }

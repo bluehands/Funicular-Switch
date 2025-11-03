@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -121,14 +117,35 @@ public class ResultSpecs
     class Something;
 
     [TestMethod]
-    public void AsTest()
+    public void As_T_T1_Match()
     {
         var obj = Result.Ok<object>(42);
         var intResult = obj.As<object, int>();
         intResult.Should().BeOk().Which.Should().Be(42);
+    }
 
-        var stringResult = obj.As<string>();
-        stringResult.Should().BeError();
+    [TestMethod]
+    public void As_T_T1_NoMatch()
+    {
+        var obj = Result.Ok<object>(42);
+        var intResult = obj.As<object, string>();
+        intResult.Should().BeError().Which.Should().Contain("Int32").And.Contain("String");
+    }
+
+    [TestMethod]
+    public void As_T1_Match()
+    {
+        var obj = Result.Ok<object>(42);
+        var intResult = obj.As<int>();
+        intResult.Should().BeOk().Which.Should().Be(42);
+    }
+
+    [TestMethod]
+    public void As_T1_NoMatch()
+    {
+        var obj = Result.Ok<object>(42);
+        var intResult = obj.As<string>();
+        intResult.Should().BeError().Which.Should().Contain("Int32").And.Contain("String");
     }
 
     [TestMethod]
