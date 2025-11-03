@@ -129,35 +129,63 @@ public static class EnumerableExtensions
         foreach (var i in further)
             yield return i;
     }
+
+    public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source) 
+        => source.FirstOrNone(static _ => true);
     
-    public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source)
+    public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source, Func<TElement, bool> predicate)
     {
         foreach (var element in source)
         {
-            return Option.Some(element);
+            if (predicate(element))
+            {
+                return Option.Some(element);
+            }
         }
         return Option<TElement>.None;
     }
 
-    public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source, Func<TElement, bool> predicate) 
-        => source.Where(predicate).FirstOrNone();
+    public static Option<TElement> LastOrNone<TElement>(this IEnumerable<TElement> source)
+        => source.LastOrNone(static _ => true);
 
-    public static Option<TElement> SingleOrNone<TElement>(this IEnumerable<TElement> source)
+    public static Option<TElement> LastOrNone<TElement>(this IEnumerable<TElement> source, Func<TElement, bool> predicate)
     {
-        var list = source.Take(2).ToList();
-        return list.Count == 1 ? list[0] :  Option.None<TElement>();
+        if (source is IList<TElement> list)
+        {
+            for (int i = list.Count - 1; i >= 0; i -= 1)
+            {
+                if (predicate(list[i]))
+                {
+                    return Option.Some(list[i]);
+                }
+            }
+
+            return Option.None();
+        }
+        else
+        {
+            
+            Option<TElement> result = Option.None();
+            foreach (var element in source)
+            {
+                if (predicate(element))
+                {
+                    result = Option.Some(element);
+                }
+            }
+
+            return result;
+        }
     }
 
-    public static Option<TElement> SingleOrNone<TElement>(this IEnumerable<TElement> source, Func<TElement, bool> predicate) 
-        => source.Where(predicate).SingleOrNone();
-
-    public static Option<TElement> LastOrNone<TElement>(this IEnumerable<TElement> source) 
-        => source.Reverse().Take(1).FirstOrNone();
-
-    public static Option<TElement> LastOrNone<TElement>(
-        this IEnumerable<TElement> source, Func<TElement, bool> predicate)
-        => source.Where(predicate).LastOrNone();
-
-    public static Option<TElement> ElementAtOrNone<TElement>(this IEnumerable<TElement> source, int index) 
-        => source.Where((_, i) => i == index).SingleOrNone();
+    public static Option<TElement> ElementAtOrNone<TElement>(this IEnumerable<TElement> source, int index)
+    {
+        if (source is IList<TElement> list)
+        {
+            return index < list.Count 
+                ? Option.Some(list[index])
+                : Option.None();
+        }
+        return source.Skip(index - 1).FirstOrNone();
+    }
 }
