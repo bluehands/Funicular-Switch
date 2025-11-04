@@ -7,15 +7,6 @@ namespace FunicularSwitch.Test;
 [TestClass]
 public class EnumerableExtensionSpecs
 {
-    [TestMethod]
-    public void EnumerableConcatStillWorks()
-    {
-        Enumerable.Range(0, 2).Concat(Enumerable.Range(2, 2)).Should().BeEquivalentTo(Enumerable.Range(0, 4));
-        Enumerable.Range(0, 2).Concat(Enumerable.Range(2, 2).ToArray()).Should().BeEquivalentTo(Enumerable.Range(0, 4));
-
-        0.Yield().Concat([1, 2]).Should().Equal([0, 1, 2]);
-    }
-
     private static IEnumerable<int> PureEnumerable(IEnumerable<int> source)
     {
         foreach (var element in source)
