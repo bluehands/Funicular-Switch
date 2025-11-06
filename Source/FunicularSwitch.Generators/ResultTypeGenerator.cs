@@ -40,6 +40,12 @@ public class ResultTypeGenerator : IIncrementalGenerator
                         return new ResultTypeSchema(resultClass, errorTypeSymbol);
                     });
 
+        var referencesJetBrainsAnnotationsAssembly = context.CompilationProvider
+            .SelectMany((c, _) => c.SourceModule.ReferencedAssemblySymbols)
+            .Where(a => a.Name == "JetBrains.Annotations")
+            .Collect()
+            .Select((a, _) => a.Length > 0);
+
         var compilationAndClasses = context.CompilationProvider
             .Select((compilation, _) =>
             {
@@ -59,11 +65,12 @@ public class ResultTypeGenerator : IIncrementalGenerator
                     diagnostics.Select(d => new DiagnosticInfo(d)).ToImmutableArray(), true
                 );
             })
-            .Combine(resultTypeClasses.Collect());
+            .Combine(resultTypeClasses.Collect())
+            .Combine(referencesJetBrainsAnnotationsAssembly);
 
         context.RegisterSourceOutput(
             compilationAndClasses,
-            static (spc, source) => Execute(source.Left, source.Right, spc));
+            static (spc, source) => Execute(source.Left.Left, source.Left.Right, source.Right, spc));
     }
 
     static void Execute(
@@ -74,6 +81,7 @@ public class ResultTypeGenerator : IIncrementalGenerator
             bool referencesFunicularSwitchGeneric
             )> resultTypeMethods,
         ImmutableArray<GenerationResult<ResultTypeSchema>> resultTypeClassesResult,
+        bool hasJetbrainsAnnotationsReference,
         SourceProductionContext context)
     {
         foreach (var diagnosticInfo in resultTypeClassesResult
@@ -94,7 +102,8 @@ public class ResultTypeGenerator : IIncrementalGenerator
                 var defaultErrorType = resultTypeMethods.Value.stringSymbol;
                 var errorTypeSymbol = r.ErrorType ?? defaultErrorType;
 
-                return Generator.Emit(resultTypeSchema: r,
+                return Generator.Emit(
+                    resultTypeSchema: r,
                     defaultErrorType: defaultErrorType,
                     mergeErrorMethod: resultTypeMethods.Value.mergeMethods.FirstOrDefault(m =>
                         m.FullErrorTypeName == errorTypeSymbol.FullNameWithNamespace),
@@ -102,6 +111,7 @@ public class ResultTypeGenerator : IIncrementalGenerator
                         e.ErrorTypeName == errorTypeSymbol.FullNameWithNamespace),
                     reportDiagnostic: context.ReportDiagnostic, 
                     referencesFunicularSwitchGeneric: resultTypeMethods.Value.referencesFunicularSwitchGeneric,
+                    referencesJetbrainsAnnotations: hasJetbrainsAnnotationsReference,
                     cancellationToken: context.CancellationToken);
             }).ToImmutableArray();
 

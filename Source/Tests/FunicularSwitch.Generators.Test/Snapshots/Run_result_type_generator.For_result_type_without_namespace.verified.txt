@@ -1,7 +1,7 @@
 ﻿{
   Diagnostics: [
     {
-      Location: : (3,0)-(6,1),
+      Location: : (2,0)-(5,1),
       Message: Result type OperationResult is placed in global namespace, this is not supported. Please put OperationResult into non empty namespace.,
       Severity: Error,
       Descriptor: {

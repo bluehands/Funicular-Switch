@@ -53,8 +53,8 @@ public abstract class BaseVerifySourceGenerators(params IIncrementalGenerator[] 
             .UseDirectory("Snapshots");
     }
 
-    protected Task Verify(string source) =>
-        Verify(source, additionalAssemblies: [], (compilation, _) =>
+    protected Task Verify(string source, IReadOnlyList<Assembly>? additionalAssemblies = null) =>
+        Verify(source, additionalAssemblies: additionalAssemblies ?? [], (compilation, _) =>
         {
             var diagnostics = compilation.GetDiagnostics();
             var errors = string.Join(Environment.NewLine, diagnostics
