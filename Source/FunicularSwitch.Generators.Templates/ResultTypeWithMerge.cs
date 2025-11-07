@@ -98,7 +98,7 @@ namespace FunicularSwitch.Generators.Templates
                 .SelectMany(e => e)
                 .Aggregate();
 
-        static async global::System.Threading.Tasks.Task<TOut[]> SelectAsync<T, TOut>(this global::System.Collections.Generic.IEnumerable<T> items, [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Threading.Tasks.Task<TOut>> selector, int maxDegreeOfParallelism)
+        static async global::System.Threading.Tasks.Task<TOut[]> SelectAsync<T, TOut>(this global::System.Collections.Generic.IEnumerable<T> items, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, global::System.Threading.Tasks.Task<TOut>> selector, int maxDegreeOfParallelism)
         {
             using (var throttler = new global::System.Threading.SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism))
             {

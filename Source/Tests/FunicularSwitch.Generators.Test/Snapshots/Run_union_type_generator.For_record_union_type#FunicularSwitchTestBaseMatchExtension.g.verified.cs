@@ -16,12 +16,12 @@ namespace FunicularSwitch.Test
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.Aaa, global::System.Threading.Tasks.Task<T>> aaa, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.Aaa, global::System.Threading.Tasks.Task<T>> aaa, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two) =>
 		@base switch
 		{
-			FunicularSwitch.Test.Aaa aaa1 => aaa(aaa1),
-			FunicularSwitch.Test.One one2 => one(one2),
-			FunicularSwitch.Test.Two two3 => two(two3),
+			FunicularSwitch.Test.Aaa aaa1 => await aaa(aaa1).ConfigureAwait(false),
+			FunicularSwitch.Test.One one2 => await one(one2).ConfigureAwait(false),
+			FunicularSwitch.Test.Two two3 => await two(two3).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}")
 		};
 		

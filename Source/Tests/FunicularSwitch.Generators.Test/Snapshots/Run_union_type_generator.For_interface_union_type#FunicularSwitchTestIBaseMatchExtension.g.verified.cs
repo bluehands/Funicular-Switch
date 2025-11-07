@@ -15,11 +15,11 @@ namespace FunicularSwitch.Test
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.IBase iBase, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.IBase iBase, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two) =>
 		iBase switch
 		{
-			FunicularSwitch.Test.One one1 => one(one1),
-			FunicularSwitch.Test.Two two2 => two(two2),
+			FunicularSwitch.Test.One one1 => await one(one1).ConfigureAwait(false),
+			FunicularSwitch.Test.Two two2 => await two(two2).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.IBase: {iBase.GetType().Name}")
 		};
 		

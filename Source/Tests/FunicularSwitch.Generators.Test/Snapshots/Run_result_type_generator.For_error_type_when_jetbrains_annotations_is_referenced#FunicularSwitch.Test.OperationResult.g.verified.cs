@@ -33,7 +33,7 @@ namespace FunicularSwitch.Test
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static async global::System.Threading.Tasks.Task<OperationResult<T>> Try<T>([global::JetBrains.Annotations.InstantHandle]global::System.Func<global::System.Threading.Tasks.Task<T>> action, [global::JetBrains.Annotations.InstantHandle]global::System.Func<global::System.Exception, MyError> formatError)
+        public static async global::System.Threading.Tasks.Task<OperationResult<T>> Try<T>([global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<global::System.Threading.Tasks.Task<T>> action, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<global::System.Exception, MyError> formatError)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace FunicularSwitch.Test
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static async global::System.Threading.Tasks.Task<OperationResult<T>> Try<T>([global::JetBrains.Annotations.InstantHandle]global::System.Func<global::System.Threading.Tasks.Task<OperationResult<T>>> action, [global::JetBrains.Annotations.InstantHandle]global::System.Func<global::System.Exception, MyError> formatError)
+        public static async global::System.Threading.Tasks.Task<OperationResult<T>> Try<T>([global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<global::System.Threading.Tasks.Task<OperationResult<T>>> action, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<global::System.Exception, MyError> formatError)
         {
             try
             {
@@ -144,7 +144,7 @@ namespace FunicularSwitch.Test
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public async global::System.Threading.Tasks.Task<T1> Match<T1>([global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, [global::JetBrains.Annotations.InstantHandle]global::System.Func<MyError, global::System.Threading.Tasks.Task<T1>> error)
+        public async global::System.Threading.Tasks.Task<T1> Match<T1>([global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<MyError, global::System.Threading.Tasks.Task<T1>> error)
         {
             return this switch
             {
@@ -155,11 +155,11 @@ namespace FunicularSwitch.Test
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public global::System.Threading.Tasks.Task<T1> Match<T1>([global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, [global::JetBrains.Annotations.InstantHandle]global::System.Func<MyError, T1> error) =>
+        public global::System.Threading.Tasks.Task<T1> Match<T1>([global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<MyError, T1> error) =>
             Match(ok, e => global::System.Threading.Tasks.Task.FromResult(error(e)));
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public async global::System.Threading.Tasks.Task Match([global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Threading.Tasks.Task> ok)
+        public async global::System.Threading.Tasks.Task Match([global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, global::System.Threading.Tasks.Task> ok)
         {
             if (this is Ok_ okOperationResult) await ok(okOperationResult.Value).ConfigureAwait(false);
         }
@@ -192,7 +192,7 @@ namespace FunicularSwitch.Test
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public async global::System.Threading.Tasks.Task<OperationResult<T1>> Bind<T1>([global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Threading.Tasks.Task<OperationResult<T1>>> bind)
+        public async global::System.Threading.Tasks.Task<OperationResult<T1>> Bind<T1>([global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, global::System.Threading.Tasks.Task<OperationResult<T1>>> bind)
         {
             switch (this)
             {
@@ -241,7 +241,7 @@ namespace FunicularSwitch.Test
 
         [global::System.Diagnostics.DebuggerStepThrough]
         public async global::System.Threading.Tasks.Task<OperationResult<T1>> Map<T1>(
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> map)
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> map)
         {
             switch (this)
             {
@@ -391,13 +391,13 @@ namespace FunicularSwitch.Test
         [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<OperationResult<T1>> Bind<T, T1>(
             this global::System.Threading.Tasks.Task<OperationResult<T>> result,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, OperationResult<T1>> bind)
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, OperationResult<T1>> bind)
             => (await result.ConfigureAwait(false)).Bind(bind);
 
         [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<OperationResult<T1>> Bind<T, T1>(
             this global::System.Threading.Tasks.Task<OperationResult<T>> result,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Threading.Tasks.Task<OperationResult<T1>>> bind)
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, global::System.Threading.Tasks.Task<OperationResult<T1>>> bind)
             => await (await result.ConfigureAwait(false)).Bind(bind).ConfigureAwait(false);
 
         #endregion
@@ -407,13 +407,13 @@ namespace FunicularSwitch.Test
         [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<OperationResult<T1>> Map<T, T1>(
             this global::System.Threading.Tasks.Task<OperationResult<T>> result,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, T1> map)
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, T1> map)
             => (await result.ConfigureAwait(false)).Map(map);
 
         [global::System.Diagnostics.DebuggerStepThrough]
         public static global::System.Threading.Tasks.Task<OperationResult<T1>> Map<T, T1>(
             this global::System.Threading.Tasks.Task<OperationResult<T>> result,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> bind)
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> bind)
             => Bind(result, async v => OperationResult.Ok(await bind(v).ConfigureAwait(false)));
 
         [global::System.Diagnostics.DebuggerStepThrough]
@@ -425,7 +425,7 @@ namespace FunicularSwitch.Test
         }
 
         [global::System.Diagnostics.DebuggerStepThrough]
-        public static async global::System.Threading.Tasks.Task<OperationResult<T>> MapError<T>(this global::System.Threading.Tasks.Task<OperationResult<T>> result, [global::JetBrains.Annotations.InstantHandle]global::System.Func<MyError, MyError> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
+        public static async global::System.Threading.Tasks.Task<OperationResult<T>> MapError<T>(this global::System.Threading.Tasks.Task<OperationResult<T>> result, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<MyError, MyError> mapError) => (await result.ConfigureAwait(false)).MapError(mapError);
 
         #endregion
 
@@ -434,22 +434,22 @@ namespace FunicularSwitch.Test
         [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
             this global::System.Threading.Tasks.Task<OperationResult<T>> result,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<MyError, global::System.Threading.Tasks.Task<T1>> error)
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<MyError, global::System.Threading.Tasks.Task<T1>> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
         [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
             this global::System.Threading.Tasks.Task<OperationResult<T>> result,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<MyError, T1> error)
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, global::System.Threading.Tasks.Task<T1>> ok,
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<MyError, T1> error)
             => await (await result.ConfigureAwait(false)).Match(ok, error).ConfigureAwait(false);
 
         [global::System.Diagnostics.DebuggerStepThrough]
         public static async global::System.Threading.Tasks.Task<T1> Match<T, T1>(
             this global::System.Threading.Tasks.Task<OperationResult<T>> result,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, T1> ok,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<MyError, T1> error)
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<T, T1> ok,
+            [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<MyError, T1> error)
             => (await result.ConfigureAwait(false)).Match(ok, error);
 
         #endregion
@@ -498,15 +498,15 @@ namespace FunicularSwitch.Test.Extensions
     {
         public static global::System.Collections.Generic.IEnumerable<T1> Choose<T, T1>(
             this global::System.Collections.Generic.IEnumerable<T> items,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, OperationResult<T1>> choose,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Action<MyError> onError)
+            global::System.Func<T, OperationResult<T1>> choose,
+            global::System.Action<MyError> onError)
             => items
                 .Select(i => choose(i))
                 .Choose(onError);
 
         public static global::System.Collections.Generic.IEnumerable<T> Choose<T>(
             this global::System.Collections.Generic.IEnumerable<OperationResult<T>> results,
-            [global::JetBrains.Annotations.InstantHandle]global::System.Action<MyError> onError)
+            global::System.Action<MyError> onError)
             => results
                 .Where(r =>
                     r.Match(_ => true, error =>

@@ -37,7 +37,9 @@ static class Generator
         {
             if (!referencesJetBrainsAnnotations)
             {
-                code = code.Replace("[global::JetBrains.Annotations.InstantHandle]", "");
+                code = code
+                    .Replace("[global::JetBrains.Annotations.InstantHandle]", "")
+                    .Replace("[global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]", "");
             }
             code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")

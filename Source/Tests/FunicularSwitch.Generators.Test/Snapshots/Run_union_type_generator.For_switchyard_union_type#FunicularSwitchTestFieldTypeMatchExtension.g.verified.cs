@@ -16,12 +16,12 @@ namespace FunicularSwitch.Test
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.FieldType fieldType, global::System.Func<FunicularSwitch.Test.FieldType.Bool_, global::System.Threading.Tasks.Task<T>> @bool, global::System.Func<FunicularSwitch.Test.FieldType.Enum_, global::System.Threading.Tasks.Task<T>> @enum, global::System.Func<FunicularSwitch.Test.FieldType.String_, global::System.Threading.Tasks.Task<T>> @string) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.FieldType fieldType, global::System.Func<FunicularSwitch.Test.FieldType.Bool_, global::System.Threading.Tasks.Task<T>> @bool, global::System.Func<FunicularSwitch.Test.FieldType.Enum_, global::System.Threading.Tasks.Task<T>> @enum, global::System.Func<FunicularSwitch.Test.FieldType.String_, global::System.Threading.Tasks.Task<T>> @string) =>
 		fieldType switch
 		{
-			FunicularSwitch.Test.FieldType.Bool_ @bool1 => @bool(@bool1),
-			FunicularSwitch.Test.FieldType.Enum_ @enum2 => @enum(@enum2),
-			FunicularSwitch.Test.FieldType.String_ @string3 => @string(@string3),
+			FunicularSwitch.Test.FieldType.Bool_ @bool1 => await @bool(@bool1).ConfigureAwait(false),
+			FunicularSwitch.Test.FieldType.Enum_ @enum2 => await @enum(@enum2).ConfigureAwait(false),
+			FunicularSwitch.Test.FieldType.String_ @string3 => await @string(@string3).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.FieldType: {fieldType.GetType().Name}")
 		};
 		

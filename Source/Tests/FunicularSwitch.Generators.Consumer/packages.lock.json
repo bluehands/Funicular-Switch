@@ -204,14 +204,14 @@
       "funicularswitch.generic": {
         "type": "Project",
         "dependencies": {
-          "FunicularSwitch": "[6.3.0, )",
+          "FunicularSwitch": "[6.4.0, )",
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
       "funicularswitch.transformers": {
         "type": "Project",
         "dependencies": {
-          "FunicularSwitch": "[6.3.0, )"
+          "FunicularSwitch": "[6.4.0, )"
         }
       }
     }

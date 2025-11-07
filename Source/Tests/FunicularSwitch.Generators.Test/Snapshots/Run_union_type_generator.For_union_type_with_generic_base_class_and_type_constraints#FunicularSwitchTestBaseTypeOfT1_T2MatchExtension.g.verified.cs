@@ -16,12 +16,12 @@ namespace FunicularSwitch.Test
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T1, T2, T>(this global::FunicularSwitch.Test.BaseType<T1, T2> baseType, global::System.Func<FunicularSwitch.Test.BaseType<T1, T2>.Deriving_, global::System.Threading.Tasks.Task<T>> deriving, global::System.Func<FunicularSwitch.Test.BaseType<T1, T2>.Deriving2_, global::System.Threading.Tasks.Task<T>> deriving2) where T1 : notnull, new()
+		public static async global::System.Threading.Tasks.Task<T> Match<T1, T2, T>(this global::FunicularSwitch.Test.BaseType<T1, T2> baseType, global::System.Func<FunicularSwitch.Test.BaseType<T1, T2>.Deriving_, global::System.Threading.Tasks.Task<T>> deriving, global::System.Func<FunicularSwitch.Test.BaseType<T1, T2>.Deriving2_, global::System.Threading.Tasks.Task<T>> deriving2) where T1 : notnull, new()
  where T2 : class, global::System.Collections.Generic.IEnumerable<int> =>
 		baseType switch
 		{
-			FunicularSwitch.Test.BaseType<T1, T2>.Deriving_ deriving1 => deriving(deriving1),
-			FunicularSwitch.Test.BaseType<T1, T2>.Deriving2_ deriving22 => deriving2(deriving22),
+			FunicularSwitch.Test.BaseType<T1, T2>.Deriving_ deriving1 => await deriving(deriving1).ConfigureAwait(false),
+			FunicularSwitch.Test.BaseType<T1, T2>.Deriving2_ deriving22 => await deriving2(deriving22).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.BaseType: {baseType.GetType().Name}")
 		};
 		

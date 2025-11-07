@@ -19,15 +19,15 @@ namespace FunicularSwitch.Test
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two, global::System.Func<FunicularSwitch.Test.Three, global::System.Threading.Tasks.Task<T>> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, global::System.Threading.Tasks.Task<T>> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, global::System.Threading.Tasks.Task<T>> five, global::System.Func<FunicularSwitch.Test.WithDefault, global::System.Threading.Tasks.Task<T>> withDefault) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two, global::System.Func<FunicularSwitch.Test.Three, global::System.Threading.Tasks.Task<T>> three, global::System.Func<FunicularSwitch.Test.Cases.Nested, global::System.Threading.Tasks.Task<T>> nested, global::System.Func<FunicularSwitch.Test.Cases.Five, global::System.Threading.Tasks.Task<T>> five, global::System.Func<FunicularSwitch.Test.WithDefault, global::System.Threading.Tasks.Task<T>> withDefault) =>
 		@base switch
 		{
-			FunicularSwitch.Test.One one1 => one(one1),
-			FunicularSwitch.Test.Two two2 => two(two2),
-			FunicularSwitch.Test.Three three3 => three(three3),
-			FunicularSwitch.Test.Cases.Nested nested4 => nested(nested4),
-			FunicularSwitch.Test.Cases.Five five5 => five(five5),
-			FunicularSwitch.Test.WithDefault withDefault6 => withDefault(withDefault6),
+			FunicularSwitch.Test.One one1 => await one(one1).ConfigureAwait(false),
+			FunicularSwitch.Test.Two two2 => await two(two2).ConfigureAwait(false),
+			FunicularSwitch.Test.Three three3 => await three(three3).ConfigureAwait(false),
+			FunicularSwitch.Test.Cases.Nested nested4 => await nested(nested4).ConfigureAwait(false),
+			FunicularSwitch.Test.Cases.Five five5 => await five(five5).ConfigureAwait(false),
+			FunicularSwitch.Test.WithDefault withDefault6 => await withDefault(withDefault6).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base: {@base.GetType().Name}")
 		};
 		

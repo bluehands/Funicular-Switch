@@ -14,10 +14,10 @@ namespace FunicularSwitch.Text
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Text.BaseType baseType, global::System.Func<FunicularSwitch.Text.BaseType.DerivedType_, global::System.Threading.Tasks.Task<T>> derivedType) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Text.BaseType baseType, global::System.Func<FunicularSwitch.Text.BaseType.DerivedType_, global::System.Threading.Tasks.Task<T>> derivedType) =>
 		baseType switch
 		{
-			FunicularSwitch.Text.BaseType.DerivedType_ derivedType1 => derivedType(derivedType1),
+			FunicularSwitch.Text.BaseType.DerivedType_ derivedType1 => await derivedType(derivedType1).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Text.BaseType: {baseType.GetType().Name}")
 		};
 		

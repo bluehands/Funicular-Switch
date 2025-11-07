@@ -16,13 +16,13 @@ namespace FunicularSwitch.Generators.Consumer
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.Error error, global::System.Func<FunicularSwitch.Generators.Consumer.Error.Generic_, global::System.Threading.Tasks.Task<T>> generic, global::System.Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, global::System.Threading.Tasks.Task<T>> notFound, global::System.Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, global::System.Threading.Tasks.Task<T>> notAuthorized, global::System.Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, global::System.Threading.Tasks.Task<T>> aggregated) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.Error error, global::System.Func<FunicularSwitch.Generators.Consumer.Error.Generic_, global::System.Threading.Tasks.Task<T>> generic, global::System.Func<FunicularSwitch.Generators.Consumer.Error.NotFound_, global::System.Threading.Tasks.Task<T>> notFound, global::System.Func<FunicularSwitch.Generators.Consumer.Error.NotAuthorized_, global::System.Threading.Tasks.Task<T>> notAuthorized, global::System.Func<FunicularSwitch.Generators.Consumer.Error.Aggregated_, global::System.Threading.Tasks.Task<T>> aggregated) =>
 		error switch
 		{
-			FunicularSwitch.Generators.Consumer.Error.Generic_ generic1 => generic(generic1),
-			FunicularSwitch.Generators.Consumer.Error.NotFound_ notFound2 => notFound(notFound2),
-			FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ notAuthorized3 => notAuthorized(notAuthorized3),
-			FunicularSwitch.Generators.Consumer.Error.Aggregated_ aggregated4 => aggregated(aggregated4),
+			FunicularSwitch.Generators.Consumer.Error.Generic_ generic1 => await generic(generic1).ConfigureAwait(false),
+			FunicularSwitch.Generators.Consumer.Error.NotFound_ notFound2 => await notFound(notFound2).ConfigureAwait(false),
+			FunicularSwitch.Generators.Consumer.Error.NotAuthorized_ notAuthorized3 => await notAuthorized(notAuthorized3).ConfigureAwait(false),
+			FunicularSwitch.Generators.Consumer.Error.Aggregated_ aggregated4 => await aggregated(aggregated4).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Error: {error.GetType().Name}")
 		};
 		

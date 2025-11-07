@@ -16,12 +16,12 @@ namespace FunicularSwitch.Test
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Outer.InitResult initResult, global::System.Func<FunicularSwitch.Test.Outer.InitResult.Sync_, global::System.Threading.Tasks.Task<T>> sync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.OneTimeSync_, global::System.Threading.Tasks.Task<T>> oneTimeSync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.NoSync_, global::System.Threading.Tasks.Task<T>> noSync) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Outer.InitResult initResult, global::System.Func<FunicularSwitch.Test.Outer.InitResult.Sync_, global::System.Threading.Tasks.Task<T>> sync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.OneTimeSync_, global::System.Threading.Tasks.Task<T>> oneTimeSync, global::System.Func<FunicularSwitch.Test.Outer.InitResult.NoSync_, global::System.Threading.Tasks.Task<T>> noSync) =>
 		initResult switch
 		{
-			FunicularSwitch.Test.Outer.InitResult.Sync_ sync1 => sync(sync1),
-			FunicularSwitch.Test.Outer.InitResult.OneTimeSync_ oneTimeSync2 => oneTimeSync(oneTimeSync2),
-			FunicularSwitch.Test.Outer.InitResult.NoSync_ noSync3 => noSync(noSync3),
+			FunicularSwitch.Test.Outer.InitResult.Sync_ sync1 => await sync(sync1).ConfigureAwait(false),
+			FunicularSwitch.Test.Outer.InitResult.OneTimeSync_ oneTimeSync2 => await oneTimeSync(oneTimeSync2).ConfigureAwait(false),
+			FunicularSwitch.Test.Outer.InitResult.NoSync_ noSync3 => await noSync(noSync3).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Outer.InitResult: {initResult.GetType().Name}")
 		};
 		

@@ -13,10 +13,10 @@ namespace FunicularSwitch.Generators.Consumer
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.WithPrimaryConstructor withPrimaryConstructor, global::System.Func<FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor, global::System.Threading.Tasks.Task<T>> derived) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.WithPrimaryConstructor withPrimaryConstructor, global::System.Func<FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor, global::System.Threading.Tasks.Task<T>> derived) =>
 		withPrimaryConstructor switch
 		{
-			FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor derived1 => derived(derived1),
+			FunicularSwitch.Generators.Consumer.DerivedWithPrimaryConstructor derived1 => await derived(derived1).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.WithPrimaryConstructor: {withPrimaryConstructor.GetType().Name}")
 		};
 		

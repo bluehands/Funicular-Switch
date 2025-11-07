@@ -9,7 +9,9 @@ static class Generator
 {
 	private const string VoidMatchMethodName = "Switch";
 	private const string MatchMethodName = "Match";
-	private const string InstantHandle = "[global::JetBrains.Annotations.InstantHandle]";
+	private const string InstantHandleAttribute = "[global::JetBrains.Annotations.InstantHandle]";
+	private const string InstantHandleRequireAwaitAttribute = "[global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]";
+	private const string DebuggerStepThroughAttribute = "global::System.Diagnostics.DebuggerStepThrough";
 
 	public static (string filename, string source) Emit(
 		EnumTypeSchema enumTypeSchema,
@@ -35,15 +37,15 @@ static class Generator
 	            void WriteBodyForTaskExtension(string matchMethodName) => builder.WriteLine($"(await {thisTaskParameter.Name}.ConfigureAwait(false)).{matchMethodName}({caseParameters});");
 	            void WriteBodyForAsyncTaskExtension(string matchMethodName) => builder.WriteLine($"await (await {thisTaskParameter.Name}.ConfigureAwait(false)).{matchMethodName}({caseParameters}).ConfigureAwait(false);");
 
-                GenerateMatchMethod(builder, enumTypeSchema, "T", hasJetBrainsAnnotationsReference);
+                GenerateMatchMethod(builder, enumTypeSchema, "T", isAsync: false, hasJetBrainsAnnotationsReference);
                 BlankLine();
-                GenerateMatchMethod(builder, enumTypeSchema, "global::System.Threading.Tasks.Task<T>", hasJetBrainsAnnotationsReference);
+                GenerateMatchMethod(builder, enumTypeSchema, "T", isAsync: true, hasJetBrainsAnnotationsReference);
                 BlankLine();
                 
-                WriteMatchSignature(builder, enumTypeSchema, thisTaskParameter, "global::System.Threading.Tasks.Task<T>", hasJetBrainsAnnotationsReference, "T", "public static async");
+                WriteMatchSignature(builder, enumTypeSchema, thisTaskParameter, "T", isAsync: true, hasJetBrainsAnnotationsReference, "T");
                 WriteBodyForTaskExtension(MatchMethodName);
                 BlankLine();
-                WriteMatchSignature(builder, enumTypeSchema, thisTaskParameter, "global::System.Threading.Tasks.Task<T>", hasJetBrainsAnnotationsReference, handlerReturnType: "global::System.Threading.Tasks.Task<T>", "public static async");
+                WriteMatchSignature(builder, enumTypeSchema, thisTaskParameter, "T", isAsync: true, hasJetBrainsAnnotationsReference, handlerReturnType: "global::System.Threading.Tasks.Task<T>");
                 WriteBodyForAsyncTaskExtension(MatchMethodName);
                 BlankLine();
 
@@ -63,18 +65,23 @@ static class Generator
         return (enumTypeSchema.FullTypeName.ToMatchExtensionFilename(ImmutableArray<string>.Empty), builder.ToString());
     }
 
-    static void GenerateMatchMethod(CSharpBuilder builder, EnumTypeSchema enumTypeSchema, string t, bool hasJetBrainsAnnotationsReference)
+    static void GenerateMatchMethod(CSharpBuilder builder, EnumTypeSchema enumTypeSchema, string t, bool isAsync, bool hasJetBrainsAnnotationsReference)
     {
         var thisParameterType = enumTypeSchema.FullTypeName;
         var thisParameter = ThisParameter(enumTypeSchema, thisParameterType);
         var thisParameterName = thisParameter.Name;
-        WriteMatchSignature(builder, enumTypeSchema, thisParameter, t, hasJetBrainsAnnotationsReference);
+        WriteMatchSignature(builder, enumTypeSchema, thisParameter, t, isAsync, hasJetBrainsAnnotationsReference);
         builder.WriteLine($"{thisParameterName} switch");
         using (builder.ScopeWithSemicolon())
         {
 	        foreach (var c in enumTypeSchema.Cases)
-            {
-	            builder.WriteLine($"{c.FullCaseName} => {c.ParameterName}(),");
+	        {
+		        var call = $"{c.ParameterName}()";
+		        if (isAsync)
+		        {
+			        call = $"await {call}.ConfigureAwait(false)";
+		        }
+	            builder.WriteLine($"{c.FullCaseName} => {call},");
             }
 
             builder.WriteLine(
@@ -122,15 +129,24 @@ static class Generator
 	    EnumTypeSchema enumTypeSchema,
         Parameter thisParameter,
 	    string returnType,
+	    bool isAsync,
 	    bool hasJetBrainsAnnotationsReference,
-	    string? handlerReturnType = null,
-	    string modifiers = "public static")
+	    string? handlerReturnType = null)
     {
-	    var instantHandle = hasJetBrainsAnnotationsReference ? InstantHandle : "";
+	    var instantHandle = hasJetBrainsAnnotationsReference ?
+		    isAsync ? InstantHandleRequireAwaitAttribute : InstantHandleAttribute
+		    : "";
+	    var modifiers = "public static";
+	    if (isAsync)
+	    {
+		    returnType = $"global::System.Threading.Tasks.Task<{returnType}>";
+		    modifiers = $"{modifiers} async";
+	    }
         handlerReturnType ??= returnType;
         var handlerParameters = enumTypeSchema.Cases
             .Select(c => new Parameter($"{instantHandle}global::System.Func<{handlerReturnType}>", c.ParameterName));
 
+        builder.WriteAttribute(DebuggerStepThroughAttribute);
         builder.WriteMethodSignature(
             modifiers: modifiers,
             returnType: returnType,
@@ -148,15 +164,16 @@ static class Generator
 	    bool? asyncReturn = null,
 	    bool lambda = false)
     {
-	    var instantHandle = hasJetBrainsAnnotationsReference ? InstantHandle : "";
+	    var instantHandle = hasJetBrainsAnnotationsReference ?
+		    isAsync ? InstantHandleRequireAwaitAttribute : InstantHandleAttribute
+		    : "";
 	    var returnType = asyncReturn ?? isAsync ? "async global::System.Threading.Tasks.Task" : "void";
         var handlerParameters = enumTypeSchema.Cases
 		    .Select(c => new Parameter(isAsync ? $"{instantHandle}global::System.Func<global::System.Threading.Tasks.Task>" : $"{instantHandle}global::System.Action", c.ParameterName));
 
-        string modifiers = "public static";
-
+        builder.WriteAttribute(DebuggerStepThroughAttribute);
         builder.WriteMethodSignature(
-		    modifiers: modifiers,
+		    modifiers: "public static",
 		    returnType: returnType,
 		    methodName: VoidMatchMethodName, parameters: new[] { thisParameter }.Concat(handlerParameters),
             typeConstraints: [],

@@ -12,19 +12,19 @@ public static partial class BaseTypeMatchExtension
 	};
 	
 	[global::System.Diagnostics.DebuggerStepThrough]
-	public static global::System.Threading.Tasks.Task<T> Match<T>(this global::BaseType baseType, [global::JetBrains.Annotations.InstantHandle]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task<T>> derived) =>
+	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::BaseType baseType, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task<T>> derived) =>
 	baseType switch
 	{
-		BaseType.Derived_ derived1 => derived(derived1),
+		BaseType.Derived_ derived1 => await derived(derived1).ConfigureAwait(false),
 		_ => throw new global::System.ArgumentException($"Unknown type derived from BaseType: {baseType.GetType().Name}")
 	};
 	
 	[global::System.Diagnostics.DebuggerStepThrough]
-	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::BaseType> baseType, [global::JetBrains.Annotations.InstantHandle]global::System.Func<BaseType.Derived_, T> derived) =>
+	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::BaseType> baseType, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<BaseType.Derived_, T> derived) =>
 	(await baseType.ConfigureAwait(false)).Match(derived);
 	
 	[global::System.Diagnostics.DebuggerStepThrough]
-	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::BaseType> baseType, [global::JetBrains.Annotations.InstantHandle]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task<T>> derived) =>
+	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::BaseType> baseType, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task<T>> derived) =>
 	await (await baseType.ConfigureAwait(false)).Match(derived).ConfigureAwait(false);
 	
 	[global::System.Diagnostics.DebuggerStepThrough]
@@ -41,7 +41,7 @@ public static partial class BaseTypeMatchExtension
 	}
 	
 	[global::System.Diagnostics.DebuggerStepThrough]
-	public static async global::System.Threading.Tasks.Task Switch(this global::BaseType baseType, [global::JetBrains.Annotations.InstantHandle]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task> derived)
+	public static async global::System.Threading.Tasks.Task Switch(this global::BaseType baseType, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task> derived)
 	{
 		switch (baseType)
 		{
@@ -58,7 +58,7 @@ public static partial class BaseTypeMatchExtension
 	(await baseType.ConfigureAwait(false)).Switch(derived);
 	
 	[global::System.Diagnostics.DebuggerStepThrough]
-	public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::BaseType> baseType, [global::JetBrains.Annotations.InstantHandle]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task> derived) =>
+	public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<global::BaseType> baseType, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task> derived) =>
 	await (await baseType.ConfigureAwait(false)).Switch(derived).ConfigureAwait(false);
 }
 

@@ -14,11 +14,11 @@ namespace FunicularSwitch.Generators.Consumer
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.Failure failure, global::System.Func<FunicularSwitch.Generators.Consumer.InvalidInputFailure, global::System.Threading.Tasks.Task<T>> invalidInput, global::System.Func<FunicularSwitch.Generators.Consumer.Failure.NotFound_, global::System.Threading.Tasks.Task<T>> notFound) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.Failure failure, global::System.Func<FunicularSwitch.Generators.Consumer.InvalidInputFailure, global::System.Threading.Tasks.Task<T>> invalidInput, global::System.Func<FunicularSwitch.Generators.Consumer.Failure.NotFound_, global::System.Threading.Tasks.Task<T>> notFound) =>
 		failure switch
 		{
-			FunicularSwitch.Generators.Consumer.InvalidInputFailure invalidInput1 => invalidInput(invalidInput1),
-			FunicularSwitch.Generators.Consumer.Failure.NotFound_ notFound2 => notFound(notFound2),
+			FunicularSwitch.Generators.Consumer.InvalidInputFailure invalidInput1 => await invalidInput(invalidInput1).ConfigureAwait(false),
+			FunicularSwitch.Generators.Consumer.Failure.NotFound_ notFound2 => await notFound(notFound2).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.Failure: {failure.GetType().Name}")
 		};
 		
