@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FunicularSwitch.Generators.Test;
@@ -79,5 +80,26 @@ public class Run_enum_match_method_generator : VerifySourceGenerator
 
 			""";
 		return Verify(code);
+	}
+	
+	[TestMethod]
+	public Task ForEnumType_WhenJetBrainsAnnotationsPackageIsReferenced()
+	{
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
+
+			namespace FunicularSwitch.Test;
+			
+			[ExtendedEnum]
+			public enum test
+			{
+				one,
+				two
+			}
+
+			""";
+		return Verify(code, additionalAssemblies: [typeof(InstantHandleAttribute).Assembly]);
 	}
 }
