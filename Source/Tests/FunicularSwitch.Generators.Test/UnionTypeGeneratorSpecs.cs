@@ -1,7 +1,6 @@
-using System.Threading.Tasks;
 using FluentAssertions;
 using FunicularSwitch.Generators.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using JetBrains.Annotations;
 
 namespace FunicularSwitch.Generators.Test;
 
@@ -596,5 +595,23 @@ public class Run_union_type_generator : VerifySourceGenerator
 			""";
 
         return Verify(code);
+    }
+
+    [TestMethod]
+    public Task ForUnionType_WhenReferencingJetBrainsAnnotationsPackage_AddsInstantHandleAttributes()
+    {
+	    var code =
+		    /* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
+
+			[UnionType]
+			public abstract partial record BaseType
+			{
+				public sealed record Derived_(int Number) : BaseType;	
+			}
+			""";
+
+	    return Verify(code, additionalAssemblies: [typeof(InstantHandleAttribute).Assembly]);
     }
 }

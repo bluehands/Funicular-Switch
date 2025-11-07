@@ -81,7 +81,7 @@ public class ResultTypeGenerator : IIncrementalGenerator
             bool referencesFunicularSwitchGeneric
             )> resultTypeMethods,
         ImmutableArray<GenerationResult<ResultTypeSchema>> resultTypeClassesResult,
-        bool hasJetbrainsAnnotationsReference,
+        bool hasJetBrainsAnnotationsReference,
         SourceProductionContext context)
     {
         foreach (var diagnosticInfo in resultTypeClassesResult
@@ -111,7 +111,7 @@ public class ResultTypeGenerator : IIncrementalGenerator
                         e.ErrorTypeName == errorTypeSymbol.FullNameWithNamespace),
                     reportDiagnostic: context.ReportDiagnostic, 
                     referencesFunicularSwitchGeneric: resultTypeMethods.Value.referencesFunicularSwitchGeneric,
-                    referencesJetbrainsAnnotations: hasJetbrainsAnnotationsReference,
+                    referencesJetBrainsAnnotations: hasJetBrainsAnnotationsReference,
                     cancellationToken: context.CancellationToken);
             }).ToImmutableArray();
 

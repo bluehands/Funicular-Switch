@@ -33,19 +33,25 @@ public class UnionTypeGenerator : IIncrementalGenerator
                         )
                 );
         
+        var referencesJetBrainsAnnotationsAssembly = context.CompilationProvider
+            .SelectMany((c, _) => c.SourceModule.ReferencedAssemblySymbols)
+            .Where(a => a.Name == "JetBrains.Annotations")
+            .Collect()
+            .Select((a, _) => a.Length > 0);
+        
         context.RegisterSourceOutput(
-            unionTypeClasses, 
-            static (spc, source) => Execute(source, spc));
+            unionTypeClasses.Combine(referencesJetBrainsAnnotationsAssembly),
+            static (spc, source) => Execute(source.Left, source.Right, spc));
     }
 
-    static void Execute(GenerationResult<UnionTypeSchema> target, SourceProductionContext context)
+    static void Execute(GenerationResult<UnionTypeSchema> target, bool hasJetbrainsAnnotationsReference, SourceProductionContext context)
     {
         var (unionTypeSchema, errors, hasValue) = target;
         foreach (var error in errors) context.ReportDiagnostic(error);
         
         if (!hasValue || unionTypeSchema!.Cases.IsEmpty) return;
 
-        var (filename, source) = Generator.Emit(unionTypeSchema, context.ReportDiagnostic, context.CancellationToken);
+        var (filename, source) = Generator.Emit(unionTypeSchema, context.ReportDiagnostic, hasJetbrainsAnnotationsReference, context.CancellationToken);
         context.AddSource(filename, source);
     }
 }

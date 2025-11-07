@@ -16,7 +16,7 @@ static class Generator
         ExceptionToErrorMethod? exceptionToErrorMethod,
         Action<Diagnostic> reportDiagnostic,
         bool referencesFunicularSwitchGeneric,
-        bool referencesJetbrainsAnnotations,
+        bool referencesJetBrainsAnnotations,
         CancellationToken cancellationToken)
     {
         var resultTypeName = resultTypeSchema.ResultTypeName.Name;
@@ -35,7 +35,7 @@ static class Generator
 
         string Replace(string code, IReadOnlyCollection<string> additionalNamespaces, string genericTypeParameterNameForHandleExceptions)
         {
-            if (!referencesJetbrainsAnnotations)
+            if (!referencesJetBrainsAnnotations)
             {
                 code = code.Replace("[global::JetBrains.Annotations.InstantHandle]", "");
             }
