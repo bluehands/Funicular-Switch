@@ -11,17 +11,20 @@ public class Run_union_type_generator : VerifySourceGenerator
 	[TestMethod]
 	public Task For_record_union_type()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-[UnionType]
-public abstract record Base;
+			[UnionType]
+			public abstract record Base;
 
-public record One : Base;
-public record Aaa : Base;
-public record Two : Base;";
+			public record One : Base;
+			public record Aaa : Base;
+			public record Two : Base;
+			""";
 
 		return Verify(code);
 	}
@@ -29,17 +32,20 @@ public record Two : Base;";
 	[TestMethod]
 	public Task For_record_union_type_with_multi_level_concrete_derived_types()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-[UnionType]
-public abstract record Base;
+			[UnionType]
+			public abstract record Base;
 
-public record BaseChild : Base;
-public record Bbb : BaseChild;
-public record Aaa : Base;";
+			public record BaseChild : Base;
+			public record Bbb : BaseChild;
+			public record Aaa : Base;
+			""";
 
 		return Verify(code);
 	}
@@ -47,19 +53,21 @@ public record Aaa : Base;";
 	[TestMethod]
 	public Task For_record_union_type_with_explicit_case_order()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-[UnionType(CaseOrder = CaseOrder.Explicit)]
-public abstract record Base;
+			[UnionType(CaseOrder = CaseOrder.Explicit)]
+			public abstract record Base;
 
-[UnionCase(2)]
-public record Eins : Base;
-[UnionCase(1)]
-public record Zwei : Base;
-";
+			[UnionCase(2)]
+			public record Eins : Base;
+			[UnionCase(1)]
+			public record Zwei : Base;
+			""";
 
 		return Verify(code);
 	}
@@ -67,17 +75,20 @@ public record Zwei : Base;
 	[TestMethod]
 	public Task For_record_union_type_with_as_declared_case_order()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-[UnionType(CaseOrder = CaseOrder.AsDeclared)]
-public abstract record Base;
+			[UnionType(CaseOrder = CaseOrder.AsDeclared)]
+			public abstract record Base;
 
-public record One : Base;
-public record Aaa : Base;
-public record Two : Base;";
+			public record One : Base;
+			public record Aaa : Base;
+			public record Two : Base;
+			""";
 
 		return Verify(code);
 	}
@@ -85,60 +96,63 @@ public record Two : Base;";
 	[TestMethod]
 	public Task For_switchyard_union_type()
 	{
-		var code = @"
-namespace FunicularSwitch.Test;
+		var code =
+			/* lang=csharp */
+			"""
+			namespace FunicularSwitch.Test;
 
-[FunicularSwitch.Generators.UnionType(StaticFactoryMethods=false)]
-public abstract partial class FieldType
-{
-    public static FieldType String(int maxLength) => new String_(maxLength);
-    public static readonly FieldType Bool = new Bool_();
-    public static readonly FieldType Enum = new Enum_();
+			[FunicularSwitch.Generators.UnionType(StaticFactoryMethods=false)]
+			public abstract partial class FieldType
+			{
+			    public static FieldType String(int maxLength) => new String_(maxLength);
+			    public static readonly FieldType Bool = new Bool_();
+			    public static readonly FieldType Enum = new Enum_();
 
-	public class String_ : FieldType
-    {
-        public String_(int maxLength) : base(UnionCases.String)
-        {
-        }
-    }
+				public class String_ : FieldType
+			    {
+			        public String_(int maxLength) : base(UnionCases.String)
+			        {
+			        }
+			    }
 
-    public class Bool_ : FieldType
-    {
-        public Bool_() : base(UnionCases.Bool)
-        {
-        }
-    }
+			    public class Bool_ : FieldType
+			    {
+			        public Bool_() : base(UnionCases.Bool)
+			        {
+			        }
+			    }
 
-    public class Enum_ : FieldType
-    {
-        public Enum_() : base(UnionCases.Enum)
-        {
-        }
-    }
+			    public class Enum_ : FieldType
+			    {
+			        public Enum_() : base(UnionCases.Enum)
+			        {
+			        }
+			    }
 
-    internal enum UnionCases
-    {
-        String,
-        Bool,
-        Enum
-    }
+			    internal enum UnionCases
+			    {
+			        String,
+			        Bool,
+			        Enum
+			    }
 
-    internal UnionCases UnionCase { get; }
-    FieldType(UnionCases unionCase) => UnionCase = unionCase;
+			    internal UnionCases UnionCase { get; }
+			    FieldType(UnionCases unionCase) => UnionCase = unionCase;
 
-    public override string ToString() => System.Enum.GetName(typeof(UnionCases), UnionCase) ?? UnionCase.ToString();
-    bool Equals(FieldType other) => UnionCase == other.UnionCase;
+			    public override string ToString() => System.Enum.GetName(typeof(UnionCases), UnionCase) ?? UnionCase.ToString();
+			    bool Equals(FieldType other) => UnionCase == other.UnionCase;
 
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
-        return Equals((FieldType)obj);
-    }
+			    public override bool Equals(object? obj)
+			    {
+			        if (ReferenceEquals(null, obj)) return false;
+			        if (ReferenceEquals(this, obj)) return true;
+			        if (obj.GetType() != GetType()) return false;
+			        return Equals((FieldType)obj);
+			    }
 
-    public override int GetHashCode() => (int)UnionCase;
-}";
+			    public override int GetHashCode() => (int)UnionCase;
+			}
+			""";
 
 		return Verify(code);
 	}
@@ -154,21 +168,23 @@ public abstract partial class FieldType
 	[TestMethod]
 	public Task For_nested_record_union_type()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-public class Outer {
+			public class Outer {
 
-	[UnionType]
-	public abstract record Base;
+				[UnionType]
+				public abstract record Base;
 
-	public record One : Base;
-	public record Aaa : Base;
-	public record Two : Base;
-}
-";
+				public record One : Base;
+				public record Aaa : Base;
+				public record Two : Base;
+			}
+			""";
 
 		return Verify(code);
 	}
@@ -176,21 +192,23 @@ public class Outer {
 	[TestMethod]
 	public Task For_inaccessible_type()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-public class Outer {
+			public class Outer {
 
-	[UnionType]
-	abstract record Base;
+				[UnionType]
+				abstract record Base;
 
-	record One : Base;
-	record Aaa : Base;
-	record Two : Base;
-}
-";
+				record One : Base;
+				record Aaa : Base;
+				record Two : Base;
+			}
+			""";
 
 		return Verify(code);
 	}
@@ -198,18 +216,20 @@ public class Outer {
 	[TestMethod]
 	public Task For_empty_namespace()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-public class Outer {
+			public class Outer {
 
-	[UnionType]
-	public abstract record Base;
+				[UnionType]
+				public abstract record Base;
 
-	public record One : Base;	
-	public record Two : Base;
-}
-";
+				public record One : Base;	
+				public record Two : Base;
+			}
+			""";
 
 		return Verify(code);
 	}
@@ -217,16 +237,19 @@ public class Outer {
 	[TestMethod]
 	public Task For_interface_union_type()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-[UnionType]
-public interface IBase {}
+			[UnionType]
+			public interface IBase {}
 
-public class One : IBase {}
-public record Two : IBase {}";
+			public class One : IBase {}
+			public record Two : IBase {}
+			""";
 
 		return Verify(code);
 	}
@@ -234,16 +257,19 @@ public record Two : IBase {}";
 	[TestMethod]
 	public Task For_implicitly_internal_union_type()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-[UnionType]
-abstract record Base;
+			[UnionType]
+			abstract record Base;
 
-record One : Base;
-record Two : Base;";
+			record One : Base;
+			record Two : Base;
+			""";
 
 		return Verify(code);
 	}
@@ -251,16 +277,19 @@ record Two : Base;";
 	[TestMethod]
 	public Task For_explicitly_internal_union_type()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-[UnionType]
-internal abstract record Base;
+			[UnionType]
+			internal abstract record Base;
 
-internal record One : Base;
-record Two : Base;";
+			internal record One : Base;
+			record Two : Base;
+			""";
 
 		return Verify(code);
 	}
@@ -268,71 +297,73 @@ record Two : Base;";
 	[TestMethod]
 	public Task For_partial_record_union_type()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-public class OtherAttribute : System.Attribute
-{
-}
+			public class OtherAttribute : System.Attribute
+			{
+			}
 
-[Other]
-[UnionType(CaseOrder = CaseOrder.AsDeclared, StaticFactoryMethods = true)]
-internal abstract partial record Base
-{
-	public static int Five => 5;
-}
+			[Other]
+			[UnionType(CaseOrder = CaseOrder.AsDeclared, StaticFactoryMethods = true)]
+			internal abstract partial record Base
+			{
+				public static int Five => 5;
+			}
 
-internal record One(int Number) : Base;
-record Two : Base;
+			internal record One(int Number) : Base;
+			record Two : Base;
 
-//private constructors are handled correctly
-record Three : Base {
-	private Three() : base() {}
-}
+			//private constructors are handled correctly
+			record Three : Base {
+				private Three() : base() {}
+			}
 
-//nested case
-public static class Cases {
-	internal record Nested : Base;
+			//nested case
+			public static class Cases {
+				internal record Nested : Base;
 
-	//static factory would conflict with static property
-	internal record Five : Base;
-}
+				//static factory would conflict with static property
+				internal record Five : Base;
+			}
 
-internal record WithDefault(int Number = 42) : Base;
+			internal record WithDefault(int Number = 42) : Base;
 
-[UnionType(CaseOrder = CaseOrder.AsDeclared, StaticFactoryMethods = true)]
-abstract partial record Base2
-{
-    //nested case with base type as prefix, that is removed in static factory method
-    internal record Base2Prefix : Base2;	
+			[UnionType(CaseOrder = CaseOrder.AsDeclared, StaticFactoryMethods = true)]
+			abstract partial record Base2
+			{
+			    //nested case with base type as prefix, that is removed in static factory method
+			    internal record Base2Prefix : Base2;	
 
-    //nested case with base type as postfix, that is removed in static factory method
-    internal record PostfixBase2 : Base2;   
+			    //nested case with base type as postfix, that is removed in static factory method
+			    internal record PostfixBase2 : Base2;   
 
-    //nested case with underscore postfix, that is removed in static factory method
-    internal record UnderscorePostfix_ : Base2;   
+			    //nested case with underscore postfix, that is removed in static factory method
+			    internal record UnderscorePostfix_ : Base2;   
 
-    //nested case with underscore prefix, that is removed in static factory method
-    internal record _UnderscorePrefix : Base2;   
+			    //nested case with underscore prefix, that is removed in static factory method
+			    internal record _UnderscorePrefix : Base2;   
 
-    //would result in invalid static factory method name
-    internal record Base22Invalid : Base2;    
-}
+			    //would result in invalid static factory method name
+			    internal record Base22Invalid : Base2;    
+			}
 
 
-class Consumer {
-	static Base CreateOne() => Base.One(42);
-	static Base CreateNested() => Base.Nested();
-	static Base CreateWithDefault() => Base.WithDefault();
+			class Consumer {
+				static Base CreateOne() => Base.One(42);
+				static Base CreateNested() => Base.Nested();
+				static Base CreateWithDefault() => Base.WithDefault();
 
-    static Base2 CreatePrefix() => Base2.Prefix();
-    static Base2 CreatePostfix() => Base2.Postfix();
-    static Base2 CreateUnderscorePostfix() => Base2.UnderscorePostfix();
-    static Base2 CreateUnderscorePrefix() => Base2.UnderscorePrefix();
-}
-";
+			    static Base2 CreatePrefix() => Base2.Prefix();
+			    static Base2 CreatePostfix() => Base2.Postfix();
+			    static Base2 CreateUnderscorePostfix() => Base2.UnderscorePostfix();
+			    static Base2 CreateUnderscorePrefix() => Base2.UnderscorePrefix();
+			}
+			""";
 
 		return Verify(code);
 	}
@@ -340,21 +371,24 @@ class Consumer {
     [TestMethod]
     public Task Static_factories_for_nested_internal_union_type()
     {
-        var code = @"
-using FunicularSwitch.Generators;
+        var code =
+	        /* lang=csharp */ 
+	        """
+	        using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+	        namespace FunicularSwitch.Test;
 
-static class Outer
-{
- [UnionType(CaseOrder = CaseOrder.AsDeclared)]
- public partial record InitResult
- {
-   public record Sync_ : InitResult;
-   public record OneTimeSync_(string TempRepoFolder) : InitResult;
-   public record NoSync_() : InitResult;
- }
-}";
+	        static class Outer
+	        {
+	            [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+	            public partial record InitResult
+	            {
+	            	public record Sync_ : InitResult;
+	            	public record OneTimeSync_(string TempRepoFolder) : InitResult;
+	            	public record NoSync_() : InitResult;
+	            }
+	        }
+	        """;
 
         return Verify(code);
     }
@@ -363,16 +397,19 @@ static class Outer
 	[TestMethod]
 	public Task Static_factories_for_interface_union_type()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */ 
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-[UnionType]
-public partial interface IBase {}
+			[UnionType]
+			public partial interface IBase {}
 
-public class One : IBase {}
-public record Two : IBase {}";
+			public class One : IBase {}
+			public record Two : IBase {}
+			""";
 
 		return Verify(code);
 	}
@@ -380,37 +417,40 @@ public record Two : IBase {}";
     [TestMethod]
     public Task Static_factories_for_type_with_required_properties()
     {
-        var code = @"
-using FunicularSwitch.Generators;
+        var code =
+	        /* lang=csharp */
+	        """
+	        using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+	        namespace FunicularSwitch.Test;
 
-[UnionType]
-public partial class Base {}
+	        [UnionType]
+	        public partial class Base {}
 
-public class One : Base
-{
-    public required int RequiredField;
-    public required string RequiredProperty { get; init; }
-} 
-public class Two : Base
-{
-    public Two(int bla)
-    {
-        Bla = bla;
-    }
+	        public class One : Base
+	        {
+	            public required int RequiredField;
+	            public required string RequiredProperty { get; init; }
+	        } 
+	        public class Two : Base
+	        {
+	            public Two(int bla)
+	            {
+	                Bla = bla;
+	            }
 
-    public Two(int bla, int strangeNameField, int strangeNameField2) : this(bla)
-    {
-        this.strangeNameField = strangeNameField;
-        this._strangeNameField = strangeNameField2;
-    }
+	            public Two(int bla, int strangeNameField, int strangeNameField2) : this(bla)
+	            {
+	                this.strangeNameField = strangeNameField;
+	                this._strangeNameField = strangeNameField2;
+	            }
 
-    public int Bla { get; }
-    public required int strangeNameField;
-    public required int _strangeNameField;
-    public required bool Bool;
-}";
+	            public int Bla { get; }
+	            public required int strangeNameField;
+	            public required int _strangeNameField;
+	            public required bool Bool;
+	        }
+	        """;
 
         return Verify(code);
     }
@@ -418,23 +458,25 @@ public class Two : Base
     [TestMethod]
     public Task Support_structs_derived_from_interface()
     {
-        var code = @"
-using FunicularSwitch.Generators;
+        var code =
+	        /* lang=csharp */
+	        """
+	        using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+	        namespace FunicularSwitch.Test;
 
-[UnionType]
-public partial interface IBase {}
+	        [UnionType]
+	        public partial interface IBase {}
 
-public class One : IBase {}
-public struct Two : IBase {}
-public readonly partial record struct Three : IBase {}
+	        public class One : IBase {}
+	        public struct Two : IBase {}
+	        public readonly partial record struct Three : IBase {}
 
-public class Consumer
-{
-    public int Handle(IBase @base) => @base.Match(one: _ => 1, two: _ => 2, three: _ => 3);
-}
-";
+	        public class Consumer
+	        {
+	            public int Handle(IBase @base) => @base.Match(one: _ => 1, two: _ => 2, three: _ => 3);
+	        }
+	        """;
 
         return Verify(code);
     }
@@ -442,25 +484,27 @@ public class Consumer
     [TestMethod]
     public Task Support_structs_derived_from_derived_interface()
     {
-        var code = @"
-using FunicularSwitch.Generators;
+        var code =
+	        /* lang=csharp */ 
+	        """
+	        using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+	        namespace FunicularSwitch.Test;
 
-[UnionType]
-public partial interface IBaseBase {}
+	        [UnionType]
+	        public partial interface IBaseBase {}
 
-public partial interface IBase : IBaseBase {}
+	        public partial interface IBase : IBaseBase {}
 
-public class One : IBase {}
-public record Two : IBase {}
-public struct Three : IBase {}
+	        public class One : IBase {}
+	        public record Two : IBase {}
+	        public struct Three : IBase {}
 
-public class Consumer
-{
-    public int Handle(IBaseBase @base) => @base.Match(one: _ => 1, two: _ => 2, three: _ => 3);
-}
-";
+	        public class Consumer
+	        {
+	            public int Handle(IBaseBase @base) => @base.Match(one: _ => 1, two: _ => 2, three: _ => 3);
+	        }
+	        """;
 
         return Verify(code);
     }
@@ -470,16 +514,19 @@ public class Consumer
 	[TestMethod]
 	public Task For_union_type_without_derived_types()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */ 
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-[UnionType(CaseOrder = CaseOrder.Explicit)]
-public abstract partial record NodeMessage(string NodeInstanceId)
-{
-	public string Node { get; } = NodeInstanceId.Substring(0, NodeInstanceId.IndexOf(':'));
-}";
+			[UnionType(CaseOrder = CaseOrder.Explicit)]
+			public abstract partial record NodeMessage(string NodeInstanceId)
+			{
+				public string Node { get; } = NodeInstanceId.Substring(0, NodeInstanceId.IndexOf(':'));
+			}
+			""";
 
 		return Verify(code);
 	}
@@ -487,19 +534,21 @@ public abstract partial record NodeMessage(string NodeInstanceId)
 	[TestMethod]
 	public Task For_union_type_with_generic_base_class()
     {
-        var code = """
-                   using FunicularSwitch.Generators;
-
-                   namespace FunicularSwitch.Test;
-
-                   [UnionType(CaseOrder = CaseOrder.AsDeclared)]
-                   public abstract partial record BaseType<T>(string Value)
-                   {
-                       public sealed record Deriving_(string Value, T Other) : BaseType<T>(Value);
-                       
-                       public sealed record Deriving2_(string Value) : BaseType<T>(Value);
-                   }
-                   """;
+        var code = 
+	        /* lang=csharp */
+	        """
+            using FunicularSwitch.Generators;
+ 
+            namespace FunicularSwitch.Test;
+ 
+            [UnionType(CaseOrder = CaseOrder.AsDeclared)]
+            public abstract partial record BaseType<T>(string Value)
+            {
+                public sealed record Deriving_(string Value, T Other) : BaseType<T>(Value);
+                
+                public sealed record Deriving2_(string Value) : BaseType<T>(Value);
+            }
+            """;
 
         return Verify(code);
     }
@@ -507,22 +556,24 @@ public abstract partial record NodeMessage(string NodeInstanceId)
 	[TestMethod]
 	public Task For_union_type_with_generic_base_class_and_type_constraints()
     {
-        var code = """
-                   using System.Collections.Generic;
-                   using FunicularSwitch.Generators;
+        var code =
+	        /* lang=csharp */
+			"""
+			using System.Collections.Generic;
+			using FunicularSwitch.Generators;
 
-                   namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-                   [UnionType(CaseOrder = CaseOrder.AsDeclared)]
-                   public abstract partial record BaseType<T1, T2>(string Value)
-                     where T1 : notnull, new()
-                     where T2 : class, IEnumerable<int>
-                   {
-                       public sealed record Deriving_(string Value, T1 Other, T2 List) : BaseType<T1, T2>(Value);
-                       
-                       public sealed record Deriving2_(string Value) : BaseType<T1, T2>(Value);
-                   }
-                   """;
+			[UnionType(CaseOrder = CaseOrder.AsDeclared)]
+			public abstract partial record BaseType<T1, T2>(string Value)
+			  where T1 : notnull, new()
+			  where T2 : class, IEnumerable<int>
+			{
+			    public sealed record Deriving_(string Value, T1 Other, T2 List) : BaseType<T1, T2>(Value);
+			    
+			    public sealed record Deriving2_(string Value) : BaseType<T1, T2>(Value);
+			}
+			""";
 
         return Verify(code);
     }
@@ -530,17 +581,19 @@ public abstract partial record NodeMessage(string NodeInstanceId)
     [TestMethod]
     public Task ForUnionType_WithNullableParameters_StaticFactoriesHaveNullableParametersToo()
     {
-        var code = """
-                   using FunicularSwitch.Generators;
-                   
-                   namespace FunicularSwitch.Text;
+        var code =
+	        /* lang=csharp */
+	        """
+			using FunicularSwitch.Generators;
 
-                   [UnionType]
-                   public abstract partial record BaseType
-                   {
-                       public sealed record DerivedType_(string? NullableReferenceType, int? NullableStruct) : BaseType;
-                   }
-                   """;
+			namespace FunicularSwitch.Text;
+
+			[UnionType]
+			public abstract partial record BaseType
+			{
+			    public sealed record DerivedType_(string? NullableReferenceType, int? NullableStruct) : BaseType;
+			}
+			""";
 
         return Verify(code);
     }
