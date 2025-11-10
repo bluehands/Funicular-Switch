@@ -14,11 +14,11 @@ namespace FunicularSwitch.Generators.Consumer
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.CardType cardType, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.FemaleCardType, global::System.Threading.Tasks.Task<T>> female, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.MaleCardType, global::System.Threading.Tasks.Task<T>> male) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.CardType cardType, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.FemaleCardType, global::System.Threading.Tasks.Task<T>> female, global::System.Func<FunicularSwitch.Generators.Consumer.CardType.MaleCardType, global::System.Threading.Tasks.Task<T>> male) =>
 		cardType switch
 		{
-			FunicularSwitch.Generators.Consumer.CardType.FemaleCardType female1 => female(female1),
-			FunicularSwitch.Generators.Consumer.CardType.MaleCardType male2 => male(male2),
+			FunicularSwitch.Generators.Consumer.CardType.FemaleCardType female1 => await female(female1).ConfigureAwait(false),
+			FunicularSwitch.Generators.Consumer.CardType.MaleCardType male2 => await male(male2).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.CardType: {cardType.GetType().Name}")
 		};
 		

@@ -13,11 +13,11 @@ public static partial class BaseMatchExtension
 	};
 	
 	[global::System.Diagnostics.DebuggerStepThrough]
-	public static global::System.Threading.Tasks.Task<T> Match<T>(this global::Outer.Base @base, global::System.Func<Outer.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<Outer.Two, global::System.Threading.Tasks.Task<T>> two) =>
+	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::Outer.Base @base, global::System.Func<Outer.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<Outer.Two, global::System.Threading.Tasks.Task<T>> two) =>
 	@base switch
 	{
-		Outer.One one1 => one(one1),
-		Outer.Two two2 => two(two2),
+		Outer.One one1 => await one(one1).ConfigureAwait(false),
+		Outer.Two two2 => await two(two2).ConfigureAwait(false),
 		_ => throw new global::System.ArgumentException($"Unknown type derived from Outer.Base: {@base.GetType().Name}")
 	};
 	

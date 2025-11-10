@@ -18,14 +18,14 @@ namespace FunicularSwitch.Test
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Base2 base2, global::System.Func<FunicularSwitch.Test.Base2.Base2Prefix, global::System.Threading.Tasks.Task<T>> prefix, global::System.Func<FunicularSwitch.Test.Base2.PostfixBase2, global::System.Threading.Tasks.Task<T>> postfix, global::System.Func<FunicularSwitch.Test.Base2.UnderscorePostfix_, global::System.Threading.Tasks.Task<T>> underscorePostfix, global::System.Func<FunicularSwitch.Test.Base2._UnderscorePrefix, global::System.Threading.Tasks.Task<T>> underscorePrefix, global::System.Func<FunicularSwitch.Test.Base2.Base22Invalid, global::System.Threading.Tasks.Task<T>> base22Invalid) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Base2 base2, global::System.Func<FunicularSwitch.Test.Base2.Base2Prefix, global::System.Threading.Tasks.Task<T>> prefix, global::System.Func<FunicularSwitch.Test.Base2.PostfixBase2, global::System.Threading.Tasks.Task<T>> postfix, global::System.Func<FunicularSwitch.Test.Base2.UnderscorePostfix_, global::System.Threading.Tasks.Task<T>> underscorePostfix, global::System.Func<FunicularSwitch.Test.Base2._UnderscorePrefix, global::System.Threading.Tasks.Task<T>> underscorePrefix, global::System.Func<FunicularSwitch.Test.Base2.Base22Invalid, global::System.Threading.Tasks.Task<T>> base22Invalid) =>
 		base2 switch
 		{
-			FunicularSwitch.Test.Base2.Base2Prefix prefix1 => prefix(prefix1),
-			FunicularSwitch.Test.Base2.PostfixBase2 postfix2 => postfix(postfix2),
-			FunicularSwitch.Test.Base2.UnderscorePostfix_ underscorePostfix3 => underscorePostfix(underscorePostfix3),
-			FunicularSwitch.Test.Base2._UnderscorePrefix underscorePrefix4 => underscorePrefix(underscorePrefix4),
-			FunicularSwitch.Test.Base2.Base22Invalid base22Invalid5 => base22Invalid(base22Invalid5),
+			FunicularSwitch.Test.Base2.Base2Prefix prefix1 => await prefix(prefix1).ConfigureAwait(false),
+			FunicularSwitch.Test.Base2.PostfixBase2 postfix2 => await postfix(postfix2).ConfigureAwait(false),
+			FunicularSwitch.Test.Base2.UnderscorePostfix_ underscorePostfix3 => await underscorePostfix(underscorePostfix3).ConfigureAwait(false),
+			FunicularSwitch.Test.Base2._UnderscorePrefix underscorePrefix4 => await underscorePrefix(underscorePrefix4).ConfigureAwait(false),
+			FunicularSwitch.Test.Base2.Base22Invalid base22Invalid5 => await base22Invalid(base22Invalid5).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.Base2: {base2.GetType().Name}")
 		};
 		

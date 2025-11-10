@@ -14,11 +14,11 @@ namespace FunicularSwitch.Generators.Consumer
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.ArgumentException argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.ArgumentException.Action_, global::System.Threading.Tasks.Task<T>> action, global::System.Func<FunicularSwitch.Generators.Consumer.ArgumentException.Func_, global::System.Threading.Tasks.Task<T>> func) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.ArgumentException argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.ArgumentException.Action_, global::System.Threading.Tasks.Task<T>> action, global::System.Func<FunicularSwitch.Generators.Consumer.ArgumentException.Func_, global::System.Threading.Tasks.Task<T>> func) =>
 		argumentException switch
 		{
-			FunicularSwitch.Generators.Consumer.ArgumentException.Action_ action1 => action(action1),
-			FunicularSwitch.Generators.Consumer.ArgumentException.Func_ func2 => func(func2),
+			FunicularSwitch.Generators.Consumer.ArgumentException.Action_ action1 => await action(action1).ConfigureAwait(false),
+			FunicularSwitch.Generators.Consumer.ArgumentException.Func_ func2 => await func(func2).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.ArgumentException: {argumentException.GetType().Name}")
 		};
 		

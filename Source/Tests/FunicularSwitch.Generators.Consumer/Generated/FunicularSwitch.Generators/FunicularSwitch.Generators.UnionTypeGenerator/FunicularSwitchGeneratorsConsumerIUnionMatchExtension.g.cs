@@ -14,11 +14,11 @@ namespace FunicularSwitch.Generators.Consumer
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.IUnion iUnion, global::System.Func<FunicularSwitch.Generators.Consumer.IUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<FunicularSwitch.Generators.Consumer.IUnion.Case2_, global::System.Threading.Tasks.Task<T>> case2) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.IUnion iUnion, global::System.Func<FunicularSwitch.Generators.Consumer.IUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<FunicularSwitch.Generators.Consumer.IUnion.Case2_, global::System.Threading.Tasks.Task<T>> case2) =>
 		iUnion switch
 		{
-			FunicularSwitch.Generators.Consumer.IUnion.Case1_ case11 => case1(case11),
-			FunicularSwitch.Generators.Consumer.IUnion.Case2_ case22 => case2(case22),
+			FunicularSwitch.Generators.Consumer.IUnion.Case1_ case11 => await case1(case11).ConfigureAwait(false),
+			FunicularSwitch.Generators.Consumer.IUnion.Case2_ case22 => await case2(case22).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.IUnion: {iUnion.GetType().Name}")
 		};
 		

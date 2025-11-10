@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FunicularSwitch.Generators.Test;
@@ -9,19 +10,23 @@ public class Run_enum_match_method_generator : VerifySourceGenerator
 	[TestMethod]
 	public Task For_enum_type()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code = 
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-[assembly: ExtendEnums(typeof(FunicularSwitch.Test.test), CaseOrder = EnumCaseOrder.Alphabetic, Accessibility = ExtensionAccessibility.Internal)]
-[assembly: ExtendEnum(typeof(FunicularSwitch.Test.test), CaseOrder = EnumCaseOrder.AsDeclared, Accessibility = ExtensionAccessibility.Internal)]
+			[assembly: ExtendEnums(typeof(FunicularSwitch.Test.test), CaseOrder = EnumCaseOrder.Alphabetic, Accessibility = ExtensionAccessibility.Internal)]
+			[assembly: ExtendEnum(typeof(FunicularSwitch.Test.test), CaseOrder = EnumCaseOrder.AsDeclared, Accessibility = ExtensionAccessibility.Internal)]
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-[ExtendedEnum]
-public enum test {
-	one,
-	two
-}";
+			[ExtendedEnum]
+			public enum test
+			{
+				one,
+				two
+			}
+			""";
 
 		return Verify(code);
 	}
@@ -30,21 +35,25 @@ public enum test {
 	[TestMethod]
 	public Task For_enum_type_with_order()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-public class OtherAttribute : System.Attribute
-{
-}
+			public class OtherAttribute : System.Attribute
+			{
+			}
 
-[Other]
-[ExtendedEnum(CaseOrder = EnumCaseOrder.Alphabetic)]
-public enum test {
-	one,
-	two
-}";
+			[Other]
+			[ExtendedEnum(CaseOrder = EnumCaseOrder.Alphabetic)]
+			public enum test
+			{
+				one,
+				two
+			}
+			""";
 
 		return Verify(code);
 	}
@@ -52,20 +61,45 @@ public enum test {
 	[TestMethod]
 	public Task For_enum_type_embedded()
 	{
-		var code = @"
-using FunicularSwitch.Generators;
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
 
-namespace FunicularSwitch.Test;
+			namespace FunicularSwitch.Test;
 
-public class Outer {
+			public class Outer
+			{
+				[ExtendedEnum]
+				public enum test
+				{
+					one,
+					two
+				}
+			}
 
-[ExtendedEnum]
-public enum test {
-	one,
-	two
-}
-}
-";
+			""";
 		return Verify(code);
+	}
+	
+	[TestMethod]
+	public Task ForEnumType_WhenJetBrainsAnnotationsPackageIsReferenced()
+	{
+		var code =
+			/* lang=csharp */
+			"""
+			using FunicularSwitch.Generators;
+
+			namespace FunicularSwitch.Test;
+			
+			[ExtendedEnum]
+			public enum test
+			{
+				one,
+				two
+			}
+
+			""";
+		return Verify(code, additionalAssemblies: [typeof(InstantHandleAttribute).Assembly]);
 	}
 }

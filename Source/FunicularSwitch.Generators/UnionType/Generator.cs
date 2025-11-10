@@ -8,12 +8,16 @@ namespace FunicularSwitch.Generators.UnionType;
 
 public static class Generator
 {
-    const string VoidMatchMethodName = "Switch";
-    const string MatchMethodName = "Match";
+    private const string VoidMatchMethodName = "Switch";
+    private const string MatchMethodName = "Match";
+    private const string InstantHandleAttribute = "[global::JetBrains.Annotations.InstantHandle]";
+    private const string InstantHandleRequireAwaitAttribute = "[global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]";
+    private const string DebuggerStepThroughAttribute = "global::System.Diagnostics.DebuggerStepThrough";
 
     public static (string filename, string source) Emit(
         UnionTypeSchema unionTypeSchema,
         Action<Diagnostic> reportDiagnostic,
+        bool hasJetBrainsAnnotationsReference,
         CancellationToken cancellationToken)
     {
         var builder = new CSharpBuilder();
@@ -24,7 +28,7 @@ public static class Generator
 
         using (unionTypeSchema.Namespace != null ? builder.Namespace(unionTypeSchema.Namespace) : null)
         {
-            WriteMatchExtension(unionTypeSchema, builder);
+            WriteMatchExtension(unionTypeSchema, builder, hasJetBrainsAnnotationsReference);
 
             if (unionTypeSchema is { IsPartial: true, StaticFactoryInfo: not null })
             {
@@ -37,7 +41,7 @@ public static class Generator
         return (unionTypeSchema.FullTypeName.ToMatchExtensionFilename(unionTypeSchema.TypeParameters), builder.ToString());
     }
 
-    static void WriteMatchExtension(UnionTypeSchema unionTypeSchema, CSharpBuilder builder)
+    static void WriteMatchExtension(UnionTypeSchema unionTypeSchema, CSharpBuilder builder, bool hasJetbrainsAnnotationsReference)
     {
         using (builder.StaticPartialClass($"{unionTypeSchema.TypeName.Replace(".", "_")}MatchExtension",
                    unionTypeSchema.IsInternal ? "internal" : "public"))
@@ -54,29 +58,29 @@ public static class Generator
             var typeParameter = unionTypeSchema.TypeParameters.AsImmutableArray().GetUnusedName("T", "TMatchResult");
             var taskOfTypeParameter = $"global::System.Threading.Tasks.Task<{typeParameter}>";
 
-            GenerateMatchMethod(builder, unionTypeSchema, typeParameter, typeParameter);
+            GenerateMatchMethod(builder, unionTypeSchema, typeParameter, isAsync: false, hasJetBrainsAnnotationsReference: hasJetbrainsAnnotationsReference, t: typeParameter);
             BlankLine();
 
-            GenerateMatchMethod(builder, unionTypeSchema, taskOfTypeParameter, typeParameter);
+            GenerateMatchMethod(builder, unionTypeSchema, typeParameter, isAsync: true, hasJetBrainsAnnotationsReference: hasJetbrainsAnnotationsReference, t: typeParameter);
             BlankLine();
 
-            WriteMatchSignature(builder, unionTypeSchema, thisTaskParameter, taskOfTypeParameter, typeParameter, "public static async", typeParameter);
+            WriteMatchSignature(builder, unionTypeSchema, thisTaskParameter, typeParameter, isAsync: true, hasJetBrainsAnnotationsReference: hasJetbrainsAnnotationsReference, typeParameter, t: typeParameter);
             WriteBodyForTaskExtension(MatchMethodName);
             BlankLine();
-            WriteMatchSignature(builder, unionTypeSchema, thisTaskParameter, taskOfTypeParameter, handlerReturnType: taskOfTypeParameter, "public static async", typeParameter);
+            WriteMatchSignature(builder, unionTypeSchema, thisTaskParameter, typeParameter, isAsync: true, hasJetBrainsAnnotationsReference: hasJetbrainsAnnotationsReference, handlerReturnType: taskOfTypeParameter, t: typeParameter);
             WriteBodyForAsyncTaskExtension(MatchMethodName);
             BlankLine();
 
-            GenerateSwitchMethod(builder, unionTypeSchema, false);
+            GenerateSwitchMethod(builder, unionTypeSchema, false, hasJetbrainsAnnotationsReference);
             BlankLine();
-            GenerateSwitchMethod(builder, unionTypeSchema, true);
+            GenerateSwitchMethod(builder, unionTypeSchema, true, hasJetbrainsAnnotationsReference);
             BlankLine();
             WriteSwitchSignature(builder: builder, unionTypeSchema: unionTypeSchema, thisParameter: thisTaskParameter,
-                isAsync: false, asyncReturn: true, lambda: true);
+                isAsync: false, hasJetBrainsAnnotationsReference: hasJetbrainsAnnotationsReference, asyncReturn: true, lambda: true);
             WriteBodyForTaskExtension(VoidMatchMethodName);
             BlankLine();
             WriteSwitchSignature(builder: builder, unionTypeSchema: unionTypeSchema, thisParameter: thisTaskParameter,
-                isAsync: true, lambda: true);
+                isAsync: true, hasJetBrainsAnnotationsReference: hasJetbrainsAnnotationsReference, lambda: true);
             WriteBodyForAsyncTaskExtension(VoidMatchMethodName);
         }
 
@@ -149,7 +153,7 @@ public static class Generator
                             .Select(p => new ParameterInfo(p.parameterName, ImmutableArray<string>.Empty, p.requiredProperty.Type, null))
                         ).ToSeparatedString();
                     var constructorInvocation = $"new {derivedType.FullTypeName}({(constructor.Parameters.Select(p => p.Name).ToSeparatedString())})";
-                    builder.WriteAttribute("global::System.Diagnostics.DebuggerStepThrough");
+                    builder.WriteAttribute(DebuggerStepThroughAttribute);
                     builder.Write($"{(isInternal ? "internal" : "public")} static {unionTypeSchema.FullTypeName}{typeParameters} {methodName}({arguments}) => {constructorInvocation}");
 
                     if (requiredParametersToAdd.Count > 0)
@@ -193,7 +197,13 @@ public static class Generator
         return typeKind;
     }
 
-    static void GenerateMatchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, string returnType, string t = "T")
+    static void GenerateMatchMethod(
+        CSharpBuilder builder,
+        UnionTypeSchema unionTypeSchema,
+        string returnType,
+        bool isAsync,
+        bool hasJetBrainsAnnotationsReference,
+        string t = "T")
     {
         var thisParameterType = unionTypeSchema.FullTypeNameWithTypeParameters;
         var thisParameter = ThisParameter(unionTypeSchema, thisParameterType);
@@ -204,8 +214,9 @@ public static class Generator
             unionTypeSchema: unionTypeSchema,
             thisParameter: thisParameter,
             returnType: returnType,
-            t: t,
-            modifiers: "public static");
+            isAsync: isAsync,
+            hasJetBrainsAnnotationsReference: hasJetBrainsAnnotationsReference,
+            t: t);
         builder.WriteLine($"{thisParameterName} switch");
         using (builder.ScopeWithSemicolon())
         {
@@ -214,7 +225,12 @@ public static class Generator
             {
                 caseIndex++;
                 var caseVariableName = $"{c.ParameterName}{caseIndex}";
-                builder.WriteLine($"{c.FullTypeName} {caseVariableName} => {c.ParameterName}({caseVariableName}),");
+                var call = $"{c.ParameterName}({caseVariableName})";
+                if (isAsync)
+                {
+                    call = $"await {call}.ConfigureAwait(false)";
+                }
+                builder.WriteLine($"{c.FullTypeName} {caseVariableName} => {call},");
             }
 
             builder.WriteLine(
@@ -222,12 +238,12 @@ public static class Generator
         }
     }
 
-    static void GenerateSwitchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, bool isAsync)
+    static void GenerateSwitchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, bool isAsync, bool hasJetBrainsAnnotationsReference)
     {
         var thisParameterType = unionTypeSchema.FullTypeNameWithTypeParameters;
         var thisParameter = ThisParameter(unionTypeSchema, thisParameterType);
         var thisParameterName = thisParameter.Name;
-        WriteSwitchSignature(builder, unionTypeSchema, thisParameter, isAsync, "public static");
+        WriteSwitchSignature(builder, unionTypeSchema, thisParameter, isAsync, hasJetBrainsAnnotationsReference);
         using (builder.Scope())
         {
             builder.WriteLine($"switch ({thisParameterName})");
@@ -260,17 +276,34 @@ public static class Generator
 
     static Parameter ThisParameter(UnionTypeSchema unionTypeSchema, string thisParameterType) => new($"this {thisParameterType}", unionTypeSchema.TypeName.ToParameterName());
 
-    static void WriteMatchSignature(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, Parameter thisParameter, string returnType, string? handlerReturnType = null, string modifiers = "public static", string t = "T")
+    static void WriteMatchSignature(
+        CSharpBuilder builder,
+        UnionTypeSchema unionTypeSchema,
+        Parameter thisParameter,
+        string returnType,
+        bool isAsync,
+        bool hasJetBrainsAnnotationsReference,
+        string? handlerReturnType = null,
+        string t = "T")
     {
+        var instantHandle = hasJetBrainsAnnotationsReference
+            ? isAsync ? InstantHandleRequireAwaitAttribute : InstantHandleAttribute
+            : "";
+        var modifiers = "public static";
+        if (isAsync)
+        {
+            returnType = $"global::System.Threading.Tasks.Task<{returnType}>";
+            modifiers = $"{modifiers} async";
+        }
         handlerReturnType ??= returnType;
         var handlerParameters = unionTypeSchema.Cases
-            .Select(c => new Parameter($"global::System.Func<{c.FullTypeName}, {handlerReturnType}>", c.ParameterName));
+            .Select(c => new Parameter($"{instantHandle}global::System.Func<{c.FullTypeName}, {handlerReturnType}>", c.ParameterName));
 
         handlerParameters = handlerParameters.Prepend(thisParameter);
 
         var typeParameterList = unionTypeSchema.TypeParameters.Concat([t]).ToSeparatedString();
 
-        builder.WriteAttribute("global::System.Diagnostics.DebuggerStepThrough");
+        builder.WriteAttribute(DebuggerStepThroughAttribute);
         builder.WriteMethodSignature(
             modifiers: modifiers,
             returnType: returnType,
@@ -280,16 +313,25 @@ public static class Generator
             lambda: true);
     }
 
-    static void WriteSwitchSignature(CSharpBuilder builder, UnionTypeSchema unionTypeSchema,
-        Parameter? thisParameter, bool isAsync, string modifiers = "public static", bool? asyncReturn = null, bool lambda = false)
+    static void WriteSwitchSignature(
+        CSharpBuilder builder,
+        UnionTypeSchema unionTypeSchema,
+        Parameter? thisParameter,
+        bool isAsync,
+        bool hasJetBrainsAnnotationsReference,
+        bool? asyncReturn = null,
+        bool lambda = false)
     {
+        var instantHandle = hasJetBrainsAnnotationsReference
+            ? isAsync ? InstantHandleRequireAwaitAttribute : InstantHandleAttribute
+            : "";
         var returnType = asyncReturn ?? isAsync ? "async global::System.Threading.Tasks.Task" : "void";
         var handlerParameters = unionTypeSchema.Cases
             .Select(c =>
             {
                 var parameterType = isAsync
-                        ? $"global::System.Func<{c.FullTypeName}, global::System.Threading.Tasks.Task>"
-                        : $"global::System.Action<{c.FullTypeName}>";
+                        ? $"{instantHandle}global::System.Func<{c.FullTypeName}, global::System.Threading.Tasks.Task>"
+                        : $"{instantHandle}global::System.Action<{c.FullTypeName}>";
                 return new Parameter(
                         parameterType,
                         c.ParameterName);
@@ -301,9 +343,9 @@ public static class Generator
 
         var typeParameters = RoslynExtensions.FormatTypeParameters(unionTypeSchema.TypeParameters);
 
-        builder.WriteAttribute("global::System.Diagnostics.DebuggerStepThrough");
+        builder.WriteAttribute(DebuggerStepThroughAttribute);
         builder.WriteMethodSignature(
-            modifiers: modifiers,
+            modifiers: "public static",
             returnType: returnType,
             methodName: VoidMatchMethodName + typeParameters,
             parameters: handlerParameters,
