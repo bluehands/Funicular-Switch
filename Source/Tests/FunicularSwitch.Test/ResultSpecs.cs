@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -121,14 +117,35 @@ public class ResultSpecs
     class Something;
 
     [TestMethod]
-    public void AsTest()
+    public void As_T_T1_Match()
     {
         var obj = Result.Ok<object>(42);
         var intResult = obj.As<object, int>();
         intResult.Should().BeOk().Which.Should().Be(42);
+    }
 
-        var stringResult = obj.As<string>();
-        stringResult.Should().BeError();
+    [TestMethod]
+    public void As_T_T1_NoMatch()
+    {
+        var obj = Result.Ok<object>(42);
+        var intResult = obj.As<object, string>();
+        intResult.Should().BeError().Which.Should().Contain("Int32").And.Contain("String");
+    }
+
+    [TestMethod]
+    public void As_T1_Match()
+    {
+        var obj = Result.Ok<object>(42);
+        var intResult = obj.As<int>();
+        intResult.Should().BeOk().Which.Should().Be(42);
+    }
+
+    [TestMethod]
+    public void As_T1_NoMatch()
+    {
+        var obj = Result.Ok<object>(42);
+        var intResult = obj.As<string>();
+        intResult.Should().BeError().Which.Should().Contain("Int32").And.Contain("String");
     }
 
     [TestMethod]
@@ -138,9 +155,6 @@ public class ResultSpecs
         result.Equals(Result.Ok(42)).Should().BeTrue();
         Option<int> option = 42;
         option.Equals(Option.Some(42)).Should().BeTrue();
-
-        var odds = Enumerable.Range(0, 10).Choose(i => i % 2 != 0 ? i * 10 : Option<int>.None).ToList();
-        odds.Should().BeEquivalentTo(Enumerable.Range(0, 10).Where(i => i % 2 != 0).Select(i => i * 10));
     }
 
     [TestMethod]

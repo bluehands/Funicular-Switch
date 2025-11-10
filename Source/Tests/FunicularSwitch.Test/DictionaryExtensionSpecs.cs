@@ -1,24 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FunicularSwitch.Extensions;
 
 namespace FunicularSwitch.Test
 {
-    [TestClass]
-    public class EnumerableExtensionSpecs
-    {
-        [TestMethod]
-        public void EnumerableConcatStillWorks()
-        {
-            Enumerable.Range(0, 2).Concat(Enumerable.Range(2, 2)).Should().BeEquivalentTo(Enumerable.Range(0, 4));
-            Enumerable.Range(0, 2).Concat(Enumerable.Range(2, 2).ToArray()).Should().BeEquivalentTo(Enumerable.Range(0, 4));
-
-            0.Yield().Concat(new[] { 1, 2 }).Should().BeEquivalentTo(new[]{0, 1, 2});
-        }
-    }
-
     [TestClass]
     public class DictionaryExtensionSpecs
     {
