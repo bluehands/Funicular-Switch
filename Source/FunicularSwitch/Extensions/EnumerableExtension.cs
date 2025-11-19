@@ -44,7 +44,9 @@ public static class EnumerableExtensions
     /// <returns></returns>
     public static async Task<IEnumerable<T>> WhereAsyncSequential<T>(this IEnumerable<T> items, Func<T, Task<bool>> predicate)
     {
-        var context = await items.SelectAsyncSequential(async item => (item, await predicate(item).ConfigureAwait(false))).ConfigureAwait(false);
+        var context = await items
+            .SelectAsyncSequential(async item => (item, await predicate(item).ConfigureAwait(false)))
+            .ConfigureAwait(false);
         return context.Where(item => item.Item2).Select(item => item.item);
     }
 
@@ -119,7 +121,7 @@ public static class EnumerableExtensions
         yield return item;
     }
 
-    [Obsolete($"Use Enumerable.Concat with collection expression")]
+    [Obsolete("Use Enumerable.Concat with collection expression")]
     public static IEnumerable<T> Concat<T>(this IEnumerable<T> items, T item, params T[] further)
     {
         return items.Append(item).Concat(further);
@@ -147,7 +149,7 @@ public static class EnumerableExtensions
     {
         if (source is IList<TElement> list)
         {
-            for (int i = list.Count - 1; i >= 0; i -= 1)
+            for (var i = list.Count - 1; i >= 0; i -= 1)
             {
                 if (predicate(list[i]))
                 {
@@ -155,22 +157,19 @@ public static class EnumerableExtensions
                 }
             }
 
-            return Option.None();
+            return Option<TElement>.None;
         }
-        else
-        {
-            
-            Option<TElement> result = Option.None();
-            foreach (var element in source)
-            {
-                if (predicate(element))
-                {
-                    result = Option.Some(element);
-                }
-            }
 
-            return result;
+        var result = Option<TElement>.None;
+        foreach (var element in source)
+        {
+            if (predicate(element))
+            {
+                result = Option.Some(element);
+            }
         }
+
+        return result;
     }
 
     public static Option<TElement> ElementAtOrNone<TElement>(this IEnumerable<TElement> source, int index)
@@ -179,7 +178,7 @@ public static class EnumerableExtensions
         {
             return index < list.Count 
                 ? Option.Some(list[index])
-                : Option.None();
+                : Option<TElement>.None;
         }
         return source.Skip(index).FirstOrNone();
     }

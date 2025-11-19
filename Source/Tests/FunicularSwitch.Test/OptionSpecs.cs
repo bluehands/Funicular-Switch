@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static FunicularSwitch.Option;
 
@@ -18,7 +17,7 @@ public class OptionSpecs
 		
 		// When
 		target.Match(
-			some: x =>
+			some: _ =>
 			{
 				someCalled = true;
 			},
@@ -311,7 +310,8 @@ public class OptionSpecs
 		var right = Some<object>("Hi");
 		
 		// When
-		var equals = left.Equals(right);
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        var equals = left.Equals(right);
 		var leftHashCode = left.GetHashCode();
 		var rightHashCode = right.GetHashCode();
 		
@@ -659,7 +659,7 @@ public class OptionSpecs
     public async Task Bind_TaskOptionT_FuncTOptionTOut_None_BoundToNone()
     {
 	    var target = Task.FromResult(None<int>());
-	    var bound = await target.Bind(number => None<int>());
+	    var bound = await target.Bind(_ => None<int>());
 	    bound.Should().BeNone();
     }
 
@@ -675,7 +675,7 @@ public class OptionSpecs
     public async Task Bind_TaskOptionT_FuncTTaskOptionTOut_Some_BoundToNone()
     {
 	    var target = Task.FromResult(Some(14));
-	    var bound = await target.Bind(number => Task.FromResult(None<int>()));
+	    var bound = await target.Bind(_ => Task.FromResult(None<int>()));
 	    bound.Should().BeNone();
     }
 
@@ -691,7 +691,7 @@ public class OptionSpecs
     public async Task Bind_TaskOptionT_FuncTTaskOptionTOut_None_BoundToNone()
     {
 	    var target = Task.FromResult(None<int>());
-	    var bound = await target.Bind(number => Task.FromResult(None<int>()));
+	    var bound = await target.Bind(_ => Task.FromResult(None<int>()));
 	    bound.Should().BeNone();
     }
 
@@ -700,14 +700,15 @@ public class OptionSpecs
     {
 	    var target = Enumerable.Range(0, 10);
 	    var odds = target.Choose(i => i % 2 != 0 ? i * 10 : Option<int>.None).ToList();
-	    odds.Should().Equal([10, 30, 50, 70, 90]);
+	    odds.Should().Equal(10, 30, 50, 70, 90);
     }
 
     [TestMethod]
     public void ToOption_HasValue_Class()
     {
 	    string? nullTarget = null;
-	    string? valueTarget = "Hi";
+        // ReSharper disable once VariableCanBeNotNullable
+        string? valueTarget = "Hi";
 
 	    nullTarget.ToOption(false).Should().BeNone();
 	    nullTarget.ToOption(true).Should().BeNone();
@@ -731,7 +732,8 @@ public class OptionSpecs
     public void ToOption_HasValueFunc_Class()
     {
 	    string? nullTarget = null;
-	    string? valueTarget = "Hi";
+        // ReSharper disable once VariableCanBeNotNullable
+        string? valueTarget = "Hi";
 
 	    nullTarget.ToOption(x => x == "Hi").Should().BeNone();
 	    nullTarget.ToOption(x => x == "Hi").Should().BeNone();
@@ -762,7 +764,8 @@ public class OptionSpecs
     [TestMethod]
     public void NoneIfEmpty_Empty_None()
     {
-	    string? target = "";
+        // ReSharper disable once VariableCanBeNotNullable
+        string? target = "";
 	    var result = target.NoneIfEmpty();
 	    result.Should().BeNone();
     }
@@ -770,7 +773,8 @@ public class OptionSpecs
     [TestMethod]
     public void NoneIfEmpty_Text_Some()
     {
-	    string? target = "Hi";
+        // ReSharper disable once VariableCanBeNotNullable
+        string? target = "Hi";
 	    var result = target.NoneIfEmpty();
 	    result.Should().BeSome().Which.Should().Be("Hi");
     }
