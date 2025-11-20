@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Text;
 
 namespace FunicularSwitch.Extensions
@@ -17,13 +16,17 @@ namespace FunicularSwitch.Extensions
                 var index = t.Name.LastIndexOf("`", StringComparison.Ordinal);
                 if (index < 0)
                     return t.Name;
-
-
+                
                 sb.Append(t.Name.Substring(0, index));
-                var i = 0;
-                t.GetGenericArguments().Aggregate(sb, (a, type) => a.Append(i++ == 0 ? "<" : ",").Append(BeautifulName(type)));
-
-                sb.Append(">");
+                sb.Append('<');
+                foreach (var type in t.GetGenericArguments())
+                {
+                    sb.Append(type.BeautifulName());
+                    sb.Append(',');
+                }
+                // Change the last ',' appended by the loop to the closing angle bracket so we do not have to track the first or last index in the loop, and since the closing bracket is appended anyways this also costs no capacity or extra allocation
+                // Use .AppendJoin method for the loop when .netstandard2.1 is available
+                sb.Replace(oldChar: ',', newChar: '>', startIndex: sb.Length - 1, count: 1);
 
                 return sb.ToString();
             }

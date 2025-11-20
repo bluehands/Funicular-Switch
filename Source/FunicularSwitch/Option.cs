@@ -207,7 +207,7 @@ namespace FunicularSwitch
         public static IEnumerable<TOut> Choose<T, TOut>(this IEnumerable<T> items, Func<T, Option<TOut>> choose) =>
             items.SelectMany(i => choose(i));
 
-        public static Option<T> ToOption<T>(this Result<T> result) => ToOption(result, null);
+        public static Option<T> ToOption<T>(this Result<T> result) => result.ToOption(logError: null);
 
         public static Option<T> ToOption<T>(this Result<T> result, Action<string>? logError) =>
             result.Match(
@@ -221,6 +221,17 @@ namespace FunicularSwitch
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
             option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
 
+        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class 
+            => value is not null && hasValue(value) ? Option.Some(value) : Option.None();
+
+        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : struct
+            => value.HasValue && hasValue(value.Value) ? Option.Some(value.Value) : Option.None();
+
+        public static Option<string> NoneIfEmpty(this string? text)
+            => text.ToOption(x => !string.IsNullOrEmpty(x));
+
+        public static IEnumerable<T> WhereSome<T>(this IEnumerable<Option<T>> option) => option.SelectMany(o => o);
+        
         #region query-expression pattern
 
         public static Option<T1> Select<T, T1>(this Option<T> result, Func<T, T1> selector) => result.Map(selector);
