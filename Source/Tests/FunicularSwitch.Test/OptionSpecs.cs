@@ -704,31 +704,6 @@ public class OptionSpecs
     }
 
     [TestMethod]
-    public void ToOption_HasValue_Class()
-    {
-	    string? nullTarget = null;
-        // ReSharper disable once VariableCanBeNotNullable
-        string? valueTarget = "Hi";
-
-	    nullTarget.ToOption(false).Should().BeNone();
-	    nullTarget.ToOption(true).Should().BeNone();
-	    valueTarget.ToOption(false).Should().BeNone();
-	    valueTarget.ToOption(true).Should().BeSome().Which.Should().Be("Hi");
-    }
-
-    [TestMethod]
-    public void ToOption_HasValue_Struct()
-    {
-	    int? nullTarget = null;
-	    int? valueTarget = 8;
-
-	    nullTarget.ToOption(false).Should().BeNone();
-	    nullTarget.ToOption(true).Should().BeNone();
-	    valueTarget.ToOption(false).Should().BeNone();
-	    valueTarget.ToOption(true).Should().BeSome().Which.Should().Be(8);
-    }
-
-    [TestMethod]
     public void ToOption_HasValueFunc_Class()
     {
 	    string? nullTarget = null;

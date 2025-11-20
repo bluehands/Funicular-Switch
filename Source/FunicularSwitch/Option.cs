@@ -221,9 +221,6 @@ namespace FunicularSwitch
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
             option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
 
-        public static Option<T> ToOption<T>(this T? value, bool hasValue) where T : class => value.ToOption(_ => hasValue);
-        public static Option<T> ToOption<T>(this T? value, bool hasValue) where T : struct => value.ToOption(_ => hasValue);
-
         public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class 
             => value is not null && hasValue(value) ? Option.Some(value) : Option.None();
 
