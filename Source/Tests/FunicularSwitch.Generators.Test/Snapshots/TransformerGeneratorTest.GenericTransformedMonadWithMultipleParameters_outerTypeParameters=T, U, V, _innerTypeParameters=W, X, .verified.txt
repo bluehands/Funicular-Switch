@@ -1,0 +1,18 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: : (28,0)-(29,64),
+      Message: Generator for TransformMonadAttribute is considered experimental and might break,
+      Severity: Info,
+      WarningLevel: 1,
+      Descriptor: {
+        Id: FUN0016,
+        Title: Generator is experimental,
+        MessageFormat: Generator for TransformMonadAttribute is considered experimental and might break,
+        Category: ResultTypeGenerator,
+        DefaultSeverity: Info,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

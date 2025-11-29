@@ -6,7 +6,7 @@ internal record GenericMonadGenerationInfo(
     Accessibility Accessibility,
     string Modifier,
     string TypeName,
-    string TypeParameter,
+    IReadOnlyList<string> TypeParameters,
     string TypeNameWithTypeParameters,
     bool IsRecord,
     MonadInfo Monad);
