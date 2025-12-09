@@ -130,7 +130,10 @@ namespace FunicularSwitch
         public Option<TOther> Convert<TOther>() =>
             Match(s => Option<TOther>.Some((TOther)(object)s!), Option<TOther>.None);
 
-        public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {typeof(T).BeautifulName()}");
+		public Option<TTarget> As<TTarget>() where TTarget : class =>
+	        Bind(item => (item as TTarget).ToOption());
+
+		public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {typeof(T).BeautifulName()}");
 
         public bool Equals(Option<T> other) =>
             _isSome == other._isSome && EqualityComparer<T>.Default.Equals(_value, other._value);

@@ -596,6 +596,19 @@ public class OptionSpecs
     }
 
     [TestMethod]
+    public void AsConvertOptionValue()
+    {
+	    var myBaseOption = Some(new MyDerived());
+	    myBaseOption.As<MyDerived>().IsSome().Should().BeTrue();
+	    myBaseOption.As<MyBase>().IsSome().Should().BeTrue();
+	    myBaseOption.As<AnotherClass>().IsSome().Should().BeFalse();
+    }
+
+    class MyBase;
+	class MyDerived : MyBase;
+	class AnotherClass;
+
+    [TestMethod]
     public async Task Match_TaskOptionT_FuncTTout_FuncTOut_Some_Matched()
     {
 	    var target = Task.FromResult(Some(6));
