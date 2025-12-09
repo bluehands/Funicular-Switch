@@ -4,6 +4,7 @@
 public static partial class BaseTypeMatchExtension
 {
 	[global::System.Diagnostics.DebuggerStepThrough]
+	[global::JetBrains.Annotations.MustUseReturnValue]
 	public static T Match<T>(this global::BaseType baseType, [global::JetBrains.Annotations.InstantHandle]global::System.Func<BaseType.Derived_, T> derived) =>
 	baseType switch
 	{
@@ -12,6 +13,7 @@ public static partial class BaseTypeMatchExtension
 	};
 	
 	[global::System.Diagnostics.DebuggerStepThrough]
+	[global::JetBrains.Annotations.MustUseReturnValue]
 	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::BaseType baseType, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task<T>> derived) =>
 	baseType switch
 	{
@@ -20,10 +22,12 @@ public static partial class BaseTypeMatchExtension
 	};
 	
 	[global::System.Diagnostics.DebuggerStepThrough]
+	[global::JetBrains.Annotations.MustUseReturnValue]
 	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::BaseType> baseType, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<BaseType.Derived_, T> derived) =>
 	(await baseType.ConfigureAwait(false)).Match(derived);
 	
 	[global::System.Diagnostics.DebuggerStepThrough]
+	[global::JetBrains.Annotations.MustUseReturnValue]
 	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<global::BaseType> baseType, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task<T>> derived) =>
 	await (await baseType.ConfigureAwait(false)).Match(derived).ConfigureAwait(false);
 	

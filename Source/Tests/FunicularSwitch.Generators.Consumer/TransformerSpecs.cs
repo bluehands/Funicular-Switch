@@ -126,8 +126,8 @@ public class TransformerSpecs
         // Assert
         using (new AssertionScope())
         {
-            string.Join(Environment.NewLine, result.Log).Should().Be(expectedLog);
-            ((string) result.Value.ToString()).Should().Be(expectedResult);
+            string.Join("\n", result.Log).Should().Be(expectedLog);
+            result.Value.ToString().Should().Be(expectedResult);
         }
 
         static Writer<FunicularSwitch.Result<int>> Sqrt(int a) =>

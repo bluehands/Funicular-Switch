@@ -3,6 +3,7 @@ namespace FluentAssertions.Common
 {
 	internal static partial class ValueFormatterDetectionModeMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this FluentAssertions.Common.ValueFormatterDetectionMode valueFormatterDetectionMode, global::System.Func<T> disabled, global::System.Func<T> scan, global::System.Func<T> specific) =>
 		valueFormatterDetectionMode switch
 		{
@@ -12,21 +13,25 @@ namespace FluentAssertions.Common
 			_ => throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Common.ValueFormatterDetectionMode: {valueFormatterDetectionMode.GetType().Name}")
 		};
 		
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Common.ValueFormatterDetectionMode valueFormatterDetectionMode, global::System.Func<global::System.Threading.Tasks.Task<T>> disabled, global::System.Func<global::System.Threading.Tasks.Task<T>> scan, global::System.Func<global::System.Threading.Tasks.Task<T>> specific) =>
+		[global::System.Diagnostics.DebuggerStepThrough]
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Common.ValueFormatterDetectionMode valueFormatterDetectionMode, global::System.Func<global::System.Threading.Tasks.Task<T>> disabled, global::System.Func<global::System.Threading.Tasks.Task<T>> scan, global::System.Func<global::System.Threading.Tasks.Task<T>> specific) =>
 		valueFormatterDetectionMode switch
 		{
-			FluentAssertions.Common.ValueFormatterDetectionMode.Disabled => disabled(),
-			FluentAssertions.Common.ValueFormatterDetectionMode.Scan => scan(),
-			FluentAssertions.Common.ValueFormatterDetectionMode.Specific => specific(),
+			FluentAssertions.Common.ValueFormatterDetectionMode.Disabled => await disabled().ConfigureAwait(false),
+			FluentAssertions.Common.ValueFormatterDetectionMode.Scan => await scan().ConfigureAwait(false),
+			FluentAssertions.Common.ValueFormatterDetectionMode.Specific => await specific().ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Common.ValueFormatterDetectionMode: {valueFormatterDetectionMode.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FluentAssertions.Common.ValueFormatterDetectionMode> valueFormatterDetectionMode, global::System.Func<T> disabled, global::System.Func<T> scan, global::System.Func<T> specific) =>
 		(await valueFormatterDetectionMode.ConfigureAwait(false)).Match(disabled, scan, specific);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FluentAssertions.Common.ValueFormatterDetectionMode> valueFormatterDetectionMode, global::System.Func<global::System.Threading.Tasks.Task<T>> disabled, global::System.Func<global::System.Threading.Tasks.Task<T>> scan, global::System.Func<global::System.Threading.Tasks.Task<T>> specific) =>
 		await (await valueFormatterDetectionMode.ConfigureAwait(false)).Match(disabled, scan, specific).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this FluentAssertions.Common.ValueFormatterDetectionMode valueFormatterDetectionMode, global::System.Action disabled, global::System.Action scan, global::System.Action specific)
 		{
 			switch (valueFormatterDetectionMode)
@@ -45,6 +50,7 @@ namespace FluentAssertions.Common
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this FluentAssertions.Common.ValueFormatterDetectionMode valueFormatterDetectionMode, global::System.Func<global::System.Threading.Tasks.Task> disabled, global::System.Func<global::System.Threading.Tasks.Task> scan, global::System.Func<global::System.Threading.Tasks.Task> specific)
 		{
 			switch (valueFormatterDetectionMode)
@@ -63,9 +69,11 @@ namespace FluentAssertions.Common
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FluentAssertions.Common.ValueFormatterDetectionMode> valueFormatterDetectionMode, global::System.Action disabled, global::System.Action scan, global::System.Action specific) =>
 		(await valueFormatterDetectionMode.ConfigureAwait(false)).Switch(disabled, scan, specific);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FluentAssertions.Common.ValueFormatterDetectionMode> valueFormatterDetectionMode, global::System.Func<global::System.Threading.Tasks.Task> disabled, global::System.Func<global::System.Threading.Tasks.Task> scan, global::System.Func<global::System.Threading.Tasks.Task> specific) =>
 		await (await valueFormatterDetectionMode.ConfigureAwait(false)).Switch(disabled, scan, specific).ConfigureAwait(false);
 	}

@@ -9,6 +9,7 @@ static class Generator
     const string TemplateNamespace = "FunicularSwitch.Generators.Templates";
     const string TemplateResultTypeName = "MyResult";
     const string TemplateErrorTypeName = "MyError";
+    const string MustUseReturnValueAttribute = "[global::JetBrains.Annotations.MustUseReturnValue]";
 
     public static IEnumerable<(string filename, string source)> Emit(ResultTypeSchema resultTypeSchema,
         SymbolWrapper<INamedTypeSymbol> defaultErrorType,
@@ -39,7 +40,8 @@ static class Generator
             {
                 code = code
                     .Replace("[global::JetBrains.Annotations.InstantHandle]", "")
-                    .Replace("[global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]", "");
+                    .Replace("[global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]", "")
+                    .Replace(MustUseReturnValueAttribute, "");
             }
             code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")
@@ -132,8 +134,8 @@ static class Generator
 
             var mergeCode = Replace(
                 Templates.ResultTypeTemplates.ResultTypeWithMerge
-                    .Replace("//generated aggregate methods", GenerateAggregateMethods(10))
-                    .Replace("//generated aggregate extension methods", GenerateAggregateExtensionMethods(10, isValueType))
+                    .Replace("//generated aggregate methods", GenerateAggregateMethods(10, referencesJetBrainsAnnotations))
+                    .Replace("//generated aggregate extension methods", GenerateAggregateExtensionMethods(10, isValueType, referencesJetBrainsAnnotations))
                     .Replace("Merge__MemberOrExtensionMethod", mergeErrorMethod.MethodName),
                 additionalNamespaces,
                 "T"
@@ -143,8 +145,9 @@ static class Generator
         }
     }
 
-    static string GenerateAggregateExtensionMethods(int maxParameterCount, bool isValueType) => Generate(maxParameterCount, i => MakeAggregateExtensionMethod(i, isValueType));
-    static string GenerateAggregateMethods(int maxParameterCount) => Generate(maxParameterCount, GenerateAggregateMethod);
+    static string GenerateAggregateExtensionMethods(int maxParameterCount, bool isValueType, bool referencesJetBrainsAnnotations) => Generate(maxParameterCount, i => MakeAggregateExtensionMethod(i, isValueType, referencesJetBrainsAnnotations));
+    static string GenerateAggregateMethods(int maxParameterCount, bool referencesJetBrainsAnnotations) => Generate(maxParameterCount,
+	    i => GenerateAggregateMethod(i, referencesJetBrainsAnnotations));
 
 
     static string Generate(int maxParameterCount, Func<int, string> generateMethods) =>
@@ -153,7 +156,7 @@ static class Generator
             .Select(generateMethods)
             .ToSeparatedString("\n");
 
-    static string MakeAggregateExtensionMethod(int typeParameterCount, bool isValueType)
+    static string MakeAggregateExtensionMethod(int typeParameterCount, bool isValueType, bool referencesJetBrainsAnnotations)
     {
         var range = Enumerable.Range(1, typeParameterCount).ToImmutableArray();
         string Expand(Func<int, string> strAtIndex, string separator = ", ") => range.Select(strAtIndex).ToSeparatedString(separator);
@@ -172,10 +175,13 @@ static class Generator
         var taskResultArrayElements = Expand(i => $"r{i}.Result");
         var tupleArguments = Expand(i => $"v{i}");
 
+        var mustUseReturnValueAttribute = referencesJetBrainsAnnotations ? MustUseReturnValueAttribute : "";
         return $@"
-        public static MyResult<({typeArguments})> Aggregate<{typeArguments}>(this {parameterDeclarations}) => 
+		{mustUseReturnValueAttribute}
+		public static MyResult<({typeArguments})> Aggregate<{typeArguments}>(this {parameterDeclarations}) => 
             Aggregate({resultArrayElements}, ({tupleArguments}) => ({tupleArguments}));
 
+		{mustUseReturnValueAttribute}
         public static MyResult<TResult> Aggregate<{typeArgumentsWithResult}>(this {parametersWithCombine})            
         {{
             if ({okCheck})
@@ -188,9 +194,11 @@ static class Generator
                 )!);
         }}
         
+		{mustUseReturnValueAttribute}
         public static global::System.Threading.Tasks.Task<MyResult<({typeArguments})>> Aggregate<{typeArguments}>(this {taskParameterDeclarations})
             => Aggregate({resultArrayElements}, ({tupleArguments}) => ({tupleArguments}));
-
+		
+		{mustUseReturnValueAttribute}
         public static async global::System.Threading.Tasks.Task<MyResult<TResult>> Aggregate<{typeArgumentsWithResult}>(this {taskParameterDeclarations}, global::System.Func<{typeArgumentsWithResult}> combine)            
         {{
             await global::System.Threading.Tasks.Task.WhenAll({resultArrayElements});
@@ -198,7 +206,7 @@ static class Generator
         }}";
     }
 
-    public static string GenerateAggregateMethod(int typeParameterCount)
+    public static string GenerateAggregateMethod(int typeParameterCount, bool referencesJetBrainsAnnotations)
     {
         var range = Enumerable.Range(1, typeParameterCount).ToImmutableArray();
         string Expand(Func<int, string> strAtIndex, string separator = ", ") => range.Select(strAtIndex).ToSeparatedString(separator);
@@ -208,13 +216,19 @@ static class Generator
         var taskParameterDeclarations = Expand(i => $"global::System.Threading.Tasks.Task<MyResult<T{i}>> r{i}");
         var parameters = Expand(i => $"r{i}");
 
-        return $@"
+        var mustUseReturnValueAttribute = referencesJetBrainsAnnotations ? MustUseReturnValueAttribute : "";
+		return $@"
+
+		{mustUseReturnValueAttribute}
         public static MyResult<({typeParameters})> Aggregate<{typeParameters}>({parameterDeclarations}) => MyResultExtension.Aggregate({parameters});
-
+		
+		{mustUseReturnValueAttribute}
         public static MyResult<TResult> Aggregate<{typeParameters}, TResult>({parameterDeclarations}, global::System.Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);
-
+		
+		{mustUseReturnValueAttribute}
         public static global::System.Threading.Tasks.Task<MyResult<({typeParameters})>> Aggregate<{typeParameters}>({taskParameterDeclarations}) => MyResultExtension.Aggregate({parameters});
-
+		
+		{mustUseReturnValueAttribute}
         public static global::System.Threading.Tasks.Task<MyResult<TResult>> Aggregate<{typeParameters}, TResult>({taskParameterDeclarations}, global::System.Func<{typeParameters}, TResult> combine) => MyResultExtension.Aggregate({parameters}, combine);";
     }
 }

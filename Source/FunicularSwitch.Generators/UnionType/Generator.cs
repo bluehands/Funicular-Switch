@@ -12,6 +12,7 @@ public static class Generator
     private const string MatchMethodName = "Match";
     private const string InstantHandleAttribute = "[global::JetBrains.Annotations.InstantHandle]";
     private const string InstantHandleRequireAwaitAttribute = "[global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]";
+    private const string MustUseReturnValueAttribute = "global::JetBrains.Annotations.MustUseReturnValue";
     private const string DebuggerStepThroughAttribute = "global::System.Diagnostics.DebuggerStepThrough";
 
     public static (string filename, string source) Emit(
@@ -304,6 +305,7 @@ public static class Generator
         var typeParameterList = unionTypeSchema.TypeParameters.Concat([t]).ToSeparatedString();
 
         builder.WriteAttribute(DebuggerStepThroughAttribute);
+        if (hasJetBrainsAnnotationsReference) builder.WriteAttribute(MustUseReturnValueAttribute);
         builder.WriteMethodSignature(
             modifiers: modifiers,
             returnType: returnType,

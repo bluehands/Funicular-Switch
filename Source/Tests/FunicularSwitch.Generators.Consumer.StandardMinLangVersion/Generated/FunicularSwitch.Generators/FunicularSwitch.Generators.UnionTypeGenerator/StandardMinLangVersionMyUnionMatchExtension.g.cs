@@ -14,11 +14,11 @@ namespace StandardMinLangVersion
 		};
 		
 		[global::System.Diagnostics.DebuggerStepThrough]
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this global::StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task<T>> case2) =>
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::StandardMinLangVersion.MyUnion myUnion, global::System.Func<StandardMinLangVersion.MyUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<StandardMinLangVersion.MyUnion.MyUnionCase2, global::System.Threading.Tasks.Task<T>> case2) =>
 		myUnion switch
 		{
-			StandardMinLangVersion.MyUnion.Case1_ case11 => case1(case11),
-			StandardMinLangVersion.MyUnion.MyUnionCase2 case22 => case2(case22),
+			StandardMinLangVersion.MyUnion.Case1_ case11 => await case1(case11).ConfigureAwait(false),
+			StandardMinLangVersion.MyUnion.MyUnionCase2 case22 => await case2(case22).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from StandardMinLangVersion.MyUnion: {myUnion.GetType().Name}")
 		};
 		

@@ -3,6 +3,7 @@ namespace FluentAssertions.Equivalency
 {
 	internal static partial class EquivalencyResultMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this FluentAssertions.Equivalency.EquivalencyResult equivalencyResult, global::System.Func<T> assertionCompleted, global::System.Func<T> continueWithNext) =>
 		equivalencyResult switch
 		{
@@ -11,20 +12,24 @@ namespace FluentAssertions.Equivalency
 			_ => throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EquivalencyResult: {equivalencyResult.GetType().Name}")
 		};
 		
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Equivalency.EquivalencyResult equivalencyResult, global::System.Func<global::System.Threading.Tasks.Task<T>> assertionCompleted, global::System.Func<global::System.Threading.Tasks.Task<T>> continueWithNext) =>
+		[global::System.Diagnostics.DebuggerStepThrough]
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Equivalency.EquivalencyResult equivalencyResult, global::System.Func<global::System.Threading.Tasks.Task<T>> assertionCompleted, global::System.Func<global::System.Threading.Tasks.Task<T>> continueWithNext) =>
 		equivalencyResult switch
 		{
-			FluentAssertions.Equivalency.EquivalencyResult.AssertionCompleted => assertionCompleted(),
-			FluentAssertions.Equivalency.EquivalencyResult.ContinueWithNext => continueWithNext(),
+			FluentAssertions.Equivalency.EquivalencyResult.AssertionCompleted => await assertionCompleted().ConfigureAwait(false),
+			FluentAssertions.Equivalency.EquivalencyResult.ContinueWithNext => await continueWithNext().ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EquivalencyResult: {equivalencyResult.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FluentAssertions.Equivalency.EquivalencyResult> equivalencyResult, global::System.Func<T> assertionCompleted, global::System.Func<T> continueWithNext) =>
 		(await equivalencyResult.ConfigureAwait(false)).Match(assertionCompleted, continueWithNext);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FluentAssertions.Equivalency.EquivalencyResult> equivalencyResult, global::System.Func<global::System.Threading.Tasks.Task<T>> assertionCompleted, global::System.Func<global::System.Threading.Tasks.Task<T>> continueWithNext) =>
 		await (await equivalencyResult.ConfigureAwait(false)).Match(assertionCompleted, continueWithNext).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this FluentAssertions.Equivalency.EquivalencyResult equivalencyResult, global::System.Action assertionCompleted, global::System.Action continueWithNext)
 		{
 			switch (equivalencyResult)
@@ -40,6 +45,7 @@ namespace FluentAssertions.Equivalency
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this FluentAssertions.Equivalency.EquivalencyResult equivalencyResult, global::System.Func<global::System.Threading.Tasks.Task> assertionCompleted, global::System.Func<global::System.Threading.Tasks.Task> continueWithNext)
 		{
 			switch (equivalencyResult)
@@ -55,9 +61,11 @@ namespace FluentAssertions.Equivalency
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FluentAssertions.Equivalency.EquivalencyResult> equivalencyResult, global::System.Action assertionCompleted, global::System.Action continueWithNext) =>
 		(await equivalencyResult.ConfigureAwait(false)).Switch(assertionCompleted, continueWithNext);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FluentAssertions.Equivalency.EquivalencyResult> equivalencyResult, global::System.Func<global::System.Threading.Tasks.Task> assertionCompleted, global::System.Func<global::System.Threading.Tasks.Task> continueWithNext) =>
 		await (await equivalencyResult.ConfigureAwait(false)).Switch(assertionCompleted, continueWithNext).ConfigureAwait(false);
 	}
