@@ -10,13 +10,17 @@ namespace MyNamespace
 	public abstract partial class Result
 	{
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static Result<T> Error<T>(ErrorInNamespaceWithDifferentResult details) => new Result<T>.Error_(details);
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static ResultError Error(ErrorInNamespaceWithDifferentResult details) => new(details);
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static Result<T> Ok<T>(T value) => new Result<T>.Ok_(value);
 		public bool IsError => GetType().GetGenericTypeDefinition() == typeof(Result<>.Error_);
 		public bool IsOk => !IsError;
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public abstract ErrorInNamespaceWithDifferentResult? GetErrorOrDefault();
 
 		[global::System.Diagnostics.DebuggerStepThrough]
@@ -95,11 +99,11 @@ namespace MyNamespace
 		
 		public static implicit operator Result<T>(ResultError myResultError) => myResultError.WithOk<T>();
 
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator true(Result<T> result) => result.IsOk;
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator false(Result<T> result) => result.IsError;
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator !(Result<T> result) => result.IsError;
 
 		//just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
@@ -124,9 +128,9 @@ namespace MyNamespace
 			if (obj.GetType() != this.GetType()) return false;
 			return Equals((Result<T>)obj);
 		}
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator ==(Result<T>? left, Result<T>? right) => Equals(left, right);
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator !=(Result<T>? left, Result<T>? right) => !Equals(left, right);
 
 		[global::System.Diagnostics.DebuggerStepThrough]

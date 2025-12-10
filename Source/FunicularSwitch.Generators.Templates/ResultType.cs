@@ -9,13 +9,17 @@ namespace FunicularSwitch.Generators.Templates
 	public abstract partial class MyResult
 	{
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static MyResult<T> Error<T>(MyError details) => new MyResult<T>.Error_(details);
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static MyResultError Error(MyError details) => new(details);
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static MyResult<T> Ok<T>(T value) => new MyResult<T>.Ok_(value);
 		public bool IsError => GetType().GetGenericTypeDefinition() == typeof(MyResult<>.Error_);
 		public bool IsOk => !IsError;
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public abstract MyError? GetErrorOrDefault();
 
 		[global::System.Diagnostics.DebuggerStepThrough]
@@ -94,11 +98,11 @@ namespace FunicularSwitch.Generators.Templates
 		[global::JetBrains.Annotations.MustUseReturnValue]
 		public static implicit operator MyResult<T>(MyResultError myResultError) => myResultError.WithOk<T>();
 
-		[global::JetBrains.Annotations.MustUseReturnValue]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator true(MyResult<T> result) => result.IsOk;
-		[global::JetBrains.Annotations.MustUseReturnValue]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator false(MyResult<T> result) => result.IsError;
-		[global::JetBrains.Annotations.MustUseReturnValue]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator !(MyResult<T> result) => result.IsError;
 
 		//just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
@@ -123,9 +127,9 @@ namespace FunicularSwitch.Generators.Templates
 			if (obj.GetType() != this.GetType()) return false;
 			return Equals((MyResult<T>)obj);
 		}
-		[global::JetBrains.Annotations.MustUseReturnValue]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator ==(MyResult<T>? left, MyResult<T>? right) => Equals(left, right);
-		[global::JetBrains.Annotations.MustUseReturnValue]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator !=(MyResult<T>? left, MyResult<T>? right) => !Equals(left, right);
 
 		[global::System.Diagnostics.DebuggerStepThrough]

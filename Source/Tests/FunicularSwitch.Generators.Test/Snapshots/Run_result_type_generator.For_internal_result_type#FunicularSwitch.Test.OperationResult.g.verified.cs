@@ -10,13 +10,17 @@ namespace FunicularSwitch.Test
 	abstract partial class OperationResult
 	{
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static OperationResult<T> Error<T>(MyError details) => new OperationResult<T>.Error_(details);
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static OperationResultError Error(MyError details) => new(details);
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static OperationResult<T> Ok<T>(T value) => new OperationResult<T>.Ok_(value);
 		public bool IsError => GetType().GetGenericTypeDefinition() == typeof(OperationResult<>.Error_);
 		public bool IsOk => !IsError;
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public abstract MyError? GetErrorOrDefault();
 
 		[global::System.Diagnostics.DebuggerStepThrough]
@@ -95,11 +99,11 @@ namespace FunicularSwitch.Test
 		
 		public static implicit operator OperationResult<T>(OperationResultError myResultError) => myResultError.WithOk<T>();
 
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator true(OperationResult<T> result) => result.IsOk;
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator false(OperationResult<T> result) => result.IsError;
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator !(OperationResult<T> result) => result.IsError;
 
 		//just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
@@ -124,9 +128,9 @@ namespace FunicularSwitch.Test
 			if (obj.GetType() != this.GetType()) return false;
 			return Equals((OperationResult<T>)obj);
 		}
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator ==(OperationResult<T>? left, OperationResult<T>? right) => Equals(left, right);
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator !=(OperationResult<T>? left, OperationResult<T>? right) => !Equals(left, right);
 
 		[global::System.Diagnostics.DebuggerStepThrough]

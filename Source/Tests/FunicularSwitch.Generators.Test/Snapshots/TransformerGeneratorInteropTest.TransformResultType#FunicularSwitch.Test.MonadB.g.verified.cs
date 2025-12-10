@@ -10,13 +10,17 @@ namespace FunicularSwitch.Test
 	public abstract partial class MonadB
 	{
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static MonadB<T> Error<T>(Int32 details) => new MonadB<T>.Error_(details);
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static MonadBError Error(Int32 details) => new(details);
 		[global::System.Diagnostics.DebuggerStepThrough]
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static MonadB<T> Ok<T>(T value) => new MonadB<T>.Ok_(value);
 		public bool IsError => GetType().GetGenericTypeDefinition() == typeof(MonadB<>.Error_);
 		public bool IsOk => !IsError;
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public abstract Int32? GetErrorOrDefault();
 
 		[global::System.Diagnostics.DebuggerStepThrough]
@@ -95,11 +99,11 @@ namespace FunicularSwitch.Test
 		
 		public static implicit operator MonadB<T>(MonadBError myResultError) => myResultError.WithOk<T>();
 
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator true(MonadB<T> result) => result.IsOk;
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator false(MonadB<T> result) => result.IsError;
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator !(MonadB<T> result) => result.IsError;
 
 		//just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
@@ -124,9 +128,9 @@ namespace FunicularSwitch.Test
 			if (obj.GetType() != this.GetType()) return false;
 			return Equals((MonadB<T>)obj);
 		}
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator ==(MonadB<T>? left, MonadB<T>? right) => Equals(left, right);
-		
+		[global::System.Diagnostics.Contracts.PureAttribute]
 		public static bool operator !=(MonadB<T>? left, MonadB<T>? right) => !Equals(left, right);
 
 		[global::System.Diagnostics.DebuggerStepThrough]
