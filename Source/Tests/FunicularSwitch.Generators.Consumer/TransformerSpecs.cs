@@ -103,16 +103,8 @@ public class TransformerSpecs
     }
 
     [TestMethod]
-    [DataRow(1, 1, "Ok 0", """
-                           1/1 = 1
-                           1-1 = 0
-                           sqrt(0) = 0
-                           """)]
-    [DataRow(2, 2, "Error sqrt(-1) -> Cannot get square root of negative number", """
-                                                                                  2/2 = 1
-                                                                                  1-2 = -1
-                                                                                  sqrt(-1) -> Cannot get square root of negative number
-                                                                                  """)]
+    [DataRow(1, 1, "Ok 0", "1/1 = 1\n1-1 = 0\nsqrt(0) = 0")]
+    [DataRow(2, 2, "Error sqrt(-1) -> Cannot get square root of negative number", "2/2 = 1\n1-2 = -1\nsqrt(-1) -> Cannot get square root of negative number")]
     [DataRow(2, 0, "Error 2/0 -> Cannot divide by 0", "2/0 -> Cannot divide by 0")]
     public void WriterResult_UseCase(int a, int b, string expectedResult, string expectedLog)
     {
