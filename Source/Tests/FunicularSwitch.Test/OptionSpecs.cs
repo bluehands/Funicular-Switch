@@ -598,10 +598,11 @@ public class OptionSpecs
     [TestMethod]
     public void AsConvertOptionValue()
     {
-	    var myBaseOption = Some(new MyDerived());
-	    myBaseOption.As<MyDerived>().IsSome().Should().BeTrue();
-	    myBaseOption.As<MyBase>().IsSome().Should().BeTrue();
-	    myBaseOption.As<AnotherClass>().IsSome().Should().BeFalse();
+	    var value = new MyDerived();
+	    var myBaseOption = Some(value);
+	    myBaseOption.As<MyDerived>().Should().BeSome().Which.Should().Be(value);
+	    myBaseOption.As<MyBase>().Should().BeSome().Which.Should().Be(value);
+	    myBaseOption.As<AnotherClass>().Should().BeNone();
     }
 
     class MyBase;
