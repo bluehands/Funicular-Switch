@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using FunicularSwitch.Generators.Common;
+using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
 
 namespace FunicularSwitch.Generators.ResultType;
@@ -9,7 +10,6 @@ static class Generator
     const string TemplateNamespace = "FunicularSwitch.Generators.Templates";
     const string TemplateResultTypeName = "MyResult";
     const string TemplateErrorTypeName = "MyError";
-    const string MustUseReturnValueAttribute = "[global::JetBrains.Annotations.MustUseReturnValue]";
 
     public static IEnumerable<(string filename, string source)> Emit(ResultTypeSchema resultTypeSchema,
         SymbolWrapper<INamedTypeSymbol> defaultErrorType,
@@ -39,9 +39,9 @@ static class Generator
             if (!referencesJetBrainsAnnotations)
             {
                 code = code
-                    .Replace("[global::JetBrains.Annotations.InstantHandle]", "")
-                    .Replace("[global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]", "")
-                    .Replace(MustUseReturnValueAttribute, "");
+                    .Replace(Constants.Attributes.InstantHandle, "")
+                    .Replace(Constants.Attributes.InstantHandleRequireAwait, "")
+                    .Replace(Constants.Attributes.MustUseReturnValue, "");
             }
             code = code
                 .Replace($"namespace {TemplateNamespace}", $"namespace {resultTypeNamespace}")
@@ -175,7 +175,7 @@ static class Generator
         var taskResultArrayElements = Expand(i => $"r{i}.Result");
         var tupleArguments = Expand(i => $"v{i}");
 
-        var mustUseReturnValueAttribute = referencesJetBrainsAnnotations ? MustUseReturnValueAttribute : "";
+        var mustUseReturnValueAttribute = referencesJetBrainsAnnotations ? Constants.Attributes.MustUseReturnValue : "";
         return $@"
 		{mustUseReturnValueAttribute}
 		public static MyResult<({typeArguments})> Aggregate<{typeArguments}>(this {parameterDeclarations}) => 
@@ -216,7 +216,7 @@ static class Generator
         var taskParameterDeclarations = Expand(i => $"global::System.Threading.Tasks.Task<MyResult<T{i}>> r{i}");
         var parameters = Expand(i => $"r{i}");
 
-        var mustUseReturnValueAttribute = referencesJetBrainsAnnotations ? MustUseReturnValueAttribute : "";
+        var mustUseReturnValueAttribute = referencesJetBrainsAnnotations ? Constants.Attributes.MustUseReturnValue : "";
 		return $@"
 
 		{mustUseReturnValueAttribute}

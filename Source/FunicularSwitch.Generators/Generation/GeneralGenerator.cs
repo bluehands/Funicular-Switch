@@ -6,8 +6,11 @@ internal static class GeneralGenerator
 {
     public static void BlankLine(CSharpBuilder cs) => cs.Content.AppendLine();
 
-    public static void WriteCommonMethodAttributes(CSharpBuilder cs) =>
-        cs.WriteLine($"[global::System.Diagnostics.Contracts.PureAttribute, {Constants.DebuggerStepThroughAttribute}]");
+    public static void WriteCommonMethodAttributes(CSharpBuilder cs)
+    {
+        cs.WriteLine(Constants.Attributes.Pure);
+        cs.WriteLine(Constants.Attributes.DebuggerStepThrough);
+    }
 
     public static void WriteStaticMonad(StaticMonadGenerationInfo data, CSharpBuilder cs, CancellationToken cancellationToken)
     {

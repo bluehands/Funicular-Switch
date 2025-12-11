@@ -9,9 +9,6 @@ static class Generator
 {
 	private const string VoidMatchMethodName = "Switch";
 	private const string MatchMethodName = "Match";
-	private const string InstantHandleAttribute = "[global::JetBrains.Annotations.InstantHandle]";
-	private const string InstantHandleRequireAwaitAttribute = "[global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]";
-	private const string DebuggerStepThroughAttribute = "global::System.Diagnostics.DebuggerStepThrough";
 
 	public static (string filename, string source) Emit(
 		EnumTypeSchema enumTypeSchema,
@@ -134,7 +131,7 @@ static class Generator
 	    string? handlerReturnType = null)
     {
 	    var instantHandle = hasJetBrainsAnnotationsReference ?
-		    isAsync ? InstantHandleRequireAwaitAttribute : InstantHandleAttribute
+		    isAsync ? Constants.Attributes.InstantHandleRequireAwait : Constants.Attributes.InstantHandle
 		    : "";
 	    var modifiers = "public static";
 	    if (isAsync)
@@ -146,7 +143,7 @@ static class Generator
         var handlerParameters = enumTypeSchema.Cases
             .Select(c => new Parameter($"{instantHandle}global::System.Func<{handlerReturnType}>", c.ParameterName));
 
-        builder.WriteAttribute(DebuggerStepThroughAttribute);
+        builder.WriteLine(Constants.Attributes.DebuggerStepThrough);
         builder.WriteMethodSignature(
             modifiers: modifiers,
             returnType: returnType,
@@ -165,13 +162,13 @@ static class Generator
 	    bool lambda = false)
     {
 	    var instantHandle = hasJetBrainsAnnotationsReference ?
-		    isAsync ? InstantHandleRequireAwaitAttribute : InstantHandleAttribute
+		    isAsync ? Constants.Attributes.InstantHandleRequireAwait : Constants.Attributes.InstantHandle
 		    : "";
 	    var returnType = asyncReturn ?? isAsync ? "async global::System.Threading.Tasks.Task" : "void";
         var handlerParameters = enumTypeSchema.Cases
 		    .Select(c => new Parameter(isAsync ? $"{instantHandle}global::System.Func<global::System.Threading.Tasks.Task>" : $"{instantHandle}global::System.Action", c.ParameterName));
 
-        builder.WriteAttribute(DebuggerStepThroughAttribute);
+        builder.WriteLine(Constants.Attributes.DebuggerStepThrough);
         builder.WriteMethodSignature(
 		    modifiers: "public static",
 		    returnType: returnType,
