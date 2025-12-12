@@ -181,10 +181,6 @@ public static class BuildExtensions
         }
         tt.NewLine();
     }
-    public static void WriteAttribute(this CSharpBuilder tt, string attributeName)
-    {
-        tt.WriteLine("[{0}]", attributeName);
-    }
 
     public static void WriteAutoProperty(this CSharpBuilder tt, string returnType, string propertyName)
     {

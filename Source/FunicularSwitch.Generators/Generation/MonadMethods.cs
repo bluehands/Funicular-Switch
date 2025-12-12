@@ -117,7 +117,7 @@ internal static class MonadMethods
                     new ParameterGenerationInfo(Types.Func("A", fnReturnType(t)), "fn"),
                 ],
                 name,
-                t => $"{chainedMonad.BindMethod.Invoke([..t, "A", "B"], [$"(({chainedMonad.GenericTypeName([..t, "A"])}){p})", $"[{Constants.DebuggerStepThroughAttribute}](a) => fn(a)"])}"
+                t => $"{chainedMonad.BindMethod.Invoke([..t, "A", "B"], [$"(({chainedMonad.GenericTypeName([..t, "A"])}){p})", $"{Constants.Attributes.DebuggerStepThrough}(a) => fn(a)"])}"
             ));
     }
 
@@ -142,7 +142,7 @@ internal static class MonadMethods
                     new ParameterGenerationInfo(Types.Func("A", "B", "C"), "selector"),
                 ],
                 name,
-                t => $"{p}.SelectMany([{Constants.DebuggerStepThroughAttribute}](a) => (({genericTypeName([..t, "B"])})fn(a)).Map([{Constants.DebuggerStepThroughAttribute}](b) => selector(a, b)))"
+                t => $"{p}.SelectMany({Constants.Attributes.DebuggerStepThrough}(a) => (({genericTypeName([..t, "B"])})fn(a)).Map({Constants.Attributes.DebuggerStepThrough}(b) => selector(a, b)))"
             ));
     }
 
@@ -152,7 +152,7 @@ internal static class MonadMethods
             ["A"],
             [new ParameterGenerationInfo(outerMonad.GenericTypeName(["A"]), "ma")],
             "Lift",
-            $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName(["A"])}"], [p, $"[{Constants.DebuggerStepThroughAttribute}](a) => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}"
+            $"{outerMonad.BindMethod.Invoke(["A", $"{innerMonad.GenericTypeName(["A"])}"], [p, $"{Constants.Attributes.DebuggerStepThrough}(a) => {chainedMonad.ReturnMethod.Invoke(["A"], ["a"])}"])}"
         ));
 
     private static IEnumerable<MethodGenerationInfo> Map(string name, ConstructType genericTypeName, MonadInfo monad) =>
@@ -167,7 +167,7 @@ internal static class MonadMethods
                 new ParameterGenerationInfo(Types.Func("A", "B"), "fn"),
             ],
             name,
-            t => $"{p}.{monad.BindMethod.Name}([{Constants.DebuggerStepThroughAttribute}](a) => {monad.ReturnMethod.Invoke([..t, "B"], ["fn(a)"])})"
+            t => $"{p}.{monad.BindMethod.Name}({Constants.Attributes.DebuggerStepThrough}(a) => {monad.ReturnMethod.Invoke([..t, "B"], ["fn(a)"])})"
         ));
 
     private static IEnumerable<MethodGenerationInfo> Return(ConstructType genericTypeName, MonadInfo chainedMonad) =>

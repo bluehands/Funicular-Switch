@@ -3,6 +3,7 @@ namespace System
 {
 	public static partial class DateTimeKindMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this System.DateTimeKind dateTimeKind, global::System.Func<T> local, global::System.Func<T> unspecified, global::System.Func<T> utc) =>
 		dateTimeKind switch
 		{
@@ -12,21 +13,25 @@ namespace System
 			_ => throw new global::System.ArgumentException($"Unknown enum value from System.DateTimeKind: {dateTimeKind.GetType().Name}")
 		};
 		
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this System.DateTimeKind dateTimeKind, global::System.Func<global::System.Threading.Tasks.Task<T>> local, global::System.Func<global::System.Threading.Tasks.Task<T>> unspecified, global::System.Func<global::System.Threading.Tasks.Task<T>> utc) =>
+		[global::System.Diagnostics.DebuggerStepThrough]
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this System.DateTimeKind dateTimeKind, global::System.Func<global::System.Threading.Tasks.Task<T>> local, global::System.Func<global::System.Threading.Tasks.Task<T>> unspecified, global::System.Func<global::System.Threading.Tasks.Task<T>> utc) =>
 		dateTimeKind switch
 		{
-			System.DateTimeKind.Local => local(),
-			System.DateTimeKind.Unspecified => unspecified(),
-			System.DateTimeKind.Utc => utc(),
+			System.DateTimeKind.Local => await local().ConfigureAwait(false),
+			System.DateTimeKind.Unspecified => await unspecified().ConfigureAwait(false),
+			System.DateTimeKind.Utc => await utc().ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown enum value from System.DateTimeKind: {dateTimeKind.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<System.DateTimeKind> dateTimeKind, global::System.Func<T> local, global::System.Func<T> unspecified, global::System.Func<T> utc) =>
 		(await dateTimeKind.ConfigureAwait(false)).Match(local, unspecified, utc);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<System.DateTimeKind> dateTimeKind, global::System.Func<global::System.Threading.Tasks.Task<T>> local, global::System.Func<global::System.Threading.Tasks.Task<T>> unspecified, global::System.Func<global::System.Threading.Tasks.Task<T>> utc) =>
 		await (await dateTimeKind.ConfigureAwait(false)).Match(local, unspecified, utc).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this System.DateTimeKind dateTimeKind, global::System.Action local, global::System.Action unspecified, global::System.Action utc)
 		{
 			switch (dateTimeKind)
@@ -45,6 +50,7 @@ namespace System
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this System.DateTimeKind dateTimeKind, global::System.Func<global::System.Threading.Tasks.Task> local, global::System.Func<global::System.Threading.Tasks.Task> unspecified, global::System.Func<global::System.Threading.Tasks.Task> utc)
 		{
 			switch (dateTimeKind)
@@ -63,9 +69,11 @@ namespace System
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<System.DateTimeKind> dateTimeKind, global::System.Action local, global::System.Action unspecified, global::System.Action utc) =>
 		(await dateTimeKind.ConfigureAwait(false)).Switch(local, unspecified, utc);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<System.DateTimeKind> dateTimeKind, global::System.Func<global::System.Threading.Tasks.Task> local, global::System.Func<global::System.Threading.Tasks.Task> unspecified, global::System.Func<global::System.Threading.Tasks.Task> utc) =>
 		await (await dateTimeKind.ConfigureAwait(false)).Switch(local, unspecified, utc).ConfigureAwait(false);
 	}

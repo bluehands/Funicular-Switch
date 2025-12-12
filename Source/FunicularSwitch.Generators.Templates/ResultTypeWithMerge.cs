@@ -12,23 +12,28 @@ namespace FunicularSwitch.Generators.Templates
 
     public static partial class MyResultExtension
     {
-        public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T1>> Map<T, T1>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> results,
+	    [global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T1>> Map<T, T1>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> results,
             [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, T1> map) =>
             results.Select(r => r.Map(map)).Aggregate();
 
-        public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T1>> Bind<T, T1>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> results,
+	    [global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T1>> Bind<T, T1>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> results,
             [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, MyResult<T1>> bind) =>
             results.Select(r => r.Bind(bind)).Aggregate();
 
-        public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T1>> Bind<T, T1>(this MyResult<T> result,
+		[global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T1>> Bind<T, T1>(this MyResult<T> result,
             [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Collections.Generic.IEnumerable<MyResult<T1>>> bindMany) =>
             result.Map(ok => bindMany(ok).Aggregate()).Flatten();
 
-        public static MyResult<T1> Bind<T, T1>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> results,
+		[global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<T1> Bind<T, T1>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> results,
             [global::JetBrains.Annotations.InstantHandle]global::System.Func<global::System.Collections.Generic.IEnumerable<T>, MyResult<T1>> bind) =>
             results.Aggregate().Bind(bind);
-        
-        public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>> Aggregate<T>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> results)
+
+		[global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>> Aggregate<T>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> results)
         {
             var isError = false;
             MyError aggregated = default!;
@@ -50,25 +55,29 @@ namespace FunicularSwitch.Generators.Templates
                 : MyResult.Ok<global::System.Collections.Generic.IReadOnlyCollection<T>>(oks);
         }
 
-        public static async global::System.Threading.Tasks.Task<MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
+        [global::JetBrains.Annotations.MustUseReturnValue]
+		public static async global::System.Threading.Tasks.Task<MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
             this global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<MyResult<T>>> results)
             => (await results.ConfigureAwait(false))
                 .Aggregate();
 
-        public static async global::System.Threading.Tasks.Task<MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
+		[global::JetBrains.Annotations.MustUseReturnValue]
+		public static async global::System.Threading.Tasks.Task<MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
             this global::System.Collections.Generic.IEnumerable<global::System.Threading.Tasks.Task<MyResult<T>>> results)
             => (await global::System.Threading.Tasks.Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
                 .Aggregate();
 
-        public static async global::System.Threading.Tasks.Task<MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>>> AggregateMany<T>(
+		[global::JetBrains.Annotations.MustUseReturnValue]
+		public static async global::System.Threading.Tasks.Task<MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>>> AggregateMany<T>(
             this global::System.Collections.Generic.IEnumerable<global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<MyResult<T>>>> results)
             => (await global::System.Threading.Tasks.Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
                 .SelectMany(e => e)
                 .Aggregate();
 
-        //generated aggregate extension methods
+		//generated aggregate extension methods
 
-        public static MyResult<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> results, [global::JetBrains.Annotations.InstantHandle]global::System.Func<MyError> onEmpty)
+		[global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> results, [global::JetBrains.Annotations.InstantHandle]global::System.Func<MyError> onEmpty)
         {
             var errors = new global::System.Collections.Generic.List<MyError>();
             foreach (var result in results)
@@ -85,13 +94,15 @@ namespace FunicularSwitch.Generators.Templates
             return MyResult.Error<T>(MergeErrors(errors));
         }
 
-        public static async global::System.Threading.Tasks.Task<MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
+        [global::JetBrains.Annotations.MustUseReturnValue]
+		public static async global::System.Threading.Tasks.Task<MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
             this global::System.Collections.Generic.IEnumerable<global::System.Threading.Tasks.Task<MyResult<T>>> results,
             int maxDegreeOfParallelism)
             => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
                 .Aggregate();
 
-        public static async global::System.Threading.Tasks.Task<MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>>> AggregateMany<T>(
+		[global::JetBrains.Annotations.MustUseReturnValue]
+		public static async global::System.Threading.Tasks.Task<MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>>> AggregateMany<T>(
             this global::System.Collections.Generic.IEnumerable<global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<MyResult<T>>>> results,
             int maxDegreeOfParallelism)
             => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
@@ -119,19 +130,23 @@ namespace FunicularSwitch.Generators.Templates
             }
         }
 
-        public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Collections.Generic.IEnumerable<MyError>> validate) =>
+        [global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Collections.Generic.IEnumerable<MyError>> validate) =>
             candidates
                 .Select(c => c.Validate(validate))
                 .Aggregate();
 
-        public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> candidates,
+		[global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<MyResult<T>> candidates,
             [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Collections.Generic.IEnumerable<MyError>> validate) =>
             candidates
                 .Bind(items => items.AllOk(validate));
 
-        public static MyResult<T> Validate<T>(this MyResult<T> item, [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Collections.Generic.IEnumerable<MyError>> validate) => item.Bind(i => i.Validate(validate));
+		[global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<T> Validate<T>(this MyResult<T> item, [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Collections.Generic.IEnumerable<MyError>> validate) => item.Bind(i => i.Validate(validate));
 
-        public static MyResult<T> Validate<T>(this T item, [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Collections.Generic.IEnumerable<MyError>> validate)
+		[global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<T> Validate<T>(this T item, [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Collections.Generic.IEnumerable<MyError>> validate)
         {
 	        try
 	        {
@@ -147,7 +162,8 @@ namespace FunicularSwitch.Generators.Templates
 	        }
         }
 
-        public static MyResult<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Collections.Generic.IEnumerable<MyError>> validate, [global::JetBrains.Annotations.InstantHandle]global::System.Func<MyError> onEmpty) =>
+        [global::JetBrains.Annotations.MustUseReturnValue]
+		public static MyResult<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, [global::JetBrains.Annotations.InstantHandle]global::System.Func<T, global::System.Collections.Generic.IEnumerable<MyError>> validate, [global::JetBrains.Annotations.InstantHandle]global::System.Func<MyError> onEmpty) =>
             candidates
                 .Select(r => r.Validate(validate))
                 .FirstOk(onEmpty);

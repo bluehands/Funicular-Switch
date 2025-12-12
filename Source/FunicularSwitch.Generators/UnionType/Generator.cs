@@ -10,9 +10,6 @@ public static class Generator
 {
     private const string VoidMatchMethodName = "Switch";
     private const string MatchMethodName = "Match";
-    private const string InstantHandleAttribute = "[global::JetBrains.Annotations.InstantHandle]";
-    private const string InstantHandleRequireAwaitAttribute = "[global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]";
-    private const string DebuggerStepThroughAttribute = "global::System.Diagnostics.DebuggerStepThrough";
 
     public static (string filename, string source) Emit(
         UnionTypeSchema unionTypeSchema,
@@ -153,7 +150,7 @@ public static class Generator
                             .Select(p => new ParameterInfo(p.parameterName, ImmutableArray<string>.Empty, p.requiredProperty.Type, null))
                         ).ToSeparatedString();
                     var constructorInvocation = $"new {derivedType.FullTypeName}({(constructor.Parameters.Select(p => p.Name).ToSeparatedString())})";
-                    builder.WriteAttribute(DebuggerStepThroughAttribute);
+                    builder.WriteLine(Constants.Attributes.DebuggerStepThrough);
                     builder.Write($"{(isInternal ? "internal" : "public")} static {unionTypeSchema.FullTypeName}{typeParameters} {methodName}({arguments}) => {constructorInvocation}");
 
                     if (requiredParametersToAdd.Count > 0)
@@ -287,7 +284,7 @@ public static class Generator
         string t = "T")
     {
         var instantHandle = hasJetBrainsAnnotationsReference
-            ? isAsync ? InstantHandleRequireAwaitAttribute : InstantHandleAttribute
+            ? isAsync ? Constants.Attributes.InstantHandleRequireAwait : Constants.Attributes.InstantHandle
             : "";
         var modifiers = "public static";
         if (isAsync)
@@ -303,7 +300,8 @@ public static class Generator
 
         var typeParameterList = unionTypeSchema.TypeParameters.Concat([t]).ToSeparatedString();
 
-        builder.WriteAttribute(DebuggerStepThroughAttribute);
+        builder.WriteLine(Constants.Attributes.DebuggerStepThrough);
+        if (hasJetBrainsAnnotationsReference) builder.WriteLine(Constants.Attributes.MustUseReturnValue);
         builder.WriteMethodSignature(
             modifiers: modifiers,
             returnType: returnType,
@@ -323,7 +321,7 @@ public static class Generator
         bool lambda = false)
     {
         var instantHandle = hasJetBrainsAnnotationsReference
-            ? isAsync ? InstantHandleRequireAwaitAttribute : InstantHandleAttribute
+            ? isAsync ? Constants.Attributes.InstantHandleRequireAwait : Constants.Attributes.InstantHandle
             : "";
         var returnType = asyncReturn ?? isAsync ? "async global::System.Threading.Tasks.Task" : "void";
         var handlerParameters = unionTypeSchema.Cases
@@ -343,7 +341,7 @@ public static class Generator
 
         var typeParameters = RoslynExtensions.FormatTypeParameters(unionTypeSchema.TypeParameters);
 
-        builder.WriteAttribute(DebuggerStepThroughAttribute);
+        builder.WriteLine(Constants.Attributes.DebuggerStepThrough);
         builder.WriteMethodSignature(
             modifiers: "public static",
             returnType: returnType,

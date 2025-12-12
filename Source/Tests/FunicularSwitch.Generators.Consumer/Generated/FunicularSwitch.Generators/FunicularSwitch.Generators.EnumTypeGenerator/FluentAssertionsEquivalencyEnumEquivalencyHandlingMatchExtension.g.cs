@@ -3,6 +3,7 @@ namespace FluentAssertions.Equivalency
 {
 	internal static partial class EnumEquivalencyHandlingMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, global::System.Func<T> byName, global::System.Func<T> byValue) =>
 		enumEquivalencyHandling switch
 		{
@@ -11,20 +12,24 @@ namespace FluentAssertions.Equivalency
 			_ => throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EnumEquivalencyHandling: {enumEquivalencyHandling.GetType().Name}")
 		};
 		
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, global::System.Func<global::System.Threading.Tasks.Task<T>> byName, global::System.Func<global::System.Threading.Tasks.Task<T>> byValue) =>
+		[global::System.Diagnostics.DebuggerStepThrough]
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, global::System.Func<global::System.Threading.Tasks.Task<T>> byName, global::System.Func<global::System.Threading.Tasks.Task<T>> byValue) =>
 		enumEquivalencyHandling switch
 		{
-			FluentAssertions.Equivalency.EnumEquivalencyHandling.ByName => byName(),
-			FluentAssertions.Equivalency.EnumEquivalencyHandling.ByValue => byValue(),
+			FluentAssertions.Equivalency.EnumEquivalencyHandling.ByName => await byName().ConfigureAwait(false),
+			FluentAssertions.Equivalency.EnumEquivalencyHandling.ByValue => await byValue().ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown enum value from FluentAssertions.Equivalency.EnumEquivalencyHandling: {enumEquivalencyHandling.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, global::System.Func<T> byName, global::System.Func<T> byValue) =>
 		(await enumEquivalencyHandling.ConfigureAwait(false)).Match(byName, byValue);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, global::System.Func<global::System.Threading.Tasks.Task<T>> byName, global::System.Func<global::System.Threading.Tasks.Task<T>> byValue) =>
 		await (await enumEquivalencyHandling.ConfigureAwait(false)).Match(byName, byValue).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, global::System.Action byName, global::System.Action byValue)
 		{
 			switch (enumEquivalencyHandling)
@@ -40,6 +45,7 @@ namespace FluentAssertions.Equivalency
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this FluentAssertions.Equivalency.EnumEquivalencyHandling enumEquivalencyHandling, global::System.Func<global::System.Threading.Tasks.Task> byName, global::System.Func<global::System.Threading.Tasks.Task> byValue)
 		{
 			switch (enumEquivalencyHandling)
@@ -55,9 +61,11 @@ namespace FluentAssertions.Equivalency
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, global::System.Action byName, global::System.Action byValue) =>
 		(await enumEquivalencyHandling.ConfigureAwait(false)).Switch(byName, byValue);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FluentAssertions.Equivalency.EnumEquivalencyHandling> enumEquivalencyHandling, global::System.Func<global::System.Threading.Tasks.Task> byName, global::System.Func<global::System.Threading.Tasks.Task> byValue) =>
 		await (await enumEquivalencyHandling.ConfigureAwait(false)).Switch(byName, byValue).ConfigureAwait(false);
 	}

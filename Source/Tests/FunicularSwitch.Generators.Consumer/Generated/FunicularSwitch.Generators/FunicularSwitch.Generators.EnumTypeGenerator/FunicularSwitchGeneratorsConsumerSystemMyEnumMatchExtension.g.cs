@@ -3,6 +3,7 @@ namespace FunicularSwitch.Generators.Consumer.System
 {
 	public static partial class MyEnumMatchExtension
 	{
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static T Match<T>(this FunicularSwitch.Generators.Consumer.System.MyEnum myEnum, global::System.Func<T> one, global::System.Func<T> two) =>
 		myEnum switch
 		{
@@ -11,20 +12,24 @@ namespace FunicularSwitch.Generators.Consumer.System
 			_ => throw new global::System.ArgumentException($"Unknown enum value from FunicularSwitch.Generators.Consumer.System.MyEnum: {myEnum.GetType().Name}")
 		};
 		
-		public static global::System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Generators.Consumer.System.MyEnum myEnum, global::System.Func<global::System.Threading.Tasks.Task<T>> one, global::System.Func<global::System.Threading.Tasks.Task<T>> two) =>
+		[global::System.Diagnostics.DebuggerStepThrough]
+		public static async global::System.Threading.Tasks.Task<T> Match<T>(this FunicularSwitch.Generators.Consumer.System.MyEnum myEnum, global::System.Func<global::System.Threading.Tasks.Task<T>> one, global::System.Func<global::System.Threading.Tasks.Task<T>> two) =>
 		myEnum switch
 		{
-			FunicularSwitch.Generators.Consumer.System.MyEnum.One => one(),
-			FunicularSwitch.Generators.Consumer.System.MyEnum.Two => two(),
+			FunicularSwitch.Generators.Consumer.System.MyEnum.One => await one().ConfigureAwait(false),
+			FunicularSwitch.Generators.Consumer.System.MyEnum.Two => await two().ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown enum value from FunicularSwitch.Generators.Consumer.System.MyEnum: {myEnum.GetType().Name}")
 		};
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.System.MyEnum> myEnum, global::System.Func<T> one, global::System.Func<T> two) =>
 		(await myEnum.ConfigureAwait(false)).Match(one, two);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.System.MyEnum> myEnum, global::System.Func<global::System.Threading.Tasks.Task<T>> one, global::System.Func<global::System.Threading.Tasks.Task<T>> two) =>
 		await (await myEnum.ConfigureAwait(false)).Match(one, two).ConfigureAwait(false);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static void Switch(this FunicularSwitch.Generators.Consumer.System.MyEnum myEnum, global::System.Action one, global::System.Action two)
 		{
 			switch (myEnum)
@@ -40,6 +45,7 @@ namespace FunicularSwitch.Generators.Consumer.System
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this FunicularSwitch.Generators.Consumer.System.MyEnum myEnum, global::System.Func<global::System.Threading.Tasks.Task> one, global::System.Func<global::System.Threading.Tasks.Task> two)
 		{
 			switch (myEnum)
@@ -55,9 +61,11 @@ namespace FunicularSwitch.Generators.Consumer.System
 			}
 		}
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.System.MyEnum> myEnum, global::System.Action one, global::System.Action two) =>
 		(await myEnum.ConfigureAwait(false)).Switch(one, two);
 		
+		[global::System.Diagnostics.DebuggerStepThrough]
 		public static async global::System.Threading.Tasks.Task Switch(this global::System.Threading.Tasks.Task<FunicularSwitch.Generators.Consumer.System.MyEnum> myEnum, global::System.Func<global::System.Threading.Tasks.Task> one, global::System.Func<global::System.Threading.Tasks.Task> two) =>
 		await (await myEnum.ConfigureAwait(false)).Switch(one, two).ConfigureAwait(false);
 	}
