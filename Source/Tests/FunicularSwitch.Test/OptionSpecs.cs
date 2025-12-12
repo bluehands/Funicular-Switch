@@ -724,7 +724,7 @@ public class OptionSpecs
         // ReSharper disable once VariableCanBeNotNullable
         string? valueTarget = "Hi";
 
-	    nullTarget.ToOption(x => x == "Hi").Should().BeNone();
+	    nullTarget.ToOption(x => x == "Hello").Should().BeNone();
 	    nullTarget.ToOption(x => x == "Hi").Should().BeNone();
 	    valueTarget.ToOption(x => x == "Hello").Should().BeNone();
 	    valueTarget.ToOption(x => x == "Hi").Should().BeSome().Which.Should().Be("Hi");
@@ -734,10 +734,14 @@ public class OptionSpecs
     public void ToOption_HasValueFunc_Struct()
     {
 	    int? nullTarget = null;
-	    int? valueTarget = 8;
+	    nullTarget.ToOption(x => x == 5).Should().BeNone();
+	    nullTarget.ToOption(x => x == 8).Should().BeNone();
 
-	    nullTarget.ToOption(x => x == 8).Should().BeNone();
-	    nullTarget.ToOption(x => x == 8).Should().BeNone();
+	    int? nullableValueTarget = 11;
+	    nullableValueTarget.ToOption(x => x == 11).Should().BeSome().Which.Should().Be(11);
+	    nullableValueTarget.ToOption(x => x == 5).Should().BeNone();
+	    
+	    int valueTarget = 8;
 	    valueTarget.ToOption(x => x == 5).Should().BeNone();
 	    valueTarget.ToOption(x => x == 8).Should().BeSome().Which.Should().Be(8);
     }
