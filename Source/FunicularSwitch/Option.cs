@@ -244,11 +244,11 @@ namespace FunicularSwitch
     
     public static class OptionStructExtensions
     {
-        public static Option<T> ToOption<T>(this T? item) where T : struct =>
-            item.HasValue ? Option.Some(item.Value) : Option<T>.None;
-        
         public static T? ToNullable<T>(this Option<T> option) where T : struct =>
             option.Match(some => some, () => (T?)null);
+
+        public static Option<T> ToOption<T>(this T? item) where T : struct =>
+            item.HasValue ? Option.Some(item.Value) : Option<T>.None;
         
         public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : struct
             => value is not null && hasValue(value.Value) ? Option.Some(value.Value) : Option.None();
@@ -259,11 +259,11 @@ namespace FunicularSwitch
 
     public static class OptionClassExtensions
     {
-        public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
-
         public static Option<TTarget> As<TTarget>(this object item) where TTarget : class =>
             (item as TTarget).ToOption();
-        
+
+        public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
+
         public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class
             => value is not null && hasValue(value) ? Option.Some(value) : Option.None();
         
