@@ -165,17 +165,6 @@ namespace FunicularSwitch
             return option.Match(s => s, () => Option<T>.None);
         }
 
-        public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
-
-        public static Option<T> ToOption<T>(this T? item) where T : struct =>
-            item.HasValue ? Option.Some(item.Value) : Option<T>.None;
-
-        public static T? ToNullable<T>(this Option<T> option) where T : struct =>
-            option.Match(some => some, () => (T?)null);
-
-        public static Option<TTarget> As<TTarget>(this object item) where TTarget : class =>
-            (item as TTarget).ToOption();
-
         public static async Task<TOut> Match<T, TOut>(this Task<Option<T>> option, Func<T, TOut> some, Func<TOut> none)
         {
             var result = await option.ConfigureAwait(false);
@@ -224,9 +213,6 @@ namespace FunicularSwitch
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
             option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
 
-        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) 
-            => value is not null && hasValue(value) ? Option.Some(value) : Option.None();
-
         public static Option<string> NoneIfEmpty(this string? text)
             => text.ToOption(x => !string.IsNullOrEmpty(x));
 
@@ -256,5 +242,32 @@ namespace FunicularSwitch
             result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
         #endregion
+    }
+    
+    public static class OptionStructExtensions
+    {
+        public static Option<T> ToOption<T>(this T? item) where T : struct =>
+            item.HasValue ? Option.Some(item.Value) : Option<T>.None;
+        
+        public static T? ToNullable<T>(this Option<T> option) where T : struct =>
+            option.Match(some => some, () => (T?)null);
+        
+        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : struct
+            => value is not null && hasValue(value.Value) ? Option.Some(value.Value) : Option.None();
+        
+        public static Option<T> ToOption<T>(this T value, Func<T, bool> hasValue) where T : struct
+            => hasValue(value) ? Option.Some(value) : Option.None();
+    }
+
+    public static class OptionClassExtensions
+    {
+        public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
+
+        public static Option<TTarget> As<TTarget>(this object item) where TTarget : class =>
+            (item as TTarget).ToOption();
+        
+        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class
+            => value is not null && hasValue(value) ? Option.Some(value) : Option.None();
+        
     }
 }
