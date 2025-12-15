@@ -27,6 +27,14 @@ public class EnumerableExtensionSpecs
     private static IEnumerable<int?> ListEnumerable(IEnumerable<int?> source) => source.ToList();
 
     [TestMethod]
+    public void WhereSome_CorrectCollectionReturned()
+    {
+        IEnumerable<Option<int>> target = [1, Option.None(), 2, Option.None(), 3];
+        var result = target.WhereSome();
+        result.Should().Equal([1, 2, 3]);
+    }
+
+    [TestMethod]
     public void FirstOrNone_Empty_ReturnsNone()
     {
         // Given

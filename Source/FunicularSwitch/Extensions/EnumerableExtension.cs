@@ -127,6 +127,8 @@ public static class EnumerableExtensions
         return items.Append(item).Concat(further);
     }
 
+    public static IEnumerable<T> WhereSome<T>(this IEnumerable<Option<T>> option) => option.SelectMany(o => o);
+
     public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source) 
         => source.FirstOrNone(static _ => true);
     

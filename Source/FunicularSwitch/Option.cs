@@ -215,8 +215,6 @@ namespace FunicularSwitch
 
         public static Option<string> NoneIfEmpty(this string? text)
             => text.ToOption(x => !string.IsNullOrEmpty(x));
-
-        public static IEnumerable<T> WhereSome<T>(this IEnumerable<Option<T>> option) => option.SelectMany(o => o);
         
         #region query-expression pattern
 

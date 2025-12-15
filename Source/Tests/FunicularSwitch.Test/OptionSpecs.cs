@@ -772,14 +772,6 @@ public class OptionSpecs
 	    result.Should().BeSome().Which.Should().Be("Hi");
     }
 
-    [TestMethod]
-    public void WhereSome_CorrectCollectionReturned()
-    {
-	    IEnumerable<Option<int>> target = [1, None(), 2, None(), 3];
-	    var result = target.WhereSome();
-	    result.Should().Equal([1, 2, 3]);
-    }
-
     class MyClass;
 
     class MyOtherClass;
