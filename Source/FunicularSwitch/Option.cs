@@ -266,30 +266,29 @@ namespace FunicularSwitch
 			=> hasValue(value) ? Option.Some(value) : Option.None();
 
 		public static Option<TTarget> As<TTarget>(this object? item) where TTarget : struct
-		{
-			if (item == null)
-				return Option<TTarget>.None;
-			
-			return item is Option<TTarget> option ? option 
-				: item.GetType() == typeof(TTarget) ? Option.Some((TTarget)item) 
-				: Option.None<TTarget>();
-		}
+			=> item switch
+			{
+				Option<TTarget> option => option,
+				TTarget target => Option.Some<TTarget>(target),
+				_ => Option.None<TTarget>(),
+			};
 	}
 
 	public static class OptionClassExtensions
 	{
-		public static Option<TTarget> As<TTarget>(this object? item) where TTarget : class
-		{
-			if (item is IInternalOption o && typeof(TTarget).IsAssignableFrom(o.OptionType))
-				return o.IsNone() ? Option.None<TTarget>() : Option<TTarget>.Some((TTarget)o.Value!);
-
-			return (item as TTarget).ToOption();
-		}
-
 		public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
 
 		public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class
 			=> value is not null && hasValue(value) ? Option.Some(value) : Option.None();
-
+		
+		public static Option<TTarget> As<TTarget>(this object? item) where TTarget : class
+			=> item switch
+			{
+				IInternalOption option when typeof(TTarget).IsAssignableFrom(option.OptionType)
+					=> option.IsSome()
+						? Option<TTarget>.Some((TTarget)option.Value!)
+						: Option.None<TTarget>(),
+				_ => (item as TTarget).ToOption(),
+			};
 	}
 }
