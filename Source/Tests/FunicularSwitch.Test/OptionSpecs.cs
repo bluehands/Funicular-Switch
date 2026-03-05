@@ -635,6 +635,25 @@ public class OptionSpecs
     }
 
     [TestMethod]
+    public void As_NestedOptions_UnpacksOneLevel()
+    {
+        var nestedOption = Some(Some(new MyDerived()));
+        object boxed = nestedOption;
+
+        var asBase = nestedOption.As<MyBase>();
+        var asFlatOption = nestedOption.As<Option<MyDerived>>();
+
+        var boxedAsBase = boxed.As<MyBase>();
+        var boxedAsFlatOption = boxed.As<Option<MyDerived>>();
+
+        asBase.Should().BeNone();
+        asFlatOption.Should().BeSome().Which.Should().BeSome().Which.Should().BeOfType<MyDerived>();
+
+        boxedAsBase.Should().BeNone();
+        boxedAsFlatOption.Should().BeSome().Which.Should().BeSome().Which.Should().BeOfType<MyDerived>();
+    }
+
+    [TestMethod]
     public void AsConvertOptionValue()
     {
         var value = new MyDerived();

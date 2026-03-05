@@ -24,7 +24,6 @@ namespace FunicularSwitch
 
     internal interface IInternalOption : IOption
     {
-        Type OptionType { get; }
         object? Value { get; }
     }
 
@@ -50,7 +49,6 @@ namespace FunicularSwitch
 
         public bool IsNone() => !_isSome;
 
-        Type IInternalOption.OptionType => typeof(T);
         object? IInternalOption.Value => _value;
 
         public Option<T1> Map<T1>(Func<T, T1> map) => Match(t => Option<T1>.Some(map(t)), Option<T1>.None);
@@ -169,19 +167,6 @@ namespace FunicularSwitch
 
     public static class OptionExtension
     {
-        public static Option<TTarget> As<TTarget>(this object? item)
-            => item switch
-            {
-                IInternalOption option when typeof(TTarget).IsAssignableFrom(option.OptionType)
-                    => option.IsSome()
-                        ? option.Value == null
-                            ? Option<TTarget>.None
-                            : Option<TTarget>.Some((TTarget)option.Value)
-                        : Option<TTarget>.None,
-                TTarget target => Option.Some(target),
-                _ => Option.None<TTarget>()
-            };
-
         public static Option<T> Flatten<T>(this Option<Option<T>> option)
         {
             return option.Match(s => s, () => Option<T>.None);
@@ -261,6 +246,15 @@ namespace FunicularSwitch
             Func<T, T1, T2> resultSelector) =>
             result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
+        public static Option<TTarget> As<TTarget>(this object? item)
+            => item switch
+            {
+                TTarget target => Option.Some(target),
+                IInternalOption option => option.IsSome() && option.Value is TTarget target
+                    ? Option.Some(target)
+                    : Option<TTarget>.None,
+                _ => Option.None<TTarget>()
+            };
         #endregion
     }
 
