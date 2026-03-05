@@ -71,7 +71,8 @@ public class OptionSpecs
 				someCalled = true;
 				numberPassed = x;
 				return Task.CompletedTask;
-			}, none: () =>
+			},
+			none: () =>
 			{
 				noneCalled = true;
 				return Task.CompletedTask;
@@ -371,10 +372,7 @@ public class OptionSpecs
 		bool? foo = null;
 
 		var result = foo ?? Result<bool>.Error("Value is missing");
-		if (result)
-		{
-
-		}
+	
 		result.Should().BeError().Subject.Should().Be("Value is missing");
 	}
 
