@@ -22,9 +22,9 @@ public class MatchNullAnalyzer : DiagnosticAnalyzer
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        
+
         context.EnableConcurrentExecution();
-        
+
         context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
     }
 
@@ -34,7 +34,7 @@ public class MatchNullAnalyzer : DiagnosticAnalyzer
         {
             return;
         }
-        
+
         if (context.SemanticModel.GetSymbolInfo(invocationExpressionSyntax, context.CancellationToken)
                 .Symbol is not IMethodSymbol methodSymbol)
         {

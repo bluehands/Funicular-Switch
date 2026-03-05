@@ -50,7 +50,7 @@ public class TransformerSpecs
     public void ResultOption_Bind_WithOkNone()
     {
         // Arrange
-        var value = (ResultOption<int>) Result.Ok(Option.None<int>());
+        var value = (ResultOption<int>)Result.Ok(Option.None<int>());
         var expected = new ResultOption<string>(Result.Ok(Option.None<string>()));
 
         // Act
@@ -125,7 +125,7 @@ public class TransformerSpecs
         static Writer<FunicularSwitch.Result<int>> Sqrt(int a) =>
             a < 0
                 ? WriterResult.Error<int>($"sqrt({a}) -> Cannot get square root of negative number")
-                : WriterResult.Append((int) Math.Sqrt(a), v => $"sqrt({a}) = {v}");
+                : WriterResult.Append((int)Math.Sqrt(a), v => $"sqrt({a}) = {v}");
 
         static Writer<FunicularSwitch.Result<int>> Div(int a, int b) =>
             b == 0
@@ -153,7 +153,7 @@ public static partial class Writer
     public static Writer<B> Bind<A, B>(this Writer<A> ma, Func<A, Writer<B>> fn)
     {
         var tmp = fn(ma.Value);
-        var result = tmp with {Log = [..ma.Log, ..tmp.Log]};
+        var result = tmp with { Log = [.. ma.Log, .. tmp.Log] };
         return result;
     }
 

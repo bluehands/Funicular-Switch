@@ -1,18 +1,16 @@
-using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FunicularSwitch.Generators.Test;
 
 [TestClass]
 public class Run_enum_match_method_generator : VerifySourceGenerator
 {
-	[TestMethod]
-	public Task For_enum_type()
-	{
-		var code = 
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_enum_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			[assembly: ExtendEnums(typeof(FunicularSwitch.Test.test), CaseOrder = EnumCaseOrder.Alphabetic, Accessibility = ExtensionAccessibility.Internal)]
@@ -28,16 +26,16 @@ public class Run_enum_match_method_generator : VerifySourceGenerator
 			}
 			""";
 
-		return Verify(code);
-	}
-	
-	
-	[TestMethod]
-	public Task For_enum_type_with_order()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+        return Verify(code);
+    }
+
+
+    [TestMethod]
+    public Task For_enum_type_with_order()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -55,15 +53,15 @@ public class Run_enum_match_method_generator : VerifySourceGenerator
 			}
 			""";
 
-		return Verify(code);
-	}
-	
-	[TestMethod]
-	public Task For_enum_type_embedded()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+        return Verify(code);
+    }
+
+    [TestMethod]
+    public Task For_enum_type_embedded()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -79,15 +77,15 @@ public class Run_enum_match_method_generator : VerifySourceGenerator
 			}
 
 			""";
-		return Verify(code);
-	}
-	
-	[TestMethod]
-	public Task ForEnumType_WhenJetBrainsAnnotationsPackageIsReferenced()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+        return Verify(code);
+    }
+
+    [TestMethod]
+    public Task ForEnumType_WhenJetBrainsAnnotationsPackageIsReferenced()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -100,6 +98,6 @@ public class Run_enum_match_method_generator : VerifySourceGenerator
 			}
 
 			""";
-		return Verify(code, additionalAssemblies: [typeof(InstantHandleAttribute).Assembly]);
-	}
+        return Verify(code, additionalAssemblies: [typeof(InstantHandleAttribute).Assembly]);
+    }
 }

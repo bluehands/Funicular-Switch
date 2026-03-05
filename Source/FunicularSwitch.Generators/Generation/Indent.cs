@@ -227,7 +227,7 @@ public static class BuildExtensions
 
     public static string ToParameterName(this string name)
     {
-	    var typeNameWithoutOuter = name.Split('.').Last();
+        var typeNameWithoutOuter = name.Split('.').Last();
         var parameterName = typeNameWithoutOuter.FirstToLower();
         return PrefixAtIfKeyword(parameterName);
     }
@@ -247,6 +247,4 @@ public static class BuildExtensions
     }
 
     public static string ToMatchExtensionFilename(this string fullTypeName, EquatableArray<string> typeParameters) => $"{fullTypeName.Replace(".", "")}{RoslynExtensions.FormatTypeParameterForFileName(typeParameters)}MatchExtension.g.cs";
-
-    
 }

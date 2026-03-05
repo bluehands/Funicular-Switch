@@ -58,7 +58,7 @@ namespace DocSamples
         public async Task MatchSimpleAsync()
         {
             #region match-simple-async
-            var answerOutput = 
+            var answerOutput =
                 AsyncAssertItIsTheAnswerToEverything(42)
                 .Match(
                     ok => $"{ok} no more words needed!",

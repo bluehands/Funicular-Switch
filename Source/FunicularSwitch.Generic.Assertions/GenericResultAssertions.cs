@@ -18,7 +18,7 @@ public class GenericResultAssertions<TOk, TError>(GenericResult<TOk, TError> val
 
         return new AndWhichConstraint<GenericResultAssertions<TOk, TError>, TOk>(this, Subject.GetValueOrThrow());
     }
-    
+
     public AndWhichConstraint<GenericResultAssertions<TOk, TError>, TError> BeError(
         string because = "",
         params object[] becauseArgs)

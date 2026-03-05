@@ -2,6 +2,6 @@
 
 enum EnumCaseOrder
 {
-	Alphabetic,
-	AsDeclared
+    Alphabetic,
+    AsDeclared
 }

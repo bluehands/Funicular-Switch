@@ -12,10 +12,10 @@ public class TypeExtensionSpecs
     {
         // Given
         var type = typeof(int);
-        
+
         // When
         var result = type.BeautifulName();
-        
+
         // Then
         result.Should().Be("Int32");
     }
@@ -25,10 +25,10 @@ public class TypeExtensionSpecs
     {
         // Given
         var type = typeof(List<int>);
-        
+
         // When
         var result = type.BeautifulName();
-        
+
         // Then
         result.Should().Be("List<Int32>");
     }
@@ -38,10 +38,10 @@ public class TypeExtensionSpecs
     {
         // Given
         var type = typeof(List<>);
-        
+
         // When
         var result = type.BeautifulName();
-        
+
         // Then
         result.Should().Contain("List");
     }
@@ -51,10 +51,10 @@ public class TypeExtensionSpecs
     {
         // Given
         var type = typeof(Func<List<int>, Action<string>>);
-        
+
         // When
         var result = type.BeautifulName();
-        
+
         // Then
         result.Should().Be("Func<List<Int32>,Action<String>>");
     }

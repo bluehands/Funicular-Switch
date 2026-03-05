@@ -186,7 +186,7 @@ public class ResultSpecs
             .Aggregate();
 
         result.Should().BeOk()
-	        .Subject.Should().BeEquivalentTo(new[] { 0, 2, 4 });
+            .Subject.Should().BeEquivalentTo([0, 2, 4]);
     }
 
     [TestMethod]
@@ -249,15 +249,15 @@ public class ResultSpecs
             from r in okAsync
             let x = r * 2
             select x
-        )).Should().BeEquivalentTo(await okAsync.Map(r => r * 2));        
-        
+        )).Should().BeEquivalentTo(await okAsync.Map(r => r * 2));
+
         (await (
             from r in ok
             from r1 in okAsync
             let x = r * r1
             select x
         )).Should().BeEquivalentTo(await okAsync.Bind(r => ok.Map(r1 => r * r1)));
-        
+
         (await (
             from r in okAsync
             from r1 in ok
@@ -281,14 +281,14 @@ public class ResultSpecs
     [TestMethod]
     public async Task AsyncTryVoidReturn()
     {
-	    async Task MyAction()
-	    {
-		    await Task.Delay(1);
-		    throw new("broken");
-	    }
+        async Task MyAction()
+        {
+            await Task.Delay(1);
+            throw new("broken");
+        }
 
-	    var result = Result.Try(MyAction, ex => ex.Message);
-	    (await result).Should().BeError();
+        var result = Result.Try(MyAction, ex => ex.Message);
+        (await result).Should().BeError();
     }
 
     [TestMethod]

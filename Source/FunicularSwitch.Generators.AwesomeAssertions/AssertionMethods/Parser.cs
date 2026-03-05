@@ -12,7 +12,7 @@ internal static class Parser
         CancellationToken cancellationToken)
     {
         var allTypesInAssembly = GetAllTypes(assembly);
-        
+
         return GetTypesWithAttribute(allTypesInAssembly, ResultTypeAttribute)
             .Where(tuple => tuple.Type.DeclaredAccessibility == Accessibility.Public || (tuple.Type.DeclaredAccessibility == Accessibility.Internal && generateForInternalTypes))
             .Select(tuple =>
@@ -29,7 +29,7 @@ internal static class Parser
         CancellationToken cancellationToken)
     {
         var allTypesInAssembly = GetAllTypes(assembly);
-        
+
         var unionTypes = GetTypesWithAttribute(allTypesInAssembly, UnionTypeAttribute)
             .Where(tuple => tuple.Type.DeclaredAccessibility == Accessibility.Public || (tuple.Type.DeclaredAccessibility == Accessibility.Internal && generateForInternalTypes));
 

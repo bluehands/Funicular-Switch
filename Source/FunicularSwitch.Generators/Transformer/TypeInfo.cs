@@ -11,7 +11,7 @@ internal record TypeInfo(
     bool IsParameter,
     EquatableArray<TypeInfo> Parameters)
 {
-    public ConstructType Construct => parameters => this with {Parameters = parameters.ToImmutableArray()};
+    public ConstructType Construct => parameters => this with { Parameters = parameters.ToImmutableArray() };
 
     public static TypeInfo From(INamedTypeSymbol type) => new(
         type.FullTypeNameWithNamespace(),

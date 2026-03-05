@@ -532,7 +532,7 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
 
         return Verify(code);
     }
-    
+
     [TestMethod]
     public Task MonadTransformerMissingBindTMethod()
     {

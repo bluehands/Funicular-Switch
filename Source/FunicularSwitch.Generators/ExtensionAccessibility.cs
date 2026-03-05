@@ -2,6 +2,6 @@
 
 enum ExtensionAccessibility
 {
-	Internal,
-	Public
+    Internal,
+    Public
 }

@@ -33,8 +33,8 @@ namespace StandardMinLangVersion
     [UnionType]
     public abstract partial class MyUnion
     {
-        public class Case1_ : MyUnion {}
-        public class MyUnionCase2 : MyUnion {}
+        public class Case1_ : MyUnion { }
+        public class MyUnionCase2 : MyUnion { }
     }
 
     [ResultType(ErrorType = typeof(string))]

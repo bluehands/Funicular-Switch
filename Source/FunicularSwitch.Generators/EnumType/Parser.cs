@@ -66,8 +66,8 @@ static class Parser
             ? ExtensionAccessibility.Internal
             : symbolInfo.ExtensionAccessibility;
 
-        return new(fullNamespace, 
-            enumSymbol.FullTypeName(), 
+        return new(fullNamespace,
+            enumSymbol.FullTypeName(),
             fullTypeNameWithNamespace,
             OrderEnumCases(derivedTypes, symbolInfo.CaseOrder).ToImmutableArray(),
             extensionAccessibility == ExtensionAccessibility.Internal,

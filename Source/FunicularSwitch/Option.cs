@@ -143,7 +143,7 @@ namespace FunicularSwitch
             Bind(item => (item as TTarget).ToOption());
 
         public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {typeof(T).BeautifulName()}");
-		
+
         public bool Equals(Option<T> other) =>
             _isSome == other._isSome && EqualityComparer<T>.Default.Equals(_value, other._value);
 
@@ -169,20 +169,20 @@ namespace FunicularSwitch
 
     public static class OptionExtension
     {
-	    public static Option<TTarget> As<TTarget>(this object? item)
-		    => item switch
-		    {
-			    IInternalOption option when typeof(TTarget).IsAssignableFrom(option.OptionType)
-				    => option.IsSome()
-					    ? option.Value == null
-						    ? Option<TTarget>.None
-						    : Option<TTarget>.Some((TTarget)option.Value)
-					    : Option<TTarget>.None,
-			    TTarget target => Option.Some(target),
-			    _ => Option.None<TTarget>()
-		    };
+        public static Option<TTarget> As<TTarget>(this object? item)
+            => item switch
+            {
+                IInternalOption option when typeof(TTarget).IsAssignableFrom(option.OptionType)
+                    => option.IsSome()
+                        ? option.Value == null
+                            ? Option<TTarget>.None
+                            : Option<TTarget>.Some((TTarget)option.Value)
+                        : Option<TTarget>.None,
+                TTarget target => Option.Some(target),
+                _ => Option.None<TTarget>()
+            };
 
-		public static Option<T> Flatten<T>(this Option<Option<T>> option)
+        public static Option<T> Flatten<T>(this Option<Option<T>> option)
         {
             return option.Match(s => s, () => Option<T>.None);
         }

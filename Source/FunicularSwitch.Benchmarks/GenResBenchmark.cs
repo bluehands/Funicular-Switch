@@ -30,17 +30,14 @@ public class GenResBenchmark
     public GenericResult<int, int> CreateErrorWithType()
     {
         return GenericResult<int, int>.Error(40);
-        
-        
-        
     }
-    
+
     [Benchmark]
     public GenericResult<int, int> CreateOkWithImplicitOperator()
     {
         return GenericResult.Ok(42);
     }
-    
+
     [Benchmark]
     public GenericResult<int, int> CreateErrorWithImplicitOperator()
     {

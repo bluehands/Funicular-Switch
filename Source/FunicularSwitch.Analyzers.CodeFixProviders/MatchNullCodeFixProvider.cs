@@ -27,12 +27,12 @@ public class MatchNullCodeFixProvider : CodeFixProvider
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken);
 
         var diagnosticNode = root?.FindNode(diagnosticSpan);
-        
+
         if (diagnosticNode is not InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return;
         }
-        
+
         if (invocationExpressionSyntax.Expression is not MemberAccessExpressionSyntax m)
         {
             return;

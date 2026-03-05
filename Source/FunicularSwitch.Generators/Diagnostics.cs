@@ -11,14 +11,14 @@ static class Diagnostics
         Create(location,
             id: "FUN0001",
             title: "Invalid attribute usage",
-            messageFormat: $"{message} -  Please use ResultType attribute with typeof expression like [ResultType(typeof(MyError))].", 
+            messageFormat: $"{message} -  Please use ResultType attribute with typeof expression like [ResultType(typeof(MyError))].",
             severity: DiagnosticSeverity.Error);
 
     public static Diagnostic InvalidMergeMethod(string message, Location location) =>
         Create(location,
             "FUN0002",
             "Invalid merge method",
-            $"{message} -  Please implement merge as member of error type or static extension method with signature TError -> TError -> TError.", 
+            $"{message} -  Please implement merge as member of error type or static extension method with signature TError -> TError -> TError.",
             DiagnosticSeverity.Error);
 
     public static Diagnostic AmbiguousMergeMethods(IEnumerable<string> methodNames) =>
@@ -47,16 +47,16 @@ static class Diagnostics
             messageFormat: message, severity: DiagnosticSeverity.Warning);
 
     public static Diagnostic UnionTypeIsNotAccessible(string message, Location location) =>
-	    Create(location,
-		    id: "FUN0007",
-		    title: "Union type is not accessible",
-		    messageFormat: message, severity: DiagnosticSeverity.Error);
+        Create(location,
+            id: "FUN0007",
+            title: "Union type is not accessible",
+            messageFormat: message, severity: DiagnosticSeverity.Error);
 
     public static Diagnostic ResultTypeInGlobalNamespace(string message, Location location) =>
-	    Create(location,
-		    id: "FUN0008",
-		    title: "Result type in global namespace",
-		    messageFormat: message, severity: DiagnosticSeverity.Error);
+        Create(location,
+            id: "FUN0008",
+            title: "Result type in global namespace",
+            messageFormat: message, severity: DiagnosticSeverity.Error);
 
     public static Diagnostic EnumTypeIsNotAccessible(string message, Location location) =>
         Create(location,
@@ -65,18 +65,18 @@ static class Diagnostics
             messageFormat: message, severity: DiagnosticSeverity.Error);
 
     public static Diagnostic InvalidExceptionToErrorMethod(string message, Location location) =>
-	    Create(location,
-		    "FUN0010",
-		    "Invalid exception to error method",
-		    $"{message} -  Please implement method for generic error type as static method with signature Exception -> TError.", 
-		    DiagnosticSeverity.Error);
+        Create(location,
+            "FUN0010",
+            "Invalid exception to error method",
+            $"{message} -  Please implement method for generic error type as static method with signature Exception -> TError.",
+            DiagnosticSeverity.Error);
 
     public static Diagnostic InvalidUnionTypeAttributeUsage(string message, Location location) =>
-	    Create(location,
-		    id: "FUN0011",
-		    title: "Invalid attribute usage",
-		    messageFormat: $"{message} -  Valid UnionType attribute usages: [UnionType], [UnionType(StaticFactoryMethods = false)], [UnionType(CaseOder = CaseOrder.AsDeclared, StaticFactoryMethods = true)].", 
-		    severity: DiagnosticSeverity.Error);
+        Create(location,
+            id: "FUN0011",
+            title: "Invalid attribute usage",
+            messageFormat: $"{message} -  Valid UnionType attribute usages: [UnionType], [UnionType(StaticFactoryMethods = false)], [UnionType(CaseOder = CaseOrder.AsDeclared, StaticFactoryMethods = true)].",
+            severity: DiagnosticSeverity.Error);
 
     // TODO: this should be in another class/category with own id range
     public static Diagnostic MonadTransformerNoAttribute(INamedTypeSymbol type) =>
@@ -85,35 +85,35 @@ static class Diagnostics
             title: "Missing monad transformer attribute",
             messageFormat: $"{type} is missing the MonadTransformer attribute - Add MonadTransformer attribute to type",
             severity: DiagnosticSeverity.Error);
-    
+
     public static Diagnostic MissingReturnMethod(INamedTypeSymbol type) =>
         Create(type.Locations.FirstOrDefault(),
             id: "FUN0013",
             title: "Missing return method",
             messageFormat: $"{type} is missing a return method - Add return method (A -> M<A>) to type",
             severity: DiagnosticSeverity.Error);
-    
+
     public static Diagnostic MissingBindMethod(INamedTypeSymbol type) =>
         Create(type.Locations.FirstOrDefault(),
             id: "FUN0014",
             title: "Missing bind method",
             messageFormat: $"{type} is missing a bind method - Add bind method (M<A> -> (A -> M<B>) -> M<B>) to type",
             severity: DiagnosticSeverity.Error);
-    
+
     public static Diagnostic MissingBindTMethod(INamedTypeSymbol type) =>
         Create(type.Locations.FirstOrDefault(),
             id: "FUN0015",
             title: "Missing transformer bind method",
             messageFormat: $"{type} is missing a transformer bind method - Add BindT method (Monad<M<A>> -> (A -> Monad<M<B>>) -> Monad<M<B>>) to type",
             severity: DiagnosticSeverity.Error);
-    
+
     public static Diagnostic ExperimentalGenerator(string name, Location location) =>
         Create(location,
             id: "FUN0016",
             title: "Generator is experimental",
             messageFormat: $"Generator for {name} is considered experimental and might break",
             severity: DiagnosticSeverity.Info);
-    
+
     static Diagnostic Create(Location? location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
         Diagnostic.Create(
             new(

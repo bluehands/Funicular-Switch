@@ -109,7 +109,7 @@ public class ResultTypeGenerator : IIncrementalGenerator
                         m.FullErrorTypeName == errorTypeSymbol.FullNameWithNamespace),
                     exceptionToErrorMethod: resultTypeMethods.Value.exceptionToErrorMethods.FirstOrDefault(e =>
                         e.ErrorTypeName == errorTypeSymbol.FullNameWithNamespace),
-                    reportDiagnostic: context.ReportDiagnostic, 
+                    reportDiagnostic: context.ReportDiagnostic,
                     referencesFunicularSwitchGeneric: resultTypeMethods.Value.referencesFunicularSwitchGeneric,
                     referencesJetBrainsAnnotations: hasJetBrainsAnnotationsReference,
                     cancellationToken: context.CancellationToken);

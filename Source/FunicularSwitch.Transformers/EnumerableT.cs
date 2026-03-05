@@ -14,10 +14,10 @@ public static class EnumerableT
     [Pure]
     [DebuggerStepThrough]
     public static Monad<IEnumerable<B>> BindT<A, B>(Monad<IEnumerable<A>> ma, Func<A, Monad<IEnumerable<B>>> fn) =>
-        ma.Bind([DebuggerStepThrough](xs) => xs.Aggregate(
+        ma.Bind([DebuggerStepThrough] (xs) => xs.Aggregate(
                 ma.Return<IEnumerable<B>>([]),
-                [DebuggerStepThrough](acc, cur) =>
-                    acc.Bind([DebuggerStepThrough](ys) =>
+                [DebuggerStepThrough] (acc, cur) =>
+                    acc.Bind([DebuggerStepThrough] (ys) =>
                         fn(cur).Map(ys.Concat)
                     )
             )

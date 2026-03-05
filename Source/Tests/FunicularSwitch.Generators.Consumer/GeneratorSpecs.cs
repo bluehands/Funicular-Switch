@@ -20,9 +20,9 @@ public class When_using_generated_result_type
 
         global::FunicularSwitch.Generic.GenericResult<int, Error> a = result;
         OperationResult<int> d = a;
-         var b = result.ToGenericResult();
+        var b = result.ToGenericResult();
         var c = Task.FromResult(result).ToGenericResult();
-        
+
         var calc = result
             .Bind(i => Divide(i, 0))
             .Map(i => (i * 2).ToString(CultureInfo.InvariantCulture));

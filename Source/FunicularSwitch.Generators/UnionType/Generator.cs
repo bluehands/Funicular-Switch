@@ -169,7 +169,7 @@ public static class Generator
                     else
                     {
                         builder.Content.Append(";");
-                        builder.Content.AppendLine();    
+                        builder.Content.AppendLine();
                     }
                 }
             }
