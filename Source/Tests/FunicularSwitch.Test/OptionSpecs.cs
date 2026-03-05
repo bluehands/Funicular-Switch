@@ -14,7 +14,7 @@ public class OptionSpecs
 		var target = Some(5);
 		bool someCalled = false;
 		bool noneCalled = false;
-		
+
 		// When
 		target.Match(
 			some: _ =>
@@ -25,7 +25,7 @@ public class OptionSpecs
 			{
 				noneCalled = true;
 			});
-		
+
 		// Then
 		someCalled.Should().BeTrue();
 		noneCalled.Should().BeFalse();
@@ -38,10 +38,10 @@ public class OptionSpecs
 		var target = None<int>();
 		bool someCalled = false;
 		bool noneCalled = false;
-		
+
 		// When
 		target.Match(
-			some: x =>
+			some: _ =>
 			{
 				someCalled = true;
 			},
@@ -49,7 +49,7 @@ public class OptionSpecs
 			{
 				noneCalled = true;
 			});
-		
+
 		// Then
 		someCalled.Should().BeFalse();
 		noneCalled.Should().BeTrue();
@@ -63,7 +63,7 @@ public class OptionSpecs
 		bool someCalled = false;
 		int numberPassed = -1;
 		bool noneCalled = false;
-		
+
 		// When
 		await target.Match(
 			some: x =>
@@ -76,7 +76,7 @@ public class OptionSpecs
 				noneCalled = true;
 				return Task.CompletedTask;
 			});
-		
+
 		// Then
 		someCalled.Should().BeTrue();
 		numberPassed.Should().Be(5);
@@ -91,7 +91,7 @@ public class OptionSpecs
 		bool someCalled = false;
 		int numberPassed = -1;
 		bool noneCalled = false;
-		
+
 		// When
 		await target.Match(
 			some: x =>
@@ -104,9 +104,9 @@ public class OptionSpecs
 				noneCalled = true;
 				return Task.CompletedTask;
 			});
-		
+
 		// Then
-		
+
 		// Then
 		someCalled.Should().BeFalse();
 		numberPassed.Should().Be(-1);
@@ -118,10 +118,10 @@ public class OptionSpecs
 	{
 		// Given
 		var target = Some(5);
-		
+
 		// When
 		var result = await target.Match(some: x => Task.FromResult(x + 2), none: () => Task.FromResult(-4));
-		
+
 		// Then
 		result.Should().Be(7);
 	}
@@ -131,10 +131,10 @@ public class OptionSpecs
 	{
 		// Given
 		var target = None<int>();
-		
+
 		// When
 		var result = await target.Match(some: x => Task.FromResult(x * 2), none: () => Task.FromResult(-3));
-		
+
 		// Then
 		result.Should().Be(-3);
 	}
@@ -144,10 +144,10 @@ public class OptionSpecs
 	{
 		// Given
 		var target = Some(17);
-		
+
 		// When
-		var result = await target.Match(some: x => Task.FromResult("Hi"), none: "Hello");
-		
+		var result = await target.Match(some: _ => Task.FromResult("Hi"), none: "Hello");
+
 		// Then
 		result.Should().Be("Hi");
 	}
@@ -157,10 +157,10 @@ public class OptionSpecs
 	{
 		// Given
 		var target = None<int>();
-		
+
 		// When
-		var result = await target.Match(some: x => Task.FromResult("Hi"), none: "Hello");
-		
+		var result = await target.Match(some: _ => Task.FromResult("Hi"), none: "Hello");
+
 		// Then
 		result.Should().Be("Hello");
 	}
@@ -170,10 +170,10 @@ public class OptionSpecs
 	{
 		// Given
 		var target = Some(123);
-		
+
 		// When
 		var result = await target.GetValueOrDefault(defaultValue: () => Task.FromResult(3));
-		
+
 		// Then
 		result.Should().Be(123);
 	}
@@ -183,10 +183,10 @@ public class OptionSpecs
 	{
 		// Given
 		var target = None<int>();
-		
+
 		// When
 		var result = await target.GetValueOrDefault(defaultValue: () => Task.FromResult(37));
-		
+
 		// Then
 		result.Should().Be(37);
 	}
@@ -196,10 +196,10 @@ public class OptionSpecs
 	{
 		// Given
 		var target = Some(123);
-		
+
 		// When
 		var result = await target.GetValueOrDefault(defaultValue: () => ValueTask.FromResult(3));
-		
+
 		// Then
 		result.Should().Be(123);
 	}
@@ -209,10 +209,10 @@ public class OptionSpecs
 	{
 		// Given
 		var target = None<int>();
-		
+
 		// When
 		var result = await target.GetValueOrDefault(defaultValue: () => ValueTask.FromResult(37));
-		
+
 		// Then
 		result.Should().Be(37);
 	}
@@ -223,10 +223,10 @@ public class OptionSpecs
 		// Given
 		var target = Some(5);
 		var action = () => target.GetValueOrThrow("message");
-		
+
 		// When
 		var result = action.Should().NotThrow().Which;
-		
+
 		// Then
 		result.Should().Be(5);
 	}
@@ -237,10 +237,10 @@ public class OptionSpecs
 		// Given
 		var target = None<int>();
 		var action = () => target.GetValueOrThrow("message");
-		
+
 		// When
 		var result = action.Should().Throw<Exception>().Which;
-		
+
 		// Then
 		result.Message.Should().Contain("message");
 	}
@@ -251,10 +251,10 @@ public class OptionSpecs
 		// Given
 		var target = None<int>();
 		var action = () => target.GetValueOrThrow();
-		
+
 		// When
 		var result = action.Should().Throw<Exception>().Which;
-		
+
 		// Then
 		result.Message.Should().NotBeNullOrWhiteSpace();
 	}
@@ -264,10 +264,10 @@ public class OptionSpecs
 	{
 		// Given
 		var target = Some(5);
-		
+
 		// When
 		var result = target.ToString();
-		
+
 		// Then
 		result.Should().Be("5");
 	}
@@ -277,10 +277,10 @@ public class OptionSpecs
 	{
 		// Given
 		var target = None<int>();
-		
+
 		// When
 		var result = target.ToString();
-		
+
 		// Then
 		result.Should().Be("None Int32");
 	}
@@ -291,12 +291,12 @@ public class OptionSpecs
 		// Given
 		var left = Some(13);
 		var right = Some(13);
-		
+
 		// When
 		var equals = left.Equals(right);
 		var leftHashCode = left.GetHashCode();
 		var rightHashCode = right.GetHashCode();
-		
+
 		// Then
 		equals.Should().BeTrue();
 		leftHashCode.Should().Be(rightHashCode);
@@ -308,13 +308,13 @@ public class OptionSpecs
 		// Given
 		var left = Some<string>("Hi");
 		var right = Some<object>("Hi");
-		
+
 		// When
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        var equals = left.Equals(right);
+		// ReSharper disable once SuspiciousTypeConversion.Global
+		var equals = left.Equals(right);
 		var leftHashCode = left.GetHashCode();
 		var rightHashCode = right.GetHashCode();
-		
+
 		// Then
 		equals.Should().BeFalse();
 		leftHashCode.Should().NotBe(rightHashCode);
@@ -326,17 +326,17 @@ public class OptionSpecs
 		// Given
 		var left = Some("Hi");
 		var right = Some("Hello");
-		
+
 		// When
 		var equals = left.Equals(right);
 		var leftHashCode = left.GetHashCode();
 		var rightHashCode = right.GetHashCode();
-		
+
 		// Then
 		equals.Should().BeFalse();
 		leftHashCode.Should().NotBe(rightHashCode);
 	}
-	
+
 	[TestMethod]
 	public void NullCoalescingWithOptionBoolBehavesAsExpected()
 	{
@@ -464,16 +464,16 @@ public class OptionSpecs
 		hashcode1.Should().NotBe(hashcode2);
 	}
 
-    [TestMethod]
-    public void ShouldNotBeEqualIfValuesDifferent()
-    {
-        var some1 = Some(1);
-        var some2 = Some(2);
-        some1.Equals(some2).Should().BeFalse();
-        (some1 == some2).Should().BeFalse();
-        (some1 != some2).Should().BeTrue();
-    }
-	
+	[TestMethod]
+	public void ShouldNotBeEqualIfValuesDifferent()
+	{
+		var some1 = Some(1);
+		var some2 = Some(2);
+		some1.Equals(some2).Should().BeFalse();
+		(some1 == some2).Should().BeFalse();
+		(some1 != some2).Should().BeTrue();
+	}
+
 	[TestMethod]
 	public void ShouldHaveSameHashCodeIfBothValueAreSame()
 	{
@@ -481,7 +481,7 @@ public class OptionSpecs
 		var hashcode2 = Some(1).GetHashCode();
 		hashcode1.Should().Be(hashcode2);
 	}
-	
+
 	[TestMethod]
 	public void ShouldHaveDifferentHashCodeIfOneIsNone()
 	{
@@ -489,17 +489,17 @@ public class OptionSpecs
 		var hashcode2 = None<int>().GetHashCode();
 		hashcode1.Should().NotBe(hashcode2);
 	}
-	
+
 	[TestMethod]
 	public void ShouldBeEqualIfBothValuesAreEqual()
 	{
 		var some1 = Some(1);
 		var some2 = Some(1);
 		some1.Equals(some2).Should().BeTrue();
-        (some1 == some2).Should().BeTrue();
-        (some1 != some2).Should().BeFalse();
-    }
-	
+		(some1 == some2).Should().BeTrue();
+		(some1 != some2).Should().BeFalse();
+	}
+
 	[TestMethod]
 	public void ShouldNotBeEqualIfOneIsNone()
 	{
@@ -508,271 +508,304 @@ public class OptionSpecs
 		some.Equals(none).Should().BeFalse();
 	}
 
-    [TestMethod]
-    public void ShouldBeEqualIfBothAreNoneOfSameType()
-    {
-        None<int>().Equals(None<int>()).Should().BeTrue();
-    }
+	[TestMethod]
+	public void ShouldBeEqualIfBothAreNoneOfSameType()
+	{
+		None<int>().Equals(None<int>()).Should().BeTrue();
+	}
 
-    [TestMethod]
-    public void ShouldHaveSameHashCodeIfBothAreNoneOfSameTypes()
-    {
-        None<string>().GetHashCode().Equals(None<string>().GetHashCode()).Should().BeTrue();
-    }
+	[TestMethod]
+	public void ShouldHaveSameHashCodeIfBothAreNoneOfSameTypes()
+	{
+		None<string>().GetHashCode().Equals(None<string>().GetHashCode()).Should().BeTrue();
+	}
 
-    [TestMethod]
-    public void ShouldNotBeEqualIfBothAreNoneOfDifferentTypes()
-    {
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        None<int>().Equals(None<string>()).Should().BeFalse();
-    }
+	[TestMethod]
+	public void ShouldNotBeEqualIfBothAreNoneOfDifferentTypes()
+	{
+		// ReSharper disable once SuspiciousTypeConversion.Global
+		None<int>().Equals(None<string>()).Should().BeFalse();
+	}
 
-    [TestMethod]
-    public void ShouldNotHaveSameHashCodeIfBothAreNoneOfDifferentTypes()
-    {
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        None<int>().GetHashCode().Equals(None<string>().GetHashCode()).Should().BeFalse();
-    }
+	[TestMethod]
+	public void ShouldNotHaveSameHashCodeIfBothAreNoneOfDifferentTypes()
+	{
+		// ReSharper disable once SuspiciousTypeConversion.Global
+		None<int>().GetHashCode().Equals(None<string>().GetHashCode()).Should().BeFalse();
+	}
 
-    [TestMethod]
-    public void NullOptionsWork()
-    {
-        var nullOption = Option<MyClass?>.Some(null);
-        var nullOption2 = Option<MyOtherClass?>.Some(null);
+	[TestMethod]
+	public void NullOptionsWork()
+	{
+		var nullOption = Option<MyClass?>.Some(null);
+		var nullOption2 = Option<MyOtherClass?>.Some(null);
 		nullOption.GetHashCode().Should().NotBe(nullOption2.GetHashCode());
-        nullOption.Equals(Option<MyClass?>.Some(new())).Should().BeFalse();
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        nullOption.Equals(nullOption2).Should().BeFalse();
-        nullOption.Equals(Option<MyClass?>.Some(null)).Should().BeTrue();
-    }
+		nullOption.Equals(Option<MyClass?>.Some(new())).Should().BeFalse();
+		// ReSharper disable once SuspiciousTypeConversion.Global
+		nullOption.Equals(nullOption2).Should().BeFalse();
+		nullOption.Equals(Option<MyClass?>.Some(null)).Should().BeTrue();
+	}
 
-    [TestMethod]
-    public void IntermediateNoneOptionIsFine()
-    {
-        GetTuple().Should().BeNone();
-        return;
+	[TestMethod]
+	public void IntermediateNoneOptionIsFine()
+	{
+		GetTuple().Should().BeNone();
+		return;
 
-        Option<(int x, int y)> GetTuple() => None();
-    }
+		Option<(int x, int y)> GetTuple() => None();
+	}
 
-    [TestMethod]
-    public void Flatten_SomeSome_Some()
-    {
-	    var optionOfOption = Some(Some(5));
-	    var flattened = optionOfOption.Flatten();
-	    flattened.Should().BeSome().Which.Should().Be(5);
-    }
+	[TestMethod]
+	public void Flatten_SomeSome_Some()
+	{
+		var optionOfOption = Some(Some(5));
+		var flattened = optionOfOption.Flatten();
+		flattened.Should().BeSome().Which.Should().Be(5);
+	}
 
-    [TestMethod]
-    public void Flatten_SomeNone_None()
-    {
-	    var optionOfNone = Some(None<int>());
-	    var flattened = optionOfNone.Flatten();
-	    flattened.Should().BeNone();
-    }
+	[TestMethod]
+	public void Flatten_SomeNone_None()
+	{
+		var optionOfNone = Some(None<int>());
+		var flattened = optionOfNone.Flatten();
+		flattened.Should().BeNone();
+	}
 
-    [TestMethod]
-    public void Flatten_None_None()
-    {
-	    var none = Option.None<Option<int>>();
-	    var flattened = none.Flatten();
-	    flattened.Should().BeNone();
-    }
+	[TestMethod]
+	public void Flatten_None_None()
+	{
+		var none = Option.None<Option<int>>();
+		var flattened = none.Flatten();
+		flattened.Should().BeNone();
+	}
 
-    [TestMethod]
-    public void As_Matches_IsExtracted()
-    {
-	    object boxedString = "Hi";
-	    var asString = boxedString.As<string>();
-	    asString.Should().BeSome().Which.Should().Be("Hi");
-    }
+	[TestMethod]
+	public void As_Matches_IsExtracted()
+	{
+		object boxedString = "Hi";
+		var asString = boxedString.As<string>();
+		asString.Should().BeSome().Which.Should().Be("Hi");
 
-    [TestMethod]
-    public void As_DoesNotMatch_None()
-    {
-	    object boxedString = "Hi";
-	    var asList = boxedString.As<List<int>>();
-	    asList.Should().BeNone();
-    }
+		object boxedInt = 5;
+		var asInt = boxedInt.As<int>();
+		asInt.Should().BeSome().Which.Should().Be(5);
+	}
 
-    [TestMethod]
-    public void AsConvertOptionValue()
-    {
-	    var value = new MyDerived();
-	    var myBaseOption = Some(value);
-	    myBaseOption.As<MyDerived>().Should().BeSome().Which.Should().Be(value);
-	    myBaseOption.As<MyBase>().Should().BeSome().Which.Should().Be(value);
-	    myBaseOption.As<AnotherClass>().Should().BeNone();
-    }
+	[TestMethod]
+	public void As_DoesNotMatch_None()
+	{
+		object boxedString = "Hi";
+		var asList = boxedString.As<List<int>>();
+		asList.Should().BeNone();
 
-    class MyBase;
+		object boxedInt = 5;
+		var asDate = boxedInt.As<DateTime>();
+		asDate.Should().BeNone();
+	}
+
+	[TestMethod]
+	public void As_MatchesObjectOptions()
+	{
+		var myDerivedExplicitOption = Some(new MyDerived());
+		myDerivedExplicitOption.As<MyDerived>().Should().BeSome().Which.Should().BeOfType<MyDerived>();
+		myDerivedExplicitOption.As<MyBase>().Should().BeSome().Which.Should().BeOfType<MyDerived>();
+
+		object myDerivedOption = Some(new MyDerived());
+		object myDerivedNullOption = Some((MyDerived?)null);
+		object myBaseOption = Some(new MyBase());
+		object myBaseNullOption = Some((MyBase?)null);
+		object myIntOption = Some(5);
+
+		myDerivedOption.As<MyDerived>().Should().BeSome().Which.Should().BeOfType<MyDerived>();
+		myDerivedOption.As<MyBase>().Should().BeSome().Which.Should().BeOfType<MyDerived>();
+		myDerivedNullOption.As<MyDerived>().Should().BeSome().Which.Should().BeNull();
+		myDerivedNullOption.As<MyBase>().Should().BeSome().Which.Should().BeNull();
+
+		myBaseOption.As<MyDerived>().Should().BeNone();
+		myBaseNullOption.As<MyDerived>().Should().BeNone();
+
+		myIntOption.As<MyDerived>().Should().BeNone();
+		myIntOption.As<int>().Should().BeSome().Which.Should().Be(5);
+	}
+
+	[TestMethod]
+	public void AsConvertOptionValue()
+	{
+		var value = new MyDerived();
+		var myBaseOption = Some(value);
+		myBaseOption.As<MyDerived>().Should().BeSome().Which.Should().Be(value);
+		myBaseOption.As<MyBase>().Should().BeSome().Which.Should().Be(value);
+		myBaseOption.As<AnotherClass>().Should().BeNone();
+	}
+
+	class MyBase;
 	class MyDerived : MyBase;
 	class AnotherClass;
 
-    [TestMethod]
-    public async Task Match_TaskOptionT_FuncTTout_FuncTOut_Some_Matched()
-    {
-	    var target = Task.FromResult(Some(6));
-	    var matched = await target.Match(
-		    some: number => number * 2,
-		    none: () => 3);
-	    matched.Should().Be(12);
-    }
+	[TestMethod]
+	public async Task Match_TaskOptionT_FuncTTout_FuncTOut_Some_Matched()
+	{
+		var target = Task.FromResult(Some(6));
+		var matched = await target.Match(
+			some: number => number * 2,
+			none: () => 3);
+		matched.Should().Be(12);
+	}
 
-    [TestMethod]
-    public async Task Match_TaskOptionT_FuncTTout_FuncTOut_None_Matched()
-    {
-	    var target = Task.FromResult(None<int>());
-	    var matched = await target.Match(
-		    some: number => number * 2,
-		    none: () => 3);
-	    matched.Should().Be(3);
-    }
+	[TestMethod]
+	public async Task Match_TaskOptionT_FuncTTout_FuncTOut_None_Matched()
+	{
+		var target = Task.FromResult(None<int>());
+		var matched = await target.Match(
+			some: number => number * 2,
+			none: () => 3);
+		matched.Should().Be(3);
+	}
 
-    [TestMethod]
-    public async Task Map_TaskOptionT_FuncTTaskTOut_Some_Mapped()
-    {
-	    var target = Task.FromResult(Some(13));
-	    var mapped = await target.Map(number => Task.FromResult(number + 5));
-	    mapped.Should().BeSome().Which.Should().Be(18);
-    }
+	[TestMethod]
+	public async Task Map_TaskOptionT_FuncTTaskTOut_Some_Mapped()
+	{
+		var target = Task.FromResult(Some(13));
+		var mapped = await target.Map(number => Task.FromResult(number + 5));
+		mapped.Should().BeSome().Which.Should().Be(18);
+	}
 
-    [TestMethod]
-    public async Task Map_TaskOptionT_FuncTTaskTOut_None_Mapped()
-    {
-	    var target = Task.FromResult(None<int>());
-	    var mapped = await target.Map(number => Task.FromResult(number + 5));
-	    mapped.Should().BeNone();
-    }
+	[TestMethod]
+	public async Task Map_TaskOptionT_FuncTTaskTOut_None_Mapped()
+	{
+		var target = Task.FromResult(None<int>());
+		var mapped = await target.Map(number => Task.FromResult(number + 5));
+		mapped.Should().BeNone();
+	}
 
-    [TestMethod]
-    public async Task Bind_TaskOptionT_FuncTOptionTOut_Some_BoundToSome()
-    {
-	    var target = Task.FromResult(Some(89));
-	    var bound = await target.Bind(number => Some(number + 1));
-	    bound.Should().BeSome().Which.Should().Be(90);
-    }
+	[TestMethod]
+	public async Task Bind_TaskOptionT_FuncTOptionTOut_Some_BoundToSome()
+	{
+		var target = Task.FromResult(Some(89));
+		var bound = await target.Bind(number => Some(number + 1));
+		bound.Should().BeSome().Which.Should().Be(90);
+	}
 
-    [TestMethod]
-    public async Task Bind_TaskOptionT_FuncTOptionTOut_Some_BoundToNone()
-    {
-	    var target = Task.FromResult(Some(89));
-	    var bound = await target.Bind(number => None<int>());
-	    bound.Should().BeNone();
-    }
+	[TestMethod]
+	public async Task Bind_TaskOptionT_FuncTOptionTOut_Some_BoundToNone()
+	{
+		var target = Task.FromResult(Some(89));
+		var bound = await target.Bind(_ => None<int>());
+		bound.Should().BeNone();
+	}
 
-    [TestMethod]
-    public async Task Bind_TaskOptionT_FuncTOptionTOut_None_BoundToSome()
-    {
-	    var target = Task.FromResult(None<int>());
-	    var bound = await target.Bind(number => Some(number + 1));
-	    bound.Should().BeNone();
-    }
+	[TestMethod]
+	public async Task Bind_TaskOptionT_FuncTOptionTOut_None_BoundToSome()
+	{
+		var target = Task.FromResult(None<int>());
+		var bound = await target.Bind(number => Some(number + 1));
+		bound.Should().BeNone();
+	}
 
-    [TestMethod]
-    public async Task Bind_TaskOptionT_FuncTOptionTOut_None_BoundToNone()
-    {
-	    var target = Task.FromResult(None<int>());
-	    var bound = await target.Bind(_ => None<int>());
-	    bound.Should().BeNone();
-    }
+	[TestMethod]
+	public async Task Bind_TaskOptionT_FuncTOptionTOut_None_BoundToNone()
+	{
+		var target = Task.FromResult(None<int>());
+		var bound = await target.Bind(_ => None<int>());
+		bound.Should().BeNone();
+	}
 
-    [TestMethod]
-    public async Task Bind_TaskOptionT_FuncTTaskOptionTOut_Some_BoundToSome()
-    {
-	    var target = Task.FromResult(Some(14));
-	    var bound = await target.Bind(number => Task.FromResult(Some(number / 2)));
-	    bound.Should().BeSome().Which.Should().Be(7);
-    }
+	[TestMethod]
+	public async Task Bind_TaskOptionT_FuncTTaskOptionTOut_Some_BoundToSome()
+	{
+		var target = Task.FromResult(Some(14));
+		var bound = await target.Bind(number => Task.FromResult(Some(number / 2)));
+		bound.Should().BeSome().Which.Should().Be(7);
+	}
 
-    [TestMethod]
-    public async Task Bind_TaskOptionT_FuncTTaskOptionTOut_Some_BoundToNone()
-    {
-	    var target = Task.FromResult(Some(14));
-	    var bound = await target.Bind(_ => Task.FromResult(None<int>()));
-	    bound.Should().BeNone();
-    }
+	[TestMethod]
+	public async Task Bind_TaskOptionT_FuncTTaskOptionTOut_Some_BoundToNone()
+	{
+		var target = Task.FromResult(Some(14));
+		var bound = await target.Bind(_ => Task.FromResult(None<int>()));
+		bound.Should().BeNone();
+	}
 
-    [TestMethod]
-    public async Task Bind_TaskOptionT_FuncTTaskOptionTOut_None_BoundToSome()
-    {
-	    var target = Task.FromResult(None<int>());
-	    var bound = await target.Bind(number => Task.FromResult(Some(number / 2)));
-	    bound.Should().BeNone();
-    }
+	[TestMethod]
+	public async Task Bind_TaskOptionT_FuncTTaskOptionTOut_None_BoundToSome()
+	{
+		var target = Task.FromResult(None<int>());
+		var bound = await target.Bind(number => Task.FromResult(Some(number / 2)));
+		bound.Should().BeNone();
+	}
 
-    [TestMethod]
-    public async Task Bind_TaskOptionT_FuncTTaskOptionTOut_None_BoundToNone()
-    {
-	    var target = Task.FromResult(None<int>());
-	    var bound = await target.Bind(_ => Task.FromResult(None<int>()));
-	    bound.Should().BeNone();
-    }
+	[TestMethod]
+	public async Task Bind_TaskOptionT_FuncTTaskOptionTOut_None_BoundToNone()
+	{
+		var target = Task.FromResult(None<int>());
+		var bound = await target.Bind(_ => Task.FromResult(None<int>()));
+		bound.Should().BeNone();
+	}
 
-    [TestMethod]
-    public void Choose_PartiallySome_ExpectedCollectionIsReturned()
-    {
-	    var target = Enumerable.Range(0, 10);
-	    var odds = target.Choose(i => i % 2 != 0 ? i * 10 : Option<int>.None).ToList();
-	    odds.Should().Equal(10, 30, 50, 70, 90);
-    }
+	[TestMethod]
+	public void Choose_PartiallySome_ExpectedCollectionIsReturned()
+	{
+		var target = Enumerable.Range(0, 10);
+		var odds = target.Choose(i => i % 2 != 0 ? i * 10 : Option<int>.None).ToList();
+		odds.Should().Equal(10, 30, 50, 70, 90);
+	}
 
-    [TestMethod]
-    public void ToOption_HasValueFunc_Class()
-    {
-	    string? nullTarget = null;
-        // ReSharper disable once VariableCanBeNotNullable
-        string? valueTarget = "Hi";
+	[TestMethod]
+	public void ToOption_HasValueFunc_Class()
+	{
+		string? nullTarget = null;
+		// ReSharper disable once VariableCanBeNotNullable
+		string? valueTarget = "Hi";
 
-	    nullTarget.ToOption(x => x == "Hello").Should().BeNone();
-	    nullTarget.ToOption(x => x == "Hi").Should().BeNone();
-	    valueTarget.ToOption(x => x == "Hello").Should().BeNone();
-	    valueTarget.ToOption(x => x == "Hi").Should().BeSome().Which.Should().Be("Hi");
-    }
+		nullTarget.ToOption(x => x == "Hello").Should().BeNone();
+		nullTarget.ToOption(x => x == "Hi").Should().BeNone();
+		valueTarget.ToOption(x => x == "Hello").Should().BeNone();
+		valueTarget.ToOption(x => x == "Hi").Should().BeSome().Which.Should().Be("Hi");
+	}
 
-    [TestMethod]
-    public void ToOption_HasValueFunc_Struct()
-    {
-	    int? nullTarget = null;
-	    nullTarget.ToOption(x => x == 5).Should().BeNone();
-	    nullTarget.ToOption(x => x == 8).Should().BeNone();
+	[TestMethod]
+	public void ToOption_HasValueFunc_Struct()
+	{
+		int? nullTarget = null;
+		nullTarget.ToOption(x => x == 5).Should().BeNone();
+		nullTarget.ToOption(x => x == 8).Should().BeNone();
 
-	    int? nullableValueTarget = 11;
-	    nullableValueTarget.ToOption(x => x == 11).Should().BeSome().Which.Should().Be(11);
-	    nullableValueTarget.ToOption(x => x == 5).Should().BeNone();
-	    
-	    int valueTarget = 8;
-	    valueTarget.ToOption(x => x == 5).Should().BeNone();
-	    valueTarget.ToOption(x => x == 8).Should().BeSome().Which.Should().Be(8);
-    }
+		int? nullableValueTarget = 11;
+		nullableValueTarget.ToOption(x => x == 11).Should().BeSome().Which.Should().Be(11);
+		nullableValueTarget.ToOption(x => x == 5).Should().BeNone();
 
-    [TestMethod]
-    public void NoneIfEmpty_Null_None()
-    {
-	    string? target = null;
-	    var result = target.NoneIfEmpty();
-	    result.Should().BeNone();
-    }
+		int valueTarget = 8;
+		valueTarget.ToOption(x => x == 5).Should().BeNone();
+		valueTarget.ToOption(x => x == 8).Should().BeSome().Which.Should().Be(8);
+	}
 
-    [TestMethod]
-    public void NoneIfEmpty_Empty_None()
-    {
-        // ReSharper disable once VariableCanBeNotNullable
-        string? target = "";
-	    var result = target.NoneIfEmpty();
-	    result.Should().BeNone();
-    }
+	[TestMethod]
+	public void NoneIfEmpty_Null_None()
+	{
+		string? target = null;
+		var result = target.NoneIfEmpty();
+		result.Should().BeNone();
+	}
 
-    [TestMethod]
-    public void NoneIfEmpty_Text_Some()
-    {
-        // ReSharper disable once VariableCanBeNotNullable
-        string? target = "Hi";
-	    var result = target.NoneIfEmpty();
-	    result.Should().BeSome().Which.Should().Be("Hi");
-    }
+	[TestMethod]
+	public void NoneIfEmpty_Empty_None()
+	{
+		// ReSharper disable once VariableCanBeNotNullable
+		string? target = "";
+		var result = target.NoneIfEmpty();
+		result.Should().BeNone();
+	}
 
-    class MyClass;
+	[TestMethod]
+	public void NoneIfEmpty_Text_Some()
+	{
+		// ReSharper disable once VariableCanBeNotNullable
+		string? target = "Hi";
+		var result = target.NoneIfEmpty();
+		result.Should().BeSome().Which.Should().Be("Hi");
+	}
 
-    class MyOtherClass;
+	class MyClass;
+
+	class MyOtherClass;
 }

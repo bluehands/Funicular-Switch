@@ -7,265 +7,289 @@ using FunicularSwitch.Extensions;
 
 namespace FunicularSwitch
 {
-    public static class Option
-    {
-        public static Option<T> Some<T>(T value) => Option<T>.Some(value);
-        public static Option<T> None<T>() => Option<T>.None;
-        public static OptionNone None() => default;
-        public static async Task<Option<T>> Some<T>(Task<T> value) => Some(await value);
-        public static Task<Option<T>> NoneAsync<T>() => Task.FromResult(Option<T>.None);
-    }
+	public static class Option
+	{
+		public static Option<T> Some<T>(T value) => Option<T>.Some(value);
+		public static Option<T> None<T>() => Option<T>.None;
+		public static OptionNone None() => default;
+		public static async Task<Option<T>> Some<T>(Task<T> value) => Some(await value);
+		public static Task<Option<T>> NoneAsync<T>() => Task.FromResult(Option<T>.None);
+	}
 
-    public interface IOption
-    {
-        bool IsSome();
-        bool IsNone();
-    }
+	public interface IOption
+	{
+		bool IsSome();
+		bool IsNone();
+	}
 
-    public readonly struct Option<T> : IEnumerable<T>, IEquatable<Option<T>>, IOption
-    {
-        public static readonly Option<T> None = default;
+	internal interface IInternalOption : IOption
+	{
+		Type OptionType { get; }
+		object? Value { get; }
+	}
 
-        public static Option<T> Some(T value) => new(value);
+	public readonly struct Option<T> : IEnumerable<T>, IEquatable<Option<T>>, IInternalOption
+	{
+		public static readonly Option<T> None = default;
 
-        public static implicit operator Option<T>(OptionNone _) => None;
+		public static Option<T> Some(T value) => new(value);
 
-        readonly bool _isSome;
+		public static implicit operator Option<T>(OptionNone _) => None;
 
-        readonly T _value;
+		readonly bool _isSome;
 
-        Option(T value)
-        {
-            _isSome = true;
-            _value = value;
-        }
+		readonly T _value;
 
-        public bool IsSome() => _isSome;
+		Option(T value)
+		{
+			_isSome = true;
+			_value = value;
+		}
 
-        public bool IsNone() => !_isSome;
+		public bool IsSome() => _isSome;
 
-        public Option<T1> Map<T1>(Func<T, T1> map) => Match(t => Option<T1>.Some(map(t)), Option<T1>.None);
+		public bool IsNone() => !_isSome;
 
-        public Task<Option<T1>> Map<T1>(Func<T, Task<T1>> map) => Match(
-            async t => Option<T1>.Some(await map(t).ConfigureAwait(false)), () => Task.FromResult(Option<T1>.None));
+		Type IInternalOption.OptionType => typeof(T);
+		object? IInternalOption.Value => _value;
 
-        public Option<T1> Bind<T1>(Func<T, Option<T1>> map) => Match(map, Option<T1>.None);
+		public Option<T1> Map<T1>(Func<T, T1> map) => Match(t => Option<T1>.Some(map(t)), Option<T1>.None);
 
-        public Task<Option<T1>> Bind<T1>(Func<T, Task<Option<T1>>> bind) => Match(bind, () => Option<T1>.None);
+		public Task<Option<T1>> Map<T1>(Func<T, Task<T1>> map) => Match(
+			async t => Option<T1>.Some(await map(t).ConfigureAwait(false)), () => Task.FromResult(Option<T1>.None));
 
-        public void Match(Action<T> some, Action? none = null)
-        {
-            Match(some.ToFunc(), none?.ToFunc<int>() ?? (() => 42));
-        }
+		public Option<T1> Bind<T1>(Func<T, Option<T1>> map) => Match(map, Option<T1>.None);
 
-        public async Task Match(Func<T, Task> some, Func<Task>? none = null)
-        {
-            if (_isSome)
-            {
-                await some(_value).ConfigureAwait(false);
-            }
-            else if (none != null)
-            {
-                await none().ConfigureAwait(false);
-            }
-        }
+		public Task<Option<T1>> Bind<T1>(Func<T, Task<Option<T1>>> bind) => Match(bind, () => Option<T1>.None);
 
-        public TResult Match<TResult>(Func<T, TResult> some, Func<TResult> none) => _isSome ? some(_value) : none();
+		public void Match(Action<T> some, Action? none = null)
+		{
+			Match(some.ToFunc(), none?.ToFunc<int>() ?? (() => 42));
+		}
 
-        public TResult Match<TResult>(Func<T, TResult> some, TResult none) => _isSome ? some(_value) : none;
+		public async Task Match(Func<T, Task> some, Func<Task>? none = null)
+		{
+			if (_isSome)
+			{
+				await some(_value).ConfigureAwait(false);
+			}
+			else if (none != null)
+			{
+				await none().ConfigureAwait(false);
+			}
+		}
 
-        public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<Task<TResult>> none)
-        {
-            if (_isSome)
-            {
-                return await some(_value).ConfigureAwait(false);
-            }
+		public TResult Match<TResult>(Func<T, TResult> some, Func<TResult> none) => _isSome ? some(_value) : none();
 
-            return await none().ConfigureAwait(false);
-        }
+		public TResult Match<TResult>(Func<T, TResult> some, TResult none) => _isSome ? some(_value) : none;
 
-        public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<TResult> none)
-        {
-            if (_isSome)
-            {
-                return await some(_value).ConfigureAwait(false);
-            }
+		public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<Task<TResult>> none)
+		{
+			if (_isSome)
+			{
+				return await some(_value).ConfigureAwait(false);
+			}
 
-            return none();
-        }
+			return await none().ConfigureAwait(false);
+		}
 
-        public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, TResult none)
-        {
-            if (_isSome)
-            {
-                return await some(_value).ConfigureAwait(false);
-            }
+		public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, Func<TResult> none)
+		{
+			if (_isSome)
+			{
+				return await some(_value).ConfigureAwait(false);
+			}
 
-            return none;
-        }
+			return none();
+		}
 
-        public static implicit operator Option<T>(T value) => Some(value);
+		public async Task<TResult> Match<TResult>(Func<T, Task<TResult>> some, TResult none)
+		{
+			if (_isSome)
+			{
+				return await some(_value).ConfigureAwait(false);
+			}
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+			return none;
+		}
 
-        public IEnumerator<T> GetEnumerator() => Match(v => new[] { v }, Enumerable.Empty<T>).GetEnumerator();
+		public static implicit operator Option<T>(T value) => Some(value);
 
-        public T? GetValueOrDefault() => Match(v => (T?)v, () => default);
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public T GetValueOrDefault(Func<T> defaultValue) => Match(v => v, defaultValue);
+		public IEnumerator<T> GetEnumerator() => Match(v => [v], Enumerable.Empty<T>).GetEnumerator();
 
-        public async Task<T> GetValueOrDefault(Func<Task<T>> defaultValue) =>
-            _isSome ? _value : await defaultValue().ConfigureAwait(false);
-        
-        public async ValueTask<T> GetValueOrDefault(Func<ValueTask<T>> defaultValue) =>
-            _isSome ? _value : await defaultValue().ConfigureAwait(false);
+		public T? GetValueOrDefault() => Match(v => (T?)v, () => default);
 
-        public T GetValueOrDefault(T defaultValue) => Match(v => v, () => defaultValue);
+		public T GetValueOrDefault(Func<T> defaultValue) => Match(v => v, defaultValue);
 
-        public T GetValueOrThrow(string? errorMessage = null) =>
-            _isSome
-                ? _value
-                : throw new InvalidOperationException(errorMessage ?? "Cannot access value of none option");
+		public async Task<T> GetValueOrDefault(Func<Task<T>> defaultValue) =>
+			_isSome ? _value : await defaultValue().ConfigureAwait(false);
 
-        public Option<TOther> Convert<TOther>() =>
-            Match(s => Option<TOther>.Some((TOther)(object)s!), Option<TOther>.None);
+		public async ValueTask<T> GetValueOrDefault(Func<ValueTask<T>> defaultValue) =>
+			_isSome ? _value : await defaultValue().ConfigureAwait(false);
+
+		public T GetValueOrDefault(T defaultValue) => Match(v => v, () => defaultValue);
+
+		public T GetValueOrThrow(string? errorMessage = null) =>
+			_isSome
+				? _value
+				: throw new InvalidOperationException(errorMessage ?? "Cannot access value of none option");
+
+		public Option<TOther> Convert<TOther>() =>
+			Match(s => Option<TOther>.Some((TOther)(object)s!), Option<TOther>.None);
 
 		public Option<TTarget> As<TTarget>() where TTarget : class =>
-	        Bind(item => (item as TTarget).ToOption());
+			Bind(item => (item as TTarget).ToOption());
 
 		public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {typeof(T).BeautifulName()}");
+		
+		public bool Equals(Option<T> other) =>
+			_isSome == other._isSome && EqualityComparer<T>.Default.Equals(_value, other._value);
 
-        public bool Equals(Option<T> other) =>
-            _isSome == other._isSome && EqualityComparer<T>.Default.Equals(_value, other._value);
+		public override bool Equals(object? obj) => (obj is Option<T> other && Equals(other));
 
-        public override bool Equals(object? obj) => (obj is Option<T> other && Equals(other));
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				var hashCode = _isSome.GetHashCode();
+				hashCode = (hashCode * 397) ^ EqualityComparer<T>.Default.GetHashCode(_value);
+				hashCode = (hashCode * 397) ^ typeof(T).GetHashCode();
+				return hashCode;
+			}
+		}
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = _isSome.GetHashCode();
-                hashCode = (hashCode * 397) ^ EqualityComparer<T>.Default.GetHashCode(_value);
-                hashCode = (hashCode * 397) ^ typeof(T).GetHashCode();
-                return hashCode;
-            }
-        }
+		public static bool operator ==(Option<T> left, Option<T> right) => left.Equals(right);
 
-        public static bool operator ==(Option<T> left, Option<T> right) => left.Equals(right);
+		public static bool operator !=(Option<T> left, Option<T> right) => !left.Equals(right);
+	}
 
-        public static bool operator !=(Option<T> left, Option<T> right) => !left.Equals(right);
-    }
+	public readonly record struct OptionNone;
 
-    public readonly record struct OptionNone;
+	public static class OptionExtension
+	{
+		public static Option<T> Flatten<T>(this Option<Option<T>> option)
+		{
+			return option.Match(s => s, () => Option<T>.None);
+		}
 
-    public static class OptionExtension
-    {
-        public static Option<T> Flatten<T>(this Option<Option<T>> option)
-        {
-            return option.Match(s => s, () => Option<T>.None);
-        }
+		public static async Task<TOut> Match<T, TOut>(this Task<Option<T>> option, Func<T, TOut> some, Func<TOut> none)
+		{
+			var result = await option.ConfigureAwait(false);
+			return result.Match(some, none);
+		}
 
-        public static async Task<TOut> Match<T, TOut>(this Task<Option<T>> option, Func<T, TOut> some, Func<TOut> none)
-        {
-            var result = await option.ConfigureAwait(false);
-            return result.Match(some, none);
-        }
+		public static async Task<Option<TOut>> Map<T, TOut>(this Task<Option<T>> map, Func<T, Task<TOut>> convert)
+		{
+			var result = await map.ConfigureAwait(false);
+			return await result.Map(convert).ConfigureAwait(false);
+		}
 
-        public static async Task<Option<TOut>> Map<T, TOut>(this Task<Option<T>> map, Func<T, Task<TOut>> convert)
-        {
-            var result = await map.ConfigureAwait(false);
-            return await result.Map(convert).ConfigureAwait(false);
-        }
+		public static async Task<Option<TOut>> Map<T, TOut>(this Task<Option<T>> map, Func<T, TOut> convert)
+		{
+			var result = await map.ConfigureAwait(false);
+			return result.Map(convert);
+		}
 
-        public static async Task<Option<TOut>> Map<T, TOut>(this Task<Option<T>> map, Func<T, TOut> convert)
-        {
-            var result = await map.ConfigureAwait(false);
-            return result.Map(convert);
-        }
+		public static async Task<Option<TOut>> Bind<T, TOut>(this Task<Option<T>> bind, Func<T, Option<TOut>> convert)
+		{
+			var result = await bind.ConfigureAwait(false);
+			return result.Bind(convert);
+		}
 
-        public static async Task<Option<TOut>> Bind<T, TOut>(this Task<Option<T>> bind, Func<T, Option<TOut>> convert)
-        {
-            var result = await bind.ConfigureAwait(false);
-            return result.Bind(convert);
-        }
+		public static async Task<Option<TOut>> Bind<T, TOut>(this Task<Option<T>> bind,
+			Func<T, Task<Option<TOut>>> convert)
+		{
+			var result = await bind.ConfigureAwait(false);
+			return await result.Bind(convert).ConfigureAwait(false);
+		}
 
-        public static async Task<Option<TOut>> Bind<T, TOut>(this Task<Option<T>> bind,
-            Func<T, Task<Option<TOut>>> convert)
-        {
-            var result = await bind.ConfigureAwait(false);
-            return await result.Bind(convert).ConfigureAwait(false);
-        }
+		public static IEnumerable<TOut> Choose<T, TOut>(this IEnumerable<T> items, Func<T, Option<TOut>> choose) =>
+			items.SelectMany(i => choose(i));
 
-        public static IEnumerable<TOut> Choose<T, TOut>(this IEnumerable<T> items, Func<T, Option<TOut>> choose) =>
-            items.SelectMany(i => choose(i));
+		public static Option<T> ToOption<T>(this Result<T> result) => result.ToOption(logError: null);
 
-        public static Option<T> ToOption<T>(this Result<T> result) => result.ToOption(logError: null);
+		public static Option<T> ToOption<T>(this Result<T> result, Action<string>? logError) =>
+			result.Match(
+				ok => Option.Some(ok),
+				error =>
+				{
+					logError?.Invoke(error);
+					return Option<T>.None;
+				});
 
-        public static Option<T> ToOption<T>(this Result<T> result, Action<string>? logError) =>
-            result.Match(
-                ok => Option.Some(ok),
-                error =>
-                {
-                    logError?.Invoke(error);
-                    return Option<T>.None;
-                });
+		public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
+			option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
 
-        public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
-            option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
+		public static Option<string> NoneIfEmpty(this string? text)
+			=> text.ToOption(x => !string.IsNullOrEmpty(x));
 
-        public static Option<string> NoneIfEmpty(this string? text)
-            => text.ToOption(x => !string.IsNullOrEmpty(x));
-        
-        #region query-expression pattern
+		#region query-expression pattern
 
-        public static Option<T1> Select<T, T1>(this Option<T> result, Func<T, T1> selector) => result.Map(selector);
+		public static Option<T1> Select<T, T1>(this Option<T> result, Func<T, T1> selector) => result.Map(selector);
 
-        public static Task<Option<T1>> Select<T, T1>(this Task<Option<T>> result, Func<T, T1> selector) =>
-            result.Map(selector);
+		public static Task<Option<T1>> Select<T, T1>(this Task<Option<T>> result, Func<T, T1> selector) =>
+			result.Map(selector);
 
-        public static Option<T2> SelectMany<T, T1, T2>(this Option<T> result, Func<T, Option<T1>> selector,
-            Func<T, T1, T2> resultSelector) =>
-            result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+		public static Option<T2> SelectMany<T, T1, T2>(this Option<T> result, Func<T, Option<T1>> selector,
+			Func<T, T1, T2> resultSelector) =>
+			result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
-        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Task<Option<T>> result,
-            Func<T, Task<Option<T1>>> selector, Func<T, T1, T2> resultSelector) =>
-            result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+		public static Task<Option<T2>> SelectMany<T, T1, T2>(this Task<Option<T>> result,
+			Func<T, Task<Option<T1>>> selector, Func<T, T1, T2> resultSelector) =>
+			result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
-        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Task<Option<T>> result, Func<T, Option<T1>> selector,
-            Func<T, T1, T2> resultSelector) =>
-            result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+		public static Task<Option<T2>> SelectMany<T, T1, T2>(this Task<Option<T>> result, Func<T, Option<T1>> selector,
+			Func<T, T1, T2> resultSelector) =>
+			result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
-        public static Task<Option<T2>> SelectMany<T, T1, T2>(this Option<T> result, Func<T, Task<Option<T1>>> selector,
-            Func<T, T1, T2> resultSelector) =>
-            result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
+		public static Task<Option<T2>> SelectMany<T, T1, T2>(this Option<T> result, Func<T, Task<Option<T1>>> selector,
+			Func<T, T1, T2> resultSelector) =>
+			result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
-        #endregion
-    }
-    
-    public static class OptionStructExtensions
-    {
-        public static T? ToNullable<T>(this Option<T> option) where T : struct =>
-            option.Match(some => some, () => (T?)null);
+		#endregion
+	}
 
-        public static Option<T> ToOption<T>(this T? item) where T : struct =>
-            item.HasValue ? Option.Some(item.Value) : Option<T>.None;
-        
-        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : struct
-            => value is not null && hasValue(value.Value) ? Option.Some(value.Value) : Option.None();
-        
-        public static Option<T> ToOption<T>(this T value, Func<T, bool> hasValue) where T : struct
-            => hasValue(value) ? Option.Some(value) : Option.None();
-    }
+	public static class OptionStructExtensions
+	{
+		public static T? ToNullable<T>(this Option<T> option) where T : struct =>
+			option.Match(some => some, () => (T?)null);
 
-    public static class OptionClassExtensions
-    {
-        public static Option<TTarget> As<TTarget>(this object item) where TTarget : class =>
-            (item as TTarget).ToOption();
+		public static Option<T> ToOption<T>(this T? item) where T : struct =>
+			item.HasValue ? Option.Some(item.Value) : Option<T>.None;
 
-        public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
+		public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : struct
+			=> value is not null && hasValue(value.Value) ? Option.Some(value.Value) : Option.None();
 
-        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class
-            => value is not null && hasValue(value) ? Option.Some(value) : Option.None();
-        
-    }
+		public static Option<T> ToOption<T>(this T value, Func<T, bool> hasValue) where T : struct
+			=> hasValue(value) ? Option.Some(value) : Option.None();
+
+		public static Option<TTarget> As<TTarget>(this object? item) where TTarget : struct
+		{
+			if (item == null)
+				return Option<TTarget>.None;
+			
+			return item is Option<TTarget> option ? option 
+				: item.GetType() == typeof(TTarget) ? Option.Some((TTarget)item) 
+				: Option.None<TTarget>();
+		}
+	}
+
+	public static class OptionClassExtensions
+	{
+		public static Option<TTarget> As<TTarget>(this object? item) where TTarget : class
+		{
+			if (item is IInternalOption o && typeof(TTarget).IsAssignableFrom(o.OptionType))
+				return o.IsNone() ? Option.None<TTarget>() : Option<TTarget>.Some((TTarget)o.Value!);
+
+			return (item as TTarget).ToOption();
+		}
+
+		public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
+
+		public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class
+			=> value is not null && hasValue(value) ? Option.Some(value) : Option.None();
+
+	}
 }
