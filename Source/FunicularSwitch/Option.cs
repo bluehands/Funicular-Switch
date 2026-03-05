@@ -169,7 +169,20 @@ namespace FunicularSwitch
 
     public static class OptionExtension
     {
-        public static Option<T> Flatten<T>(this Option<Option<T>> option)
+	    public static Option<TTarget> As<TTarget>(this object? item)
+		    => item switch
+		    {
+			    IInternalOption option when typeof(TTarget).IsAssignableFrom(option.OptionType)
+				    => option.IsSome()
+					    ? option.Value == null
+						    ? Option<TTarget>.None
+						    : Option<TTarget>.Some((TTarget)option.Value)
+					    : Option<TTarget>.None,
+			    TTarget target => Option.Some(target),
+			    _ => Option.None<TTarget>()
+		    };
+
+		public static Option<T> Flatten<T>(this Option<Option<T>> option)
         {
             return option.Match(s => s, () => Option<T>.None);
         }
@@ -264,14 +277,6 @@ namespace FunicularSwitch
 
         public static Option<T> ToOption<T>(this T value, Func<T, bool> hasValue) where T : struct
             => hasValue(value) ? Option.Some(value) : Option.None();
-
-        public static Option<TTarget> As<TTarget>(this object? item) where TTarget : struct
-            => item switch
-            {
-                Option<TTarget> option => option,
-                TTarget target => Option.Some<TTarget>(target),
-                _ => Option.None<TTarget>(),
-            };
     }
 
     public static class OptionClassExtensions
@@ -280,15 +285,5 @@ namespace FunicularSwitch
 
         public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class
             => value is not null && hasValue(value) ? Option.Some(value) : Option.None();
-		
-        public static Option<TTarget> As<TTarget>(this object? item) where TTarget : class
-            => item switch
-            {
-                IInternalOption option when typeof(TTarget).IsAssignableFrom(option.OptionType)
-                    => option.IsSome()
-                        ? Option<TTarget>.Some((TTarget)option.Value!)
-                        : Option.None<TTarget>(),
-                _ => (item as TTarget).ToOption(),
-            };
     }
 }

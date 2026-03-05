@@ -613,17 +613,25 @@ public class OptionSpecs
 		object myBaseOption = Some(new MyBase());
 		object myBaseNullOption = Some((MyBase?)null);
 		object myIntOption = Some(5);
+		object myInt = 5;
 
 		myDerivedOption.As<MyDerived>().Should().BeSome().Which.Should().BeOfType<MyDerived>();
 		myDerivedOption.As<MyBase>().Should().BeSome().Which.Should().BeOfType<MyDerived>();
-		myDerivedNullOption.As<MyDerived>().Should().BeSome().Which.Should().BeNull();
-		myDerivedNullOption.As<MyBase>().Should().BeSome().Which.Should().BeNull();
+		
+		myDerivedNullOption.As<MyDerived>().Should().BeNone();
+		myDerivedNullOption.As<MyBase>().Should().BeNone();
 
 		myBaseOption.As<MyDerived>().Should().BeNone();
 		myBaseNullOption.As<MyDerived>().Should().BeNone();
 
 		myIntOption.As<MyDerived>().Should().BeNone();
 		myIntOption.As<int>().Should().BeSome().Which.Should().Be(5);
+		
+		myIntOption.As<int?>().Should().BeSome().Which.Should().Be(5);
+		myInt.As<int?>().Should().BeSome().Which.Should().Be(5);
+
+		var myNullableOption = Some((MyDerived?)null);
+		myNullableOption.As<MyDerived>().Should().Be(((object)myNullableOption).As<MyDerived>());
 	}
 
 	[TestMethod]
