@@ -116,28 +116,28 @@ namespace FunicularSwitch.Test
 
     public static partial class ResultExtension
     {
-	    
-		public static Result<global::System.Collections.Generic.IReadOnlyCollection<T1>> Map<T, T1>(this global::System.Collections.Generic.IEnumerable<Result<T>> results,
-            global::System.Func<T, T1> map) =>
+        
+        public static Result<global::System.Collections.Generic.IReadOnlyCollection<T1>> Map<T, T1>(this global::System.Collections.Generic.IEnumerable<Result<T>> results,
+             global::System.Func<T, T1> map) =>
             results.Select(r => r.Map(map)).Aggregate();
 
-	    
-		public static Result<global::System.Collections.Generic.IReadOnlyCollection<T1>> Bind<T, T1>(this global::System.Collections.Generic.IEnumerable<Result<T>> results,
-            global::System.Func<T, Result<T1>> bind) =>
+        
+        public static Result<global::System.Collections.Generic.IReadOnlyCollection<T1>> Bind<T, T1>(this global::System.Collections.Generic.IEnumerable<Result<T>> results,
+             global::System.Func<T, Result<T1>> bind) =>
             results.Select(r => r.Bind(bind)).Aggregate();
 
-		
-		public static Result<global::System.Collections.Generic.IReadOnlyCollection<T1>> Bind<T, T1>(this Result<T> result,
-            global::System.Func<T, global::System.Collections.Generic.IEnumerable<Result<T1>>> bindMany) =>
+        
+        public static Result<global::System.Collections.Generic.IReadOnlyCollection<T1>> Bind<T, T1>(this Result<T> result,
+             global::System.Func<T, global::System.Collections.Generic.IEnumerable<Result<T1>>> bindMany) =>
             result.Map(ok => bindMany(ok).Aggregate()).Flatten();
 
-		
-		public static Result<T1> Bind<T, T1>(this global::System.Collections.Generic.IEnumerable<Result<T>> results,
-            global::System.Func<global::System.Collections.Generic.IEnumerable<T>, Result<T1>> bind) =>
+        
+        public static Result<T1> Bind<T, T1>(this global::System.Collections.Generic.IEnumerable<Result<T>> results,
+             global::System.Func<global::System.Collections.Generic.IEnumerable<T>, Result<T1>> bind) =>
             results.Aggregate().Bind(bind);
 
-		
-		public static Result<global::System.Collections.Generic.IReadOnlyCollection<T>> Aggregate<T>(this global::System.Collections.Generic.IEnumerable<Result<T>> results)
+        
+        public static Result<global::System.Collections.Generic.IReadOnlyCollection<T>> Aggregate<T>(this global::System.Collections.Generic.IEnumerable<Result<T>> results)
         {
             var isError = false;
             String aggregated = default!;
@@ -160,25 +160,25 @@ namespace FunicularSwitch.Test
         }
 
         
-		public static async global::System.Threading.Tasks.Task<Result<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
+        public static async global::System.Threading.Tasks.Task<Result<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
             this global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<Result<T>>> results)
             => (await results.ConfigureAwait(false))
                 .Aggregate();
 
-		
-		public static async global::System.Threading.Tasks.Task<Result<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
+        
+        public static async global::System.Threading.Tasks.Task<Result<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
             this global::System.Collections.Generic.IEnumerable<global::System.Threading.Tasks.Task<Result<T>>> results)
             => (await global::System.Threading.Tasks.Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
                 .Aggregate();
 
-		
-		public static async global::System.Threading.Tasks.Task<Result<global::System.Collections.Generic.IReadOnlyCollection<T>>> AggregateMany<T>(
+        
+        public static async global::System.Threading.Tasks.Task<Result<global::System.Collections.Generic.IReadOnlyCollection<T>>> AggregateMany<T>(
             this global::System.Collections.Generic.IEnumerable<global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<Result<T>>>> results)
             => (await global::System.Threading.Tasks.Task.WhenAll(results.Select(e => e)).ConfigureAwait(false))
                 .SelectMany(e => e)
                 .Aggregate();
 
-		
+        
 		
 		public static Result<(T1, T2)> Aggregate<T1, T2>(this Result<T1> r1, Result<T2> r2) => 
             Aggregate(r1, r2, (v1, v2) => (v1, v2));
@@ -403,8 +403,8 @@ namespace FunicularSwitch.Test
             return Aggregate(r1.Result, r2.Result, r3.Result, r4.Result, r5.Result, r6.Result, r7.Result, r8.Result, r9.Result, combine);
         }
 
-		
-		public static Result<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<Result<T>> results, global::System.Func<String> onEmpty)
+        
+        public static Result<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<Result<T>> results,  global::System.Func<String> onEmpty)
         {
             var errors = new global::System.Collections.Generic.List<String>();
             foreach (var result in results)
@@ -422,21 +422,21 @@ namespace FunicularSwitch.Test
         }
 
         
-		public static async global::System.Threading.Tasks.Task<Result<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
+        public static async global::System.Threading.Tasks.Task<Result<global::System.Collections.Generic.IReadOnlyCollection<T>>> Aggregate<T>(
             this global::System.Collections.Generic.IEnumerable<global::System.Threading.Tasks.Task<Result<T>>> results,
             int maxDegreeOfParallelism)
             => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
                 .Aggregate();
 
-		
-		public static async global::System.Threading.Tasks.Task<Result<global::System.Collections.Generic.IReadOnlyCollection<T>>> AggregateMany<T>(
+        
+        public static async global::System.Threading.Tasks.Task<Result<global::System.Collections.Generic.IReadOnlyCollection<T>>> AggregateMany<T>(
             this global::System.Collections.Generic.IEnumerable<global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<Result<T>>>> results,
             int maxDegreeOfParallelism)
             => (await results.SelectAsync(e => e, maxDegreeOfParallelism).ConfigureAwait(false))
                 .SelectMany(e => e)
                 .Aggregate();
 
-        static async global::System.Threading.Tasks.Task<TOut[]> SelectAsync<T, TOut>(this global::System.Collections.Generic.IEnumerable<T> items, global::System.Func<T, global::System.Threading.Tasks.Task<TOut>> selector, int maxDegreeOfParallelism)
+        static async global::System.Threading.Tasks.Task<TOut[]> SelectAsync<T, TOut>(this global::System.Collections.Generic.IEnumerable<T> items,  global::System.Func<T, global::System.Threading.Tasks.Task<TOut>> selector, int maxDegreeOfParallelism)
         {
             using (var throttler = new global::System.Threading.SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism))
             {
@@ -458,39 +458,39 @@ namespace FunicularSwitch.Test
         }
 
         
-		public static Result<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate) =>
+        public static Result<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates,  global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate) =>
             candidates
                 .Select(c => c.Validate(validate))
                 .Aggregate();
 
-		
-		public static Result<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<Result<T>> candidates,
-            global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate) =>
+        
+        public static Result<global::System.Collections.Generic.IReadOnlyCollection<T>> AllOk<T>(this global::System.Collections.Generic.IEnumerable<Result<T>> candidates,
+             global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate) =>
             candidates
                 .Bind(items => items.AllOk(validate));
 
-		
-		public static Result<T> Validate<T>(this Result<T> item, global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate) => item.Bind(i => i.Validate(validate));
+        
+        public static Result<T> Validate<T>(this Result<T> item,  global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate) => item.Bind(i => i.Validate(validate));
 
-		
-		public static Result<T> Validate<T>(this T item, global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate)
+        
+        public static Result<T> Validate<T>(this T item,  global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate)
         {
-	        try
-	        {
-		        var errors = validate(item).ToList();
-		        return errors.Count > 0 ? Result.Error<T>(MergeErrors(errors)) : item;
-	        }
-	        // ReSharper disable once RedundantCatchClause
+            try
+            {
+                var errors = validate(item).ToList();
+                return errors.Count > 0 ? Result.Error<T>(MergeErrors(errors)) : item;
+            }
+            // ReSharper disable once RedundantCatchClause
 #pragma warning disable CS0168 // Variable is declared but never used
-	        catch (global::System.Exception e)
+            catch (global::System.Exception e)
 #pragma warning restore CS0168 // Variable is declared but never used
-	        {
-		        throw; //createGenericErrorResult
-	        }
+            {
+                throw; //createGenericErrorResult
+            }
         }
 
         
-		public static Result<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates, global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate, global::System.Func<String> onEmpty) =>
+        public static Result<T> FirstOk<T>(this global::System.Collections.Generic.IEnumerable<T> candidates,  global::System.Func<T, global::System.Collections.Generic.IEnumerable<String>> validate,  global::System.Func<String> onEmpty) =>
             candidates
                 .Select(r => r.Validate(validate))
                 .FirstOk(onEmpty);

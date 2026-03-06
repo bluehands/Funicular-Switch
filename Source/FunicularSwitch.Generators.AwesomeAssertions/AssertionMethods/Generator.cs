@@ -125,7 +125,7 @@ internal static class Generator
                 }
             }
             """;
-        
+
         var extensionsCode =
             $$"""
             #nullable enable

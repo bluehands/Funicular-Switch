@@ -31,7 +31,7 @@ public abstract class VerifySourceGenerator : VerifyBase
                 MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Runtime.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll")),
             ]);
-        
+
         var compilation = CSharpCompilation.Create(
             assemblyName: "Tests",
             syntaxTrees: [CSharpSyntaxTree.ParseText("")],
@@ -51,7 +51,7 @@ public abstract class VerifySourceGenerator : VerifyBase
 
     protected Task Verify(IEnumerable<Assembly> assemblies, string? subfolder = null) =>
         Verify(
-            assemblies, 
+            assemblies,
             (compilation, _) =>
             {
                 var diagnostics = compilation.GetDiagnostics()

@@ -84,8 +84,8 @@ static class Generator
                                      {genericResultType}.Ok,
                                      {genericResultType}.Error);
                      """);
-                
-                code = code.Replace("//createGenericResultConversionExtensions", 
+
+                code = code.Replace("//createGenericResultConversionExtensions",
                     $"""
                     
                             public static {resultTypeName}<T> To{resultTypeName}<T>(
@@ -147,7 +147,7 @@ static class Generator
 
     static string GenerateAggregateExtensionMethods(int maxParameterCount, bool isValueType, bool referencesJetBrainsAnnotations) => Generate(maxParameterCount, i => MakeAggregateExtensionMethod(i, isValueType, referencesJetBrainsAnnotations));
     static string GenerateAggregateMethods(int maxParameterCount, bool referencesJetBrainsAnnotations) => Generate(maxParameterCount,
-	    i => GenerateAggregateMethod(i, referencesJetBrainsAnnotations));
+        i => GenerateAggregateMethod(i, referencesJetBrainsAnnotations));
 
 
     static string Generate(int maxParameterCount, Func<int, string> generateMethods) =>
@@ -217,7 +217,7 @@ static class Generator
         var parameters = Expand(i => $"r{i}");
 
         var mustUseReturnValueAttribute = referencesJetBrainsAnnotations ? Constants.Attributes.MustUseReturnValue : "";
-		return $@"
+        return $@"
 
 		{mustUseReturnValueAttribute}
         public static MyResult<({typeParameters})> Aggregate<{typeParameters}>({parameterDeclarations}) => MyResultExtension.Aggregate({parameters});

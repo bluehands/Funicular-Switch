@@ -198,7 +198,7 @@ namespace Tutorial
         public Result<int> ParseInt(string input)
         {
             var success = int.TryParse(input, out var number);
-            return success 
+            return success
                 ? Result.Ok(number)
                 : Result.Error<int>("Input was no valid int!");
         }
@@ -208,8 +208,8 @@ namespace Tutorial
             Random rnd = new Random();
             bool success = rnd.Next(0, 2) == 0;
 
-            return success 
-                ? Result.Ok(data) 
+            return success
+                ? Result.Ok(data)
                 : Result.Error<string>("Something went wrong!");
         }
 

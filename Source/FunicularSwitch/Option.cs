@@ -22,7 +22,12 @@ namespace FunicularSwitch
         bool IsNone();
     }
 
-    public readonly struct Option<T> : IEnumerable<T>, IEquatable<Option<T>>, IOption
+    internal interface IInternalOption : IOption
+    {
+        object? Value { get; }
+    }
+
+    public readonly struct Option<T> : IEnumerable<T>, IEquatable<Option<T>>, IInternalOption
     {
         public static readonly Option<T> None = default;
 
@@ -43,6 +48,8 @@ namespace FunicularSwitch
         public bool IsSome() => _isSome;
 
         public bool IsNone() => !_isSome;
+
+        object? IInternalOption.Value => _value;
 
         public Option<T1> Map<T1>(Func<T, T1> map) => Match(t => Option<T1>.Some(map(t)), Option<T1>.None);
 
@@ -108,7 +115,7 @@ namespace FunicularSwitch
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<T> GetEnumerator() => Match(v => new[] { v }, Enumerable.Empty<T>).GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => Match(v => [v], Enumerable.Empty<T>).GetEnumerator();
 
         public T? GetValueOrDefault() => Match(v => (T?)v, () => default);
 
@@ -116,7 +123,7 @@ namespace FunicularSwitch
 
         public async Task<T> GetValueOrDefault(Func<Task<T>> defaultValue) =>
             _isSome ? _value : await defaultValue().ConfigureAwait(false);
-        
+
         public async ValueTask<T> GetValueOrDefault(Func<ValueTask<T>> defaultValue) =>
             _isSome ? _value : await defaultValue().ConfigureAwait(false);
 
@@ -130,10 +137,10 @@ namespace FunicularSwitch
         public Option<TOther> Convert<TOther>() =>
             Match(s => Option<TOther>.Some((TOther)(object)s!), Option<TOther>.None);
 
-		public Option<TTarget> As<TTarget>() where TTarget : class =>
-	        Bind(item => (item as TTarget).ToOption());
+        public Option<TTarget> As<TTarget>() where TTarget : class =>
+            Bind(item => (item as TTarget).ToOption());
 
-		public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {typeof(T).BeautifulName()}");
+        public override string ToString() => Match(v => v?.ToString() ?? "", () => $"None {typeof(T).BeautifulName()}");
 
         public bool Equals(Option<T> other) =>
             _isSome == other._isSome && EqualityComparer<T>.Default.Equals(_value, other._value);
@@ -164,17 +171,6 @@ namespace FunicularSwitch
         {
             return option.Match(s => s, () => Option<T>.None);
         }
-
-        public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
-
-        public static Option<T> ToOption<T>(this T? item) where T : struct =>
-            item.HasValue ? Option.Some(item.Value) : Option<T>.None;
-
-        public static T? ToNullable<T>(this Option<T> option) where T : struct =>
-            option.Match(some => some, () => (T?)null);
-
-        public static Option<TTarget> As<TTarget>(this object item) where TTarget : class =>
-            (item as TTarget).ToOption();
 
         public static async Task<TOut> Match<T, TOut>(this Task<Option<T>> option, Func<T, TOut> some, Func<TOut> none)
         {
@@ -224,17 +220,9 @@ namespace FunicularSwitch
         public static Result<T> ToResult<T>(this Option<T> option, Func<string> errorIfNone) =>
             option.Match(s => Result.Ok(s), () => Result.Error<T>(errorIfNone()));
 
-        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class 
-            => value is not null && hasValue(value) ? Option.Some(value) : Option.None();
-
-        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : struct
-            => value.HasValue && hasValue(value.Value) ? Option.Some(value.Value) : Option.None();
-
         public static Option<string> NoneIfEmpty(this string? text)
             => text.ToOption(x => !string.IsNullOrEmpty(x));
 
-        public static IEnumerable<T> WhereSome<T>(this IEnumerable<Option<T>> option) => option.SelectMany(o => o);
-        
         #region query-expression pattern
 
         public static Option<T1> Select<T, T1>(this Option<T> result, Func<T, T1> selector) => result.Map(selector);
@@ -258,6 +246,38 @@ namespace FunicularSwitch
             Func<T, T1, T2> resultSelector) =>
             result.Bind(t => selector(t).Map(t1 => resultSelector(t, t1)));
 
+        public static Option<TTarget> As<TTarget>(this object? item)
+            => item switch
+            {
+                TTarget target => Option.Some(target),
+                IInternalOption option => option.IsSome() && option.Value is TTarget target
+                    ? Option.Some(target)
+                    : Option<TTarget>.None,
+                _ => Option.None<TTarget>()
+            };
         #endregion
+    }
+
+    public static class OptionStructExtensions
+    {
+        public static T? ToNullable<T>(this Option<T> option) where T : struct =>
+            option.Match(some => some, () => (T?)null);
+
+        public static Option<T> ToOption<T>(this T? item) where T : struct =>
+            item.HasValue ? Option.Some(item.Value) : Option<T>.None;
+
+        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : struct
+            => value is not null && hasValue(value.Value) ? Option.Some(value.Value) : Option.None();
+
+        public static Option<T> ToOption<T>(this T value, Func<T, bool> hasValue) where T : struct
+            => hasValue(value) ? Option.Some(value) : Option.None();
+    }
+
+    public static class OptionClassExtensions
+    {
+        public static Option<T> ToOption<T>(this T? item) where T : class => item ?? Option<T>.None;
+
+        public static Option<T> ToOption<T>(this T? value, Func<T, bool> hasValue) where T : class
+            => value is not null && hasValue(value) ? Option.Some(value) : Option.None();
     }
 }

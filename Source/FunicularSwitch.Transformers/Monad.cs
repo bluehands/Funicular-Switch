@@ -18,5 +18,5 @@ public static class MonadExtension
 {
     [Pure]
     [DebuggerStepThrough]
-    public static Monad<B> Map<A, B>(this Monad<A> ma, Func<A, B> fn) => ma.Bind([DebuggerStepThrough](a) => ma.Return(fn(a)));
+    public static Monad<B> Map<A, B>(this Monad<A> ma, Func<A, B> fn) => ma.Bind([DebuggerStepThrough] (a) => ma.Return(fn(a)));
 }

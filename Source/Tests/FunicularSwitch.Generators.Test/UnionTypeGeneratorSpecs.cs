@@ -7,12 +7,12 @@ namespace FunicularSwitch.Generators.Test;
 [TestClass]
 public class Run_union_type_generator : VerifySourceGenerator
 {
-	[TestMethod]
-	public Task For_record_union_type()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_record_union_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -25,15 +25,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			public record Two : Base;
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_record_union_type_with_multi_level_concrete_derived_types()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_record_union_type_with_multi_level_concrete_derived_types()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -46,15 +46,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			public record Aaa : Base;
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_record_union_type_with_explicit_case_order()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_record_union_type_with_explicit_case_order()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -68,15 +68,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			public record Zwei : Base;
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_record_union_type_with_as_declared_case_order()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_record_union_type_with_as_declared_case_order()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -89,15 +89,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			public record Two : Base;
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_switchyard_union_type()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_switchyard_union_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			namespace FunicularSwitch.Test;
 
 			[FunicularSwitch.Generators.UnionType(StaticFactoryMethods=false)]
@@ -153,23 +153,23 @@ public class Run_union_type_generator : VerifySourceGenerator
 			}
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public void KeyWorkSpecs()
-	{
-		"string".IsAnyKeyWord().Should().BeTrue();
-		"myparameter".IsAnyKeyWord().Should().BeFalse();
-		"event".IsAnyKeyWord().Should().BeTrue();
-	}
+    [TestMethod]
+    public void KeyWorkSpecs()
+    {
+        "string".IsAnyKeyWord().Should().BeTrue();
+        "myparameter".IsAnyKeyWord().Should().BeFalse();
+        "event".IsAnyKeyWord().Should().BeTrue();
+    }
 
-	[TestMethod]
-	public Task For_nested_record_union_type()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_nested_record_union_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -185,15 +185,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			}
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_inaccessible_type()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_inaccessible_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -209,15 +209,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			}
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_empty_namespace()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_empty_namespace()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			public class Outer {
@@ -230,15 +230,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			}
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_interface_union_type()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_interface_union_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -250,15 +250,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			public record Two : IBase {}
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_implicitly_internal_union_type()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_implicitly_internal_union_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -270,15 +270,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			record Two : Base;
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_explicitly_internal_union_type()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_explicitly_internal_union_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -290,15 +290,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			record Two : Base;
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_partial_record_union_type()
-	{
-		var code =
-			/* lang=csharp */
-			"""
+    [TestMethod]
+    public Task For_partial_record_union_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -364,15 +364,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			}
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
     [TestMethod]
     public Task Static_factories_for_nested_internal_union_type()
     {
         var code =
-	        /* lang=csharp */ 
-	        """
+            /* lang=csharp */
+            """
 	        using FunicularSwitch.Generators;
 
 	        namespace FunicularSwitch.Test;
@@ -393,12 +393,12 @@ public class Run_union_type_generator : VerifySourceGenerator
     }
 
 
-	[TestMethod]
-	public Task Static_factories_for_interface_union_type()
-	{
-		var code =
-			/* lang=csharp */ 
-			"""
+    [TestMethod]
+    public Task Static_factories_for_interface_union_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -410,15 +410,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			public record Two : IBase {}
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
     [TestMethod]
     public Task Static_factories_for_type_with_required_properties()
     {
         var code =
-	        /* lang=csharp */
-	        """
+            /* lang=csharp */
+            """
 	        using FunicularSwitch.Generators;
 
 	        namespace FunicularSwitch.Test;
@@ -458,8 +458,8 @@ public class Run_union_type_generator : VerifySourceGenerator
     public Task Support_structs_derived_from_interface()
     {
         var code =
-	        /* lang=csharp */
-	        """
+            /* lang=csharp */
+            """
 	        using FunicularSwitch.Generators;
 
 	        namespace FunicularSwitch.Test;
@@ -484,8 +484,8 @@ public class Run_union_type_generator : VerifySourceGenerator
     public Task Support_structs_derived_from_derived_interface()
     {
         var code =
-	        /* lang=csharp */ 
-	        """
+            /* lang=csharp */
+            """
 	        using FunicularSwitch.Generators;
 
 	        namespace FunicularSwitch.Test;
@@ -510,12 +510,12 @@ public class Run_union_type_generator : VerifySourceGenerator
 
     public readonly partial record struct X;
 
-	[TestMethod]
-	public Task For_union_type_without_derived_types()
-	{
-		var code =
-			/* lang=csharp */ 
-			"""
+    [TestMethod]
+    public Task For_union_type_without_derived_types()
+    {
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Test;
@@ -527,15 +527,15 @@ public class Run_union_type_generator : VerifySourceGenerator
 			}
 			""";
 
-		return Verify(code);
-	}
+        return Verify(code);
+    }
 
-	[TestMethod]
-	public Task For_union_type_with_generic_base_class()
+    [TestMethod]
+    public Task For_union_type_with_generic_base_class()
     {
-        var code = 
-	        /* lang=csharp */
-	        """
+        var code =
+            /* lang=csharp */
+            """
             using FunicularSwitch.Generators;
  
             namespace FunicularSwitch.Test;
@@ -552,12 +552,12 @@ public class Run_union_type_generator : VerifySourceGenerator
         return Verify(code);
     }
 
-	[TestMethod]
-	public Task For_union_type_with_generic_base_class_and_type_constraints()
+    [TestMethod]
+    public Task For_union_type_with_generic_base_class_and_type_constraints()
     {
         var code =
-	        /* lang=csharp */
-			"""
+            /* lang=csharp */
+            """
 			using System.Collections.Generic;
 			using FunicularSwitch.Generators;
 
@@ -581,8 +581,8 @@ public class Run_union_type_generator : VerifySourceGenerator
     public Task ForUnionType_WithNullableParameters_StaticFactoriesHaveNullableParametersToo()
     {
         var code =
-	        /* lang=csharp */
-	        """
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			namespace FunicularSwitch.Text;
@@ -600,9 +600,9 @@ public class Run_union_type_generator : VerifySourceGenerator
     [TestMethod]
     public Task ForUnionType_WhenReferencingJetBrainsAnnotationsPackage_AddsInstantHandleAttributes()
     {
-	    var code =
-		    /* lang=csharp */
-			"""
+        var code =
+            /* lang=csharp */
+            """
 			using FunicularSwitch.Generators;
 
 			[UnionType]
@@ -612,6 +612,6 @@ public class Run_union_type_generator : VerifySourceGenerator
 			}
 			""";
 
-	    return Verify(code, additionalAssemblies: [typeof(InstantHandleAttribute).Assembly]);
+        return Verify(code, additionalAssemblies: [typeof(InstantHandleAttribute).Assembly]);
     }
 }

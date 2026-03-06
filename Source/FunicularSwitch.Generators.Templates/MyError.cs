@@ -17,7 +17,7 @@ namespace FunicularSwitch.Generators.Templates
             ? a.Add(other)
             : other is Aggregated_ oa
                 ? oa.Add(this)
-                : Aggregated(new []{this, other});
+                : Aggregated([this, other]);
 
         public class Generic_ : MyError
         {
@@ -49,7 +49,7 @@ namespace FunicularSwitch.Generators.Templates
 
             public Aggregated_(System.Collections.Generic.IEnumerable<MyError> errors) : base(UnionCases.Aggregated) => Errors = errors.ToList();
 
-            public MyError Add(MyError other) => Aggregated(Errors.Concat(new []{other}));
+            public MyError Add(MyError other) => Aggregated(Errors.Concat([other]));
         }
 
         internal enum UnionCases

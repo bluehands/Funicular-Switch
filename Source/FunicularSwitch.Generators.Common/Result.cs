@@ -20,32 +20,32 @@ public static class GenerationResult
     public static GenerationResult<B> Select<A, B>(this GenerationResult<A> ma, Func<A, B> fn) =>
         ma.Map(fn);
 }
-    
+
 public readonly record struct GenerationResult<T>(T? Value, EquatableArray<DiagnosticInfo> Diagnostics, bool HasValue)
 {
-    public static readonly GenerationResult<T> Empty = new(default, ImmutableArray<DiagnosticInfo>.Empty, false); 
-    
-    public GenerationResult<T> AddDiagnostics(DiagnosticInfo diagnosticInfo) => 
+    public static readonly GenerationResult<T> Empty = new(default, ImmutableArray<DiagnosticInfo>.Empty, false);
+
+    public GenerationResult<T> AddDiagnostics(DiagnosticInfo diagnosticInfo) =>
         this with { Diagnostics = Diagnostics.AsImmutableArray().Add(diagnosticInfo) };
-    
-    public GenerationResult<T> SetValue(T value) => 
+
+    public GenerationResult<T> SetValue(T value) =>
         this with { Value = value, HasValue = true };
 
     public static implicit operator GenerationResult<T>(DiagnosticInfo diagnostic) => Empty.AddDiagnostics(diagnostic);
-    
+
     public static implicit operator GenerationResult<T>(EquatableArray<DiagnosticInfo> diagnostics) => new(default, diagnostics, false);
-    
+
     public static implicit operator GenerationResult<T>(T value) => Empty.SetValue(value);
 
     public GenerationResult<TResult> Bind<TResult>(Func<T, GenerationResult<TResult>> bind)
     {
         if (!HasValue)
             return Diagnostics;
-        
+
         var newValue = bind(Value!);
         return newValue with { Diagnostics = Diagnostics.AsImmutableArray().AddRange(newValue.Diagnostics) };
     }
-    
+
     public GenerationResult<TResult> Map<TResult>(Func<T, TResult> map)
     {
         var newValue = !HasValue

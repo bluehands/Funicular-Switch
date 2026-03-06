@@ -16,7 +16,7 @@ namespace FunicularSwitch.Extensions
                 var index = t.Name.LastIndexOf("`", StringComparison.Ordinal);
                 if (index < 0)
                     return t.Name;
-                
+
                 sb.Append(t.Name.Substring(0, index));
                 sb.Append('<');
                 foreach (var type in t.GetGenericArguments())

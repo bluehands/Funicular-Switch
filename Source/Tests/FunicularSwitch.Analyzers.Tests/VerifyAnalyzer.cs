@@ -21,7 +21,7 @@ public class VerifyAnalyzer : VerifyBase
     private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
     private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
     private static readonly MetadataReference FunicularSwitchReference = MetadataReference.CreateFromFile(typeof(Unit).Assembly.Location);
-    
+
     // ReSharper disable once ExplicitCallerInfoArgument
     protected VerifyAnalyzer([CallerFilePath] string sourceFile = "") : base(sourceFile: sourceFile)
     {
@@ -37,11 +37,11 @@ public class VerifyAnalyzer : VerifyBase
         [CallerMemberName] string callingMethod = "")
     {
         const string TestProjectName = "Test";
-        
+
         var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
         var fileName = "File.cs";
         var documentId = DocumentId.CreateNewId(projectId, debugName: fileName);
-        
+
         var solution = new AdhocWorkspace()
             .CurrentSolution
             .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
@@ -78,7 +78,7 @@ public class VerifyAnalyzer : VerifyBase
             syntaxTree.Should().NotBeNull();
             var updatedCode = syntaxTree.ToFullString();
             await CheckCompilation(solution.RemoveDocument(documentId).AddDocument(documentId, fileName, SourceText.From(updatedCode)).GetProject(projectId)!);
-            
+
             var settings = new VerifySettings();
             settings.UseFileName($"{Path.GetFileNameWithoutExtension(this.sourceFile)}_{callingMethod}_{d.Id}_{index}.cs");
             await Verify(updatedCode, settings)
@@ -97,7 +97,7 @@ public class VerifyAnalyzer : VerifyBase
             return c;
         }
     }
-    
+
     private static async Task<Document> ApplyFix(Document document, CodeAction codeAction)
     {
         var operations = await codeAction.GetOperationsAsync(CancellationToken.None);

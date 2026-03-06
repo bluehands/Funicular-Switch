@@ -40,7 +40,7 @@ namespace FunicularSwitch.Generators.Consumer
             );
 
             resultSet.Should().HaveCount(3);
-            resultSet.Should().BeEquivalentTo(new[]{Result.Ok(42), Result.Ok(23), Result.Error<int>("42")});
+            resultSet.Should().BeEquivalentTo(new[] { Result.Ok(42), Result.Ok(23), Result.Error<int>("42") });
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace FunicularSwitch.Generators.Consumer
         [DebuggerNonUserCode]
         void Blubs(Action bla)
         {
-            Blubs2([DebuggerNonUserCode]() => bla());
+            Blubs2([DebuggerNonUserCode] () => bla());
         }
 
         [DebuggerNonUserCode]
@@ -83,7 +83,7 @@ namespace FunicularSwitch.Generators.Consumer
         {
             bla();
         }
-        
+
         [TestMethod]
         public void Bind()
         {

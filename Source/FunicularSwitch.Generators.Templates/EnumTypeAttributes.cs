@@ -7,10 +7,10 @@ namespace FunicularSwitch.Generators
     [AttributeUsage(AttributeTargets.Enum)]
     sealed class ExtendedEnumAttribute : Attribute
     {
-	    public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
-	    public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
+        public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
+        public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
     }
-    
+
     enum EnumCaseOrder
     {
         Alphabetic,
@@ -23,16 +23,16 @@ namespace FunicularSwitch.Generators
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     class ExtendEnumsAttribute : Attribute
     {
-	    public Type AssemblySpecifier { get; }
-	    public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
-	    public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
+        public Type AssemblySpecifier { get; }
+        public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
+        public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
 
-	    public ExtendEnumsAttribute() => AssemblySpecifier = typeof(ExtendEnumsAttribute);
+        public ExtendEnumsAttribute() => AssemblySpecifier = typeof(ExtendEnumsAttribute);
 
-	    public ExtendEnumsAttribute(Type assemblySpecifier)
-	    {
-		    AssemblySpecifier = assemblySpecifier;
-	    }
+        public ExtendEnumsAttribute(Type assemblySpecifier)
+        {
+            AssemblySpecifier = assemblySpecifier;
+        }
     }
 
     /// <summary>
@@ -41,21 +41,21 @@ namespace FunicularSwitch.Generators
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     class ExtendEnumAttribute : Attribute
     {
-	    public Type Type { get; }
+        public Type Type { get; }
 
-	    public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
+        public EnumCaseOrder CaseOrder { get; set; } = EnumCaseOrder.AsDeclared;
 
-	    public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
+        public ExtensionAccessibility Accessibility { get; set; } = ExtensionAccessibility.Public;
 
-	    public ExtendEnumAttribute(Type type)
-	    {
-		    Type = type;
-	    }
+        public ExtendEnumAttribute(Type type)
+        {
+            Type = type;
+        }
     }
 
     enum ExtensionAccessibility
     {
-	    Internal,
-	    Public
+        Internal,
+        Public
     }
 }

@@ -17,16 +17,16 @@ internal static class Parser
 
         return
             from outerMonadData in MonadParser.ResolveMonadDataFromMonadType(outerMonadType, cancellationToken)
-            let transformerTypes = new[] {transformMonadAttribute.TransformerType}
+            let transformerTypes = new[] { transformMonadAttribute.TransformerType }
                 .Concat(transformMonadAttribute.ExtraTransformerTypes)
                 .ToList()
             from chainedMonads in transformerTypes
                 .Aggregate(
-                    (GenerationResult<IReadOnlyList<MonadInfo>>) new[] {outerMonadData},
+                    (GenerationResult<IReadOnlyList<MonadInfo>>)new[] { outerMonadData },
                     (acc, cur) =>
                         acc.Bind(acc_ =>
                             TransformMonad(acc_.Last(), cur, cancellationToken).Map<IReadOnlyList<MonadInfo>>(transformMonad =>
-                                [..acc_, transformMonad])))
+                                [.. acc_, transformMonad])))
             let chainedMonad = chainedMonads.Last()
             let implementations = chainedMonads
                 .Take(chainedMonads.Count - 1)

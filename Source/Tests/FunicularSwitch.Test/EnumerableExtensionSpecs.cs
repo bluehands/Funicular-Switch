@@ -27,6 +27,14 @@ public class EnumerableExtensionSpecs
     private static IEnumerable<int?> ListEnumerable(IEnumerable<int?> source) => source.ToList();
 
     [TestMethod]
+    public void WhereSome_CorrectCollectionReturned()
+    {
+        IEnumerable<Option<int>> target = [1, Option.None(), 2, Option.None(), 3];
+        var result = target.WhereSome();
+        result.Should().Equal([1, 2, 3]);
+    }
+
+    [TestMethod]
     public void FirstOrNone_Empty_ReturnsNone()
     {
         // Given
@@ -44,13 +52,13 @@ public class EnumerableExtensionSpecs
             result.Should().BeNone();
         }
     }
-    
+
     [TestMethod]
     public void FirstOrNone_OneElement_ReturnsSome()
     {
         // Given 
         List<int> subject = [1];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -64,13 +72,13 @@ public class EnumerableExtensionSpecs
             result.Should().BeSome().Which.Should().Be(1);
         }
     }
-    
+
     [TestMethod]
     public void FirstOrNone_Multiple_ReturnsFirst()
     {
         // Given 
         List<int> subject = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -84,13 +92,13 @@ public class EnumerableExtensionSpecs
             result.Should().BeSome().Which.Should().Be(1);
         }
     }
-    
+
     [TestMethod]
     public void FirstOrNone_Predicate_ReturnsFirst()
     {
         // Given 
         List<int> subject = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -104,13 +112,13 @@ public class EnumerableExtensionSpecs
             result.Should().BeSome().Which.Should().Be(4);
         }
     }
-    
+
     [TestMethod]
     public void LastOrNone_Empty_ReturnsNone()
     {
         // Given 
         List<int> subject = [];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -124,13 +132,13 @@ public class EnumerableExtensionSpecs
             result.Should().BeNone();
         }
     }
-    
+
     [TestMethod]
     public void LastOrNone_SingleElement_ReturnsElement()
     {
         // Given 
         List<int> subject = [0];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -144,13 +152,13 @@ public class EnumerableExtensionSpecs
             result.Should().BeSome().Which.Should().Be(0);
         }
     }
-    
+
     [TestMethod]
     public void LastOrNone_MultipleElements_ReturnsLastElement()
     {
         // Given 
         List<int> subject = [0, 1, 2, 3, 4];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -164,13 +172,13 @@ public class EnumerableExtensionSpecs
             result.Should().BeSome().Which.Should().Be(4);
         }
     }
-    
+
     [TestMethod]
     public void LastOrNone_NullStruct_ReturnsSome()
     {
         // Given 
         List<int?> subject = [null];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -183,14 +191,14 @@ public class EnumerableExtensionSpecs
             // Then
             result.Should().BeSome().Which.Should().BeNull();
         }
-    }    
-        
+    }
+
     [TestMethod]
     public void LastOrNone_NullStructValue_ReturnsValue()
     {
         // Given 
         List<int?> subject = [1, null, 2];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -203,14 +211,14 @@ public class EnumerableExtensionSpecs
             // Then
             result.Should().BeSome().Which.Should().Be(2);
         }
-    }    
-    
+    }
+
     [TestMethod]
     public void LastOrNone_NullStructEmpty_ReturnsNone()
     {
         // Given 
         List<int?> subject = [];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -224,13 +232,13 @@ public class EnumerableExtensionSpecs
             result.Should().BeNone();
         }
     }
-    
+
     [TestMethod]
     public void LastOrNone_Predicate_ReturnsCorrectValue()
     {
         // Given 
         List<int> subject = [1, 2, 3, 4, 5, 6];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -244,13 +252,13 @@ public class EnumerableExtensionSpecs
             result.Should().BeSome().Which.Should().Be(4);
         }
     }
-    
+
     [TestMethod]
     public void ElementAtOrNone_EmptyEnumerable_ReturnsNone()
     {
         // Given 
         List<int> subject = [];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -263,14 +271,14 @@ public class EnumerableExtensionSpecs
             // Then
             result.Should().BeNone();
         }
-    }    
-    
+    }
+
     [TestMethod]
     public void ElementAtOrNone_MultipleValues_ReturnsSome()
     {
         // Given 
         List<int> subject = [1, 2, 3, 4, 5, 6, 7, 8];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -284,13 +292,13 @@ public class EnumerableExtensionSpecs
             result.Should().BeSome().Which.Should().Be(4);
         }
     }
-    
+
     [TestMethod]
     public void ElementAtOrNone_IndexOutOfRange_ReturnsNone()
     {
         // Given 
         List<int> subject = [1, 2, 3, 4, 5, 6, 7, 8];
-        
+
         Assert(PureEnumerable(subject));
         Assert(ListEnumerable(subject));
         return;
@@ -318,7 +326,7 @@ public class EnumerableExtensionSpecs
         {
             // When
             var result = await subject.WhereAsync(x => Task.FromResult(x % 2 == 0));
-            
+
             // Then
             result.Should().Equal([2, 4, 6, 8, 10]);
         }
@@ -337,7 +345,7 @@ public class EnumerableExtensionSpecs
         {
             // When
             var result = await subject.WhereAsync(x => Task.FromResult(x % 2 == 0), maxDegreeOfParallelism: 3);
-            
+
             // Then
             result.Should().Equal([2, 4, 6, 8, 10]);
         }
@@ -356,7 +364,7 @@ public class EnumerableExtensionSpecs
         {
             // When
             var result = await subject.WhereAsyncSequential(x => Task.FromResult(x % 2 == 0));
-            
+
             // Then
             result.Should().Equal([2, 4, 6, 8, 10]);
         }
@@ -375,7 +383,7 @@ public class EnumerableExtensionSpecs
         {
             // When
             var result = await subject.SelectAsync(x => Task.FromResult(2 * x));
-            
+
             // Then
             result.Should().Equal([2, 4, 6, 8, 10]);
         }
@@ -394,7 +402,7 @@ public class EnumerableExtensionSpecs
         {
             // When
             var result = await subject.SelectAsync(x => Task.FromResult(2 * x), maxDegreeOfParallelism: 3);
-            
+
             // Then
             result.Should().Equal([2, 4, 6, 8, 10]);
         }
@@ -413,7 +421,7 @@ public class EnumerableExtensionSpecs
         {
             // When
             var result = await subject.SelectAsyncSequential(x => Task.FromResult(2 * x));
-            
+
             // Then
             result.Should().Equal([2, 4, 6, 8, 10]);
         }
@@ -424,7 +432,7 @@ public class EnumerableExtensionSpecs
     {
         // When
         var target = "Hi".Yield<string, object>();
-        
+
         // Then
         target.Should().Equal([(object)"Hi"]);
     }
@@ -434,12 +442,12 @@ public class EnumerableExtensionSpecs
     {
         // Given
         IEnumerable<int> target = [1, 2, 3];
-        
+
         // When
 #pragma warning disable CS0618 // Type or member is obsolete
         var result = target.Concat(5);
 #pragma warning restore CS0618 // Type or member is obsolete
-        
+
         // Then
         result.Should().Equal([1, 2, 3, 5]);
     }
@@ -449,12 +457,12 @@ public class EnumerableExtensionSpecs
     {
         // Given
         IEnumerable<int> target = [1, 2, 3];
-        
+
         // When
 #pragma warning disable CS0618 // Type or member is obsolete
         var result = target.Concat(5, 6, 7, 8);
 #pragma warning restore CS0618 // Type or member is obsolete
-        
+
         // Then
         result.Should().Equal([1, 2, 3, 5, 6, 7, 8]);
     }

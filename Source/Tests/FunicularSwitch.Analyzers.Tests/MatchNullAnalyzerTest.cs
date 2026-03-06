@@ -30,7 +30,7 @@ public class MatchNullAnalyzerTest : VerifyAnalyzer
             new MatchNullCodeFixProvider(),
             diagnostic => diagnostic.Should().ContainSingle().Which.Id.Should().Be("FS0001"));
     }
-    
+
     [Fact]
     public async Task MatchNullOption_WithNamedSome_IsRecognized_FixIsApplied()
     {
@@ -53,7 +53,7 @@ public class MatchNullAnalyzerTest : VerifyAnalyzer
             new MatchNullCodeFixProvider(),
             diagnostic => diagnostic.Should().ContainSingle().Which.Id.Should().Be("FS0001"));
     }
-    
+
     [Fact]
     public async Task MatchNullOption_MatchOnNewLine_MapAndGetValueOrDefaultAlsoOnNewLines()
     {
@@ -77,7 +77,7 @@ public class MatchNullAnalyzerTest : VerifyAnalyzer
             new MatchNullCodeFixProvider(),
             diagnostic => diagnostic.Should().ContainSingle().Which.Id.Should().Be("FS0001"));
     }
-    
+
     [Fact]
     public async Task MatchNullOption_WithNewLines_IsNormalized_FixIsApplied()
     {
@@ -102,7 +102,7 @@ public class MatchNullAnalyzerTest : VerifyAnalyzer
             new MatchNullCodeFixProvider(),
             diagnostic => diagnostic.Should().ContainSingle().Which.Id.Should().Be("FS0001"));
     }
-    
+
     [Fact]
     public async Task MatchNullOption_WithDefault_IsRecognized_FixIsApplied()
     {
@@ -125,7 +125,7 @@ public class MatchNullAnalyzerTest : VerifyAnalyzer
             new MatchNullCodeFixProvider(),
             diagnostic => diagnostic.Should().ContainSingle().Which.Id.Should().Be("FS0001"));
     }
-    
+
     [Fact]
     public async Task MatchNullResult_IsRecognized_FixIsApplied()
     {

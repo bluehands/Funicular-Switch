@@ -8,7 +8,7 @@ public class Run_result_type_generator : VerifySourceGenerator
     [TestMethod]
     public Task For_enum_error_type()
     {
-        var code = 
+        var code =
             /* lang=csharp */
             """
             using FunicularSwitch.Generators;
@@ -91,7 +91,7 @@ public class Run_result_type_generator : VerifySourceGenerator
     [TestMethod]
     public Task For_result_type_without_namespace()
     {
-	    var code =
+        var code =
             /* lang=csharp */
             """
             using FunicularSwitch.Generators;
@@ -108,7 +108,7 @@ public class Run_result_type_generator : VerifySourceGenerator
                 Unauthorized
             }
             """;
-	    return Verify(code);
+        return Verify(code);
     }
 
 

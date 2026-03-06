@@ -31,7 +31,7 @@ public static class EnumerableExtensions
     /// <returns></returns>
     public static async Task<IEnumerable<T>> WhereAsync<T>(this IEnumerable<T> items, Func<T, Task<bool>> predicate, int maxDegreeOfParallelism)
     {
-        var context = await items.SelectAsync( async item => (item, await predicate(item).ConfigureAwait(false), maxDegreeOfParallelism)).ConfigureAwait(false);
+        var context = await items.SelectAsync(async item => (item, await predicate(item).ConfigureAwait(false), maxDegreeOfParallelism)).ConfigureAwait(false);
         return context.Where(item => item.Item2).Select(item => item.item);
     }
 
@@ -127,9 +127,11 @@ public static class EnumerableExtensions
         return items.Append(item).Concat(further);
     }
 
-    public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source) 
+    public static IEnumerable<T> WhereSome<T>(this IEnumerable<Option<T>> option) => option.SelectMany(o => o);
+
+    public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source)
         => source.FirstOrNone(static _ => true);
-    
+
     public static Option<TElement> FirstOrNone<TElement>(this IEnumerable<TElement> source, Func<TElement, bool> predicate)
     {
         foreach (var element in source)
@@ -176,7 +178,7 @@ public static class EnumerableExtensions
     {
         if (source is IList<TElement> list)
         {
-            return index < list.Count 
+            return index < list.Count
                 ? Option.Some(list[index])
                 : Option<TElement>.None;
         }

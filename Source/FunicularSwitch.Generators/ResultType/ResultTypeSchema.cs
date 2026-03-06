@@ -9,7 +9,7 @@ sealed class ResultTypeSchema(
     ClassDeclarationSyntax resultType,
     INamedTypeSymbol? errorType)
 {
-    public SymbolWrapper<INamedTypeSymbol>? ErrorType { get; } = errorType != null ? new (errorType) : null;
+    public SymbolWrapper<INamedTypeSymbol>? ErrorType { get; } = errorType != null ? new(errorType) : null;
     public LocationInfo? ResultTypeLocation { get; } = LocationInfo.CreateFrom(resultType.GetLocation());
     public bool IsInternal { get; } = !resultType.Modifiers.HasModifier(SyntaxKind.PublicKeyword);
     public QualifiedTypeName ResultTypeName { get; } = resultType.QualifiedName();

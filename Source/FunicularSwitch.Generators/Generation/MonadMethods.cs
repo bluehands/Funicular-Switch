@@ -22,7 +22,7 @@ internal static class MonadMethods
             .Concat(typeParameters).ToList();
 
         return new MethodGenerationInfo(
-            genericTypeName([..extraTypeParameters, returnTypeParameter]),
+            genericTypeName([.. extraTypeParameters, returnTypeParameter]),
             allTypeParameters,
             parameters(extraTypeParameters),
             name,
@@ -117,7 +117,7 @@ internal static class MonadMethods
                     new ParameterGenerationInfo(Types.Func("A", fnReturnType(t)), "fn"),
                 ],
                 name,
-                t => $"{chainedMonad.BindMethod.Invoke([..t, "A", "B"], [$"(({chainedMonad.GenericTypeName([..t, "A"])}){p})", $"{Constants.Attributes.DebuggerStepThrough}(a) => fn(a)"])}"
+                t => $"{chainedMonad.BindMethod.Invoke([.. t, "A", "B"], [$"(({chainedMonad.GenericTypeName([.. t, "A"])}){p})", $"{Constants.Attributes.DebuggerStepThrough}(a) => fn(a)"])}"
             ));
     }
 
@@ -142,7 +142,7 @@ internal static class MonadMethods
                     new ParameterGenerationInfo(Types.Func("A", "B", "C"), "selector"),
                 ],
                 name,
-                t => $"{p}.SelectMany({Constants.Attributes.DebuggerStepThrough}(a) => (({genericTypeName([..t, "B"])})fn(a)).Map({Constants.Attributes.DebuggerStepThrough}(b) => selector(a, b)))"
+                t => $"{p}.SelectMany({Constants.Attributes.DebuggerStepThrough}(a) => (({genericTypeName([.. t, "B"])})fn(a)).Map({Constants.Attributes.DebuggerStepThrough}(b) => selector(a, b)))"
             ));
     }
 
@@ -167,7 +167,7 @@ internal static class MonadMethods
                 new ParameterGenerationInfo(Types.Func("A", "B"), "fn"),
             ],
             name,
-            t => $"{p}.{monad.BindMethod.Name}({Constants.Attributes.DebuggerStepThrough}(a) => {monad.ReturnMethod.Invoke([..t, "B"], ["fn(a)"])})"
+            t => $"{p}.{monad.BindMethod.Name}({Constants.Attributes.DebuggerStepThrough}(a) => {monad.ReturnMethod.Invoke([.. t, "B"], ["fn(a)"])})"
         ));
 
     private static IEnumerable<MethodGenerationInfo> Return(ConstructType genericTypeName, MonadInfo chainedMonad) =>
@@ -178,6 +178,6 @@ internal static class MonadMethods
             ["A"],
             _ => [new ParameterGenerationInfo("A", "a")],
             chainedMonad.ReturnMethod.Name,
-            t => chainedMonad.ReturnMethod.Invoke([..t, "A"], [p])
+            t => chainedMonad.ReturnMethod.Invoke([.. t, "A"], [p])
         ));
 }

@@ -4,38 +4,38 @@ using FunicularSwitch.Generators.Common;
 namespace FunicularSwitch.Generators.UnionType;
 
 public sealed record UnionTypeSchema(string? Namespace,
-	string TypeName,
-	string FullTypeName,
-	string FullTypeNameWithTypeParameters,
-	EquatableArray<DerivedType> Cases,
-	EquatableArray<string> TypeParameters,
-	EquatableArray<string> TypeConstraints,
-	bool IsInternal,
-	bool IsPartial,
-	UnionTypeTypeKind TypeKind,
-	EquatableArray<string> Modifiers,
-	StaticFactoryMethodsInfo? StaticFactoryInfo);
+    string TypeName,
+    string FullTypeName,
+    string FullTypeNameWithTypeParameters,
+    EquatableArray<DerivedType> Cases,
+    EquatableArray<string> TypeParameters,
+    EquatableArray<string> TypeConstraints,
+    bool IsInternal,
+    bool IsPartial,
+    UnionTypeTypeKind TypeKind,
+    EquatableArray<string> Modifiers,
+    StaticFactoryMethodsInfo? StaticFactoryInfo);
 
 public enum UnionTypeTypeKind
 {
-	Class,
-	Record,
-	Interface
+    Class,
+    Record,
+    Interface
 }
 
 public record StaticFactoryMethodsInfo(
-    EquatableArray<CallableMemberInfo> ExistingStaticMethods, 
+    EquatableArray<CallableMemberInfo> ExistingStaticMethods,
     EquatableArray<string> ExistingStaticFields
 );
 
 public sealed record DerivedType
 {
-	public string FullTypeName { get; }
+    public string FullTypeName { get; }
     public EquatableArray<CallableMemberInfo> Constructors { get; }
     public EquatableArray<PropertyOrFieldInfo> RequiredMembers { get; }
     public string ParameterName { get; }
-	public string StaticFactoryMethodName { get; }
-	
+    public string StaticFactoryMethodName { get; }
+
     public DerivedType(string fullTypeName, string parameterName, string staticFactoryMethodName, EquatableArray<CallableMemberInfo>? constructors = null, EquatableArray<PropertyOrFieldInfo>? requiredMembers = null)
     {
         FullTypeName = fullTypeName;

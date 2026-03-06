@@ -271,7 +271,7 @@ public static class GenericResultTaskExtensions
         var result = await resultTask.ConfigureAwait(false);
         return await result.SelectMany(selector, resultSelector).ConfigureAwait(false);
     }
-    
+
     [Pure]
     public static async Task<GenericResult<TSelect, TError>> SelectMany<TOk, TError, TOkReturn, TSelect>(
         this Task<GenericResult<TOk, TError>> resultTask,

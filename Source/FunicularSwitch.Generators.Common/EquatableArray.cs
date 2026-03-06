@@ -41,7 +41,7 @@ public readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnume
     private readonly T[]? _array;
 
     public bool IsDefault => _array == null;
-    
+
     /// <summary>
     /// Creates a new <see cref="EquatableArray{T}"/> instance.
     /// </summary>

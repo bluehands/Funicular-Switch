@@ -19,11 +19,11 @@ public class FuncToActionSpecs
             numberPassed = x;
             return "Hi";
         };
-        
+
         // When
         var action = func.IgnoreReturn();
         action(1);
-        
+
         // Then
         funcCalled.Should().BeTrue();
         numberPassed.Should().Be(1);
@@ -39,11 +39,11 @@ public class FuncToActionSpecs
             funcCalled = true;
             return "Hello";
         };
-        
+
         // When
         var action = func.IgnoreReturn();
         action();
-        
+
         // Then
         funcCalled.Should().BeTrue();
     }
@@ -57,11 +57,11 @@ public class FuncToActionSpecs
         {
             actionCalled = true;
         };
-        
+
         // When
         var func = action.ToFunc<string>();
         var result = func();
-        
+
         // Then
         actionCalled.Should().BeTrue();
     }
@@ -77,11 +77,11 @@ public class FuncToActionSpecs
             actionCalled = true;
             numberPassed = x;
         };
-        
+
         // When
         var func = action.ToFunc();
         var result = func(23);
-        
+
         // Then
         actionCalled.Should().BeTrue();
         numberPassed.Should().Be(23);
@@ -97,11 +97,11 @@ public class FuncToActionSpecs
             actionCalled = true;
             return Task.CompletedTask;
         };
-        
+
         // When
         var func = asyncAction.ToFunc<string>();
         var result = await func();
-        
+
         // Then
         actionCalled.Should().BeTrue();
     }
@@ -118,11 +118,11 @@ public class FuncToActionSpecs
             numberPassed = x;
             return Task.CompletedTask;
         };
-        
+
         // When
         var func = asyncAction.ToFunc();
         var result = await func(12);
-        
+
         // Then
         actionCalled.Should().BeTrue();
         numberPassed.Should().Be(12);

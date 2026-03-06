@@ -9,7 +9,7 @@ namespace FunicularSwitch.Generators.AwesomeAssertions;
 public class AssertionMethodsGenerator : IIncrementalGenerator
 {
     const string FunicularSwitchNamespace = "FunicularSwitch";
-    
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
@@ -46,7 +46,7 @@ public class AssertionMethodsGenerator : IIncrementalGenerator
                 new ResultTypeSchema(resultType!, null),
                 context.ReportDiagnostic,
                 context.CancellationToken);
-            
+
             var optionAssertionsText = Templates.GenerateAssertionsForTemplates.OptionAssertions.Replace(Generator.TemplateNamespace, FunicularSwitchNamespace);
             context.AddSource($"{FunicularSwitchNamespace}.OptionAssertions.g.cs", optionAssertionsText);
             var optionAssertionExtensionsText = Templates.GenerateAssertionsForTemplates.OptionAssertionExtensions.Replace(Generator.TemplateNamespace, FunicularSwitchNamespace);

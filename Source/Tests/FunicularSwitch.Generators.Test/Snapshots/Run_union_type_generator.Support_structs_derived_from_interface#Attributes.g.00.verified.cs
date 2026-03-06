@@ -5,10 +5,10 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace FunicularSwitch.Generators
 {
-	/// <summary>
-	/// Mark an abstract partial type with a single generic argument with the ResultType attribute.
-	/// This type from now on has Ok | Error semantics with map and bind operations.
-	/// </summary>
+    /// <summary>
+    /// Mark an abstract partial type with a single generic argument with the ResultType attribute.
+    /// This type from now on has Ok | Error semantics with map and bind operations.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     sealed class ResultTypeAttribute : Attribute
     {
