@@ -234,6 +234,189 @@ public class OptionSpecs
         nullOption.Equals(Option<MyClass?>.Some(null)).Should().BeTrue();
     }
 
+    [TestMethod]
+    public void MatchWithActionExecutesSomeWhenSome()
+    {
+        var called = false;
+        Some(42).Match(x => called = x == 42);
+        called.Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void MatchWithActionExecutesNoneWhenNone()
+    {
+        var called = false;
+        None<int>().Match(_ => { }, () => called = true);
+        called.Should().BeTrue();
+    }
+
+    [TestMethod]
+    public async Task MatchWithAsyncActionExecutesSomeWhenSome()
+    {
+        var called = false;
+        await Some(42).Match(
+            async x =>
+            {
+                await Task.Yield();
+                called = x == 42;
+            });
+        called.Should().BeTrue();
+    }
+
+    [TestMethod]
+    public async Task MatchWithAsyncActionExecutesNoneWhenNone()
+    {
+        var called = false;
+        await None<int>().Match(
+            async _ => await Task.Yield(),
+            async () =>
+            {
+                await Task.Yield();
+                called = true;
+            });
+        called.Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void MatchWithFuncReturnsResultFromSomeWhenSome()
+    {
+        var result = Some(42).Match(x => x * 2, () => 0);
+        result.Should().Be(84);
+    }
+
+    [TestMethod]
+    public void MatchWithFuncReturnsResultFromNoneWhenNone()
+    {
+        var result = None<int>().Match(x => x * 2, () => 99);
+        result.Should().Be(99);
+    }
+
+    [TestMethod]
+    public void MatchWithValueReturnsValueWhenNone()
+    {
+        var result = None<int>().Match(x => x * 2, 99);
+        result.Should().Be(99);
+    }
+
+    [TestMethod]
+    public void MatchWithValueReturnsResultFromSomeWhenSome()
+    {
+        var result = Some(42).Match(x => x * 2, 0);
+        result.Should().Be(84);
+    }
+
+    [TestMethod]
+    public async Task MatchWithAsyncFuncBothReturnsResultFromSomeWhenSome()
+    {
+        var result = await Some(42).Match(
+            async x =>
+            {
+                await Task.Yield();
+                return x * 2;
+            },
+            async () =>
+            {
+                await Task.Yield();
+                return 0;
+            });
+        result.Should().Be(84);
+    }
+
+    [TestMethod]
+    public async Task MatchWithAsyncFuncBothReturnsResultFromNoneWhenNone()
+    {
+        var result = await None<int>().Match(
+            async x =>
+            {
+                await Task.Yield();
+                return x * 2;
+            },
+            async () =>
+            {
+                await Task.Yield();
+                return 99;
+            });
+        result.Should().Be(99);
+    }
+
+    [TestMethod]
+    public async Task MatchWithSyncSomeAsyncNoneReturnsResultFromSomeWhenSome()
+    {
+        var result = await Some(42).Match(
+            x => x * 2,
+            async () =>
+            {
+                await Task.Yield();
+                return 0;
+            });
+        result.Should().Be(84);
+    }
+
+    [TestMethod]
+    public async Task MatchWithSyncSomeAsyncNoneReturnsResultFromNoneWhenNone()
+    {
+        var result = await None<int>().Match(
+            x => x * 2,
+            async () =>
+            {
+                await Task.Yield();
+                return 99;
+            });
+        result.Should().Be(99);
+    }
+
+    [TestMethod]
+    public async Task MatchWithAsyncSomeSyncNoneReturnsResultFromSomeWhenSome()
+    {
+        var result = await Some(42).Match(
+            async x =>
+            {
+                await Task.Yield();
+                return x * 2;
+            },
+            () => 0);
+        result.Should().Be(84);
+    }
+
+    [TestMethod]
+    public async Task MatchWithAsyncSomeSyncNoneReturnsResultFromNoneWhenNone()
+    {
+        var result = await None<int>().Match(
+            async x =>
+            {
+                await Task.Yield();
+                return x * 2;
+            },
+            () => 99);
+        result.Should().Be(99);
+    }
+
+    [TestMethod]
+    public async Task MatchWithAsyncSomeValueNoneReturnsResultFromSomeWhenSome()
+    {
+        var result = await Some(42).Match(
+            async x =>
+            {
+                await Task.Yield();
+                return x * 2;
+            },
+            84);
+        result.Should().Be(84);
+    }
+
+    [TestMethod]
+    public async Task MatchWithAsyncSomeValueNoneReturnsResultFromNoneWhenNone()
+    {
+        var result = await None<int>().Match(
+            async x =>
+            {
+                await Task.Yield();
+                return x * 2;
+            },
+            99);
+        result.Should().Be(99);
+    }
+
     class MyClass;
 
     class MyOtherClass;
