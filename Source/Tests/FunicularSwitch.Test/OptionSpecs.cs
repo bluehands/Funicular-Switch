@@ -63,7 +63,7 @@ public class OptionSpecs
         ShouldBeSome42(await none.OrElse(() => Task.FromResult(Some(42))));
         return;
 
-        void ShouldBeSome42(Option<int> option) => option.Should().BeSome().Subject.Should().Be(42);
+        void ShouldBeSome42(Option<int> option) => option.Should().BeSome().Which.Should().Be(42);
     }
 
 	[TestMethod]
