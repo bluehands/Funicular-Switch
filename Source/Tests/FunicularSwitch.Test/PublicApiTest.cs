@@ -1,4 +1,5 @@
-﻿using PublicApiGenerator;
+﻿using System.Reflection;
+using PublicApiGenerator;
 
 namespace FunicularSwitch.Test;
 
@@ -13,7 +14,11 @@ public partial class PublicApiTest
         var assembly = typeof(Option).Assembly;
         
         // When
-        var publicApi = assembly.GeneratePublicApi();
+        var publicApi = assembly.GeneratePublicApi(
+            new ApiGeneratorOptions()
+            {
+                ExcludeAttributes = [typeof(AssemblyMetadataAttribute).FullName!],
+            });
         
         // Then
         return Verify(publicApi);
