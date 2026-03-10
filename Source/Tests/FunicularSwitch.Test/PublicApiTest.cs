@@ -16,7 +16,7 @@ public partial class PublicApiTest
         var publicApi = assembly.GeneratePublicApi();
         
         // Then
-        return Verifier.Verify(publicApi);
+        return Verify(publicApi);
     }
 
 }
