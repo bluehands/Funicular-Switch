@@ -13,8 +13,8 @@
 		</VersionSuffixLocal>
 
 		<!--#region adapt versions here-->
-		<MajorVersion>6</MajorVersion>
-		<MinorAndPatchVersion>5</MinorAndPatchVersion>
+		<MajorVersion>7</MajorVersion>
+		<MinorAndPatchVersion>0</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<AssemblyVersion>$(MajorVersion).0.0</AssemblyVersion>
