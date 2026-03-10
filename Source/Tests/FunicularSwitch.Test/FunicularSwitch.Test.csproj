@@ -18,6 +18,8 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="PublicApiGenerator" Version="11.5.4" />
+		<PackageReference Include="Verify.MSTest" Version="29.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
