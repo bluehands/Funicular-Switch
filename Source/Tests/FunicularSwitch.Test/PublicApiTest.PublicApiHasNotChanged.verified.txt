@@ -1,5 +1,4 @@
-﻿[assembly: System.Reflection.AssemblyMetadata("RepositoryUrl", "https://github.com/bluehands/Funicular-Switch.git")]
-[assembly: System.Runtime.Versioning.TargetFramework(".NETStandard,Version=v2.0", FrameworkDisplayName=".NET Standard 2.0")]
+﻿[assembly: System.Runtime.Versioning.TargetFramework(".NETStandard,Version=v2.0", FrameworkDisplayName=".NET Standard 2.0")]
 namespace FunicularSwitch.Extensions
 {
     public static class DictionaryExtension
@@ -88,6 +87,10 @@ namespace FunicularSwitch
         public static System.Threading.Tasks.Task<FunicularSwitch.Option<TOut>> Map<T, TOut>(this System.Threading.Tasks.Task<FunicularSwitch.Option<T>> map, System.Func<T, TOut> convert) { }
         public static System.Threading.Tasks.Task<TOut> Match<T, TOut>(this System.Threading.Tasks.Task<FunicularSwitch.Option<T>> option, System.Func<T, TOut> some, System.Func<TOut> none) { }
         public static FunicularSwitch.Option<string> NoneIfEmpty(this string? text) { }
+        public static System.Threading.Tasks.Task<FunicularSwitch.Option<T>> OrElse<T>(this System.Threading.Tasks.Task<FunicularSwitch.Option<T>> option, FunicularSwitch.Option<T> other) { }
+        public static System.Threading.Tasks.Task<FunicularSwitch.Option<T>> OrElse<T>(this System.Threading.Tasks.Task<FunicularSwitch.Option<T>> option, System.Func<FunicularSwitch.Option<T>> other) { }
+        public static System.Threading.Tasks.Task<FunicularSwitch.Option<T>> OrElse<T>(this System.Threading.Tasks.Task<FunicularSwitch.Option<T>> option, System.Func<System.Threading.Tasks.Task<FunicularSwitch.Option<T>>> other) { }
+        public static System.Threading.Tasks.Task<FunicularSwitch.Option<T>> OrElse<T>(this System.Threading.Tasks.Task<FunicularSwitch.Option<T>> option, System.Threading.Tasks.Task<FunicularSwitch.Option<T>> other) { }
         public static FunicularSwitch.Option<T1> Select<T, T1>(this FunicularSwitch.Option<T> result, System.Func<T, T1> selector) { }
         public static System.Threading.Tasks.Task<FunicularSwitch.Option<T1>> Select<T, T1>(this System.Threading.Tasks.Task<FunicularSwitch.Option<T>> result, System.Func<T, T1> selector) { }
         public static FunicularSwitch.Option<T2> SelectMany<T, T1, T2>(this FunicularSwitch.Option<T> result, System.Func<T, FunicularSwitch.Option<T1>> selector, System.Func<T, T1, T2> resultSelector) { }
@@ -139,6 +142,10 @@ namespace FunicularSwitch
         public System.Threading.Tasks.Task<TResult> Match<TResult>(System.Func<T, System.Threading.Tasks.Task<TResult>> some, TResult none) { }
         public TResult Match<TResult>(System.Func<T, TResult> some, System.Func<TResult> none) { }
         public TResult Match<TResult>(System.Func<T, TResult> some, TResult none) { }
+        public FunicularSwitch.Option<T> OrElse(FunicularSwitch.Option<T> other) { }
+        public FunicularSwitch.Option<T> OrElse(System.Func<FunicularSwitch.Option<T>> other) { }
+        public System.Threading.Tasks.Task<FunicularSwitch.Option<T>> OrElse(System.Func<System.Threading.Tasks.Task<FunicularSwitch.Option<T>>> other) { }
+        public System.Threading.Tasks.Task<FunicularSwitch.Option<T>> OrElse(System.Threading.Tasks.Task<FunicularSwitch.Option<T>> other) { }
         public override string ToString() { }
         public static FunicularSwitch.Option<T> Some(T value) { }
         public static FunicularSwitch.Option<T> op_Implicit(FunicularSwitch.OptionNone _) { }
