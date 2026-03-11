@@ -62,7 +62,6 @@ namespace FunicularSwitch
         
         public Option<T> OrElse(Option<T> other) => _isSome ? this : other;
         public Option<T> OrElse(Func<Option<T>> other) => _isSome ? this : other();
-        public Task<Option<T>> OrElse(Task<Option<T>> other) => OrElse(() => other);
         public async Task<Option<T>> OrElse(Func<Task<Option<T>>> other) => _isSome ? this : await other().ConfigureAwait(false);
 
         public void Match(Action<T> some, Action? none = null)
@@ -220,12 +219,6 @@ namespace FunicularSwitch
         {
             var result = await option.ConfigureAwait(false);
             return result.OrElse(other);
-        }
-        
-        public static async Task<Option<T>> OrElse<T>(this Task<Option<T>> option, Task<Option<T>> other)
-        {
-            var result = await option.ConfigureAwait(false);
-            return await result.OrElse(other).ConfigureAwait(false);
         }
         
         public static async Task<Option<T>> OrElse<T>(this Task<Option<T>> option, Func<Task<Option<T>>> other)
