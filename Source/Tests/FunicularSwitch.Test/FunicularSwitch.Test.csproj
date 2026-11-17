@@ -14,6 +14,8 @@
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
 		<PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
+		<!-- pinned to override the vulnerable transitive 5.0.0 from Microsoft.CodeAnalysis.Testing -->
+		<PackageReference Include="System.Formats.Asn1" Version="9.0.23" />
 		<PackageReference Include="coverlet.collector" Version="6.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
