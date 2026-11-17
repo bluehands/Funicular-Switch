@@ -118,7 +118,7 @@ static class Diagnostics
         Create(location,
             id: "FUN0017",
             title: "UnionType on struct that is not a union",
-            messageFormat: $"{message} -  [UnionType] on a struct is only supported for C# 15 union declarations and structs marked with [Union]. Use a class, record or interface hierarchy otherwise.",
+            messageFormat: $"{message} - [UnionType] on a struct is only supported for C# 15 union declarations and structs marked with [Union]. Use a class, record or interface hierarchy otherwise.",
             severity: DiagnosticSeverity.Warning);
 
     static Diagnostic Create(Location? location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
