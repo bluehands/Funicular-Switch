@@ -50,7 +50,8 @@ public class UnionTypeGenerator : IIncrementalGenerator
                             context.Attributes[0]
                         );
                     }
-                );
+                )
+                .WithTrackingName(TrackingNames.UnionTransform);
 
         var referencesJetBrainsAnnotationsAssembly = context.CompilationProvider
             .SelectMany((c, _) => c.SourceModule.ReferencedAssemblySymbols)
@@ -60,25 +61,43 @@ public class UnionTypeGenerator : IIncrementalGenerator
 
         //one pipeline item per [UnionType] declaration, so editing one union only regenerates that union
         context.RegisterSourceOutput(
-            unionTypeClasses.Combine(referencesJetBrainsAnnotationsAssembly),
+            unionTypeClasses.Combine(referencesJetBrainsAnnotationsAssembly).WithTrackingName(TrackingNames.UnionOutput),
             static (spc, source) => Execute(source.Left, source.Right, spc));
 
         var explicitUnionNames = unionTypeClasses
             .Select(static (r, _) => r.HasValue ? r.Value!.FullTypeNameWithTypeParameters : null)
             .Where(static n => n != null)
             .Collect()
-            .Select(static (names, _) => names.AsEquatableArray());
+            .Select(static (names, _) => names.AsEquatableArray())
+            .WithTrackingName(TrackingNames.ExplicitUnionNames);
 
         var unionsFromAssemblyAttribute = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 ExtendUnionsAttribute,
                 predicate: static (_, _) => true,
                 transform: static (ctx, _) => ctx.Attributes.SelectMany(GetUnionSchemas).ToImmutableArray().AsEquatableArray())
-            .Collect();
+            .WithTrackingName(TrackingNames.ExtendUnionsAttribute)
+            .Collect()
+            //every union is generated once, even if several attributes cover it
+            .SelectMany(static (all, _) => all
+                .SelectMany(a => a)
+                .GroupBy(s => s.FullTypeNameWithTypeParameters)
+                .Select(g => g.First())
+                .ToImmutableArray())
+            .WithTrackingName(TrackingNames.ExtendedUnions);
 
+        //one output per union, so changing one native union only regenerates that union
         context.RegisterSourceOutput(
-            unionsFromAssemblyAttribute.Combine(explicitUnionNames).Combine(referencesJetBrainsAnnotationsAssembly),
-            static (spc, source) => ExecuteExtendUnions(source.Left.Left, source.Left.Right, source.Right, spc));
+            unionsFromAssemblyAttribute.Combine(explicitUnionNames)
+                .Where(static s => !s.Right.AsImmutableArray().Contains(s.Left.FullTypeNameWithTypeParameters))
+                .Select(static (s, _) => s.Left)
+                .Combine(referencesJetBrainsAnnotationsAssembly)
+                .WithTrackingName(TrackingNames.ExtendedUnionOutput),
+            static (spc, source) =>
+            {
+                if (source.Left.Cases.IsEmpty) return;
+                Emit(source.Left, source.Right, spc);
+            });
     }
 
     //Native unions and hand-written [Union] structs (both report IsUnion) are covered by [assembly: ExtendUnions].
@@ -108,24 +127,23 @@ public class UnionTypeGenerator : IIncrementalGenerator
         Emit(unionTypeSchema, hasJetbrainsAnnotationsReference, context);
     }
 
-    static void ExecuteExtendUnions(
-        ImmutableArray<EquatableArray<UnionTypeSchema>> assemblyUnions,
-        EquatableArray<string?> explicitUnionNames,
-        bool hasJetbrainsAnnotationsReference,
-        SourceProductionContext context)
-    {
-        //[UnionType] wins over [assembly: ExtendUnions], every union is generated once
-        var seen = new HashSet<string?>(explicitUnionNames);
-        foreach (var schema in assemblyUnions.SelectMany(a => a))
-        {
-            if (!seen.Add(schema.FullTypeNameWithTypeParameters) || schema.Cases.IsEmpty) continue;
-            Emit(schema, hasJetbrainsAnnotationsReference, context);
-        }
-    }
-
     static void Emit(UnionTypeSchema schema, bool hasJetbrainsAnnotationsReference, SourceProductionContext context)
     {
         var (filename, source) = Generator.Emit(schema, context.ReportDiagnostic, hasJetbrainsAnnotationsReference, context.CancellationToken);
         context.AddSource(filename, source);
     }
+}
+
+public static class TrackingNames
+{
+    public const string UnionTransform = nameof(UnionTransform);
+    public const string UnionOutput = nameof(UnionOutput);
+    public const string ExplicitUnionNames = nameof(ExplicitUnionNames);
+    public const string ExtendUnionsAttribute = nameof(ExtendUnionsAttribute);
+    public const string ExtendedUnions = nameof(ExtendedUnions);
+    public const string ExtendedUnionOutput = nameof(ExtendedUnionOutput);
+    public const string ResultTypeTransform = nameof(ResultTypeTransform);
+    public const string ResultTypeOutput = nameof(ResultTypeOutput);
+    public const string EnumTransform = nameof(EnumTransform);
+    public const string EnumOutput = nameof(EnumOutput);
 }
