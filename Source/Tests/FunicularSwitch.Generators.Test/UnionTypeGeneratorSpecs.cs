@@ -29,6 +29,45 @@ public class Run_union_type_generator : VerifySourceGenerator
     }
 
     [TestMethod]
+    public Task For_partial_union_type_in_global_namespace()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            [UnionType]
+            public abstract partial record Base;
+
+            public record One : Base;
+            public record Two(int Value) : Base;
+            """;
+
+        return Verify(code);
+    }
+
+    [TestMethod]
+    public Task For_union_type_with_cases_in_global_namespace()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            namespace FunicularSwitch.Test
+            {
+                [UnionType]
+                public abstract partial record Base;
+            }
+
+            public record One : FunicularSwitch.Test.Base;
+            public record Two : FunicularSwitch.Test.Base;
+            """;
+
+        return Verify(code);
+    }
+
+    [TestMethod]
     public Task For_record_union_type_with_multi_level_concrete_derived_types()
     {
         var code =
