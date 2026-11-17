@@ -237,6 +237,20 @@ public class ClosedUnionAnalyzerTest : VerifyAnalyzer
             actionTitleContains: "JsonPolymorphic");
 
     [Fact]
+    public Task StjAvailable_PartialDeclarationsInSameFile_AttributeOnlyOnFirst() =>
+        Verify(
+            Attributes +
+            """
+            [UnionType]
+            public abstract partial record Shape;
+            public abstract partial record Shape { public sealed record Circle : Shape; }
+            """,
+            new ClosedUnionAnalyzer(),
+            new MakeClosedCodeFixProvider(),
+            d => d.Should().ContainSingle().Which.Id.Should().Be("FS0002"),
+            actionTitleContains: "JsonPolymorphic");
+
+    [Fact]
     public Task StjAlreadyConfigured_OnlyPlainAction() =>
         Verify(
             Attributes +

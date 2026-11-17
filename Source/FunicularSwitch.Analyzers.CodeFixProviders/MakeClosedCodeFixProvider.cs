@@ -62,7 +62,6 @@ public class MakeClosedCodeFixProvider : CodeFixProvider
             var document = solution.GetDocument(group.Key);
             if (document == null) continue;
             var editor = await DocumentEditor.CreateAsync(document, ct);
-            var root = await group.Key.GetRootAsync(ct);
             foreach (var reference in group)
             {
                 if (await reference.GetSyntaxAsync(ct) is not TypeDeclarationSyntax declaration) continue;
