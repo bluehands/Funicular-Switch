@@ -40,7 +40,7 @@ public class EnumTypeGenerator : IIncrementalGenerator
             .Select((a, _) => a.Length > 0);
 
         context.RegisterSourceOutput(
-            enumSymbols.Collect().Combine(referencesJetBrainsAnnotationsAssembly),
+            enumSymbols.Collect().Combine(referencesJetBrainsAnnotationsAssembly).WithTrackingName(TrackingNames.EnumOutput),
             static (spc, source) =>
                 Execute(source.Left, source.Right, spc));
 
@@ -53,6 +53,7 @@ public class EnumTypeGenerator : IIncrementalGenerator
                         .ToImmutableArray()
                         .AsEquatableArray()
                 )
+                .WithTrackingName(TrackingNames.EnumTransform)
                 .Collect()
             ;
     }

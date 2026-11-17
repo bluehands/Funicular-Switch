@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Reflection;
 using FluentAssertions;
 using FunicularSwitch.Transformers;
@@ -14,7 +14,7 @@ public abstract class VerifySourceGenerator<T>() : BaseVerifySourceGenerators(ne
 
 public abstract class BaseVerifySourceGenerators(params IIncrementalGenerator[] generators) : VerifyBase
 {
-    static string Net11ReferenceDirectory()
+    internal static string Net11ReferenceDirectory()
     {
         var packDirectory = typeof(BaseVerifySourceGenerators).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
             .First(a => a.Key == "NetCoreAppRefPackDirectory").Value!;
