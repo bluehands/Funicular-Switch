@@ -217,11 +217,24 @@ public static class Generator
         builder.WriteLine($"{thisParameterName} switch");
         using (builder.ScopeWithSemicolon())
         {
-            builder.WriteLine($"null => throw new global::System.ArgumentNullException(nameof({thisParameterName})),");
-            var caseIndex = 0;
-            foreach (var c in unionTypeSchema.Cases)
+            //null receiver: native unions have no null receiver, but a default value without content (or a nullable case)
+            if (unionTypeSchema.IsNativeUnion)
             {
-                caseIndex++;
+                var nullCase = unionTypeSchema.Cases.FirstOrDefault(c => c.IsNullableCase);
+                if (nullCase != null)
+                {
+                    var nullCall = $"{nullCase.ParameterName}(null)";
+                    if (isAsync) nullCall = $"await {nullCall}.ConfigureAwait(false)";
+                    builder.WriteLine($"null => {nullCall},");
+                }
+                else
+                    builder.WriteLine("null => throw new global::System.InvalidOperationException(\"Union has no value\"),");
+            }
+            else
+                builder.WriteLine($"null => throw new global::System.ArgumentNullException(nameof({thisParameterName})),");
+
+            foreach (var (c, caseIndex) in ArmOrder(unionTypeSchema))
+            {
                 var caseVariableName = $"{c.ParameterName}{caseIndex}";
                 var call = $"{c.ParameterName}({caseVariableName})";
                 if (isAsync)
@@ -252,13 +265,25 @@ public static class Generator
                 builder.WriteLine("case null:");
                 using (builder.Indent())
                 {
-                    builder.WriteLine($"throw new global::System.ArgumentNullException(nameof({thisParameterName}));");
+                    if (unionTypeSchema.IsNativeUnion)
+                    {
+                        var nullCase = unionTypeSchema.Cases.FirstOrDefault(c => c.IsNullableCase);
+                        if (nullCase != null)
+                        {
+                            var nullCall = $"{nullCase.ParameterName}(null)";
+                            if (isAsync) nullCall = $"await {nullCall}.ConfigureAwait(false)";
+                            builder.WriteLine($"{nullCall};");
+                            builder.WriteLine("break;");
+                        }
+                        else
+                            builder.WriteLine("throw new global::System.InvalidOperationException(\"Union has no value\");");
+                    }
+                    else
+                        builder.WriteLine($"throw new global::System.ArgumentNullException(nameof({thisParameterName}));");
                 }
 
-                var caseIndex = 0;
-                foreach (var c in unionTypeSchema.Cases)
+                foreach (var (c, caseIndex) in ArmOrder(unionTypeSchema))
                 {
-                    caseIndex++;
                     var caseVariableName = $"{c.ParameterName}{caseIndex}";
                     builder.WriteLine($"case {c.FullTypeName} {caseVariableName}:");
                     using (builder.Indent())
@@ -281,6 +306,13 @@ public static class Generator
                 }
             }
         }
+    }
+
+    /// <summary>Case with its 1-based declaration index. Native unions: cases deriving from other cases come first so no arm is subsumed.</summary>
+    static IEnumerable<(DerivedType c, int index)> ArmOrder(UnionTypeSchema unionTypeSchema)
+    {
+        var indexed = unionTypeSchema.Cases.Select((c, i) => (c, index: i + 1));
+        return unionTypeSchema.IsNativeUnion ? indexed.OrderByDescending(x => x.c.ArmRank) : indexed;
     }
 
     static Parameter ThisParameter(UnionTypeSchema unionTypeSchema, string thisParameterType) => new($"this {thisParameterType}", unionTypeSchema.TypeName.ToParameterName());
@@ -306,7 +338,7 @@ public static class Generator
         }
         handlerReturnType ??= returnType;
         var handlerParameters = unionTypeSchema.Cases
-            .Select(c => new Parameter($"{instantHandle}global::System.Func<{c.FullTypeName}, {handlerReturnType}>", c.ParameterName));
+            .Select(c => new Parameter($"{instantHandle}global::System.Func<{c.HandlerTypeName}, {handlerReturnType}>", c.ParameterName));
 
         handlerParameters = handlerParameters.Prepend(thisParameter);
 
@@ -340,8 +372,8 @@ public static class Generator
             .Select(c =>
             {
                 var parameterType = isAsync
-                        ? $"{instantHandle}global::System.Func<{c.FullTypeName}, global::System.Threading.Tasks.Task>"
-                        : $"{instantHandle}global::System.Action<{c.FullTypeName}>";
+                        ? $"{instantHandle}global::System.Func<{c.HandlerTypeName}, global::System.Threading.Tasks.Task>"
+                        : $"{instantHandle}global::System.Action<{c.HandlerTypeName}>";
                 return new Parameter(
                         parameterType,
                         c.ParameterName);

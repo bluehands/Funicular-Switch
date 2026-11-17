@@ -70,6 +70,7 @@ static class Parser
                     IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
                     IsPartial: isPartial,
                     IsExhaustive: isExhaustive,
+                    IsNativeUnion: false,
                     TypeKind: unionTypeClass switch
                     {
                         RecordDeclarationSyntax => UnionTypeTypeKind.Record,

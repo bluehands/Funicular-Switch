@@ -1,4 +1,4 @@
-﻿using FunicularSwitch.Generators.Common;
+using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.UnionType;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -24,13 +24,24 @@ public class UnionTypeGenerator : IIncrementalGenerator
                     UnionTypeAttribute,
                     predicate: static (_, _) => true,
                     transform: static (context, cancellationToken) =>
-                        Parser.GetUnionTypeSchema(
+                    {
+                        var symbol = (INamedTypeSymbol)context.TargetSymbol;
+                        if (symbol.IsUnion)
+                            //C# 15 union declaration: cases are the union case types, no derived types to look for
+                            return NativeUnionParser.GetSchema(symbol, context.TargetNode.GetLocation());
+
+                        //[UnionType] on a plain struct has no meaning
+                        if (context.TargetNode is not BaseTypeDeclarationSyntax typeDeclaration || symbol.TypeKind == TypeKind.Struct)
+                            return GenerationResult<UnionTypeSchema>.Empty;
+
+                        return Parser.GetUnionTypeSchema(
                             context.SemanticModel.Compilation,
                             cancellationToken,
-                            (BaseTypeDeclarationSyntax)context.TargetNode,
-                            (INamedTypeSymbol)context.TargetSymbol,
+                            typeDeclaration,
+                            symbol,
                             context.Attributes[0]
-                        )
+                        );
+                    }
                 );
 
         var referencesJetBrainsAnnotationsAssembly = context.CompilationProvider

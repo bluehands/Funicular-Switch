@@ -5,7 +5,7 @@ using System;
 // ReSharper disable once CheckNamespace
 namespace FunicularSwitch.Generators
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct, Inherited = false)]
     sealed class UnionTypeAttribute : Attribute
     {
         public CaseOrder CaseOrder { get; set; } = CaseOrder.Alphabetic;
