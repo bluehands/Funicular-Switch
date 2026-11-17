@@ -158,7 +158,7 @@ namespace FunicularSwitch
             unchecked
             {
                 var hashCode = _isSome.GetHashCode();
-                hashCode = (hashCode * 397) ^ EqualityComparer<T>.Default.GetHashCode(_value);
+                hashCode = (hashCode * 397) ^ (_value is null ? 0 : EqualityComparer<T>.Default.GetHashCode(_value));
                 hashCode = (hashCode * 397) ^ typeof(T).GetHashCode();
                 return hashCode;
             }

@@ -68,7 +68,7 @@ public class UnionTypeGenerator : IIncrementalGenerator
             .Select(static (r, _) => r.HasValue ? r.Value!.FullTypeNameWithTypeParameters : null)
             .Where(static n => n != null)
             .Collect()
-            .Select(static (names, _) => names.AsEquatableArray())
+            .Select(static (names, _) => names.Select(n => n!).ToImmutableArray().AsEquatableArray())
             .WithTrackingName(TrackingNames.ExplicitUnionNames);
 
         var unionsFromAssemblyAttribute = context.SyntaxProvider
