@@ -3,6 +3,7 @@
 [![NuGet](https://img.shields.io/nuget/v/FunicularSwitch.svg?label=FunicularSwitch)](https://www.nuget.org/packages/FunicularSwitch/)
 [![NuGet](https://img.shields.io/nuget/v/FunicularSwitch.Generators.svg?label=FunicularSwitch.Generators)](https://www.nuget.org/packages/FunicularSwitch.Generators/)
 [![NuGet](https://img.shields.io/nuget/v/FunicularSwitch.Analyzers.svg?label=FunicularSwitch.Analyzers)](https://www.nuget.org/packages/FunicularSwitch.Analyzers/)
+[![NuGet](https://img.shields.io/nuget/v/FunicularSwitch.Transformers.svg?label=FunicularSwitch.Transformers)](https://www.nuget.org/packages/FunicularSwitch.Transformers/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/bluehands/Funicular-Switch/blob/main/LICENSE)
 
 FunicularSwitch is a lightweight C# port of F# result and option types.
@@ -24,15 +25,27 @@ FunicularSwitch helps you to:
  - [NuGet: FunicularSwitch.Analyzers](https://www.nuget.org/packages/FunicularSwitch.Analyzers/)
  - [NuGet: FunicularSwitch.Generators](https://www.nuget.org/packages/FunicularSwitch.Generators/)
  - [NuGet: FunicularSwitch.Transformers](https://www.nuget.org/packages/FunicularSwitch.Transformers/)
+ - [NuGet: FunicularSwitch.Generic](https://www.nuget.org/packages/FunicularSwitch.Generic/): a Result type with a generic error type, no source generator needed
+ - [NuGet: FunicularSwitch.Generic.Assertions](https://www.nuget.org/packages/FunicularSwitch.Generic.Assertions/): AwesomeAssertions extensions for the types of FunicularSwitch.Generic
+ - [NuGet: FunicularSwitch.Generators.AwesomeAssertions](https://www.nuget.org/packages/FunicularSwitch.Generators.AwesomeAssertions/): generates AwesomeAssertions extensions for your own result and union types
+
+To get started add the first two packages to your project:
+
+```
+dotnet add package FunicularSwitch
+dotnet add package FunicularSwitch.Generators
+```
+
+If you just want to try `Result`, the first one is enough, the [first sample](#funicular_usage) shows how to create one.
 
 [**FunicularSwitch**](https://github.com/bluehands/Funicular-Switch#funicularswitch-usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
 
 [**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the [`ResultType`](https://github.com/bluehands/Funicular-Switch#resulttype-attribute) attribute. That means you are free to represent failures in a way suitable for your needs. 
 A second thing coming with this package is the [`UnionType`](https://github.com/bluehands/Funicular-Switch#-uniontype-attribute) attribute. This offers a way to have F# like unions with generated Match methods, forcing consumers to handle all cases (exhaustive matching). They allow for compiler safe switches handling all concrete subtypes of a base class. As a third thing the same Match methods are also generated for enum types annotated with the [`ExtendedEnum`](https://github.com/bluehands/Funicular-Switch#extendedenum-attribute) attribute.
 
-The generators and analyzers support the C# 15 features `closed` classes and `union` declarations, see [UnionType](#uniontype) and [docs/csharp15.md](docs/csharp15.md). Those features are only used if your project uses C# 15 and references .NET 11.
+The generators and analyzers also support the C# 15 features `closed` classes and `union` declarations, see [UnionType](#uniontype) and [docs/csharp15.md](docs/csharp15.md).
 
-Note that building a project that references the generators or analyzers of FunicularSwitch.Generators 5.0, FunicularSwitch.Analyzers 2.0 or FunicularSwitch 8.0 (which includes both) and newer requires the .NET 11 SDK (Visual Studio 2026, Roslyn 5.12 or newer), even if you still target an older framework or language version. If you can't use that yet, stay on 4.x. 
+Building a project that references FunicularSwitch.Generators 5.0, FunicularSwitch.Analyzers 2.0 or FunicularSwitch 8.0 (which includes both) or newer requires the .NET 11 SDK (Visual Studio 2026, Roslyn 5.12 or newer). That is true even if you still target an older framework or language version. If you can't use the new SDK yet, stay on the old line: FunicularSwitch 7.x, FunicularSwitch.Generators 4.x and FunicularSwitch.Analyzers 1.x.
 
 # <a name="funicular_usage"></a>FunicularSwitch Usage
 
@@ -131,6 +144,34 @@ Console.WriteLine(whatIsIt);
 ```
 The answer is: 42
 ```
+
+Result also works with C# query syntax. Every `from` is a `Bind` and the final `select` is a `Map`. As soon as one step fails, the remaining steps are skipped and you get that error:
+
+<!-- snippet: resultLinq -->
+```cs
+static Result<int> ParseInt(string text) =>
+    int.TryParse(text, out var number) ? number : Result.Error<int>($"'{text}' is not a number");
+
+static Result<int> Divide(int dividend, int divisor) =>
+    divisor == 0 ? Result.Error<int>("Division by zero") : dividend / divisor;
+
+static Result<int> DivideTexts(string a, string b) =>
+    from x in ParseInt(a)
+    from y in ParseInt(b)
+    from quotient in Divide(x, y)
+    select quotient * 2;
+
+Console.WriteLine(DivideTexts("84", "2"));
+Console.WriteLine(DivideTexts("84", "zero"));
+```
+<!-- endSnippet -->
+
+```
+Ok 84
+Error 'zero' is not a number
+```
+
+The same works for `Option` and for `Task<Result<T>>` (also mixed with plain `Result` steps in the same query, which then gives you a `Task<Result<T>>`).
 
 Those are basically the four main operations on `Result`: create, `Map`, `Bind` and `Match`. There are a lot of overloads and other helpers in FunicularSwitch to avoid repetition of `Result` specific patterns like:
 
@@ -231,9 +272,42 @@ Stink fruit, I do not serve that
 
 As you can see, all errors are collected as far as possible. Feel free to play around with the cook's skill level, fruits in stock and the ingredients list to finally get your fruit salad.
 
+## Option
+
+`Option<T>` is the type to use if a value may be missing and there is nothing to say about why. It has the same operations as `Result`: `Map`, `Bind`, `Match` and so on. `GetValueOrDefault` leaves the Option world, `ToResult` turns an `Option` into a `Result` and `ToOption` goes the other way.
+
+<!-- snippet: option -->
+```cs
+Option<int> some = Option.Some(42);
+Option<int> none = Option.None<int>();
+
+Console.WriteLine(some.Map(i => i * 2));
+Console.WriteLine(none.Map(i => i * 2));
+
+//Match works like on Result
+Console.WriteLine(some.Match(i => $"The answer is {i}", () => "No answer"));
+
+//leave the Option world with a fallback value
+int answer = none.GetValueOrDefault(0);
+Console.WriteLine(answer);
+
+//convert to Result, the error is only created if the option is None
+Result<int> result = none.ToResult(() => "No answer found");
+Console.WriteLine(result);
+```
+<!-- endSnippet -->
+
+```
+84
+None Int32
+The answer is 42
+0
+Error No answer found
+```
+
 # <a name="analyzers_usage"></a>FunicularSwitch.Analyzers.Usage
 
-The FunicularSwitch.Analyzers package is automatically included when you reference the FunicularSwitch package starting from version v6.2.0.
+The FunicularSwitch.Analyzers package is automatically included when you reference the FunicularSwitch package starting from version 6.2.0.
 
 The analyzers are designed to provide useful refactoring and to show usage opportunities that can help people using the functional concepts for the first time to just experiment with the basics and get recommendations on which other functions and concepts may apply to their situation.
 
@@ -254,7 +328,7 @@ While this works as intended, the intention of
 - convert the text to lowercase, if there is text
 - return the converted text, or null if none
 
-can be also expressed using the ``.Map(...)`` and ``.GetValueOrDefault()`` operators which will more explicitly tell someone familiar with functional concepts the above two steps. The analyzers points this out, and offers a code fix that will refactor the code to:
+can be also expressed using the ``.Map(...)`` and ``.GetValueOrDefault()`` operators which will more explicitly tell someone familiar with functional concepts the above two steps. The analyzer points this out, and offers a code fix that will refactor the code to:
 ```csharp
 public string? ToLower(Option<string> textOption)
 {
@@ -268,7 +342,7 @@ The other analyzers (FS0002 to FS0007) only appear if the project uses C# 15 wit
 
 ## ResultType attribute
 
-After adding the FunicularSwitch.Generators package you can mark a class as result type using the `ResultType` attribute. The class has to be abstract and partial with a single generic argument. Ok and Error cases, Map, Bind, Match and some other methods will be generated so you can use your Result just like the one from the FunicularSwitch package. We recommend using a [UnionType](https://github.com/bluehands/Funicular-Switch#uniontype) as error type but you are free to use any type you want to represent failures.
+After adding the FunicularSwitch.Generators package you can mark a class as result type using the `ResultType` attribute. The class has to be abstract (or `closed` with C# 15, see below) and partial with a single generic argument. Ok and Error cases, Map, Bind, Match and some other methods will be generated so you can use your Result just like the one from the FunicularSwitch package. We recommend using a [UnionType](https://github.com/bluehands/Funicular-Switch#uniontype) as error type but you are free to use any type you want to represent failures.
 
 ``` cs
   [FunicularSwitch.Generators.ResultType(ErrorType = typeof(MyCustomError))]
@@ -306,7 +380,7 @@ public static class MyCustomErrorExtension
   public static MyCustomError ToGenericError(Exception ex) => ...
 }
 ```
-Having the ExceptionToError method, a call like `Ok(42).Map(i => 42 / 0)` will return an error result with an error produced by your custom method instead of throwing a DivisionByZero exception.  
+Having the ExceptionToError method, a call like `Result.Ok(42).Map(i => 42 / 0)` will return an error result with an error produced by your custom method instead of throwing a DivisionByZero exception.  
 
 ##### Considerations:
 Using the `ExceptionToError` attribute is actually a decision that points into a direction that is different from the way Result is implemented in F#, where Result and the corresponding Error type are meant to model expected domain errors (see [fsharpforfunandprofit blog post](https://fsharpforfunandprofit.com/posts/against-railway-oriented-programming/)). You will still have to handle exceptions on the highest parts of your system and there is no 'fail fast' because early exceptions always travel through your whole Result chain.
@@ -327,40 +401,53 @@ and a bunch of methods like `Aggregate`, `Validate`, `AllOk`, `FirstOk` and more
 
 There is another useful generator coming with the package. Adding the `UnionType` attribute to a base record / class or interface makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
 
-``` cs
-[FunicularSwitch.Generators.UnionType]
-public abstract class Error{...}
+<!-- snippet: abstractUnion -->
+```cs
+[UnionType]
+public abstract class Error
+{
+    public string Message { get; }
+    protected Error(string message) => Message = message;
+}
 
-public sealed class NotFound : Error {...}
-public sealed class Failure : Error {...}
-public sealed class InvalidInput : Error {...}
+public sealed class NotFound(string message) : Error(message);
+public sealed class Failure(string message, Exception exception) : Error(message)
+{
+    public Exception Exception { get; } = exception;
+}
+public sealed class InvalidInput(string message) : Error(message);
 ```
+<!-- endSnippet -->
 
 the generator detecting the `[UnionType]` adds Match methods so you can write:
 
-``` cs
+<!-- snippet: abstractUnionMatch -->
+```cs
 static string PrintError(Error error) =>
-        error.Match(
-                failure => $"Ups, something went wrong: {failure.Message} - {failure.Exception}",
-                invalidInput => $"Name was invalid: {invalidInput.Message}",
-                notFound => $"Not found: {notFound.Message}"
-            );
+    error.Match(
+        failure => $"Ups, something went wrong: {failure.Message} - {failure.Exception}",
+        invalidInput => $"Name was invalid: {invalidInput.Message}",
+        notFound => $"Not found: {notFound.Message}"
+    );
 ```
+<!-- endSnippet -->
 
 If you decide to add a case to your Error union all consuming switches break and you never miss a case at runtime!
 
-Match methods are also provided for async case handlers and as extensions on `Task<Error>`. A `null` error passed to `Match` or `Switch` throws an `ArgumentNullException` (FunicularSwitch.Generators 5.0 and newer, before it was an `ArgumentException`, which is the base class of `ArgumentNullException`, so existing catch blocks still work).
+Match methods are also provided for async case handlers and as extensions on `Task<Error>`.
 
 There are also `Switch` extension methods generated which are the 'void' versions of `Match`, although this is not recommended from a functional point of view :).
 
-``` cs
+<!-- snippet: abstractUnionSwitch -->
+```cs
 static void PrintIfNotFound(Error error) =>
-        error.Switch(
-                failure => { /*ignore*/ },
-                invalidInput => { /*ignore*/ },
-                notFound => Console.WriteLine($"Not found: {notFound.Message}")
-            );
+    error.Switch(
+        failure => { /*ignore*/ },
+        invalidInput => { /*ignore*/ },
+        notFound => Console.WriteLine($"Not found: {notFound.Message}")
+    );
 ```
+<!-- endSnippet -->
 
 To avoid bad surprises a well defined order of parameters of Match methods is crucial. By default parameters are generated in alphabetical order. This behaviour can be adapted using the `CaseOrder` argument on `UnionType` attribute (FunicularSwitch.Generators namespace omitted):
 
@@ -369,11 +456,11 @@ To avoid bad surprises a well defined order of parameters of Match methods is cr
 [UnionType(CaseOrder = CaseOrder.Alphabetical)]
 public abstract class Error{...}
 
-//useful for union types the define their cases as nested subclasses in a well defined order
+//useful for union types that define their cases as nested subclasses in a well defined order
 [UnionType(CaseOrder = CaseOrder.AsDeclared)]
 public abstract class Error{...}
 
-//order defined explicitly. Case sort index with [UnionCase] attribute on derived types is expected (generator warning if missing or ambigous)
+//order defined explicitly. Case sort index with [UnionCase] attribute on derived types is expected (generator warning if missing or ambiguous)
 [UnionType(CaseOrder = CaseOrder.Explicit)]
 public abstract class Error{...}
 
@@ -388,22 +475,24 @@ public sealed class InvalidInput : Error {...}
 #### Static factory methods
 If your base type is a partial record or class, static factory methods for your derived cases are added: 
 
-``` cs
+<!-- snippet: staticFactories -->
+```cs
 [UnionType]
-public abstract partial record Error;
+public abstract partial record Failures;
 
-public record NotFound(int Id, string? Message = "Not found") : Error;
-public record InvalidInput(string Message) : Error;
+public record Missing(int Id, string Message = "Not found") : Failures;
+public record Invalid(string Message) : Failures;
 
-class ExampleConsumer
+class StaticFactoriesConsumer
 {
     public static void UseGeneratedFactoryMethods()
     {
-        var notFound = Error.NotFound(42); //default value is pulled up to factory methods.
-        var invalid = Error.InvalidInput("I don't like it");
+        var missing = Failures.Missing(42); //default value is pulled up to factory methods.
+        var invalid = Failures.Invalid("I don't like it");
     }
 }
 ```
+<!-- endSnippet -->
 
 Those factory methods are not generated if they would conflict with an existing field, property or method on the base type. 
 So you can always decide to implement them by yourself. Generation of factory methods on a partial base type can be suppressed 
@@ -411,24 +500,26 @@ by setting StaticFactoryMethods argument to false: `[UnionType(StaticFactoryMeth
 constructor parameters from namespaces other than System need full qualification.
 If you like to declare your cases as nested types of your base types you can use an underscore prefix or postfix with your nested type name to avoid conflicts with factory methods. Static factory method will then be generated without the underscore. This also works if you use the base type name as prefix or postfix.
 
-``` cs
+<!-- snippet: staticFactoriesNested -->
+```cs
 [UnionType]
-public abstract partial record Failure
+public abstract partial record Problem
 {
-    public record NotFound_(int Id) : Failure;
+    public record NotFound_(int Id) : Problem;
 }
 
-public record InvalidInputFailure(string Message) : Failure;
+public record InvalidInputProblem(string Message) : Problem;
 
-class ExampleConsumer
+class NestedStaticFactoriesConsumer
 {
     public static void UseGeneratedFactoryMethods()
     {
-        var notFound = Failure.NotFound(42); //static factory method generated without underscore used in typename NotFound_ 
-        var invalid = Failure.InvalidInput("I don't like it"); //static factory method generated without base typename postfix 
+        var notFound = Problem.NotFound(42); //static factory method generated without underscore used in typename NotFound_
+        var invalid = Problem.InvalidInput("I don't like it"); //static factory method generated without base typename postfix
     }
 }
 ```
+<!-- endSnippet -->
 
 Base types of unions may also be generic types with arbitrary number of type parameters. Case types with their own generic arguments are only supported if they are declared outside of the base type and hand all type parameters on to it, like `record Leaf<T> : Tree<T>`.
 
@@ -529,7 +620,7 @@ var isGraphicalLinux = PlatformIdentifier.LinuxDevice
 
 The default case order for `ExtendedEnum` is AsDeclared. To avoid problems with changing case orders, one should always use named parameters in Match and Switch calls!
 
-To generate Match extensions for all types in an assembly use the `ExtendEnums` attribute. Flags enums an enums with duplicate values are omitted:
+To generate Match extensions for all types in an assembly use the `ExtendEnums` attribute. Flags enums and enums with duplicate values are omitted:
 
 ``` cs
 //generate internal Match extension methods for all enums in System (Containing assembly of System.DateTime). 
@@ -575,7 +666,7 @@ public static partial class OptionResult;
 ```
 
 This will generate extension methods for `Option<Result<>>` to be able to bind this directly to another `Option<Result<>>`.
-It also adds a static return method `OptionResult.SomeOk` (It's called `SomeOk` in this case because the name of the return method of `Option<>` is `Some` and of `Result<>` is `Ok`) and a lift method to raise a `Option<>` to the `Result<Option<>>` domain.
+It also adds a static return method `OptionResult.SomeOk` (It's called `SomeOk` in this case because the name of the return method of `Option<>` is `Some` and of `Result<>` is `Ok`) and a lift method to raise an `Option<>` to the `Result<Option<>>` domain.
 Additionally, it adds async variants, a map method and also methods to support LINQ query syntax.
 
 ## ExtendMonad attribute
@@ -588,6 +679,10 @@ syntax and also async variants.
 [Tutorial markdown](https://github.com/bluehands/Funicular-Switch/blob/main/TUTORIAL.md)
 
 [Tutorial source](https://github.com/bluehands/Funicular-Switch/tree/main/Source/Tutorial)
+
+[FunicularSwitch and C# 15](docs/csharp15.md)
+
+[Analyzers](docs/analyzers.md)
 
 # Contributing
 

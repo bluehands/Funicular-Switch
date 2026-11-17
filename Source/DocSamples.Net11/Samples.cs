@@ -1,5 +1,9 @@
 using FunicularSwitch.Generators;
 
+// begin-snippet: extendUnions
+[assembly: ExtendUnions]
+// end-snippet
+
 namespace DocSamples.Net11;
 
 // begin-snippet: closedUnion
@@ -90,5 +94,6 @@ public static class Program
         ClosedUnionSample.Run();
         NativeUnionSample.Run();
         ClosedResultSample.Run();
+        DocSamples.Net11.Classic.AbstractUnionSample.Run();
     }
 }
