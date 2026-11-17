@@ -23,10 +23,10 @@ namespace DocSamples
             // end-snippet
         }
 
-        [Runner("map")]
+        [Runner("resultMap")]
         public static void Map()
         {
-            // begin-snippet: map
+            // begin-snippet: resultMap
             static Result<int> Ask() => 42;
 
             Result<int> answerTransformed = Ask()
@@ -36,10 +36,10 @@ namespace DocSamples
             // end-snippet
         }
 
-        [Runner("bind")]
+        [Runner("resultBind")]
         public static void Bind()
         {
-            // begin-snippet: bind
+            // begin-snippet: resultBind
             static Result<int> Ask() => 42;
 
             Result<int> answerTransformed = Ask()
@@ -67,10 +67,10 @@ namespace DocSamples
             // end-snippet
         }
 
-        [Runner("match")]
+        [Runner("resultMatch")]
         public static void Match()
         {
-            // begin-snippet: match
+            // begin-snippet: resultMatch
             static Result<int> Ask() => 42;
 
             string whatIsIt =
