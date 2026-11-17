@@ -17,6 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- net11 reference assemblies used to compile C# 15 test sources -->
+    <AssemblyMetadata Include="NetCoreAppRefPackDirectory" Value="$(NetCoreTargetingPackRoot)/Microsoft.NETCore.App.Ref" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\FunicularSwitch.Generators\FunicularSwitch.Generators.csproj" />
     <ProjectReference Include="..\..\FunicularSwitch.Transformers\FunicularSwitch.Transformers.csproj" />
     <ProjectReference Include="..\..\FunicularSwitch\FunicularSwitch.csproj" />
