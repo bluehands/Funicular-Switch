@@ -58,8 +58,10 @@ static class Generator
             if (resultTypeSchema.IsClosed)
             {
                 //C# 15: result base is a closed hierarchy (Ok_, Error_), so the compiler knows switches over it are exhaustive and default arms would be unreachable
-                code = code.Replace($"abstract partial class {resultTypeName}<T>", $"closed partial class {resultTypeName}<T>");
-                code = Regex.Replace(code, @"^[ \t]*_ => throw new global::System\.InvalidOperationException\(\$""Unexpected (type derived from|derived result type).*\r?\n", "", RegexOptions.Multiline);
+                code = Regex.Replace(code, $@"\babstract partial class {Regex.Escape(resultTypeName)}<T>", $"closed partial class {resultTypeName}<T>");
+                //switch expression arms (_ => throw ...) that only guard "unexpected" derived types. Switch statements keep their
+                //"default: throw", the compiler's flow analysis still requires it (CS0161 otherwise).
+                code = Regex.Replace(code, @"^[ \t]*_ => throw new global::System\.InvalidOperationException\(\$""Unexpected[^\r\n]*\r?\n", "", RegexOptions.Multiline);
             }
 
             code = code

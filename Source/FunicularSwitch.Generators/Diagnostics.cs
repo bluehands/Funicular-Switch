@@ -114,6 +114,13 @@ static class Diagnostics
             messageFormat: $"Generator for {name} is considered experimental and might break",
             severity: DiagnosticSeverity.Info);
 
+    public static Diagnostic UnionTypeOnNonUnionStruct(string message, Location location) =>
+        Create(location,
+            id: "FUN0017",
+            title: "UnionType on struct that is not a union",
+            messageFormat: $"{message} -  [UnionType] on a struct is only supported for C# 15 union declarations and structs marked with [Union]. Use a class, record or interface hierarchy otherwise.",
+            severity: DiagnosticSeverity.Warning);
+
     static Diagnostic Create(Location? location, string id, string title, string messageFormat, DiagnosticSeverity severity = DiagnosticSeverity.Warning) =>
         Diagnostic.Create(
             new(

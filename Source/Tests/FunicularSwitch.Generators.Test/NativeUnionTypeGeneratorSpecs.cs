@@ -96,4 +96,40 @@ public class Run_native_union_type_generator : VerifySourceGenerator
 
         return VerifyCSharp15(code);
     }
+
+    [TestMethod]
+    public Task For_native_union_with_several_nullable_cases_routes_default_to_first_nullable()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            namespace FunicularSwitch.Test;
+
+            public record Cat(string Name);
+
+            [UnionType]
+            public union Variant(Cat?, int?, string?, bool);
+            """;
+
+        return VerifyCSharp15(code);
+    }
+
+    [TestMethod]
+    public Task For_native_union_with_type_parameter_cases_keeps_declared_order()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            namespace FunicularSwitch.Test;
+
+            [UnionType]
+            public union Either<TLeft, TRight>(TLeft, TRight) where TLeft : class where TRight : class;
+            """;
+
+        return VerifyCSharp15(code);
+    }
 }

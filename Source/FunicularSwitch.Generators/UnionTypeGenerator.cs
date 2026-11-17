@@ -31,7 +31,12 @@ public class UnionTypeGenerator : IIncrementalGenerator
                             return NativeUnionParser.GetSchema(symbol, context.TargetNode.GetLocation());
 
                         //[UnionType] on a plain struct has no meaning
-                        if (context.TargetNode is not BaseTypeDeclarationSyntax typeDeclaration || symbol.TypeKind == TypeKind.Struct)
+                        if (symbol.TypeKind == TypeKind.Struct)
+                            return GenerationResult<UnionTypeSchema>.Empty.AddDiagnostics(
+                                Diagnostics.UnionTypeOnNonUnionStruct(
+                                    $"{symbol.Name} is a struct but neither a union declaration nor marked with [Union]",
+                                    context.TargetNode.GetLocation()));
+                        if (context.TargetNode is not BaseTypeDeclarationSyntax typeDeclaration)
                             return GenerationResult<UnionTypeSchema>.Empty;
 
                         return Parser.GetUnionTypeSchema(

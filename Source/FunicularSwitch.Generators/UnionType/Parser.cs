@@ -122,7 +122,7 @@ static class Parser
             arguments[i] = unionTypeSymbol.OriginalDefinition.TypeParameters[index];
         }
 
-        return caseSymbol.OriginalDefinition.Construct(arguments).FullTypeNameWithNamespaceAndGenerics().Replace("global::", "");
+        return caseSymbol.OriginalDefinition.Construct(arguments).FullTypeNameWithNamespaceAndGenerics();
     }
 
     private static (string parameterName, string methodName) DeriveParameterAndStaticMethodName(string typeName,

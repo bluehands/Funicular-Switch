@@ -78,4 +78,45 @@ public class Run_union_type_generator_for_more_shapes : VerifySourceGenerator
             """;
 
         return VerifyCSharp15(code);
-    }}
+    }
+
+    [TestMethod]
+    public Task For_interface_union_with_struct_case_and_unrelated_static_class()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            namespace FunicularSwitch.Test;
+
+            [UnionType]
+            public interface IShape;
+
+            public readonly record struct Point(int X) : IShape;
+            public sealed class Circle : IShape;
+            public abstract class Base : IShape;
+            public sealed class Derived : Base;
+            public static class Helpers { public static void Do() { } }
+            """;
+
+        return VerifyCSharp15(code);
+    }
+
+    [TestMethod]
+    public Task For_union_type_on_plain_struct_reports_diagnostic()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            namespace FunicularSwitch.Test;
+
+            [UnionType]
+            public struct NotAUnion;
+            """;
+
+        return VerifyCSharp15(code);
+    }
+}
