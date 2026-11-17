@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.ResultType;

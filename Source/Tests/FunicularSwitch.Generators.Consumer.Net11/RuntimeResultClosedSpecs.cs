@@ -16,5 +16,3 @@ public class RuntimeResultClosedSpecs
         Describe(global::FunicularSwitch.Result.Error<int>("x")).Should().Be("error x");
     }
 }
-
-

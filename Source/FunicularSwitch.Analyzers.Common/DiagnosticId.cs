@@ -1,4 +1,4 @@
-namespace FunicularSwitch.Analyzers;
+﻿namespace FunicularSwitch.Analyzers;
 
 public static class DiagnosticId
 {
@@ -10,5 +10,3 @@ public static class DiagnosticId
     public const string JsonDerivedTypeMissing = "FS0006";
     public const string SuggestClosedResultType = "FS0007";
 }
-
-

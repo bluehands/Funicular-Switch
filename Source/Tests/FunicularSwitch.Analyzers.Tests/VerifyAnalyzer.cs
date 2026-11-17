@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
@@ -115,6 +115,3 @@ public class VerifyAnalyzer : VerifyBase
         return solution.GetDocument(document.Id)!;
     }
 }
-
-
-

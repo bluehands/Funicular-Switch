@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
+﻿using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 
 namespace FunicularSwitch.Generators.UnionType;

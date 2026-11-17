@@ -29,6 +29,7 @@ public class ClosedUnionAnalyzerTest : VerifyAnalyzer
             languageVersion: languageVersion,
             netStandard: netStandard,
             callingMethod: caller);
+
     [Fact]
     public Task AbstractRecord_SuggestsClosed_FixMakesClosed() =>
         VerifyClosed(
@@ -274,6 +275,7 @@ public class ClosedUnionAnalyzerTest : VerifyAnalyzer
             public sealed record Circle : Shape;
             """,
             [], LanguageVersion.Preview, netStandard: true);
+
     [Fact]
     public void LanguageFeatures_SupportsClosed_DependsOnLanguageVersion()
     {
@@ -304,6 +306,7 @@ public class ClosedUnionAnalyzerTest : VerifyAnalyzer
         LanguageFeatures.IsClosed(metadataA).Should().BeTrue();
         LanguageFeatures.IsClosed(consumer.GetTypeByMetadataName("B")!).Should().BeFalse();
     }
+
     private static byte[] Emit(Compilation c)
     {
         using var ms = new MemoryStream();
@@ -326,15 +329,3 @@ public class ClosedUnionAnalyzerTest : VerifyAnalyzer
                 : makeClosed.RegisterCodeFixesAsync(context);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Collections.Immutable;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
