@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    "net10.0": {
+    "net11.0": {
       "AwesomeAssertions": {
         "type": "Direct",
         "requested": "[9.0.0, )",
@@ -306,7 +306,7 @@
       "funicularswitch": {
         "type": "Project",
         "dependencies": {
-          "FunicularSwitch.Analyzers": "[1.0.0, )"
+          "FunicularSwitch.Analyzers": "[2.0.0, )"
         }
       },
       "FunicularSwitch.Analyzers": {
