@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)EquatableArray.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)..\FunicularSwitch.Analyzers.Common\ClosedSupport.cs" Link="ClosedSupport.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HashCode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LanguageFeatures.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Result.cs" />
