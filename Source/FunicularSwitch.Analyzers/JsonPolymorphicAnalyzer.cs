@@ -47,8 +47,6 @@ public class JsonPolymorphicAnalyzer : DiagnosticAnalyzer
     {
         if (context.Symbol is not INamedTypeSymbol type) return;
         if (!LanguageFeatures.IsClosed(type) || !LanguageFeatures.HasUnionTypeAttribute(type)) return;
-        var location = type.Locations.FirstOrDefault(l => l.IsInSource);
-        if (location == null) return;
 
         var attributes = type.GetAttributes();
         var polymorphic = attributes.FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == JsonNamespace + "JsonPolymorphicAttribute");
@@ -62,6 +60,8 @@ public class JsonPolymorphicAnalyzer : DiagnosticAnalyzer
             .ToList();
         if (attributes.All(a => a.AttributeClass?.ToDisplayString() != JsonNamespace + "JsonDerivedTypeAttribute")) return;
 
+        var location = LanguageFeatures.FirstUserLocation(type);
+        if (location == null) return;
         context.ReportDiagnostic(Diagnostic.Create(Rule, location, type.Name));
 
         // concrete descendants (any depth) not in the manual list

@@ -59,7 +59,7 @@ public class ClosedUnionAnalyzer : DiagnosticAnalyzer
     private static void Analyze(SymbolAnalysisContext context, Lazy<ILookup<ISymbol, INamedTypeSymbol>> derivedLookup)
     {
         if (context.Symbol is not INamedTypeSymbol { TypeKind: TypeKind.Class } type) return;
-        var location = type.Locations.FirstOrDefault(l => l.IsInSource);
+        var location = LanguageFeatures.FirstUserLocation(type);
         if (location == null) return;
 
         if (LanguageFeatures.HasUnionTypeAttribute(type) && type.IsAbstract && !LanguageFeatures.IsClosed(type))

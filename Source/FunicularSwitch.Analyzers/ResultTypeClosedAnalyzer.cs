@@ -35,7 +35,7 @@ public class ResultTypeClosedAnalyzer : DiagnosticAnalyzer
         if (context.Symbol is not INamedTypeSymbol { TypeKind: TypeKind.Class, IsAbstract: true } type) return;
         if (LanguageFeatures.IsClosed(type)) return;
         if (!type.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == LanguageFeatures.ResultTypeAttributeName)) return;
-        var location = type.Locations.FirstOrDefault(l => l.IsInSource);
+        var location = LanguageFeatures.FirstUserLocation(type);
         if (location == null) return;
         context.ReportDiagnostic(Diagnostic.Create(Rule, location, type.Name));
     }
