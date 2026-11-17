@@ -52,7 +52,7 @@ public class NativeUnionSpecs
     {
         Pet pet = default;
         var act = () => pet.Match(_ => 1, _ => 2);
-        act.Should().Throw<InvalidOperationException>().WithMessage("Union has no value");
+        act.Should().Throw<InvalidOperationException>().WithMessage("Union *Pet has no value*");
         var switchAct = () => pet.Switch(_ => { }, _ => { });
         switchAct.Should().Throw<InvalidOperationException>();
     }

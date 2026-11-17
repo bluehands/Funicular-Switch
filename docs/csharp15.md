@@ -83,7 +83,7 @@ pet.Match(cat => "meow", dog => "woof");
 - Cases are the union's case types, in declared order (not derived types).
 - **Null/default routing:** a default union value has no content (`Value == null`).
   - If any case type is nullable (`int?`, `string?`), the null value is routed to the **first** nullable case, with `null` as argument.
-  - Otherwise `Match`/`Switch` throw `InvalidOperationException("Union has no value")`.
+  - Otherwise `Match`/`Switch` throw `InvalidOperationException` (the message names the union type).
 - No static factories are generated; implicit union conversions cover that.
 - `[UnionType]` on a struct that is neither a `union` declaration nor a `[Union]` struct is reported as FUN0017 and ignored.
 - A closed `[UnionType]` base can itself be a case of a native union, e.g. `union Response(MyResult<int>, Timeout)`.

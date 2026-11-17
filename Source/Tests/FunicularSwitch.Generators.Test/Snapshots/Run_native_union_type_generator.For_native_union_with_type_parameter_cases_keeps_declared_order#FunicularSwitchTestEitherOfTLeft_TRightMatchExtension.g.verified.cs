@@ -9,7 +9,7 @@ namespace FunicularSwitch.Test
 		public static T Match<TLeft, TRight, T>(this global::FunicularSwitch.Test.Either<TLeft, TRight> either, global::System.Func<TLeft, T> tLeft, global::System.Func<TRight, T> tRight) where TLeft : class where TRight : class =>
 		either switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Either has no value (default instance of the union struct)"),
 			TLeft tLeft1 => tLeft(tLeft1),
 			TRight tRight2 => tRight(tRight2),
 		};
@@ -18,7 +18,7 @@ namespace FunicularSwitch.Test
 		public static async global::System.Threading.Tasks.Task<T> Match<TLeft, TRight, T>(this global::FunicularSwitch.Test.Either<TLeft, TRight> either, global::System.Func<TLeft, global::System.Threading.Tasks.Task<T>> tLeft, global::System.Func<TRight, global::System.Threading.Tasks.Task<T>> tRight) where TLeft : class where TRight : class =>
 		either switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Either has no value (default instance of the union struct)"),
 			TLeft tLeft1 => await tLeft(tLeft1).ConfigureAwait(false),
 			TRight tRight2 => await tRight(tRight2).ConfigureAwait(false),
 		};
@@ -37,7 +37,7 @@ namespace FunicularSwitch.Test
 			switch (either)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Either has no value (default instance of the union struct)");
 				case TLeft tLeft1:
 					tLeft(tLeft1);
 					break;
@@ -53,7 +53,7 @@ namespace FunicularSwitch.Test
 			switch (either)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Either has no value (default instance of the union struct)");
 				case TLeft tLeft1:
 					await tLeft(tLeft1).ConfigureAwait(false);
 					break;

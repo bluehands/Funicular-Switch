@@ -9,7 +9,7 @@ namespace FunicularSwitch.Test
 		public static T Match<T>(this global::FunicularSwitch.Test.Thing thing, global::System.Func<global::FunicularSwitch.Test.Animal, T> animal, global::System.Func<global::FunicularSwitch.Test.Dog, T> dog, global::System.Func<string, T> @string) =>
 		thing switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Thing has no value (default instance of the union struct)"),
 			global::FunicularSwitch.Test.Dog dog2 => dog(dog2),
 			global::FunicularSwitch.Test.Animal animal1 => animal(animal1),
 			string @string3 => @string(@string3),
@@ -19,7 +19,7 @@ namespace FunicularSwitch.Test
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Thing thing, global::System.Func<global::FunicularSwitch.Test.Animal, global::System.Threading.Tasks.Task<T>> animal, global::System.Func<global::FunicularSwitch.Test.Dog, global::System.Threading.Tasks.Task<T>> dog, global::System.Func<string, global::System.Threading.Tasks.Task<T>> @string) =>
 		thing switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Thing has no value (default instance of the union struct)"),
 			global::FunicularSwitch.Test.Dog dog2 => await dog(dog2).ConfigureAwait(false),
 			global::FunicularSwitch.Test.Animal animal1 => await animal(animal1).ConfigureAwait(false),
 			string @string3 => await @string(@string3).ConfigureAwait(false),
@@ -39,7 +39,7 @@ namespace FunicularSwitch.Test
 			switch (thing)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Thing has no value (default instance of the union struct)");
 				case global::FunicularSwitch.Test.Dog dog2:
 					dog(dog2);
 					break;
@@ -58,7 +58,7 @@ namespace FunicularSwitch.Test
 			switch (thing)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Thing has no value (default instance of the union struct)");
 				case global::FunicularSwitch.Test.Dog dog2:
 					await dog(dog2).ConfigureAwait(false);
 					break;

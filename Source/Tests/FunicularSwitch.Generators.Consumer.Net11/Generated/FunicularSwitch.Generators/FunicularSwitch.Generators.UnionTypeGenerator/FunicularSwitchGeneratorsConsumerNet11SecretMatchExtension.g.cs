@@ -8,7 +8,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 		public static T Match<T>(this global::FunicularSwitch.Generators.Consumer.Net11.Secret secret, global::System.Func<string, T> @string, global::System.Func<int, T> @int) =>
 		secret switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.Secret has no value (default instance of the union struct)"),
 			string @string1 => @string(@string1),
 			int @int2 => @int(@int2),
 		};
@@ -17,7 +17,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.Net11.Secret secret, global::System.Func<string, global::System.Threading.Tasks.Task<T>> @string, global::System.Func<int, global::System.Threading.Tasks.Task<T>> @int) =>
 		secret switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.Secret has no value (default instance of the union struct)"),
 			string @string1 => await @string(@string1).ConfigureAwait(false),
 			int @int2 => await @int(@int2).ConfigureAwait(false),
 		};
@@ -36,7 +36,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 			switch (secret)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.Secret has no value (default instance of the union struct)");
 				case string @string1:
 					@string(@string1);
 					break;
@@ -52,7 +52,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 			switch (secret)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.Secret has no value (default instance of the union struct)");
 				case string @string1:
 					await @string(@string1).ConfigureAwait(false);
 					break;

@@ -8,7 +8,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 		public static T Match<T>(this global::FunicularSwitch.Generators.Consumer.Net11.Payload payload, global::System.Func<int, T> @int, global::System.Func<string, T> @string, global::System.Func<int[], T> intArray) =>
 		payload switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.Payload has no value (default instance of the union struct)"),
 			int @int1 => @int(@int1),
 			string @string2 => @string(@string2),
 			int[] intArray3 => intArray(intArray3),
@@ -18,7 +18,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.Net11.Payload payload, global::System.Func<int, global::System.Threading.Tasks.Task<T>> @int, global::System.Func<string, global::System.Threading.Tasks.Task<T>> @string, global::System.Func<int[], global::System.Threading.Tasks.Task<T>> intArray) =>
 		payload switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.Payload has no value (default instance of the union struct)"),
 			int @int1 => await @int(@int1).ConfigureAwait(false),
 			string @string2 => await @string(@string2).ConfigureAwait(false),
 			int[] intArray3 => await intArray(intArray3).ConfigureAwait(false),
@@ -38,7 +38,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 			switch (payload)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.Payload has no value (default instance of the union struct)");
 				case int @int1:
 					@int(@int1);
 					break;
@@ -57,7 +57,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 			switch (payload)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.Payload has no value (default instance of the union struct)");
 				case int @int1:
 					await @int(@int1).ConfigureAwait(false);
 					break;

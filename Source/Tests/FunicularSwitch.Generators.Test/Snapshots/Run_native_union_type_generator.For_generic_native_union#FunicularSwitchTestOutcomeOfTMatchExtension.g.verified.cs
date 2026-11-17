@@ -9,7 +9,7 @@ namespace FunicularSwitch.Test
 		public static TMatchResult Match<T, TMatchResult>(this global::FunicularSwitch.Test.Outcome<T> outcome, global::System.Func<T, TMatchResult> t, global::System.Func<global::FunicularSwitch.Test.Failure, TMatchResult> failure) where T : class =>
 		outcome switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Outcome has no value (default instance of the union struct)"),
 			T t1 => t(t1),
 			global::FunicularSwitch.Test.Failure failure2 => failure(failure2),
 		};
@@ -18,7 +18,7 @@ namespace FunicularSwitch.Test
 		public static async global::System.Threading.Tasks.Task<TMatchResult> Match<T, TMatchResult>(this global::FunicularSwitch.Test.Outcome<T> outcome, global::System.Func<T, global::System.Threading.Tasks.Task<TMatchResult>> t, global::System.Func<global::FunicularSwitch.Test.Failure, global::System.Threading.Tasks.Task<TMatchResult>> failure) where T : class =>
 		outcome switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Outcome has no value (default instance of the union struct)"),
 			T t1 => await t(t1).ConfigureAwait(false),
 			global::FunicularSwitch.Test.Failure failure2 => await failure(failure2).ConfigureAwait(false),
 		};
@@ -37,7 +37,7 @@ namespace FunicularSwitch.Test
 			switch (outcome)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Outcome has no value (default instance of the union struct)");
 				case T t1:
 					t(t1);
 					break;
@@ -53,7 +53,7 @@ namespace FunicularSwitch.Test
 			switch (outcome)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.Outcome has no value (default instance of the union struct)");
 				case T t1:
 					await t(t1).ConfigureAwait(false);
 					break;

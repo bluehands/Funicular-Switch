@@ -9,7 +9,7 @@ namespace FunicularSwitch.Test
 		public static T Match<T>(this global::FunicularSwitch.Test.U u, global::System.Func<object, T> @object, global::System.Func<string, T> @string, global::System.Func<global::FunicularSwitch.Test.IFoo, T> iFoo) =>
 		u switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.U has no value (default instance of the union struct)"),
 			string @string2 => @string(@string2),
 			global::FunicularSwitch.Test.IFoo iFoo3 => iFoo(iFoo3),
 			object @object1 => @object(@object1),
@@ -19,7 +19,7 @@ namespace FunicularSwitch.Test
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.U u, global::System.Func<object, global::System.Threading.Tasks.Task<T>> @object, global::System.Func<string, global::System.Threading.Tasks.Task<T>> @string, global::System.Func<global::FunicularSwitch.Test.IFoo, global::System.Threading.Tasks.Task<T>> iFoo) =>
 		u switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.U has no value (default instance of the union struct)"),
 			string @string2 => await @string(@string2).ConfigureAwait(false),
 			global::FunicularSwitch.Test.IFoo iFoo3 => await iFoo(iFoo3).ConfigureAwait(false),
 			object @object1 => await @object(@object1).ConfigureAwait(false),
@@ -39,7 +39,7 @@ namespace FunicularSwitch.Test
 			switch (u)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.U has no value (default instance of the union struct)");
 				case string @string2:
 					@string(@string2);
 					break;
@@ -58,7 +58,7 @@ namespace FunicularSwitch.Test
 			switch (u)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Test.U has no value (default instance of the union struct)");
 				case string @string2:
 					await @string(@string2).ConfigureAwait(false);
 					break;

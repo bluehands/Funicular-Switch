@@ -8,7 +8,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 		public static T Match<T>(this global::FunicularSwitch.Generators.Consumer.Net11.HandPet handPet, global::System.Func<global::FunicularSwitch.Generators.Consumer.Net11.Cat2, T> cat2, global::System.Func<global::FunicularSwitch.Generators.Consumer.Net11.Dog2, T> dog2) =>
 		handPet switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.HandPet has no value (default instance of the union struct)"),
 			global::FunicularSwitch.Generators.Consumer.Net11.Cat2 cat21 => cat2(cat21),
 			global::FunicularSwitch.Generators.Consumer.Net11.Dog2 dog22 => dog2(dog22),
 		};
@@ -17,7 +17,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.Net11.HandPet handPet, global::System.Func<global::FunicularSwitch.Generators.Consumer.Net11.Cat2, global::System.Threading.Tasks.Task<T>> cat2, global::System.Func<global::FunicularSwitch.Generators.Consumer.Net11.Dog2, global::System.Threading.Tasks.Task<T>> dog2) =>
 		handPet switch
 		{
-			null => throw new global::System.InvalidOperationException("Union has no value"),
+			null => throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.HandPet has no value (default instance of the union struct)"),
 			global::FunicularSwitch.Generators.Consumer.Net11.Cat2 cat21 => await cat2(cat21).ConfigureAwait(false),
 			global::FunicularSwitch.Generators.Consumer.Net11.Dog2 dog22 => await dog2(dog22).ConfigureAwait(false),
 		};
@@ -36,7 +36,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 			switch (handPet)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.HandPet has no value (default instance of the union struct)");
 				case global::FunicularSwitch.Generators.Consumer.Net11.Cat2 cat21:
 					cat2(cat21);
 					break;
@@ -52,7 +52,7 @@ namespace FunicularSwitch.Generators.Consumer.Net11
 			switch (handPet)
 			{
 				case null:
-					throw new global::System.InvalidOperationException("Union has no value");
+					throw new global::System.InvalidOperationException("Union FunicularSwitch.Generators.Consumer.Net11.HandPet has no value (default instance of the union struct)");
 				case global::FunicularSwitch.Generators.Consumer.Net11.Cat2 cat21:
 					await cat2(cat21).ConfigureAwait(false);
 					break;

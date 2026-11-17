@@ -15,7 +15,7 @@ Version 5.0.0 (FunicularSwitch.Generators 5.0.0, FunicularSwitch.Analyzers 2.0.0
    Only the generated switch expressions lose their default arm, switch statements (Bind/Map) keep an unreachable default because flow analysis requires it.
  - C# 15: [UnionType] on union declarations generates Match/Switch (sync, async, Task<>) extension methods.
    Cases are the union case types in declared order. A default union value (no content) is routed to the first nullable case (int?, string?),
-   without nullable case Match/Switch throw InvalidOperationException("Union has no value").
+   without nullable case Match/Switch throw InvalidOperationException (the message names the union type).
  - FUN0017: [UnionType] on a struct that is neither a union declaration nor a [Union] struct is reported instead of silently ignored.
  - UnionType: generic union bases are now supported for cases declared outside the base, e.g. record Leaf<T> : Tree<T>.
  - UnionTypeAttribute may be applied to structs (needed for union declarations).

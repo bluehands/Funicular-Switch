@@ -228,7 +228,7 @@ public static class Generator
                     builder.WriteLine($"null => {nullCall},");
                 }
                 else
-                    builder.WriteLine("null => throw new global::System.InvalidOperationException(\"Union has no value\"),");
+                    builder.WriteLine($"null => throw new global::System.InvalidOperationException(\"{NoValueMessage(unionTypeSchema)}\"),");
             }
             else
                 builder.WriteLine($"null => throw new global::System.ArgumentNullException(nameof({thisParameterName})),");
@@ -250,6 +250,9 @@ public static class Generator
                     $"_ => throw new global::System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\")");
         }
     }
+
+    static string NoValueMessage(UnionTypeSchema unionTypeSchema) =>
+        $"Union {unionTypeSchema.FullTypeName} has no value (default instance of the union struct)";
 
     static void GenerateSwitchMethod(CSharpBuilder builder, UnionTypeSchema unionTypeSchema, bool isAsync, bool hasJetBrainsAnnotationsReference)
     {
@@ -276,7 +279,7 @@ public static class Generator
                             builder.WriteLine("break;");
                         }
                         else
-                            builder.WriteLine("throw new global::System.InvalidOperationException(\"Union has no value\");");
+                            builder.WriteLine($"throw new global::System.InvalidOperationException(\"{NoValueMessage(unionTypeSchema)}\");");
                     }
                     else
                         builder.WriteLine($"throw new global::System.ArgumentNullException(nameof({thisParameterName}));");

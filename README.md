@@ -591,7 +591,7 @@ Instead of marking each union, `[assembly: ExtendUnions]` generates the same ext
 ```
 <!-- endSnippet -->
 
-An instance of a union struct that was never assigned (`default`) has no value. In that case `Match` calls the handler of the first case with a nullable type, if there is one (`int?`, `string?`). Otherwise `Match` and `Switch` throw an `InvalidOperationException` with the message 'Union has no value'. Hand written structs marked with the `Union` attribute work the same way, if you add `UnionType` to them (`ExtendUnions` covers them as well). Note that native unions box value type cases. More details are in [docs/csharp15.md](docs/csharp15.md).
+An instance of a union struct that was never assigned (`default`) has no value. In that case `Match` calls the handler of the first case with a nullable type, if there is one (`int?`, `string?`). Otherwise `Match` and `Switch` throw an `InvalidOperationException` with a message that names the union and says it has no value. Hand written structs marked with the `Union` attribute work the same way, if you add `UnionType` to them (`ExtendUnions` covers them as well). Note that native unions box value type cases. More details are in [docs/csharp15.md](docs/csharp15.md).
 
 ## ExtendedEnum attribute
 

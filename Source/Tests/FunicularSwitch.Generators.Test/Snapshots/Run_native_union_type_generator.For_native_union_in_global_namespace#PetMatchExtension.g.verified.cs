@@ -7,7 +7,7 @@ public static partial class PetMatchExtension
 	public static T Match<T>(this global::Pet pet, global::System.Func<global::Cat, T> cat, global::System.Func<global::Dog, T> dog) =>
 	pet switch
 	{
-		null => throw new global::System.InvalidOperationException("Union has no value"),
+		null => throw new global::System.InvalidOperationException("Union Pet has no value (default instance of the union struct)"),
 		global::Cat cat1 => cat(cat1),
 		global::Dog dog2 => dog(dog2),
 	};
@@ -16,7 +16,7 @@ public static partial class PetMatchExtension
 	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::Pet pet, global::System.Func<global::Cat, global::System.Threading.Tasks.Task<T>> cat, global::System.Func<global::Dog, global::System.Threading.Tasks.Task<T>> dog) =>
 	pet switch
 	{
-		null => throw new global::System.InvalidOperationException("Union has no value"),
+		null => throw new global::System.InvalidOperationException("Union Pet has no value (default instance of the union struct)"),
 		global::Cat cat1 => await cat(cat1).ConfigureAwait(false),
 		global::Dog dog2 => await dog(dog2).ConfigureAwait(false),
 	};
@@ -35,7 +35,7 @@ public static partial class PetMatchExtension
 		switch (pet)
 		{
 			case null:
-				throw new global::System.InvalidOperationException("Union has no value");
+				throw new global::System.InvalidOperationException("Union Pet has no value (default instance of the union struct)");
 			case global::Cat cat1:
 				cat(cat1);
 				break;
@@ -51,7 +51,7 @@ public static partial class PetMatchExtension
 		switch (pet)
 		{
 			case null:
-				throw new global::System.InvalidOperationException("Union has no value");
+				throw new global::System.InvalidOperationException("Union Pet has no value (default instance of the union struct)");
 			case global::Cat cat1:
 				await cat(cat1).ConfigureAwait(false);
 				break;
