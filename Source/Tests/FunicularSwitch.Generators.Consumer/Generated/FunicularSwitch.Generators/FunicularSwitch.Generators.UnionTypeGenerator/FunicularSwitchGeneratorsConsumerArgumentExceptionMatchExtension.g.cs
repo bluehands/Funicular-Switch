@@ -8,6 +8,7 @@ namespace FunicularSwitch.Generators.Consumer
 		public static T Match<T>(this global::FunicularSwitch.Generators.Consumer.ArgumentException argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.ArgumentException.Action_, T> action, global::System.Func<FunicularSwitch.Generators.Consumer.ArgumentException.Func_, T> func) =>
 		argumentException switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(argumentException)),
 			FunicularSwitch.Generators.Consumer.ArgumentException.Action_ action1 => action(action1),
 			FunicularSwitch.Generators.Consumer.ArgumentException.Func_ func2 => func(func2),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.ArgumentException: {argumentException.GetType().Name}")
@@ -17,6 +18,7 @@ namespace FunicularSwitch.Generators.Consumer
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.ArgumentException argumentException, global::System.Func<FunicularSwitch.Generators.Consumer.ArgumentException.Action_, global::System.Threading.Tasks.Task<T>> action, global::System.Func<FunicularSwitch.Generators.Consumer.ArgumentException.Func_, global::System.Threading.Tasks.Task<T>> func) =>
 		argumentException switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(argumentException)),
 			FunicularSwitch.Generators.Consumer.ArgumentException.Action_ action1 => await action(action1).ConfigureAwait(false),
 			FunicularSwitch.Generators.Consumer.ArgumentException.Func_ func2 => await func(func2).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.ArgumentException: {argumentException.GetType().Name}")
@@ -35,6 +37,8 @@ namespace FunicularSwitch.Generators.Consumer
 		{
 			switch (argumentException)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(argumentException));
 				case FunicularSwitch.Generators.Consumer.ArgumentException.Action_ action1:
 					action(action1);
 					break;
@@ -51,6 +55,8 @@ namespace FunicularSwitch.Generators.Consumer
 		{
 			switch (argumentException)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(argumentException));
 				case FunicularSwitch.Generators.Consumer.ArgumentException.Action_ action1:
 					await action(action1).ConfigureAwait(false);
 					break;
