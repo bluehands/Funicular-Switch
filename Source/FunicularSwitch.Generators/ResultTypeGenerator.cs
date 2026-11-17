@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.ResultType;
@@ -37,7 +37,7 @@ public class ResultTypeGenerator : IIncrementalGenerator
                                 ? ctx.Attributes[0].ConstructorArguments[0].Value
                                 : null);
 
-                        return new ResultTypeSchema(resultClass, errorTypeSymbol);
+                        return new ResultTypeSchema(resultClass, errorTypeSymbol, isClosed: n.IsClosed);
                     });
 
         var referencesJetBrainsAnnotationsAssembly = context.CompilationProvider
