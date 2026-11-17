@@ -50,7 +50,31 @@ public class JsonPolymorphicAnalyzerTest : VerifyAnalyzer
             public abstract record Shape;
             public sealed record Circle : Shape;
             """);
+
+    [Fact]
+    public Task CaseMissingFromList_IsReported() =>
+        Check(
+            """
+            [UnionType]
+            [JsonPolymorphic]
+            [JsonDerivedType(typeof(Circle), "circle")]
+            public closed record Shape;
+            public sealed record Circle : Shape;
+            public sealed record Square : Shape;
+            """,
+            "FS0005", "FS0006");
+
+    [Fact]
+    public Task AllCasesListed_OnlySuggestionReported() =>
+        Check(
+            """
+            [UnionType]
+            [JsonPolymorphic]
+            [JsonDerivedType(typeof(Circle), "circle")]
+            [JsonDerivedType(typeof(Square), "square")]
+            public closed record Shape;
+            public sealed record Circle : Shape;
+            public sealed record Square : Shape;
+            """,
+            "FS0005");
 }
-
-
-

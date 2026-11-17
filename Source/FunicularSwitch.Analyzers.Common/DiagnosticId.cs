@@ -7,4 +7,6 @@ public static class DiagnosticId
     public const string UnionHierarchyNotClosed = "FS0003";
     public const string UnionCaseNotSealed = "FS0004";
     public const string JsonPolymorphicInferClosed = "FS0005";
+    public const string JsonDerivedTypeMissing = "FS0006";
 }
+
