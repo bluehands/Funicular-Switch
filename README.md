@@ -6,7 +6,7 @@
 [![NuGet](https://img.shields.io/nuget/v/FunicularSwitch.Transformers.svg?label=FunicularSwitch.Transformers)](https://www.nuget.org/packages/FunicularSwitch.Transformers/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/bluehands/Funicular-Switch/blob/main/LICENSE)
 
-FunicularSwitch is a lightweight C# port of F# result and option types. It also generates exhaustive `Match` methods for union types (class hierarchies, C# 15 `closed` hierarchies and C# 15 `union` declarations) and for enums.
+FunicularSwitch is a lightweight C# port of F# result and option types. It also generates exhaustive `Match` methods for union types (class hierarchies, C# 15 `closed` hierarchies and `union` declarations) and for enums.
 
 FunicularSwitch helps you to:
 
