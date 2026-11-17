@@ -19,13 +19,14 @@ public class ClosedUnionAnalyzerTest : VerifyAnalyzer
         }
 
         """;
-    private Task VerifyClosed(string code, string[] expectedIds, LanguageVersion languageVersion = LanguageVersion.Preview, [System.Runtime.CompilerServices.CallerMemberName] string caller = "") =>
+    private Task VerifyClosed(string code, string[] expectedIds, LanguageVersion languageVersion = LanguageVersion.Preview, bool netStandard = false, [System.Runtime.CompilerServices.CallerMemberName] string caller = "") =>
         Verify(
             Attributes + code,
             new ClosedUnionAnalyzer(),
             new CompositeFixProvider(),
             d => d.Select(x => x.Id).Should().BeEquivalentTo(expectedIds),
             languageVersion: languageVersion,
+            netStandard: netStandard,
             callingMethod: caller);
     [Fact]
     public Task AbstractRecord_SuggestsClosed_FixMakesClosed() =>
@@ -177,10 +178,19 @@ public class ClosedUnionAnalyzerTest : VerifyAnalyzer
             (_, action) => action.Title.Should().NotContain("JsonPolymorphic"));
 
     [Fact]
+    public Task Csharp15ButClosedSupportTypesMissing_NoSuggestion() =>
+        VerifyClosed(
+            """
+            [UnionType]
+            public abstract record Shape;
+            public sealed record Circle : Shape;
+            """,
+            [], LanguageVersion.Preview, netStandard: true);
+    [Fact]
     public void LanguageFeatures_SupportsClosed_DependsOnLanguageVersion()
     {
         static bool Supports(LanguageVersion v) => LanguageFeatures.SupportsClosed(
-            CSharpCompilation.Create("x", options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary), syntaxTrees: [CSharpSyntaxTree.ParseText("", new CSharpParseOptions(v))]));
+            CSharpCompilation.Create("x", references: ReferenceAssemblies(), options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary), syntaxTrees: [CSharpSyntaxTree.ParseText("", new CSharpParseOptions(v))]));
 
         Supports(LanguageVersion.CSharp14).Should().BeFalse();
         Supports(LanguageVersion.Preview).Should().BeTrue();
@@ -228,6 +238,8 @@ public class ClosedUnionAnalyzerTest : VerifyAnalyzer
                 : makeClosed.RegisterCodeFixesAsync(context);
     }
 }
+
+
 
 
 

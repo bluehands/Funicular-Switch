@@ -16,6 +16,8 @@ public class VerifyAnalyzer : VerifyBase
     // Compiling C# 15 sources needs the net11 reference assemblies (the test host runs on net10, whose
     // runtime assemblies must not be mixed in). They come from the .NET 11 targeting pack of the SDK.
     private static readonly ImmutableArray<MetadataReference> References = LoadReferences();
+    // netstandard2.1 reference assembly: has no closed support types (IsClosedTypeAttribute etc.)
+    private static readonly ImmutableArray<MetadataReference> NetStandardReferences = [MetadataReference.CreateFromFile(Directory.GetFiles(Path.Combine(Path.GetFullPath(Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "..", "..", "..")), "packs", "NETStandard.Library.Ref"), "netstandard.dll", SearchOption.AllDirectories).First())];
     protected static ImmutableArray<MetadataReference> ReferenceAssemblies() => References;
     private static readonly MetadataReference FunicularSwitchReference = MetadataReference.CreateFromFile(typeof(Unit).Assembly.Location);
 
@@ -46,6 +48,7 @@ public class VerifyAnalyzer : VerifyBase
         Action<Diagnostic, CodeAction>? verifyCodeAction = null,
         LanguageVersion languageVersion = LanguageVersion.Preview,
         string? actionTitleContains = null,
+        bool netStandard = false,
         [CallerMemberName] string callingMethod = "")
     {
         const string TestProjectName = "Test";
@@ -57,7 +60,7 @@ public class VerifyAnalyzer : VerifyBase
         var solution = new AdhocWorkspace()
             .CurrentSolution
             .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
-            .AddMetadataReferences(projectId, References)
+            .AddMetadataReferences(projectId, netStandard ? NetStandardReferences : References)
             .AddMetadataReference(projectId, FunicularSwitchReference)
             .WithProjectParseOptions(projectId, new CSharpParseOptions(languageVersion))
             .WithProjectCompilationOptions(projectId, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable))
@@ -112,5 +115,6 @@ public class VerifyAnalyzer : VerifyBase
         return solution.GetDocument(document.Id)!;
     }
 }
+
 
 

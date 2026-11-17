@@ -12,13 +12,13 @@ using Microsoft.CodeAnalysis.Editing;
 
 namespace FunicularSwitch.Analyzers.CodeFixProviders;
 
-/// <summary>Replaces <c>abstract</c> with <c>closed</c> (FS0002, FS0003) on all partial declarations.</summary>
+/// <summary>Replaces <c>abstract</c> with <c>closed</c> (FS0002, FS0003, FS0007) on all partial declarations.</summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MakeClosedCodeFixProvider)), Shared]
 public class MakeClosedCodeFixProvider : CodeFixProvider
 {
     private const string JsonAttribute = "System.Text.Json.Serialization.JsonPolymorphicAttribute";
 
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [DiagnosticId.SuggestClosed, DiagnosticId.UnionHierarchyNotClosed];
+    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [DiagnosticId.SuggestClosed, DiagnosticId.UnionHierarchyNotClosed, DiagnosticId.SuggestClosedResultType];
 
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
@@ -32,7 +32,7 @@ public class MakeClosedCodeFixProvider : CodeFixProvider
 
         context.RegisterCodeFix(
             CodeAction.Create(
-                "Make union type closed",
+                "Make type closed",
                 c => MakeClosed(context.Document.Project.Solution, symbol, addJson: false, c),
                 equivalenceKey: diagnostic.Id),
             diagnostic);
@@ -95,3 +95,4 @@ public class MakeClosedCodeFixProvider : CodeFixProvider
 
     public sealed override FixAllProvider? GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 }
+

@@ -9,17 +9,19 @@ namespace FunicularSwitch.Analyzers;
 public static class LanguageFeatures
 {
     public const string UnionTypeAttributeName = "FunicularSwitch.Generators.UnionTypeAttribute";
+    public const string ResultTypeAttributeName = "FunicularSwitch.Generators.ResultTypeAttribute";
     private const LanguageVersion CSharp15 = (LanguageVersion)1500; // enum values are major*100 (CSharp14 = 1400)
 
-    /// <summary>True if the compilation uses C# 15 or preview, i.e. the <c>closed</c> modifier is available.</summary>
-    /// <remarks>
-    /// Only the language version is checked: the compiler synthesizes <c>ClosedAttribute</c> when it is
-    /// not part of the reference assemblies, so its presence can't be required.
-    /// </remarks>
+    /// <summary>
+    /// True if the compilation can actually use <c>closed</c>: C# 15 or preview AND the runtime types the compiler
+    /// requires for closed types are referenced. The compiler does NOT synthesize them, so e.g. netstandard2.0/2.1 or
+    /// pre-net11 targets can't use <c>closed</c> even with C# 15.
+    /// </summary>
     public static bool SupportsClosed(Compilation compilation) =>
         compilation is CSharpCompilation csharp
-        && csharp.LanguageVersion.MapSpecifiedToEffectiveVersion() >= CSharp15;
-
+        && csharp.LanguageVersion.MapSpecifiedToEffectiveVersion() >= CSharp15
+        && compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.IsClosedTypeAttribute") != null
+        && compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute") != null;
     /// <summary>
     /// True for <c>closed</c> types. Uses the public Roslyn 5.12 <c>ITypeSymbol.IsClosed</c>, which works for
     /// source and metadata symbols; falls back to a <c>ClosedAttribute</c> check.
@@ -78,5 +80,6 @@ public static class LanguageFeatures
         _ => false
     };
 }
+
 
 

@@ -8,5 +8,7 @@ public static class DiagnosticId
     public const string UnionCaseNotSealed = "FS0004";
     public const string JsonPolymorphicInferClosed = "FS0005";
     public const string JsonDerivedTypeMissing = "FS0006";
+    public const string SuggestClosedResultType = "FS0007";
 }
+
 
