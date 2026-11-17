@@ -16,8 +16,8 @@
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 
 		<!--#region adapt versions here-->
-		<MajorVersion>4</MajorVersion>
-		<MinorAndPatchVersion>6.0</MinorAndPatchVersion>
+		<MajorVersion>5</MajorVersion>
+		<MinorAndPatchVersion>0</MinorAndPatchVersion>
 		<!--#endregion-->
 
 		<VersionSuffixLocal />

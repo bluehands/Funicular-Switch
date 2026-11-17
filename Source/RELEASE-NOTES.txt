@@ -1,4 +1,4 @@
-Version 5.0.0:
+Version 5.0.0 (FunicularSwitch.Generators 5.0.0, FunicularSwitch.Analyzers 2.0.0, FunicularSwitch 8.0.0, FunicularSwitch.Generators.AwesomeAssertions 2.0.0):
  - BREAKING: requires the .NET 11 SDK / VS 2026 (Roslyn 5.12 or newer). Stay on 4.x for older toolchains.
  - The FunicularSwitch.Generators and FunicularSwitch.Analyzers packages fail the build with FUNICULAR001 if the compiler is older than Roslyn 5.12 (no multi-targeted analyzers).
    Opt out with <FunicularSwitchSkipCompilerCheck>true</FunicularSwitchSkipCompilerCheck>.

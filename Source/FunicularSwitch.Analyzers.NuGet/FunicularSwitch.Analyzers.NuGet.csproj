@@ -5,8 +5,8 @@
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <IsPackable>true</IsPackable>
         
-        <MajorVersion>1</MajorVersion>
-        <MinorAndPatchVersion>0.0</MinorAndPatchVersion>
+        <MajorVersion>2</MajorVersion>
+        <MinorAndPatchVersion>0</MinorAndPatchVersion>
 
         <VersionSuffixLocal />
         <VersionSuffixLocal Condition="'$(IsPreRelease)'!='' AND '$(IsPreRelease)' AND '$(ReferencePreReleaseAnalyzer)'!='' AND '$(ReferencePreReleaseAnalyzer)'">

@@ -13,7 +13,7 @@
 		</VersionSuffixLocal>
 
 		<!--#region adapt versions here-->
-		<MajorVersion>7</MajorVersion>
+		<MajorVersion>8</MajorVersion>
 		<MinorAndPatchVersion>0</MinorAndPatchVersion>
 		<!--#endregion-->
 

@@ -1,6 +1,6 @@
 # FunicularSwitch and C# 15
 
-FunicularSwitch 5.0 works with the C# 15 features `closed` classes and `union` declarations. All C# 15 behavior is opt-in and only active when the compilation uses C# 15 (or preview) and references .NET 11 (the support types must exist). Older language versions behave as before.
+FunicularSwitch.Generators 5.0, FunicularSwitch.Analyzers 2.0 and FunicularSwitch 8.0 work with the C# 15 features `closed` classes and `union` declarations. All C# 15 behavior is opt-in and only active when the compilation uses C# 15 (or preview) and references .NET 11 (the support types must exist). Older language versions behave as before.
 
 `closed` needs both C# 15 and the compiler support types (`IsClosedTypeAttribute` etc., part of .NET 11). The compiler does not synthesize them: `closed` on netstandard2.0 or net10 and older fails with CS0656 even with `LangVersion` 15, so generators and analyzers treat such compilations as not supporting `closed`.
 

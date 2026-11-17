@@ -32,7 +32,7 @@ A second thing coming with this package is the [`UnionType`](https://github.com/
 
 The generators and analyzers support the C# 15 features `closed` classes and `union` declarations, see [UnionType](#uniontype) and [docs/csharp15.md](docs/csharp15.md). Those features are only used if your project uses C# 15 and references .NET 11.
 
-Note that building a project that references the generators or analyzers of version 5.0 and newer requires the .NET 11 SDK (Visual Studio 2026, Roslyn 5.12 or newer), even if you still target an older framework or language version. If you can't use that yet, stay on 4.x. 
+Note that building a project that references the generators or analyzers of FunicularSwitch.Generators 5.0, FunicularSwitch.Analyzers 2.0 or FunicularSwitch 8.0 (which includes both) and newer requires the .NET 11 SDK (Visual Studio 2026, Roslyn 5.12 or newer), even if you still target an older framework or language version. If you can't use that yet, stay on 4.x. 
 
 # <a name="funicular_usage"></a>FunicularSwitch Usage
 
@@ -349,7 +349,7 @@ static string PrintError(Error error) =>
 
 If you decide to add a case to your Error union all consuming switches break and you never miss a case at runtime!
 
-Match methods are also provided for async case handlers and as extensions on `Task<Error>`. A `null` error passed to `Match` or `Switch` throws an `ArgumentNullException` (version 5.0 and newer, before it was an `ArgumentException`, which is the base class of `ArgumentNullException`, so existing catch blocks still work).
+Match methods are also provided for async case handlers and as extensions on `Task<Error>`. A `null` error passed to `Match` or `Switch` throws an `ArgumentNullException` (FunicularSwitch.Generators 5.0 and newer, before it was an `ArgumentException`, which is the base class of `ArgumentNullException`, so existing catch blocks still work).
 
 There are also `Switch` extension methods generated which are the 'void' versions of `Match`, although this is not recommended from a functional point of view :).
 
