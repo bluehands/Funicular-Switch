@@ -2,9 +2,13 @@
 
 FunicularSwitch 5.0 works with the C# 15 features `closed` classes and `union` declarations. All C# 15 behavior is opt-in and only active when the compilation uses C# 15 (or preview) and references .NET 11 (the support types must exist). Older language versions behave as before.
 
+`closed` needs both C# 15 and the compiler support types (`IsClosedTypeAttribute` etc., part of .NET 11). The compiler does not synthesize them: `closed` on netstandard2.0 or net10 and older fails with CS0656 even with `LangVersion` 15, so generators and analyzers treat such compilations as not supporting `closed`.
+
 ## Requirements (5.0 breaking changes)
 
 - **.NET 11 SDK / VS 2026 is required** (Roslyn 5.12 or newer). This applies even if you build for older target frameworks or language versions. Stay on 4.x for older toolchains.
+  This is a hard minimum, there are no analyzer folders for older compilers. The `FunicularSwitch.Generators` and `FunicularSwitch.Analyzers` packages ship a `buildTransitive` target that fails the build with error `FUNICULAR001` and an explanatory message if the compiler is older (it checks `$(CompilerApiVersion)`, e.g. `roslyn5.12`). Set `<FunicularSwitchSkipCompilerCheck>true</FunicularSwitchSkipCompilerCheck>` to suppress the check (the analyzers then fail to load with CS8032).
+- The analyzer suggestions (FS0001-FS0007) come from the separate `FunicularSwitch.Analyzers` package. Generators alone don't report them.
 - `Match`/`Switch` of generated union types now throw `ArgumentNullException` instead of `ArgumentException` for a null receiver. `ArgumentNullException` derives from `ArgumentException`, so existing `catch` blocks keep working.
 
 ## Closed unions vs. `Match`
@@ -59,7 +63,11 @@ Result types are not closed automatically, because `abstract` and `closed` can't
 public closed partial class MyResult<T>;
 ```
 
-The generated base is then closed too, and you can switch natively over the nested `Ok_` and `Error_` cases.
+The generated base is then closed too, and you can switch natively over the nested `Ok_` and `Error_` cases. The generated `switch` expressions lose their throwing default arm. Generated `switch` statements (`Bind`/`Map` overloads) keep an unreachable `default: throw`, because the compiler's flow analysis still requires it.
+
+## .NET 11 consumer with an older language version
+
+The net11.0 asset of `FunicularSwitch` contains the closed `Result<T>`. Consumers on net11.0 with `LangVersion` 14 or older still build and run fine: the compiler ignores the closed marker, so `Match`, `Ok_`/`Error_` pattern matching and everything else work as before. Only native `switch` expressions over `Result<T>` get the usual non exhaustive warning (CS8509) without a default arm. Generators and analyzers don't opt into any C# 15 behavior in that case.
 
 ## Native `union` declarations
 
@@ -77,6 +85,7 @@ pet.Match(cat => "meow", dog => "woof");
   - If any case type is nullable (`int?`, `string?`), the null value is routed to the **first** nullable case, with `null` as argument.
   - Otherwise `Match`/`Switch` throw `InvalidOperationException("Union has no value")`.
 - No static factories are generated; implicit union conversions cover that.
+- `[UnionType]` on a struct that is neither a `union` declaration nor a `[Union]` struct is reported as FUN0017 and ignored.
 - A closed `[UnionType]` base can itself be a case of a native union, e.g. `union Response(MyResult<int>, Timeout)`.
 
 ### Hand-written `[Union]` structs
@@ -108,4 +117,5 @@ This serializes with a `$type` discriminator and needs no `[JsonDerivedType]` li
 | `[ResultType]` `closed partial` | n/a | closed generated base, native switch over `Ok_`/`Error_` |
 | Native `union` + `[UnionType]` | n/a | `Match`/`Switch` |
 | Hand-written `[Union]` struct + `[UnionType]` | n/a | `Match`/`Switch` |
-| `Option<T>`, `Result<T>` (runtime library) | unchanged | unchanged (not closed) |
+| `Option<T>` (runtime library) | unchanged | unchanged |
+| `Result<T>` (runtime library) | unchanged | closed in the net11.0 asset of `FunicularSwitch` (native exhaustive switch over `Result<T>.Ok_`/`Error_`); the netstandard2.0 asset is unchanged |
