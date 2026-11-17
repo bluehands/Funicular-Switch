@@ -1,4 +1,4 @@
-namespace FunicularSwitch.Generators.Test;
+﻿namespace FunicularSwitch.Generators.Test;
 
 [TestClass]
 public class Run_native_union_type_generator : VerifySourceGenerator
@@ -200,6 +200,24 @@ public class Run_native_union_type_generator : VerifySourceGenerator
 
             [UnionType]
             public union Pet(Cat, Dog);
+            """;
+
+        return VerifyCSharp15(code);
+    }
+    [TestMethod]
+    public Task For_native_union_with_object_case_orders_object_last()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            namespace FunicularSwitch.Test;
+
+            public interface IFoo;
+
+            [UnionType]
+            public union U(object, string, IFoo);
             """;
 
         return VerifyCSharp15(code);

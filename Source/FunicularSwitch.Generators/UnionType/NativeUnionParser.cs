@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -45,7 +45,8 @@ static class NativeUnionParser
                 name = $"{name}{i + 1}";
             usedNames = usedNames.Add(name);
 
-            var rank = caseSymbols.Count(other => !SymbolEqualityComparer.Default.Equals(other, caseSymbols[i])
+            //object matches everything, so its arm has to come last
+            var rank = caseSymbols[i].SpecialType == SpecialType.System_Object ? -1 : caseSymbols.Count(other => !SymbolEqualityComparer.Default.Equals(other, caseSymbols[i])
                 && caseSymbols[i] is INamedTypeSymbol derived && (derived.InheritsFrom(other) || derived.Implements(other)));
 
             cases = cases.Add(new DerivedType(
