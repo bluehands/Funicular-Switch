@@ -1,2 +1,15 @@
+Version 5.0.0:
+ - BREAKING: requires the .NET 11 SDK / VS 2026 (Roslyn 5.12 or newer). Stay on 4.x for older toolchains.
+ - BREAKING (compatible): Match/Switch of generated union types throw ArgumentNullException instead of ArgumentException for a null receiver.
+   ArgumentNullException derives from ArgumentException, so existing catch blocks keep working.
+ - C# 15: Match/Switch of unions declared with the closed modifier have no throwing default arm anymore, the compiler checks exhaustiveness of the generated code.
+   If the hierarchy is not fully closed (e.g. a non closed abstract intermediate type) the default arm is kept.
+ - C# 15: result types declared as closed partial class get a closed generated base type (native exhaustive switch over Ok_ and Error_).
+   Not enabled automatically, because the user declaration of the partial class must say closed (abstract and closed can't be combined).
+ - C# 15: [UnionType] on union declarations generates Match/Switch (sync, async, Task<>) extension methods.
+   Cases are the union case types in declared order. A default union value (no content) is routed to the first nullable case (int?, string?),
+   without nullable case Match/Switch throw InvalidOperationException("Union has no value").
+ - UnionType: generic union bases are now supported for cases declared outside the base, e.g. record Leaf<T> : Tree<T>.
+ - UnionTypeAttribute may be applied to structs (needed for union declarations).
 Version 3.0.0:
  - strong name

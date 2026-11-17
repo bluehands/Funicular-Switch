@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -47,6 +47,13 @@ public static class RoslynExtensions
         while (baseType != null)
         {
             if (type.Equals(baseType, SymbolEqualityComparer.Default))
+                return true;
+
+            //case with own type parameters deriving from generic base, e.g. Leaf<T> : Tree<T>
+            if (type is INamedTypeSymbol { IsGenericType: true } genericType
+                && baseType.IsGenericType
+                && SymbolEqualityComparer.Default.Equals(genericType.OriginalDefinition, baseType.OriginalDefinition)
+                && baseType.TypeArguments.All(a => a is ITypeParameterSymbol))
                 return true;
 
             baseType = baseType.BaseType;

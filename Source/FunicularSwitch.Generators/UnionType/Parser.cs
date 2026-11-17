@@ -231,7 +231,7 @@ static class Parser
             }
 
             var (parameterName, staticMethodName) =
-                DeriveParameterAndStaticMethodName(qualifiedTypeName.Name, baseTypeName);
+                DeriveParameterAndStaticMethodName(d.node.Name(), baseTypeName);
 
             return new DerivedType(
                 fullTypeName: $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}",
