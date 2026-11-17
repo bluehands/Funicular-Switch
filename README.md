@@ -41,7 +41,7 @@ If you just want to try `Result`, the first one is enough, the [first sample](#f
 [**FunicularSwitch**](https://github.com/bluehands/Funicular-Switch#funicularswitch-usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
 
 [**FunicularSwitch.Generators**](https://github.com/bluehands/Funicular-Switch#funicularswitchgenerators-usage) is a C# source generator package (projects consuming it, will have no runtime dependency to any FunicularSwitch dll). With this source generator you can have a result type with the very same behaviour as FunicularSwitch.Result but a custom error type (instead of string) by just annotating a class with the [`ResultType`](https://github.com/bluehands/Funicular-Switch#resulttype-attribute) attribute. That means you are free to represent failures in a way suitable for your needs. 
-A second thing coming with this package is the [`UnionType`](https://github.com/bluehands/Funicular-Switch#-uniontype-attribute) attribute. This offers a way to have F# like unions with generated Match methods, forcing consumers to handle all cases (exhaustive matching). They allow for compiler safe switches handling all concrete subtypes of a base class. As a third thing the same Match methods are also generated for enum types annotated with the [`ExtendedEnum`](https://github.com/bluehands/Funicular-Switch#extendedenum-attribute) attribute.
+A second thing coming with this package is the [`UnionType`](https://github.com/bluehands/Funicular-Switch#uniontype) attribute. This offers a way to have F# like unions with generated Match methods, forcing consumers to handle all cases (exhaustive matching). They allow for compiler safe switches handling all concrete subtypes of a base class. As a third thing the same Match methods are also generated for enum types annotated with the [`ExtendedEnum`](https://github.com/bluehands/Funicular-Switch#extendedenum-attribute) attribute.
 
 The generators and analyzers also support the C# 15 features `closed` classes and `union` declarations, see [UnionType](#uniontype) and [docs/csharp15.md](docs/csharp15.md).
 
@@ -305,7 +305,7 @@ The answer is 42
 Error No answer found
 ```
 
-# <a name="analyzers_usage"></a>FunicularSwitch.Analyzers.Usage
+# <a name="analyzers_usage"></a>FunicularSwitch.Analyzers Usage
 
 The FunicularSwitch.Analyzers package is automatically included when you reference the FunicularSwitch package starting from version 6.2.0.
 
@@ -382,7 +382,7 @@ public static class MyCustomErrorExtension
 ```
 Having the ExceptionToError method, a call like `Result.Ok(42).Map(i => 42 / 0)` will return an error result with an error produced by your custom method instead of throwing a DivisionByZero exception.  
 
-##### Considerations:
+#### Considerations
 Using the `ExceptionToError` attribute is actually a decision that points into a direction that is different from the way Result is implemented in F#, where Result and the corresponding Error type are meant to model expected domain errors (see [fsharpforfunandprofit blog post](https://fsharpforfunandprofit.com/posts/against-railway-oriented-programming/)). You will still have to handle exceptions on the highest parts of your system and there is no 'fail fast' because early exceptions always travel through your whole Result chain.
 
 ### Combine results
@@ -397,7 +397,7 @@ public static class MyCustomErrorExtension
 ```
 and a bunch of methods like `Aggregate`, `Validate`, `AllOk`, `FirstOk` and more will appear that make use of the fact that errors can be merged.
 
-## <a name="uniontype"> UnionType attribute
+## <a name="uniontype"></a>UnionType attribute
 
 There is another useful generator coming with the package. Adding the `UnionType` attribute to a base record / class or interface makes `Match` extension methods appear for this type. They are also inspired by F# where a match expression has to cover all cases and the compiler helps you with that. Assuming you implemented an error type as a base type and one derived type for every kind of error:
 
@@ -674,7 +674,7 @@ Additionally, it adds async variants, a map method and also methods to support L
 Attaching the `ExtendMonad` attribute to a monad type will generate a map method, methods to allow using LINQ query
 syntax and also async variants.
 
-### Additional documentation
+## Additional documentation
 
 [Tutorial markdown](https://github.com/bluehands/Funicular-Switch/blob/main/TUTORIAL.md)
 
