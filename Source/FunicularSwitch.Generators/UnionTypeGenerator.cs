@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.UnionType;
@@ -52,6 +52,23 @@ public class UnionTypeGenerator : IIncrementalGenerator
                     }
                 );
 
+        var referencesJetBrainsAnnotationsAssembly = context.CompilationProvider
+            .SelectMany((c, _) => c.SourceModule.ReferencedAssemblySymbols)
+            .Where(a => a.Name == "JetBrains.Annotations")
+            .Collect()
+            .Select((a, _) => a.Length > 0);
+
+        //one pipeline item per [UnionType] declaration, so editing one union only regenerates that union
+        context.RegisterSourceOutput(
+            unionTypeClasses.Combine(referencesJetBrainsAnnotationsAssembly),
+            static (spc, source) => Execute(source.Left, source.Right, spc));
+
+        var explicitUnionNames = unionTypeClasses
+            .Select(static (r, _) => r.HasValue ? r.Value!.FullTypeNameWithTypeParameters : null)
+            .Where(static n => n != null)
+            .Collect()
+            .Select(static (names, _) => names.AsEquatableArray());
+
         var unionsFromAssemblyAttribute = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 ExtendUnionsAttribute,
@@ -59,18 +76,12 @@ public class UnionTypeGenerator : IIncrementalGenerator
                 transform: static (ctx, _) => ctx.Attributes.SelectMany(GetUnionSchemas).ToImmutableArray().AsEquatableArray())
             .Collect();
 
-        var referencesJetBrainsAnnotationsAssembly = context.CompilationProvider
-            .SelectMany((c, _) => c.SourceModule.ReferencedAssemblySymbols)
-            .Where(a => a.Name == "JetBrains.Annotations")
-            .Collect()
-            .Select((a, _) => a.Length > 0);
-
         context.RegisterSourceOutput(
-            unionTypeClasses.Collect().Combine(unionsFromAssemblyAttribute).Combine(referencesJetBrainsAnnotationsAssembly),
-            static (spc, source) => Execute(source.Left.Left, source.Left.Right, source.Right, spc));
+            unionsFromAssemblyAttribute.Combine(explicitUnionNames).Combine(referencesJetBrainsAnnotationsAssembly),
+            static (spc, source) => ExecuteExtendUnions(source.Left.Left, source.Left.Right, source.Right, spc));
     }
 
-    //Native unions only. Hand-written [Union] structs are not IsUnion declarations and stay opt-in via [UnionType].
+    //Native unions and hand-written [Union] structs (both report IsUnion) are covered by [assembly: ExtendUnions].
     static IEnumerable<UnionTypeSchema> GetUnionSchemas(AttributeData attribute)
     {
         var attributeAssembly = attribute.AttributeClass!.ContainingAssembly;
@@ -87,30 +98,34 @@ public class UnionTypeGenerator : IIncrementalGenerator
             .Select(r => r.Value!);
     }
 
-    static void Execute(
-        ImmutableArray<GenerationResult<UnionTypeSchema>> explicitUnions,
+    static void Execute(GenerationResult<UnionTypeSchema> target, bool hasJetbrainsAnnotationsReference, SourceProductionContext context)
+    {
+        var (unionTypeSchema, errors, hasValue) = target;
+        foreach (var error in errors) context.ReportDiagnostic(error);
+
+        if (!hasValue || unionTypeSchema!.Cases.IsEmpty) return;
+
+        Emit(unionTypeSchema, hasJetbrainsAnnotationsReference, context);
+    }
+
+    static void ExecuteExtendUnions(
         ImmutableArray<EquatableArray<UnionTypeSchema>> assemblyUnions,
+        EquatableArray<string?> explicitUnionNames,
         bool hasJetbrainsAnnotationsReference,
         SourceProductionContext context)
     {
-        var schemas = new List<UnionTypeSchema>();
-        foreach (var (unionTypeSchema, errors, hasValue) in explicitUnions)
-        {
-            foreach (var error in errors) context.ReportDiagnostic(error);
-            if (hasValue) schemas.Add(unionTypeSchema!);
-        }
-
         //[UnionType] wins over [assembly: ExtendUnions], every union is generated once
-        var seen = new HashSet<string>(schemas.Select(s => s.FullTypeNameWithTypeParameters));
+        var seen = new HashSet<string?>(explicitUnionNames);
         foreach (var schema in assemblyUnions.SelectMany(a => a))
-            if (seen.Add(schema.FullTypeNameWithTypeParameters))
-                schemas.Add(schema);
-
-        foreach (var schema in schemas)
         {
-            if (schema.Cases.IsEmpty) continue;
-            var (filename, source) = Generator.Emit(schema, context.ReportDiagnostic, hasJetbrainsAnnotationsReference, context.CancellationToken);
-            context.AddSource(filename, source);
+            if (!seen.Add(schema.FullTypeNameWithTypeParameters) || schema.Cases.IsEmpty) continue;
+            Emit(schema, hasJetbrainsAnnotationsReference, context);
         }
+    }
+
+    static void Emit(UnionTypeSchema schema, bool hasJetbrainsAnnotationsReference, SourceProductionContext context)
+    {
+        var (filename, source) = Generator.Emit(schema, context.ReportDiagnostic, hasJetbrainsAnnotationsReference, context.CancellationToken);
+        context.AddSource(filename, source);
     }
 }
