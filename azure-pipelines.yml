@@ -23,7 +23,37 @@ variables:
 
 steps:
 
-- task: NuGetToolInstaller@1
+# SDK from global.json (11.0.x, needed for net11.0 / C# 15); older runtimes for the net6/net8/net9/net10 test target frameworks
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK from global.json'
+  inputs:
+    packageType: sdk
+    useGlobalJson: true
+    includePreviewVersions: true
+
+- task: UseDotNet@2
+  displayName: 'Use .NET 6 runtime'
+  inputs:
+    packageType: runtime
+    version: 6.0.x
+
+- task: UseDotNet@2
+  displayName: 'Use .NET 8 runtime'
+  inputs:
+    packageType: runtime
+    version: 8.0.x
+
+- task: UseDotNet@2
+  displayName: 'Use .NET 9 runtime'
+  inputs:
+    packageType: runtime
+    version: 9.0.x
+
+- task: UseDotNet@2
+  displayName: 'Use .NET 10 runtime'
+  inputs:
+    packageType: runtime
+    version: 10.0.x
 
 - task: Cache@2
   displayName: Cache
@@ -35,17 +65,19 @@ steps:
     path: '$(NUGET_PACKAGES)'
     cacheHitVar: 'CACHE_RESTORED'
 
-- task: NuGetCommand@2
-  displayName: 'NuGet restore'  
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore'
   inputs:
-    restoreSolution: '$(solution)'
+    command: restore
+    projects: '$(solution)'
 
-- task: VSBuild@1
+# dotnet build instead of VSBuild: the installed SDK (global.json) is what knows net11.0 / C# 15
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:ContinuousIntegrationBuild=true'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: build
+    projects: '$(solution)'
+    arguments: '--no-restore --configuration $(buildConfiguration) /p:ContinuousIntegrationBuild=true'
 
 - task: DotNetCoreCLI@2
   displayName: Test
@@ -56,8 +88,9 @@ steps:
       **/FunicularSwitch.Generators.Consumer.csproj
       **/FunicularSwitch.Generators.Consumer.Nuget.csproj
       **/FunicularSwitch.Generators.Consumer.StandardMinLangVersion.csproj
+      **/FunicularSwitch.Generators.Consumer.Net11.csproj
       **/FunicularSwitch.Generators.AwesomeAssertions.Consumer.csproj
-    arguments: '--configuration $(BuildConfiguration)'
+    arguments: '--no-build --configuration $(BuildConfiguration)'
 
 - task: PublishSymbols@2
   displayName: 'Publish symbols path'
