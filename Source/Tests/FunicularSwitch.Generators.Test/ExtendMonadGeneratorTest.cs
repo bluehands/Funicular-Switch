@@ -3,6 +3,9 @@ namespace FunicularSwitch.Generators.Test;
 [TestClass]
 public class ExtendMonadGeneratorTest : VerifySourceGenerator<ExtendMonadGenerator>
 {
+    protected override IReadOnlyList<string> PostInitializationOutputHintName
+        => ["FunicularSwitch.Generators.ExtendMonadAttribute.g.cs"];
+
     [TestMethod]
     public Task GenericMonad()
     {

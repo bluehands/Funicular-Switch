@@ -8,9 +8,28 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace FunicularSwitch.Generators.Test;
 
 public abstract class VerifySourceGenerator()
-    : BaseVerifySourceGenerators(new ResultTypeGenerator(), new UnionTypeGenerator(), new EnumTypeGenerator());
+    : BaseVerifySourceGenerators(new ResultTypeGenerator(), new UnionTypeGenerator(), new EnumTypeGenerator())
+{
+    protected override IReadOnlyList<string> PostInitializationOutputHintName => ["Attributes.g.cs"];
+}
 
-public abstract class VerifySourceGenerator<T>() : BaseVerifySourceGenerators(new T()) where T : IIncrementalGenerator, new();
+public abstract class VerifySourceGenerator<T>()
+    : BaseVerifySourceGenerators(new T()) where T : IIncrementalGenerator, new()
+{
+    [TestMethod]
+    public Task VerifyPostInitOutput()
+        => Verify(
+            "",
+            useNet11References: false,
+            ignorePostInitializationOutput: false);
+
+    [TestMethod]
+    public Task VerifyPostInitOutputNet11()
+        => Verify(
+            "",
+            useNet11References: true,
+            ignorePostInitializationOutput: false);
+}
 
 public abstract class BaseVerifySourceGenerators(params IIncrementalGenerator[] generators) : VerifyBase
 {
@@ -22,10 +41,12 @@ public abstract class BaseVerifySourceGenerators(params IIncrementalGenerator[] 
         return Path.Combine(version, "ref", "net11.0");
     }
 
+    protected abstract IReadOnlyList<string> PostInitializationOutputHintName { get; }
+
     /// <summary>Compiles as C# 15 against net11 reference assemblies.</summary>
     protected Task VerifyCSharp15(string source) => Verify(source, languageVersion: LanguageVersion.CSharp15, useNet11References: true);
 
-    protected Task Verify(string source, IReadOnlyList<Assembly> additionalAssemblies, Action<Compilation, ImmutableArray<Diagnostic>>? verifyCompilation, LanguageVersion? languageVersion = null, bool useNet11References = false)
+    protected Task Verify(string source, IReadOnlyList<Assembly> additionalAssemblies, Action<Compilation, ImmutableArray<Diagnostic>>? verifyCompilation, LanguageVersion? languageVersion = null, bool useNet11References = false, bool ignorePostInitializationOutput = true)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(languageVersion ?? LanguageVersion.Default));
 
@@ -71,13 +92,18 @@ public abstract class BaseVerifySourceGenerators(params IIncrementalGenerator[] 
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var updatedCompilation, out var diagnostics);
 
         verifyCompilation?.Invoke(updatedCompilation, diagnostics);
-
-        return Verify(driver)
+        
+        var settings = new VerifySettings();
+        if (ignorePostInitializationOutput)
+        {
+            settings.IgnoreGeneratedResult(r => this.PostInitializationOutputHintName.Contains(r.HintName));
+        }
+        return Verify(driver, settings: settings)
             .UseDirectory("Snapshots");
     }
 
-    protected Task Verify(string source, IReadOnlyList<Assembly>? additionalAssemblies = null, LanguageVersion? languageVersion = null, bool useNet11References = false) =>
-        Verify(source, additionalAssemblies: additionalAssemblies ?? [], languageVersion: languageVersion, useNet11References: useNet11References, verifyCompilation: (compilation, _) =>
+    protected Task Verify(string source, IReadOnlyList<Assembly>? additionalAssemblies = null, LanguageVersion? languageVersion = null, bool useNet11References = false, bool ignorePostInitializationOutput = true) =>
+        Verify(source, additionalAssemblies: additionalAssemblies ?? [], languageVersion: languageVersion, useNet11References: useNet11References, ignorePostInitializationOutput: ignorePostInitializationOutput, verifyCompilation: (compilation, _) =>
         {
             var diagnostics = compilation.GetDiagnostics();
             var errors = string.Join(Environment.NewLine, diagnostics

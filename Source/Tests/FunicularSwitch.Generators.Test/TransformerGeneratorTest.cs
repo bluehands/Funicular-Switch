@@ -2,11 +2,23 @@ using FluentAssertions;
 
 namespace FunicularSwitch.Generators.Test;
 
-public class VerifyTransformerInteropSourceGenerator() : BaseVerifySourceGenerators(new TransformerGenerator(), new ResultTypeGenerator());
+public class VerifyTransformerInteropSourceGenerator() : BaseVerifySourceGenerators(
+    new TransformerGenerator(),
+    new ResultTypeGenerator())
+{
+    protected override IReadOnlyList<string> PostInitializationOutputHintName =>
+    [
+        "Attributes.g.cs",
+        "FunicularSwitch.Generators.TransformMonadAttribute.g.cs",
+    ];
+}
 
 [TestClass]
 public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerator>
 {
+    protected override IReadOnlyList<string> PostInitializationOutputHintName
+        => ["FunicularSwitch.Generators.TransformMonadAttribute.g.cs"];
+
     [TestMethod]
     [DataRow("public partial class")]
     [DataRow("public partial struct")]
