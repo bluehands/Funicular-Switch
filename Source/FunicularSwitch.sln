@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generators.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunicularSwitch.Generators.Consumer.Net11", "Tests\FunicularSwitch.Generators.Consumer.Net11\FunicularSwitch.Generators.Consumer.Net11.csproj", "{7C2A4B19-5E3D-4F60-9A81-2D6B0C9E11A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocSamples.Net11", "DocSamples.Net11\DocSamples.Net11.csproj", "{D0C5A3E1-6B2F-4C7A-9E58-3A1F7B4C2D90}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1EA7B0C8-17DB-4ED9-A7B8-90CACA398BC3}"
 	ProjectSection(SolutionItems) = preProject
 		..\azure-pipelines.yml = ..\azure-pipelines.yml
@@ -145,12 +147,16 @@ Global
 		{DA09911F-FDE5-477E-BEEA-76D582844408}.Release|Any CPU.Build.0 = Release|Any CPU
 		{18D4F137-98AF-47CF-88FE-313C4BEA4215}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7C2A4B19-5E3D-4F60-9A81-2D6B0C9E11A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0C5A3E1-6B2F-4C7A-9E58-3A1F7B4C2D90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{18D4F137-98AF-47CF-88FE-313C4BEA4215}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C2A4B19-5E3D-4F60-9A81-2D6B0C9E11A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0C5A3E1-6B2F-4C7A-9E58-3A1F7B4C2D90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18D4F137-98AF-47CF-88FE-313C4BEA4215}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C2A4B19-5E3D-4F60-9A81-2D6B0C9E11A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0C5A3E1-6B2F-4C7A-9E58-3A1F7B4C2D90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18D4F137-98AF-47CF-88FE-313C4BEA4215}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7C2A4B19-5E3D-4F60-9A81-2D6B0C9E11A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0C5A3E1-6B2F-4C7A-9E58-3A1F7B4C2D90}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D653F8B4-FDF0-491C-AF18-13540DD60D03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D653F8B4-FDF0-491C-AF18-13540DD60D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D653F8B4-FDF0-491C-AF18-13540DD60D03}.Release|Any CPU.ActiveCfg = Release|Any CPU

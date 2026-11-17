@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using FunicularSwitch;
 
@@ -15,7 +15,7 @@ namespace DocSamples
             Ask(42);
         }
 
-        #region result-creation
+        // begin-snippet: result-creation
         // Synchronous:
         public Result<int> AssertItIsTheAnswerToEverything(int answer)
             => answer == 42
@@ -27,7 +27,7 @@ namespace DocSamples
             => answer == await ComputeAnswer()
                     ? Result.Ok(answer)
                     : Result.Error<int>($"Nah, {answer} is not THE answer!");
-        #endregion
+        // end-snippet
 
         static Task<int> ComputeAnswer() => Task.FromResult(42);
 
@@ -39,14 +39,14 @@ namespace DocSamples
 
         public void MatchSimple()
         {
-            #region match-simple
+            // begin-snippet: match-simple
             Result<int> theAnswer = AssertItIsTheAnswerToEverything(42);
 
             theAnswer.Match(
                 ok => Console.WriteLine($"{ok} no more words needed!"),
                 error => Console.WriteLine(error)
             );
-            #endregion
+            // end-snippet
         }
 
         [Runner("match-simple-async")]
@@ -57,7 +57,7 @@ namespace DocSamples
 
         public async Task MatchSimpleAsync()
         {
-            #region match-simple-async
+            // begin-snippet: match-simple-async
             var answerOutput =
                 AsyncAssertItIsTheAnswerToEverything(42)
                 .Match(
@@ -66,7 +66,7 @@ namespace DocSamples
                 );
 
             Console.WriteLine(await answerOutput);
-            #endregion
+            // end-snippet
         }
     }
 }
