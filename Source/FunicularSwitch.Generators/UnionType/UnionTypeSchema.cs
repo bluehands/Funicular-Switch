@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
+using CommunityToolkit.Mvvm.SourceGenerators.Helpers;
 using FunicularSwitch.Generators.Common;
 
 namespace FunicularSwitch.Generators.UnionType;
@@ -12,6 +12,7 @@ public sealed record UnionTypeSchema(string? Namespace,
     EquatableArray<string> TypeConstraints,
     bool IsInternal,
     bool IsPartial,
+    bool IsExhaustive,
     UnionTypeTypeKind TypeKind,
     EquatableArray<string> Modifiers,
     StaticFactoryMethodsInfo? StaticFactoryInfo);

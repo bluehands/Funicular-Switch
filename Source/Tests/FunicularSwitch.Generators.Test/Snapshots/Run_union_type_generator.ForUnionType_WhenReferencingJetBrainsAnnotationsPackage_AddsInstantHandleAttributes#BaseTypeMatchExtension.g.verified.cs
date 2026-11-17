@@ -8,6 +8,7 @@ public static partial class BaseTypeMatchExtension
 	public static T Match<T>(this global::BaseType baseType, [global::JetBrains.Annotations.InstantHandle]global::System.Func<BaseType.Derived_, T> derived) =>
 	baseType switch
 	{
+		null => throw new global::System.ArgumentNullException(nameof(baseType)),
 		BaseType.Derived_ derived1 => derived(derived1),
 		_ => throw new global::System.ArgumentException($"Unknown type derived from BaseType: {baseType.GetType().Name}")
 	};
@@ -17,6 +18,7 @@ public static partial class BaseTypeMatchExtension
 	public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::BaseType baseType, [global::JetBrains.Annotations.InstantHandle(RequireAwait = true)]global::System.Func<BaseType.Derived_, global::System.Threading.Tasks.Task<T>> derived) =>
 	baseType switch
 	{
+		null => throw new global::System.ArgumentNullException(nameof(baseType)),
 		BaseType.Derived_ derived1 => await derived(derived1).ConfigureAwait(false),
 		_ => throw new global::System.ArgumentException($"Unknown type derived from BaseType: {baseType.GetType().Name}")
 	};
@@ -36,6 +38,8 @@ public static partial class BaseTypeMatchExtension
 	{
 		switch (baseType)
 		{
+			case null:
+				throw new global::System.ArgumentNullException(nameof(baseType));
 			case BaseType.Derived_ derived1:
 				derived(derived1);
 				break;
@@ -49,6 +53,8 @@ public static partial class BaseTypeMatchExtension
 	{
 		switch (baseType)
 		{
+			case null:
+				throw new global::System.ArgumentNullException(nameof(baseType));
 			case BaseType.Derived_ derived1:
 				await derived(derived1).ConfigureAwait(false);
 				break;

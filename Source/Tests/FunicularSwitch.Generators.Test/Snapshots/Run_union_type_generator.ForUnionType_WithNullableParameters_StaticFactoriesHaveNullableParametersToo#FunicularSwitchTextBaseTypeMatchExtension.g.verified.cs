@@ -9,6 +9,7 @@ namespace FunicularSwitch.Text
 		public static T Match<T>(this global::FunicularSwitch.Text.BaseType baseType, global::System.Func<FunicularSwitch.Text.BaseType.DerivedType_, T> derivedType) =>
 		baseType switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(baseType)),
 			FunicularSwitch.Text.BaseType.DerivedType_ derivedType1 => derivedType(derivedType1),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Text.BaseType: {baseType.GetType().Name}")
 		};
@@ -17,6 +18,7 @@ namespace FunicularSwitch.Text
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Text.BaseType baseType, global::System.Func<FunicularSwitch.Text.BaseType.DerivedType_, global::System.Threading.Tasks.Task<T>> derivedType) =>
 		baseType switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(baseType)),
 			FunicularSwitch.Text.BaseType.DerivedType_ derivedType1 => await derivedType(derivedType1).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Text.BaseType: {baseType.GetType().Name}")
 		};
@@ -34,6 +36,8 @@ namespace FunicularSwitch.Text
 		{
 			switch (baseType)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(baseType));
 				case FunicularSwitch.Text.BaseType.DerivedType_ derivedType1:
 					derivedType(derivedType1);
 					break;
@@ -47,6 +51,8 @@ namespace FunicularSwitch.Text
 		{
 			switch (baseType)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(baseType));
 				case FunicularSwitch.Text.BaseType.DerivedType_ derivedType1:
 					await derivedType(derivedType1).ConfigureAwait(false);
 					break;

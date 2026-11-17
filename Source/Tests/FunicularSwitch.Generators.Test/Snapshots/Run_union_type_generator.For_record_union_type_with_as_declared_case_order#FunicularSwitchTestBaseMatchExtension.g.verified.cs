@@ -9,6 +9,7 @@ namespace FunicularSwitch.Test
 		public static T Match<T>(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.One, T> one, global::System.Func<FunicularSwitch.Test.Aaa, T> aaa, global::System.Func<FunicularSwitch.Test.Two, T> two) =>
 		@base switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(@base)),
 			FunicularSwitch.Test.One one1 => one(one1),
 			FunicularSwitch.Test.Aaa aaa2 => aaa(aaa2),
 			FunicularSwitch.Test.Two two3 => two(two3),
@@ -19,6 +20,7 @@ namespace FunicularSwitch.Test
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Base @base, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Aaa, global::System.Threading.Tasks.Task<T>> aaa, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two) =>
 		@base switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(@base)),
 			FunicularSwitch.Test.One one1 => await one(one1).ConfigureAwait(false),
 			FunicularSwitch.Test.Aaa aaa2 => await aaa(aaa2).ConfigureAwait(false),
 			FunicularSwitch.Test.Two two3 => await two(two3).ConfigureAwait(false),
@@ -38,6 +40,8 @@ namespace FunicularSwitch.Test
 		{
 			switch (@base)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(@base));
 				case FunicularSwitch.Test.One one1:
 					one(one1);
 					break;
@@ -57,6 +61,8 @@ namespace FunicularSwitch.Test
 		{
 			switch (@base)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(@base));
 				case FunicularSwitch.Test.One one1:
 					await one(one1).ConfigureAwait(false);
 					break;

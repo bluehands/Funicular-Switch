@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -217,6 +217,7 @@ public static class Generator
         builder.WriteLine($"{thisParameterName} switch");
         using (builder.ScopeWithSemicolon())
         {
+            builder.WriteLine($"null => throw new global::System.ArgumentNullException(nameof({thisParameterName})),");
             var caseIndex = 0;
             foreach (var c in unionTypeSchema.Cases)
             {
@@ -230,8 +231,10 @@ public static class Generator
                 builder.WriteLine($"{c.FullTypeName} {caseVariableName} => {call},");
             }
 
-            builder.WriteLine(
-                $"_ => throw new global::System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\")");
+            //closed unions: the compiler verifies exhaustiveness, so no default arm
+            if (!unionTypeSchema.IsExhaustive)
+                builder.WriteLine(
+                    $"_ => throw new global::System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\")");
         }
     }
 
@@ -246,6 +249,12 @@ public static class Generator
             builder.WriteLine($"switch ({thisParameterName})");
             using (builder.Scope())
             {
+                builder.WriteLine("case null:");
+                using (builder.Indent())
+                {
+                    builder.WriteLine($"throw new global::System.ArgumentNullException(nameof({thisParameterName}));");
+                }
+
                 var caseIndex = 0;
                 foreach (var c in unionTypeSchema.Cases)
                 {
@@ -262,10 +271,13 @@ public static class Generator
                     }
                 }
 
-                builder.WriteLine("default:");
-                using (builder.Indent())
+                if (!unionTypeSchema.IsExhaustive)
                 {
-                    builder.WriteLine($"throw new global::System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\");");
+                    builder.WriteLine("default:");
+                    using (builder.Indent())
+                    {
+                        builder.WriteLine($"throw new global::System.ArgumentException($\"Unknown type derived from {unionTypeSchema.FullTypeName}: {{{thisParameterName}.GetType().Name}}\");");
+                    }
                 }
             }
         }
