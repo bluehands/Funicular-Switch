@@ -1,4 +1,4 @@
-# FunicularSwitch and C# 15
+﻿# FunicularSwitch and C# 15
 
 FunicularSwitch.Generators 5.0, FunicularSwitch.Analyzers 2.0 and FunicularSwitch 8.0 work with the C# 15 features `closed` classes and `union` declarations. All C# 15 behavior is opt-in and only active when the compilation uses C# 15 (or preview) and references .NET 11 (the support types must exist). Older language versions behave as before.
 
@@ -34,7 +34,7 @@ var area2 = shape switch
 };
 ```
 
-Use `Match` for expression-style code, chaining and async lambdas (`Task<Shape>.Match(...)`). Use the native switch for pattern matching and `ref`/`await` freedom inside arms.
+Use `Match` for expression-style code, chaining and async lambdas (`Task<Shape>.Match(...)`). Use the native switch when you want plain pattern matching without lambdas.
 
 For a closed union the generated `Match`/`Switch` have **no throwing default arm**, so the compiler verifies the generated code. A null receiver throws `ArgumentNullException`. If the hierarchy is not fully closed (for example a non-closed abstract intermediate type), the default arm is kept.
 
@@ -88,7 +88,7 @@ pet.Match(cat => "meow", dog => "woof");
 - `[UnionType]` on a struct that is neither a `union` declaration nor a `[Union]` struct is reported as FUN0017 and ignored.
 - A closed `[UnionType]` base can itself be a case of a native union, e.g. `union Response(MyResult<int>, Timeout)`.
 
-#### All unions of an assembly: `[assembly: ExtendUnions]`
+### All unions of an assembly: `[assembly: ExtendUnions]`
 
 Like `[assembly: ExtendEnums]` for enums, `[assembly: ExtendUnions]` generates `Match`/`Switch` for every `union` declaration (and hand-written `[Union]` struct, the compiler reports them as unions too) of the current assembly, without putting `[UnionType]` on each one. Unions that are not accessible (private/protected nested) are skipped. `Accessibility = ExtensionAccessibility.Internal` makes the generated extension classes internal. `[assembly: ExtendUnions(typeof(X))]` targets the public unions of the assembly containing `X` instead. A union with both `[UnionType]` and `ExtendUnions` is generated once (`[UnionType]` wins). Closed class hierarchies still need `[UnionType]`.
 

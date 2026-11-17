@@ -1,4 +1,4 @@
-# FunicularSwitch
+﻿# FunicularSwitch
 
 [![NuGet](https://img.shields.io/nuget/v/FunicularSwitch.svg?label=FunicularSwitch)](https://www.nuget.org/packages/FunicularSwitch/)
 [![NuGet](https://img.shields.io/nuget/v/FunicularSwitch.Generators.svg?label=FunicularSwitch.Generators)](https://www.nuget.org/packages/FunicularSwitch.Generators/)
@@ -45,7 +45,7 @@ A second thing coming with this package is the [`UnionType`](https://github.com/
 
 The generators and analyzers also support the C# 15 features `closed` classes and `union` declarations, see [UnionType](#uniontype) and [docs/csharp15.md](docs/csharp15.md).
 
-Building a project that references FunicularSwitch.Generators 5.0, FunicularSwitch.Analyzers 2.0 or FunicularSwitch 8.0 (which includes both) or newer requires the .NET 11 SDK (Visual Studio 2026, Roslyn 5.12 or newer). That is true even if you still target an older framework or language version. If you can't use the new SDK yet, stay on the old line: FunicularSwitch 7.x, FunicularSwitch.Generators 4.x and FunicularSwitch.Analyzers 1.x.
+Building a project that references FunicularSwitch.Generators 5.0, FunicularSwitch.Analyzers 2.0 or FunicularSwitch 8.0 (which depends on the Analyzers package, not on the Generators package) or newer requires the .NET 11 SDK (Visual Studio 2026, Roslyn 5.12 or newer). That is true even if you still target an older framework or language version. If you can't use the new SDK yet, stay on the old line: FunicularSwitch 7.x, FunicularSwitch.Generators 4.x and FunicularSwitch.Analyzers 1.x.
 
 # <a name="funicular_usage"></a>FunicularSwitch Usage
 
