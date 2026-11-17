@@ -1,6 +1,20 @@
 # Plan: Integrate FunicularSwitch union types with C# 15 / .NET 11
 
-Status: draft · Date: 2026-11-17 · Scope: everything **except** making our base types `[Union]` types ("option B").
+Status: done (implemented on branch `feature/csharp15-unions`, ships as 5.0). Date: 2026-11-17.
+Scope: `Source/FunicularSwitch.Generators/UnionType/**`, `ResultType/**`, `Source/FunicularSwitch.Analyzers*` (FS0002 to FS0007), `Source/FunicularSwitch/Result.cs`, `FunicularSwitch.CompilerCheck.targets`, `docs/csharp15.md`, `docs/analyzers.md`.
+Read this only if you change code in that scope and need the reasons behind a decision. The code, tests and docs are authoritative.
+
+Decisions worth knowing:
+- Option B (making our base types `[Union]`) was rejected after a spike, see section 1.
+- `closed` Result is opt-in (CS9384: `abstract` + `closed` cannot be combined). The runtime `Result<T>` is closed on net11.0 only.
+- Null receiver throws `ArgumentNullException` for all unions.
+- Native `union`: `Match`/`Switch` are extension methods. A default union value goes to the first nullable case, otherwise `InvalidOperationException`.
+- Roslyn 5.12 is a hard minimum (`FUNICULAR001` build check), no multi-targeted analyzers.
+- Opt-in for native unions is `[assembly: ExtendUnions]` or `[UnionType]` on a single union.
+
+Open follow-ups from this plan live in `plans/open/`.
+
+Original scope: everything **except** making our base types `[Union]` types ("option B").
 
 ## 1. Background and decisions
 
@@ -150,10 +164,7 @@ When the union base is closed (and nullable is enabled):
 
 ### 6.1 Analyzer for existing `Match` calls
 
-Optional, low priority:
-
-- **Idea:** for closed unions, suggest converting simple `x.Match(a => ..., b => ...)` calls into native switch expressions.
-- **Risk:** stylistic, so it should be opt-in or hidden.
+Optional, low priority. Not implemented, see [../open/analyzer-match-to-native-switch.md](../open/analyzer-match-to-native-switch.md).
 
 ### 6.2 Runtime library (`FunicularSwitch`, `FunicularSwitch.Generic`)
 
@@ -225,55 +236,5 @@ It documents why option B was dropped.
 
 ## 11. Deferred / not planned
 
-### 11.1 Generated non-boxing custom unions (former C.2)
-
-**Status:** deferred. Revisit only on real demand (issues or benchmarks showing allocation pressure from boxed value-type cases).
-
-**Why:** once C.1 provides `Match`/`Switch` on native `union` declarations, the remaining benefit of our own union declaration is small:
-
-| Aspect | Native `union` + C.1 | Own generated union |
-|---|---|---|
-| Exhaustive switch, conversions, pattern matching, STJ | ✅ | ✅ |
-| `Match`/`Switch` API | ✅ (C.1) | ✅ |
-| Value-type cases | boxed (allocation) | inline, no allocation |
-| Named cases (`count:` vs `int:`) | ❌ | ✅ |
-| Generated equality / `ToString` | default struct behavior | ✅ |
-| Benefits from future compiler and runtime improvements | ✅ for free | must keep up |
-| Cost to us | small | full generator, diagnostics, tests, maintenance |
-
-- Most unions hold reference types (records). For those, storage is identical, so there's no benefit.
-- Boxing matters only in hot paths. There, the union pattern can be hand-written in about 20 lines (documented by Microsoft).
-- FunicularSwitch-style named cases are already covered by closed hierarchies (workstream A).
-- The built-in `union` may still evolve (storage, generic `IUnion<T>`), which could make our version redundant.
-
-**If revisited**, the preferred design is *partial constructors declare the cases*:
-
-```csharp
-[UnionType]
-public readonly partial struct Payload
-{
-    public partial Payload(int count);
-    public partial Payload(string? text);
-    public partial Payload(Message message);
-}
-```
-
-- It mirrors the language's union pattern exactly.
-- Nullable reference cases can be written directly.
-- Parameter names give case names.
-- It allows per-case docs.
-- `[UnionType]` on structs has no conflicting meaning today.
-
-The generator would emit tag-based storage, `Value`/`HasValue`/`TryGetValue`, equality, `ToString` and `Match`/`Switch`.
-
-Rejected alternatives:
-- Adding non-boxing members to a native `partial union` declaration: verified impossible with the .NET 11 compiler.
-  - All parts must be `union` declarations (CS0261).
-  - Instance fields and auto-properties aren't allowed (CS9373).
-  - Explicit public single-parameter constructors aren't allowed (CS9374).
-  - The compiler always stores contents in a single `object` backing field. Methods such as `HasValue`/`TryGetValue` compile, but can only unbox an already boxed value.
-
-  Non-boxing therefore always needs a hand-written `[Union]` struct.
-- `[UnionOf<T1..Tn>]`: arity limit, no nullable reference type arguments, derived names.
-- `[UnionType(Cases = new[] { typeof(...) })]`: same issues, and it overloads the meaning of `UnionType`.
-- Settings on a native `union` declaration: impossible, because the compiler owns its storage.
+- Generated non-boxing custom unions (former C.2): see [../open/non-boxing-own-unions.md](../open/non-boxing-own-unions.md).
+- Analyzer suggesting a native switch for Match (6.1): see [../open/analyzer-match-to-native-switch.md](../open/analyzer-match-to-native-switch.md).
