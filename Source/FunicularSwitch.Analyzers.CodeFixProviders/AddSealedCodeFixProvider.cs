@@ -46,10 +46,20 @@ public class AddSealedCodeFixProvider : CodeFixProvider
             if (type.Modifiers.Any(SyntaxKind.SealedKeyword)) return type;
             // insert before 'partial' (must stay last) otherwise at the end of the modifier list
             var partial = type.Modifiers.IndexOf(SyntaxKind.PartialKeyword);
+            var index = partial >= 0 ? partial : type.Modifiers.Count;
             var sealedToken = SyntaxFactory.Token(SyntaxKind.SealedKeyword).WithTrailingTrivia(SyntaxFactory.Space);
-            var modifiers = partial >= 0 ? type.Modifiers.Insert(partial, sealedToken) : type.Modifiers.Add(sealedToken);
-            if (partial < 0 && type.Modifiers.Count == 0) return type.WithModifiers(modifiers).WithLeadingTrivia(type.GetLeadingTrivia());
-            return type.WithModifiers(modifiers);
+            if (index == 0)
+            {
+                // 'sealed' becomes the first token after the attribute lists: it takes over the leading trivia
+                // (indentation, XML doc) of the token that was first, which must not keep it (no duplicates).
+                var first = type.Modifiers.Count > 0 ? type.Modifiers[0] : type.Keyword;
+                sealedToken = sealedToken.WithLeadingTrivia(first.LeadingTrivia);
+                var strippedFirst = first.WithLeadingTrivia(SyntaxTriviaList.Empty);
+                type = type.Modifiers.Count > 0
+                    ? type.WithModifiers(type.Modifiers.Replace(first, strippedFirst))
+                    : type.WithKeyword(strippedFirst);
+            }
+            return type.WithModifiers(type.Modifiers.Insert(index, sealedToken));
         });
         return solution.WithDocumentSyntaxRoot(document.Id, editor.GetChangedRoot());
     }
