@@ -185,7 +185,7 @@ Optional, low priority:
 | 2 | Null receiver in `Match`/`Switch` | Throw `ArgumentNullException` (a subclass of `ArgumentException`, so compatible), for all unions (A.5). |
 | 3 | Generated non-boxing unions (C.2) | Deferred (section 11). |
 | 4 | Roslyn | Hard minimum version = .NET 11 SDK Roslyn. Major version 5.0 (6.3). |
-| 5 | Closed Result types | On by default when C# 15 is used, unless a hard blocker turns up. Fallback: opt-in (A.7). |
+| 5 | Closed Result types | **Outcome:** on by default is blocked (user's `abstract partial` part + generated `closed` part = CS9384; netstandard lacks the closed attributes). Implemented as opt-in: the user declares `closed partial class Result<T>`; FS0007 suggests it with a code fix. The runtime library declares its `Result<T>` closed on net11.0. |
 
 ## 8. Release plan
 
@@ -193,7 +193,7 @@ The Roslyn minimum version is a breaking toolchain requirement. So the C# 15 wor
 
 | Release | Content | Breaking? |
 |---|---|---|
-| **5.0** | Workstream 0 incl. Roslyn bump; A.1–A.7 (closed suggestion + fix, hierarchy diagnostics, default-less `Match`, `ArgumentNullException`, closed Result by default, JSON docs); C.1 (`Match` on native unions) | Yes: requires .NET 11 SDK / VS 2026; null receiver exception type (compatible subclass); Result base `closed` under C# 15 |
+| **5.0** | Workstream 0 incl. Roslyn bump; A.1–A.7 (closed suggestion + fix, hierarchy diagnostics, default-less `Match`, `ArgumentNullException`, closed Result opt-in + FS0007, JSON docs); C.1 (`Match` on native unions) | Yes: requires .NET 11 SDK / VS 2026; null receiver exception type (compatible subclass); net11 consumers can no longer derive from runtime `Result<T>` |
 | **5.1** | 6.2 runtime library `net11.0` multi-target | No |
 | later | 6.1 `Match` → native switch refactoring, C.3 docs polish | No |
 
@@ -206,7 +206,7 @@ The Roslyn minimum version is a breaking toolchain requirement. So the C# 15 wor
 | multi-level closed / not-fully-closed | n/a | diagnostic + fix |
 | generic closed union | n/a | snapshot + exhaustiveness |
 | interface / struct-case union | unchanged | unchanged, no diagnostic |
-| Result type | unchanged | closed by default, native switch compiles |
+| Result type | unchanged | closed when user declares it, native switch compiles |
 | null receiver on `Match`/`Switch` | `ArgumentNullException` | `ArgumentNullException` |
 | native `union` + `[UnionType]` | n/a | `Match`/`Switch` snapshot |
 | generated non-boxing union | n/a | deferred |
