@@ -13,7 +13,7 @@ internal static class Generator
         var filename = $"{info.FullTypeName}.g.cs";
 
         var cs = new CSharpBuilder(defaultIntent: "    ");
-        using (cs.Namespace(info.Namespace))
+        using (info.Namespace != null ? cs.Namespace(info.Namespace) : null)
         {
             if (info.GenericMonadGenerationInfo is not null)
             {
