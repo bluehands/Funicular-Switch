@@ -37,7 +37,7 @@ dotnet add package FunicularSwitch
 dotnet add package FunicularSwitch.Generators
 ```
 
-If you just want to try `Result`, the first one is enough, the [first sample](#funicular_usage) shows how to create one.
+If you just want to try `Result` or `Option`, the first one is enough, the [first sample](#funicular_usage) shows how to create one.
 
 [**FunicularSwitch**](https://github.com/bluehands/Funicular-Switch#funicularswitch-usage) is a library containing the Result and Option type. Usage and the general idea is described in the following sections. The 'Error' type is always string, which allows natural concatenation and is sufficient in many cases.
 
