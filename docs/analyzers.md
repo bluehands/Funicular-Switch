@@ -15,7 +15,7 @@ All `closed` suggestions (FS0002-FS0007) are only reported when the compilation 
 ## How `closed` is detected
 
 `LanguageFeatures.SupportsClosed(compilation)` checks the language version (`LanguageVersion` values are `major * 100`, so C# 15 is `1500`; `Preview`/`Latest` are mapped with `MapSpecifiedToEffectiveVersion`) and that the closed support types above exist via `GetTypeByMetadataName`.
-`LanguageFeatures.IsClosed(type)` uses the public Roslyn 5.12 API `ITypeSymbol.IsClosed` (works for source and metadata symbols), with a `ClosedAttribute` fallback.
+`LanguageFeatures.IsClosed(type)` uses the public Roslyn 5.12 API `ITypeSymbol.IsClosed` (works for source and metadata symbols).
 The compiler does NOT synthesize the support attributes, so consumers on netstandard2.0 or pre-net11 targets get no suggestion.
 
 ## Testing C# 15 sources
