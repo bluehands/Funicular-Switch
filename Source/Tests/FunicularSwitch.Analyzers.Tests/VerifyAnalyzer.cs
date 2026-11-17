@@ -1,5 +1,6 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -12,15 +13,24 @@ namespace FunicularSwitch.Analyzers.Tests;
 public class VerifyAnalyzer : VerifyBase
 {
     private readonly string sourceFile;
-    private static readonly string assemblyDirectory = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-    private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
-    private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
-    private static readonly MetadataReference RuntimeReference = MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Runtime.dll"));
-    private static readonly MetadataReference CollectionsReference = MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "System.Collections.dll"));
-    private static readonly MetadataReference NetStandardReference = MetadataReference.CreateFromFile(Path.Combine(assemblyDirectory, "netstandard.dll"));
-    private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
-    private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
+    // Compiling C# 15 sources needs the net11 reference assemblies (the test host runs on net10, whose
+    // runtime assemblies must not be mixed in). They come from the .NET 11 targeting pack of the SDK.
+    private static readonly ImmutableArray<MetadataReference> References = LoadReferences();
+    protected static ImmutableArray<MetadataReference> ReferenceAssemblies() => References;
     private static readonly MetadataReference FunicularSwitchReference = MetadataReference.CreateFromFile(typeof(Unit).Assembly.Location);
+
+    private static ImmutableArray<MetadataReference> LoadReferences()
+    {
+        var dotnetRoot = Path.GetFullPath(Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "..", "..", ".."));
+        var packDirectory = Path.Combine(dotnetRoot, "packs", "Microsoft.NETCore.App.Ref");
+        var refDirectory = Directory.GetDirectories(packDirectory, "11.*")
+            .Select(d => Path.Combine(d, "ref", "net11.0"))
+            .Where(Directory.Exists)
+            .OrderDescending()
+            .FirstOrDefault()
+            ?? throw new InvalidOperationException($"Microsoft.NETCore.App.Ref 11.x targeting pack not found in {packDirectory}");
+        return [.. Directory.GetFiles(refDirectory, "*.dll").Select(f => (MetadataReference)MetadataReference.CreateFromFile(f))];
+    }
 
     // ReSharper disable once ExplicitCallerInfoArgument
     protected VerifyAnalyzer([CallerFilePath] string sourceFile = "") : base(sourceFile: sourceFile)
@@ -31,9 +41,11 @@ public class VerifyAnalyzer : VerifyBase
     protected async Task Verify(
         string source,
         DiagnosticAnalyzer analyzer,
-        CodeFixProvider codeFixProvider,
+        CodeFixProvider? codeFixProvider,
         Action<ImmutableArray<Diagnostic>> verifyDiagnostics,
         Action<Diagnostic, CodeAction>? verifyCodeAction = null,
+        LanguageVersion languageVersion = LanguageVersion.Preview,
+        string? actionTitleContains = null,
         [CallerMemberName] string callingMethod = "")
     {
         const string TestProjectName = "Test";
@@ -45,18 +57,11 @@ public class VerifyAnalyzer : VerifyBase
         var solution = new AdhocWorkspace()
             .CurrentSolution
             .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
-            .AddMetadataReference(projectId, CorlibReference)
-            .AddMetadataReference(projectId, SystemCoreReference)
-            .AddMetadataReference(projectId, RuntimeReference)
-            .AddMetadataReference(projectId, CollectionsReference)
-            .AddMetadataReference(projectId, NetStandardReference)
-            .AddMetadataReference(projectId, CSharpSymbolsReference)
-            .AddMetadataReference(projectId, CodeAnalysisReference)
+            .AddMetadataReferences(projectId, References)
             .AddMetadataReference(projectId, FunicularSwitchReference)
-            .WithProjectParseOptions(projectId, new CSharpParseOptions(LanguageVersion.Preview))
-            .WithProjectCompilationOptions(projectId, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+            .WithProjectParseOptions(projectId, new CSharpParseOptions(languageVersion))
+            .WithProjectCompilationOptions(projectId, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable))
             .AddDocument(documentId, fileName, SourceText.From(source));
-
         var project = solution.GetProject(projectId)!;
         var compilationWithAnalyzers = (await CheckCompilation(project))!.WithAnalyzers([analyzer]);
         var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
@@ -69,11 +74,13 @@ public class VerifyAnalyzer : VerifyBase
                      .ThenBy(d => d.Location.GetLineSpan().StartLinePosition.Character))
         {
             var actions = new List<CodeAction>();
+            if (codeFixProvider == null) continue;
             var codeFixContext = new CodeFixContext(document, d, (a, _) => actions.Add(a), CancellationToken.None);
             await codeFixProvider.RegisterCodeFixesAsync(codeFixContext);
             actions.Should().NotBeEmpty();
-            verifyCodeAction?.Invoke(d, actions[0]);
-            var updatedDocument = await ApplyFix(document, actions[0]);
+            var action = actionTitleContains == null ? actions[0] : actions.Single(a => a.Title.Contains(actionTitleContains));
+            verifyCodeAction?.Invoke(d, action);
+            var updatedDocument = await ApplyFix(document, action);
             var syntaxTree = await updatedDocument.GetSyntaxRootAsync();
             syntaxTree.Should().NotBeNull();
             var updatedCode = syntaxTree.ToFullString();
@@ -105,3 +112,5 @@ public class VerifyAnalyzer : VerifyBase
         return solution.GetDocument(document.Id)!;
     }
 }
+
+
