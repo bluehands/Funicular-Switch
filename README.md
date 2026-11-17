@@ -49,7 +49,7 @@ Building a project that references FunicularSwitch.Generators 5.0, FunicularSwit
 
 # <a name="funicular_usage"></a>FunicularSwitch Usage
 
-*The code samples in this document live in [Source/DocSamples](https://github.com/bluehands/Funicular-Switch/tree/main/Source/DocSamples) and are inserted with [MarkdownSnippets](https://github.com/SimonCropp/MarkdownSnippets), so they are always compiled. To play around with them clone the repo and run `dotnet run --project Source/DocSamples -- resultMap`. The argument is the name of the sample, without an argument all samples are run. See [Contributing](#contributing) if you want to change a sample.*
+*The code samples in this document live in [Source/DocSamples](https://github.com/bluehands/Funicular-Switch/tree/main/Source/DocSamples) and are inserted with [MarkdownSnippets](https://github.com/SimonCropp/MarkdownSnippets), so they are always compiled. See [Contributing](#contributing) if you want to change a sample.*
 
 This following section mainly focuses on `Result`. `Result` is a union type representing either Ok or the Error case just like F#s Result type. For FunicularSwitch the error type is `String` for sake of simplicity (Using types with multiple generic arguments is quite verbose in C#).
 
