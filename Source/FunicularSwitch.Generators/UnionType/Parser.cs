@@ -58,7 +58,7 @@ static class Parser
         var generateFactoryMethods = isPartial && staticFactoryMethods;
 
         return
-            ToOrderedCases(caseOrder, derivedTypes, compilation, generateFactoryMethods, unionTypeSymbol.Name)
+            ToOrderedCases(caseOrder, derivedTypes, compilation, generateFactoryMethods, unionTypeSymbol.Name, unionTypeSymbol)
                 .Map(cases => new UnionTypeSchema(
                     Namespace: fullNamespace,
                     TypeName: unionTypeSymbol.Name,
@@ -101,6 +101,28 @@ static class Parser
             return LanguageFeatures.IsClosed(type)
                 && all.Where(t => SymbolEqualityComparer.Default.Equals(t.BaseType?.OriginalDefinition, type.OriginalDefinition)).All(Covered);
         }
+    }
+
+    /// <summary>Leaf&lt;U&gt; : Tree&lt;U&gt; for union Tree&lt;T&gt; has to be written as Leaf&lt;T&gt; inside generated methods.</summary>
+    static string? TryUseBaseTypeParameterNames(INamedTypeSymbol caseSymbol, INamedTypeSymbol unionTypeSymbol)
+    {
+        if (!caseSymbol.IsGenericType || caseSymbol.ContainingType is { IsGenericType: true } || !unionTypeSymbol.IsGenericType)
+            return null;
+
+        var baseType = caseSymbol.BaseType;
+        while (baseType != null && !SymbolEqualityComparer.Default.Equals(baseType.OriginalDefinition, unionTypeSymbol.OriginalDefinition))
+            baseType = baseType.BaseType;
+        if (baseType == null) return null;
+
+        var arguments = new ITypeSymbol[caseSymbol.TypeParameters.Length];
+        for (var i = 0; i < arguments.Length; i++)
+        {
+            var index = baseType.TypeArguments.ToList().FindIndex(a => SymbolEqualityComparer.Default.Equals(a, caseSymbol.TypeParameters[i]));
+            if (index < 0) return null;
+            arguments[i] = unionTypeSymbol.OriginalDefinition.TypeParameters[index];
+        }
+
+        return caseSymbol.OriginalDefinition.Construct(arguments).FullTypeNameWithNamespaceAndGenerics().Replace("global::", "");
     }
 
     private static (string parameterName, string methodName) DeriveParameterAndStaticMethodName(string typeName,
@@ -153,7 +175,7 @@ static class Parser
 
     static GenerationResult<ImmutableArray<DerivedType>> ToOrderedCases(CaseOrder caseOrder,
         IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int
-            numberOfConctreteBaseTypes)> derivedTypes, Compilation compilation, bool getConstructors, string baseTypeName)
+            numberOfConctreteBaseTypes)> derivedTypes, Compilation compilation, bool getConstructors, string baseTypeName, INamedTypeSymbol unionTypeSymbol)
     {
         var ordered = derivedTypes.OrderByDescending(d => d.numberOfConctreteBaseTypes);
         ordered = caseOrder switch
@@ -233,8 +255,13 @@ static class Parser
             var (parameterName, staticMethodName) =
                 DeriveParameterAndStaticMethodName(d.node.Name(), baseTypeName);
 
+            var fullCaseTypeName = $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}";
+            var withBaseTypeParameters = TryUseBaseTypeParameterNames(d.symbol, unionTypeSymbol);
+            if (withBaseTypeParameters != null)
+                fullCaseTypeName = withBaseTypeParameters;
+
             return new DerivedType(
-                fullTypeName: $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}",
+                fullTypeName: fullCaseTypeName,
                 constructors: constructors,
                 requiredMembers: requiredMembers,
                 parameterName: parameterName,

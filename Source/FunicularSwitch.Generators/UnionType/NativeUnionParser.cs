@@ -21,6 +21,11 @@ static class NativeUnionParser
         var creationParameterTypes = unionSymbol.Constructors
             .Where(c => c is { Parameters.Length: 1 } && c.DeclaredAccessibility is Accessibility.Public or Accessibility.Internal)
             .Select(c => c.Parameters[0].Type)
+            //union pattern with static Create methods declared on the union or on a nested IUnionMembers interface
+            .Concat(unionSymbol.GetMembers().OfType<INamedTypeSymbol>().Where(t => t.Name == "IUnionMembers").Concat([unionSymbol])
+                .SelectMany(t => t.GetMembers("Create").OfType<IMethodSymbol>())
+                .Where(m => m is { IsStatic: true, Parameters.Length: 1 })
+                .Select(m => m.Parameters[0].Type))
             .ToImmutableArray();
         var caseTypes = unionSymbol.UnionCaseTypes
             .Select(t => creationParameterTypes.FirstOrDefault(p =>

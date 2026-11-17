@@ -42,3 +42,31 @@ public union Payload(int, string, int[]);
 
 [UnionType]
 public union Scalar(int?, string?, bool);
+
+[UnionType]
+public closed record Tree2<T>;
+
+public sealed record Leaf2<U>(U Value) : Tree2<U>;
+public sealed record Node2<V>(Tree2<V> Left, Tree2<V> Right) : Tree2<V>;
+
+[System.Runtime.CompilerServices.Union, UnionType]
+public readonly struct HandPet : System.Runtime.CompilerServices.IUnion
+{
+    public HandPet(Cat2 value) => Value = value;
+    public HandPet(Dog2 value) => Value = value;
+    public object? Value { get; }
+}
+
+[System.Runtime.CompilerServices.Union, UnionType]
+public readonly struct CreatePet : System.Runtime.CompilerServices.IUnion, CreatePet.IUnionMembers
+{
+    public interface IUnionMembers
+    {
+        static CreatePet Create(Cat2 value) => new(value);
+        static CreatePet Create(string? value) => new(value);
+        object? Value { get; }
+    }
+    CreatePet(object? value) => Value = value;
+    public object? Value { get; }
+    object? IUnionMembers.Value => Value;
+}
