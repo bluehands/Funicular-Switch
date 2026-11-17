@@ -1,5 +1,6 @@
 using FunicularSwitch.Generators;
 
+[assembly: ExtendUnions]
 namespace FunicularSwitch.Generators.Consumer.Net11;
 
 [UnionType]
@@ -70,3 +71,16 @@ public readonly struct CreatePet : System.Runtime.CompilerServices.IUnion, Creat
     public object? Value { get; }
     object? IUnionMembers.Value => Value;
 }
+
+[System.Runtime.CompilerServices.Union]
+public readonly struct HandPlain : System.Runtime.CompilerServices.IUnion
+{
+    public HandPlain(Cat2 value) => Value = value;
+    public HandPlain(Dog2 value) => Value = value;
+    public object? Value { get; }
+}
+
+//covered by [assembly: ExtendUnions], no [UnionType] needed
+public union Vehicle(Cat2, Dog2, int);
+internal union Secret(string, int);
+

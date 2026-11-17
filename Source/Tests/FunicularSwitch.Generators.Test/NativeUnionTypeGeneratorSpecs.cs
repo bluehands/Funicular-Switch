@@ -132,4 +132,76 @@ public class Run_native_union_type_generator : VerifySourceGenerator
 
         return VerifyCSharp15(code);
     }
+
+    [TestMethod]
+    public Task For_extend_unions_assembly_attribute_generates_all_native_unions()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            [assembly: ExtendUnions]
+
+            namespace FunicularSwitch.Test;
+
+            public record Cat(string Name);
+            public record Dog(string Name);
+
+            public union Pet(Cat, Dog);
+            internal union Payload(int, string);
+
+            public class Outer
+            {
+                public union Nested(int, string);
+                private union Hidden(int, string);
+            }
+            """;
+
+        return VerifyCSharp15(code);
+    }
+
+    [TestMethod]
+    public Task For_extend_unions_with_internal_accessibility()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            [assembly: ExtendUnions(Accessibility = ExtensionAccessibility.Internal)]
+
+            namespace FunicularSwitch.Test;
+
+            public record Cat(string Name);
+            public record Dog(string Name);
+
+            public union Pet(Cat, Dog);
+            """;
+
+        return VerifyCSharp15(code);
+    }
+
+    [TestMethod]
+    public Task For_union_with_union_type_and_extend_unions_is_generated_once()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            [assembly: ExtendUnions]
+            [assembly: ExtendUnions]
+
+            namespace FunicularSwitch.Test;
+
+            public record Cat(string Name);
+            public record Dog(string Name);
+
+            [UnionType]
+            public union Pet(Cat, Dog);
+            """;
+
+        return VerifyCSharp15(code);
+    }
 }

@@ -72,4 +72,28 @@ public class NativeUnionSpecs
         scalar = true;
         scalar.Match(i => "int", s => "string", b => "bool").Should().Be("bool");
     }
+
+    [TestMethod]
+    public void ExtendUnionsAttributeGeneratesForAllUnions()
+    {
+        Vehicle v = 3;
+        v.Match(c => "cat", d => "dog", i => $"int {i}").Should().Be("int 3");
+
+        Secret s = "x";
+        s.Match(str => str, i => i.ToString()).Should().Be("x");
+    }
+
+    [TestMethod]
+    public void UnionWithUnionTypeAndExtendUnionsIsGeneratedOnce()
+    {
+        //would not compile with duplicate PetMatchExtension
+        Pet pet = new Cat2("Tom");
+        pet.Match(c => c.Name, d => d.Name).Should().Be("Tom");
+    }
+
+    [TestMethod]
+    public void HandWrittenUnionStructIsCoveredByExtendUnions()
+    {
+        typeof(Vehicle).Assembly.GetType("FunicularSwitch.Generators.Consumer.Net11.HandPlainMatchExtension").Should().NotBeNull();
+    }
 }

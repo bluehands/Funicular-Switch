@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using FunicularSwitch.Generators.Common;
 using Microsoft.CodeAnalysis;
 
@@ -11,7 +11,10 @@ static class Parser
             ? enumCases
             : enumCases.OrderBy(m => m.FullCaseName));
 
-    public static IEnumerable<INamedTypeSymbol> GetAccessibleEnumTypeSymbols(INamespaceSymbol @namespace, bool includeInternalEnums)
+    public static IEnumerable<INamedTypeSymbol> GetAccessibleEnumTypeSymbols(INamespaceSymbol @namespace, bool includeInternalEnums) =>
+        GetAccessibleTypeSymbols(@namespace, includeInternalEnums, t => t.EnumUnderlyingType != null);
+
+    public static IEnumerable<INamedTypeSymbol> GetAccessibleTypeSymbols(INamespaceSymbol @namespace, bool includeInternalTypes, Func<INamedTypeSymbol, bool> predicate)
     {
         static IEnumerable<INamedTypeSymbol> GetTypes(INamespaceOrTypeSymbol namespaceSymbol)
         {
@@ -35,8 +38,8 @@ static class Parser
         }
 
         var enumTypes = GetTypes(@namespace)
-            .Where(t => t.EnumUnderlyingType != null
-                        && IsAccessible(t, includeInternalEnums)
+            .Where(t => predicate(t)
+                        && IsAccessible(t, includeInternalTypes)
             );
 
         return enumTypes;

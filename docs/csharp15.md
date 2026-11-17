@@ -88,7 +88,11 @@ pet.Match(cat => "meow", dog => "woof");
 - `[UnionType]` on a struct that is neither a `union` declaration nor a `[Union]` struct is reported as FUN0017 and ignored.
 - A closed `[UnionType]` base can itself be a case of a native union, e.g. `union Response(MyResult<int>, Timeout)`.
 
-### Hand-written `[Union]` structs
+#### All unions of an assembly: `[assembly: ExtendUnions]`
+
+Like `[assembly: ExtendEnums]` for enums, `[assembly: ExtendUnions]` generates `Match`/`Switch` for every `union` declaration (and hand-written `[Union]` struct, the compiler reports them as unions too) of the current assembly, without putting `[UnionType]` on each one. Unions that are not accessible (private/protected nested) are skipped. `Accessibility = ExtensionAccessibility.Internal` makes the generated extension classes internal. `[assembly: ExtendUnions(typeof(X))]` targets the public unions of the assembly containing `X` instead. A union with both `[UnionType]` and `ExtendUnions` is generated once (`[UnionType]` wins). Closed class hierarchies still need `[UnionType]`.
+
+## Hand-written `[Union]` structs
 
 Native `union` declarations always box value-type cases. If you need non-boxing storage, hand-write a struct with the `[Union]` attribute (Microsoft documents the pattern) and add `[UnionType]` to get `Match`/`Switch`. FunicularSwitch does not generate non-boxing unions.
 

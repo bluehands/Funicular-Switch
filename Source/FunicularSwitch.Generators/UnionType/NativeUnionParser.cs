@@ -8,7 +8,7 @@ namespace FunicularSwitch.Generators.UnionType;
 /// <summary>Builds the schema for C# 15 <c>union</c> declarations. Everything is derived from the symbol, cases are the union case types in declared order.</summary>
 static class NativeUnionParser
 {
-    public static GenerationResult<UnionTypeSchema> GetSchema(INamedTypeSymbol unionSymbol, Location location)
+    public static GenerationResult<UnionTypeSchema> GetSchema(INamedTypeSymbol unionSymbol, Location location, bool forceInternal = false)
     {
         var acc = unionSymbol.GetActualAccessibility();
         if (acc is Accessibility.Private or Accessibility.Protected)
@@ -68,7 +68,7 @@ static class NativeUnionParser
                 .Select(p => p.FormatTypeConstraints().Trim())
                 .Where(c => c.Length > 0)
                 .ToImmutableArray(),
-            IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
+            IsInternal: forceInternal || acc is Accessibility.NotApplicable or Accessibility.Internal,
             IsPartial: false,
             IsExhaustive: true,
             IsNativeUnion: true,

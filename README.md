@@ -492,7 +492,15 @@ var sound = pet.Match(
 ```
 <!-- endSnippet -->
 
-An instance of a union struct that was never assigned (`default`) has no value. In that case `Match` calls the handler of the first case with a nullable type, if there is one (`int?`, `string?`). Otherwise `Match` and `Switch` throw an `InvalidOperationException` with the message 'Union has no value'. Hand written structs marked with the `Union` attribute work the same way, if you add `UnionType` to them. Note that native unions box value type cases. More details are in [docs/csharp15.md](docs/csharp15.md).
+Instead of marking each union, `[assembly: ExtendUnions]` generates the same extension methods for all native unions of the assembly (public and internal ones; use `Accessibility = ExtensionAccessibility.Internal` to make the extensions internal, or `[assembly: ExtendUnions(typeof(SomeTypeInOtherAssembly))]` for the public unions of another assembly). A union that also has `[UnionType]` is generated once.
+
+<!-- snippet: extendUnions -->
+```cs
+[assembly: ExtendUnions]
+```
+<!-- endSnippet -->
+
+An instance of a union struct that was never assigned (`default`) has no value. In that case `Match` calls the handler of the first case with a nullable type, if there is one (`int?`, `string?`). Otherwise `Match` and `Switch` throw an `InvalidOperationException` with the message 'Union has no value'. Hand written structs marked with the `Union` attribute work the same way, if you add `UnionType` to them (`ExtendUnions` covers them as well). Note that native unions box value type cases. More details are in [docs/csharp15.md](docs/csharp15.md).
 
 ## ExtendedEnum attribute
 
