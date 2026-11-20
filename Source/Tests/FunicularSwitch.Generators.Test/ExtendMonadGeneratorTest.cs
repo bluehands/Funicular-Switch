@@ -3,6 +3,9 @@ namespace FunicularSwitch.Generators.Test;
 [TestClass]
 public class ExtendMonadGeneratorTest : VerifySourceGenerator<ExtendMonadGenerator>
 {
+    protected override IReadOnlyList<string> PostInitializationOutputHintName
+        => ["FunicularSwitch.Generators.ExtendMonadAttribute.g.cs"];
+
     [TestMethod]
     public Task GenericMonad()
     {
@@ -13,6 +16,27 @@ public class ExtendMonadGeneratorTest : VerifySourceGenerator<ExtendMonadGenerat
             using FunicularSwitch.Generators;
 
             namespace FunicularSwitch.Test;
+
+            [ExtendMonad]
+            public readonly record struct MonadA<A>
+            {
+                public static MonadA<A> Return(A a) => throw new NotImplementedException();
+                
+                public MonadA<B> Bind<B>(Func<A, MonadA<B>> fn) => throw new NotImplementedException();
+            }
+            """;
+
+        return Verify(source);
+    }
+
+    [TestMethod]
+    public Task GenericMonadInGlobalNamespace()
+    {
+        var source =
+            /*lang=csharp*/
+            """
+            using System;
+            using FunicularSwitch.Generators;
 
             [ExtendMonad]
             public readonly record struct MonadA<A>

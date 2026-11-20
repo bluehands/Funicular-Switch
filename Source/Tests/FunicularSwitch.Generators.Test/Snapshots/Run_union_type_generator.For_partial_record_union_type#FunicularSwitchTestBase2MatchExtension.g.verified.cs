@@ -9,6 +9,7 @@ namespace FunicularSwitch.Test
 		public static T Match<T>(this global::FunicularSwitch.Test.Base2 base2, global::System.Func<FunicularSwitch.Test.Base2.Base2Prefix, T> prefix, global::System.Func<FunicularSwitch.Test.Base2.PostfixBase2, T> postfix, global::System.Func<FunicularSwitch.Test.Base2.UnderscorePostfix_, T> underscorePostfix, global::System.Func<FunicularSwitch.Test.Base2._UnderscorePrefix, T> underscorePrefix, global::System.Func<FunicularSwitch.Test.Base2.Base22Invalid, T> base22Invalid) =>
 		base2 switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(base2)),
 			FunicularSwitch.Test.Base2.Base2Prefix prefix1 => prefix(prefix1),
 			FunicularSwitch.Test.Base2.PostfixBase2 postfix2 => postfix(postfix2),
 			FunicularSwitch.Test.Base2.UnderscorePostfix_ underscorePostfix3 => underscorePostfix(underscorePostfix3),
@@ -21,6 +22,7 @@ namespace FunicularSwitch.Test
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.Base2 base2, global::System.Func<FunicularSwitch.Test.Base2.Base2Prefix, global::System.Threading.Tasks.Task<T>> prefix, global::System.Func<FunicularSwitch.Test.Base2.PostfixBase2, global::System.Threading.Tasks.Task<T>> postfix, global::System.Func<FunicularSwitch.Test.Base2.UnderscorePostfix_, global::System.Threading.Tasks.Task<T>> underscorePostfix, global::System.Func<FunicularSwitch.Test.Base2._UnderscorePrefix, global::System.Threading.Tasks.Task<T>> underscorePrefix, global::System.Func<FunicularSwitch.Test.Base2.Base22Invalid, global::System.Threading.Tasks.Task<T>> base22Invalid) =>
 		base2 switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(base2)),
 			FunicularSwitch.Test.Base2.Base2Prefix prefix1 => await prefix(prefix1).ConfigureAwait(false),
 			FunicularSwitch.Test.Base2.PostfixBase2 postfix2 => await postfix(postfix2).ConfigureAwait(false),
 			FunicularSwitch.Test.Base2.UnderscorePostfix_ underscorePostfix3 => await underscorePostfix(underscorePostfix3).ConfigureAwait(false),
@@ -42,6 +44,8 @@ namespace FunicularSwitch.Test
 		{
 			switch (base2)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(base2));
 				case FunicularSwitch.Test.Base2.Base2Prefix prefix1:
 					prefix(prefix1);
 					break;
@@ -67,6 +71,8 @@ namespace FunicularSwitch.Test
 		{
 			switch (base2)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(base2));
 				case FunicularSwitch.Test.Base2.Base2Prefix prefix1:
 					await prefix(prefix1).ConfigureAwait(false);
 					break;

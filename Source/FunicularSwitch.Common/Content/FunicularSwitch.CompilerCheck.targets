@@ -1,0 +1,19 @@
+<Project>
+  <!--
+    FunicularSwitch 5.x analyzers/generators are built against Roslyn 5.12 (.NET 11 SDK / VS 2026) and cannot load in an older compiler.
+    $(CompilerApiVersion) (e.g. "roslyn5.12") is defined by the compiler's own targets (Microsoft.Managed.Core.CurrentVersions.targets).
+    Opt out with <FunicularSwitchSkipCompilerCheck>true</FunicularSwitchSkipCompilerCheck>.
+  -->
+  <PropertyGroup>
+    <_FunicularRequiredRoslyn>5.12</_FunicularRequiredRoslyn>
+  </PropertyGroup>
+  <Target Name="_FunicularSwitchCheckCompilerVersion" BeforeTargets="CoreCompile" Condition="'$(FunicularSwitchSkipCompilerCheck)' != 'true'">
+    <PropertyGroup>
+      <_FunicularRoslynVersion>$(CompilerApiVersion.Replace('roslyn', ''))</_FunicularRoslynVersion>
+      <_FunicularCompilerTooOld Condition="'$(_FunicularRoslynVersion)' == ''">true</_FunicularCompilerTooOld>
+      <_FunicularCompilerTooOld Condition="'$(_FunicularRoslynVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_FunicularRoslynVersion)', '$(_FunicularRequiredRoslyn)'))">true</_FunicularCompilerTooOld>
+    </PropertyGroup>
+    <Error Code="FUNICULAR001" Condition="'$(_FunicularCompilerTooOld)' == 'true'"
+           Text="FunicularSwitch 5.x requires the C# compiler of the .NET 11 SDK / Visual Studio 2026 (Roslyn $(_FunicularRequiredRoslyn) or newer), found: '$(CompilerApiVersion)' (SDK $(NETCoreSdkVersion)). Install the .NET 11 SDK (e.g. via global.json) or stay on FunicularSwitch 4.x. Set FunicularSwitchSkipCompilerCheck=true to suppress this check." />
+  </Target>
+</Project>

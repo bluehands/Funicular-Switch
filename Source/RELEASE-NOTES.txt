@@ -1,2 +1,23 @@
+Version 5.0.0 (FunicularSwitch.Generators 5.0.0, FunicularSwitch.Analyzers 2.0.0, FunicularSwitch 8.0.0, FunicularSwitch.Generators.AwesomeAssertions 2.0.0):
+ - BREAKING: requires the .NET 11 SDK / VS 2026 (Roslyn 5.12 or newer). Stay on 4.x for older toolchains.
+ - The FunicularSwitch.Generators and FunicularSwitch.Analyzers packages fail the build with FUNICULAR001 if the compiler is older than Roslyn 5.12 (no multi-targeted analyzers).
+   Opt out with <FunicularSwitchSkipCompilerCheck>true</FunicularSwitchSkipCompilerCheck>.
+ - BREAKING (compatible): Match/Switch of generated union types throw ArgumentNullException instead of ArgumentException for a null receiver.
+   ArgumentNullException derives from ArgumentException, so existing catch blocks keep working.
+ - C# 15: Match/Switch of unions declared with the closed modifier have no throwing default arm anymore, the compiler checks exhaustiveness of the generated code.
+   If the hierarchy is not fully closed (e.g. a non closed abstract intermediate type) the default arm is kept.
+ - C# 15: closed needs C# 15 and the .NET 11 support types (IsClosedTypeAttribute); the compiler does not synthesize them. Generators and analyzers only enable closed features if both are present.
+ - Runtime library: Result<T> is closed in the net11.0 asset of FunicularSwitch (native exhaustive switch over Ok_/Error_), the netstandard2.0 asset is unchanged.
+   Consumers on net11.0 with LangVersion 14 or older keep compiling, the compiler ignores the closed marker.
+ - C# 15: [assembly: ExtendUnions] generates Match/Switch for all native union declarations of an assembly (optionally Accessibility = Internal, or typeof(X) to target another assembly). [UnionType] on a single union keeps working, a union with both is generated once.
+ - C# 15: result types declared as closed partial class get a closed generated base type (native exhaustive switch over Ok_ and Error_).
+   Not enabled automatically, because the user declaration of the partial class must say closed (abstract and closed can't be combined).
+   Only the generated switch expressions lose their default arm, switch statements (Bind/Map) keep an unreachable default because flow analysis requires it.
+ - C# 15: [UnionType] on union declarations generates Match/Switch (sync, async, Task<>) extension methods.
+   Cases are the union case types in declared order. A default union value (no content) is routed to the first nullable case (int?, string?),
+   without nullable case Match/Switch throw InvalidOperationException (the message names the union type).
+ - FUN0017: [UnionType] on a struct that is neither a union declaration nor a [Union] struct is reported instead of silently ignored.
+ - UnionType: generic union bases are now supported for cases declared outside the base, e.g. record Leaf<T> : Tree<T>.
+ - UnionTypeAttribute may be applied to structs (needed for union declarations).
 Version 3.0.0:
  - strong name

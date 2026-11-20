@@ -9,6 +9,7 @@ namespace FunicularSwitch.Test
 		public static TMatchResult Match<T, TMatchResult>(this global::FunicularSwitch.Test.BaseType<T> baseType, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving_, TMatchResult> deriving, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving2_, TMatchResult> deriving2) =>
 		baseType switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(baseType)),
 			FunicularSwitch.Test.BaseType<T>.Deriving_ deriving1 => deriving(deriving1),
 			FunicularSwitch.Test.BaseType<T>.Deriving2_ deriving22 => deriving2(deriving22),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.BaseType: {baseType.GetType().Name}")
@@ -18,6 +19,7 @@ namespace FunicularSwitch.Test
 		public static async global::System.Threading.Tasks.Task<TMatchResult> Match<T, TMatchResult>(this global::FunicularSwitch.Test.BaseType<T> baseType, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving_, global::System.Threading.Tasks.Task<TMatchResult>> deriving, global::System.Func<FunicularSwitch.Test.BaseType<T>.Deriving2_, global::System.Threading.Tasks.Task<TMatchResult>> deriving2) =>
 		baseType switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(baseType)),
 			FunicularSwitch.Test.BaseType<T>.Deriving_ deriving1 => await deriving(deriving1).ConfigureAwait(false),
 			FunicularSwitch.Test.BaseType<T>.Deriving2_ deriving22 => await deriving2(deriving22).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.BaseType: {baseType.GetType().Name}")
@@ -36,6 +38,8 @@ namespace FunicularSwitch.Test
 		{
 			switch (baseType)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(baseType));
 				case FunicularSwitch.Test.BaseType<T>.Deriving_ deriving1:
 					deriving(deriving1);
 					break;
@@ -52,6 +56,8 @@ namespace FunicularSwitch.Test
 		{
 			switch (baseType)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(baseType));
 				case FunicularSwitch.Test.BaseType<T>.Deriving_ deriving1:
 					await deriving(deriving1).ConfigureAwait(false);
 					break;

@@ -35,7 +35,7 @@ internal static class Parser
                 .ToList()
             let constructTransformedMonadType = transformedMonadSymbol.IsStatic ? chainedMonad.GenericTypeName : TypeInfo.From(transformedMonadSymbol).Construct
             let transformMonadData = new TransformMonadInfo(
-                transformedMonadSymbol.GetFullNamespace()!,
+                transformedMonadSymbol.GetFullNamespace(),
                 transformedMonadSymbol.FullTypeNameWithNamespace(),
                 constructTransformedMonadType,
                 chainedMonad,

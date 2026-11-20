@@ -6,14 +6,16 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.11.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="5.12.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.12.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.SourceGenerators.Testing" Version="1.1.2" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.12.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Testing.Verifiers.MSTest" Version="1.1.2" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
 		<PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
+		<!-- pinned to override the vulnerable transitive 5.0.0 from Microsoft.CodeAnalysis.Testing -->
+		<PackageReference Include="System.Formats.Asn1" Version="9.0.23" />
 		<PackageReference Include="coverlet.collector" Version="6.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

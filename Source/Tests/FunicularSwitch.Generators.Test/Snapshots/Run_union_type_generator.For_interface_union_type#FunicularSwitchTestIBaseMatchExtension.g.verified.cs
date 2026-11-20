@@ -9,6 +9,7 @@ namespace FunicularSwitch.Test
 		public static T Match<T>(this global::FunicularSwitch.Test.IBase iBase, global::System.Func<FunicularSwitch.Test.One, T> one, global::System.Func<FunicularSwitch.Test.Two, T> two) =>
 		iBase switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(iBase)),
 			FunicularSwitch.Test.One one1 => one(one1),
 			FunicularSwitch.Test.Two two2 => two(two2),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.IBase: {iBase.GetType().Name}")
@@ -18,6 +19,7 @@ namespace FunicularSwitch.Test
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.IBase iBase, global::System.Func<FunicularSwitch.Test.One, global::System.Threading.Tasks.Task<T>> one, global::System.Func<FunicularSwitch.Test.Two, global::System.Threading.Tasks.Task<T>> two) =>
 		iBase switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(iBase)),
 			FunicularSwitch.Test.One one1 => await one(one1).ConfigureAwait(false),
 			FunicularSwitch.Test.Two two2 => await two(two2).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Test.IBase: {iBase.GetType().Name}")
@@ -36,6 +38,8 @@ namespace FunicularSwitch.Test
 		{
 			switch (iBase)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(iBase));
 				case FunicularSwitch.Test.One one1:
 					one(one1);
 					break;
@@ -52,6 +56,8 @@ namespace FunicularSwitch.Test
 		{
 			switch (iBase)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(iBase));
 				case FunicularSwitch.Test.One one1:
 					await one(one1).ConfigureAwait(false);
 					break;

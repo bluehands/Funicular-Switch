@@ -50,6 +50,6 @@ internal class Parser
         )
         select new ExtendMonadInfo(
             targetSymbol.FullTypeNameWithNamespace(),
-            targetSymbol.GetFullNamespace()!, // TODO: support more type locations
+            targetSymbol.GetFullNamespace(),
             staticMonadGenerationInfo);
 }

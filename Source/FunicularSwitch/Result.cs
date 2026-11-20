@@ -37,7 +37,11 @@ namespace FunicularSwitch
     }
 
     [ResultType(ErrorType = typeof(string))]
+#if NET11_0_OR_GREATER
+    public closed partial class Result<T>;
+#else
     public abstract partial class Result<T>;
+#endif
 
     public static partial class ResultExtension
     {

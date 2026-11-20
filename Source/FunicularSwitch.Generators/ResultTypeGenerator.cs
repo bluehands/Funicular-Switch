@@ -37,8 +37,9 @@ public class ResultTypeGenerator : IIncrementalGenerator
                                 ? ctx.Attributes[0].ConstructorArguments[0].Value
                                 : null);
 
-                        return new ResultTypeSchema(resultClass, errorTypeSymbol);
-                    });
+                        return new ResultTypeSchema(resultClass, errorTypeSymbol, isClosed: n.IsClosed);
+                    })
+                .WithTrackingName(TrackingNames.ResultTypeTransform);
 
         var referencesJetBrainsAnnotationsAssembly = context.CompilationProvider
             .SelectMany((c, _) => c.SourceModule.ReferencedAssemblySymbols)
@@ -69,7 +70,7 @@ public class ResultTypeGenerator : IIncrementalGenerator
             .Combine(referencesJetBrainsAnnotationsAssembly);
 
         context.RegisterSourceOutput(
-            compilationAndClasses,
+            compilationAndClasses.WithTrackingName(TrackingNames.ResultTypeOutput),
             static (spc, source) => Execute(source.Left.Left, source.Left.Right, source.Right, spc));
     }
 

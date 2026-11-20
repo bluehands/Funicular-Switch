@@ -49,6 +49,13 @@ public static class RoslynExtensions
             if (type.Equals(baseType, SymbolEqualityComparer.Default))
                 return true;
 
+            //case with own type parameters deriving from generic base, e.g. Leaf<T> : Tree<T>
+            if (type is INamedTypeSymbol { IsGenericType: true } genericType
+                && baseType.IsGenericType
+                && SymbolEqualityComparer.Default.Equals(genericType.OriginalDefinition, baseType.OriginalDefinition)
+                && baseType.TypeArguments.All(a => a is ITypeParameterSymbol))
+                return true;
+
             baseType = baseType.BaseType;
         }
 

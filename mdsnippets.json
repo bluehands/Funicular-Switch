@@ -1,0 +1,8 @@
+{
+  "Convention": "InPlaceOverwrite",
+  "LinkFormat": "GitHub",
+  "OmitSnippetLinks": true,
+  "ExcludeMarkdownDirectories": ["Source", "plans"],
+  "ExcludeDirectories": ["plans", "Generated"],
+  "ReadOnly": false
+}

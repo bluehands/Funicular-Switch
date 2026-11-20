@@ -51,6 +51,33 @@ public class Run_result_type_generator : VerifySourceGenerator
     }
 
     [TestMethod]
+    public Task For_error_type_in_global_namespace()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            public record GlobalError(string Message);
+
+            public static class GlobalErrorExtensions
+            {
+                [MergeError]
+                public static GlobalError Merge(this GlobalError error, GlobalError other) => other;
+            }
+
+            namespace FunicularSwitch.Test
+            {
+                [ResultType(ErrorType = typeof(GlobalError))]
+                public abstract partial class Result<T>
+                {
+                }
+            }
+            """;
+        return Verify(code);
+    }
+
+    [TestMethod]
     public Task For_error_type_in_different_namespace()
     {
         var code =

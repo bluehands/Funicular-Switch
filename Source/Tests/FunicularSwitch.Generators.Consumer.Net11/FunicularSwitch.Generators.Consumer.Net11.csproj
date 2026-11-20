@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net11.0</TargetFramework>
+		<LangVersion>15</LangVersion>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<!-- exhaustiveness of native switches must hold without any suppression -->
+		<WarningsAsErrors>$(WarningsAsErrors);CS8509;CS8524</WarningsAsErrors>
+		<RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentAssertions" Version="7.2.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="$(CompilerGeneratedFilesOutputPath)/*/**/*.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\FunicularSwitch.Generators\FunicularSwitch.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\..\FunicularSwitch\FunicularSwitch.csproj" />
+		<ProjectReference Include="..\..\FunicularSwitch.Generic\FunicularSwitch.Generic.csproj" />
+	</ItemGroup>
+
+</Project>
+

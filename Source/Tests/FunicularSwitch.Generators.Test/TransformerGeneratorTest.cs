@@ -2,11 +2,23 @@ using FluentAssertions;
 
 namespace FunicularSwitch.Generators.Test;
 
-public class VerifyTransformerInteropSourceGenerator() : BaseVerifySourceGenerators(new TransformerGenerator(), new ResultTypeGenerator());
+public class VerifyTransformerInteropSourceGenerator() : BaseVerifySourceGenerators(
+    new TransformerGenerator(),
+    new ResultTypeGenerator())
+{
+    protected override IReadOnlyList<string> PostInitializationOutputHintName =>
+    [
+        "Attributes.g.cs",
+        "FunicularSwitch.Generators.TransformMonadAttribute.g.cs",
+    ];
+}
 
 [TestClass]
 public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerator>
 {
+    protected override IReadOnlyList<string> PostInitializationOutputHintName
+        => ["FunicularSwitch.Generators.TransformMonadAttribute.g.cs"];
+
     [TestMethod]
     [DataRow("public partial class")]
     [DataRow("public partial struct")]
@@ -608,6 +620,44 @@ public class TransformerGeneratorTest : VerifySourceGenerator<TransformerGenerat
               [TransformMonad(typeof(MonadA), typeof(MonadBT))]
               public static partial class MonadAB;
               """;
+
+        return Verify(code);
+    }
+
+    [TestMethod]
+    public Task TransformedMonadInGlobalNamespace()
+    {
+        var code =
+            /*lang=csharp*/
+            """
+            using System;
+            using FunicularSwitch.Generators;
+            using FunicularSwitch.Transformers;
+
+            public record MonadA<A>(A Value);
+            public class MonadA
+            {
+                public static MonadA<A> Return<A>(A a) => throw new NotImplementedException();
+
+                public static MonadA<B> Bind<A, B>(MonadA<A> ma, Func<A, MonadA<B>> fn) => throw new NotImplementedException();
+            }
+            public record MonadB<B>(B Value);
+            public class MonadB
+            {
+                public static MonadB<A> Return<A>(A a) => throw new NotImplementedException();
+
+                public static MonadB<B> Bind<A, B>(MonadB<A> ma, Func<A, MonadB<B>> fn) => throw new NotImplementedException();
+            }
+
+            [MonadTransformer(typeof(MonadB))]
+            public class MonadBT
+            {
+                public static Monad<MonadB<B>> BindT<A, B>(Monad<MonadB<A>> ma, Func<A, Monad<MonadB<B>>> fn) => throw new NotImplementedException();
+            }
+
+            [TransformMonad(typeof(MonadA), typeof(MonadBT))]
+            public partial class MonadAMonadB<A>;
+            """;
 
         return Verify(code);
     }

@@ -100,4 +100,22 @@ public class Run_enum_match_method_generator : VerifySourceGenerator
 			""";
         return Verify(code, additionalAssemblies: [typeof(InstantHandleAttribute).Assembly]);
     }
+
+    [TestMethod]
+    public Task For_enum_type_in_global_namespace()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            [ExtendedEnum]
+            public enum test
+            {
+                one,
+                two
+            }
+            """;
+        return Verify(code);
+    }
 }

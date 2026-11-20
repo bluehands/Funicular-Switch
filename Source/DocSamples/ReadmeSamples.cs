@@ -12,7 +12,7 @@ namespace DocSamples
         [Runner("resultCreation")]
         public static void CreateResult()
         {
-            #region resultCreation
+            // begin-snippet: resultCreation
             //Ok result:
             var fortyTwo = Result.Ok(42);
             //or using implicit cast operator
@@ -20,39 +20,39 @@ namespace DocSamples
 
             //Error result:
             var error = Result.Error<int>("Could not find the answer");
-            #endregion
+            // end-snippet
         }
 
-        [Runner("map")]
+        [Runner("resultMap")]
         public static void Map()
         {
-            #region map
+            // begin-snippet: resultMap
             static Result<int> Ask() => 42;
 
             Result<int> answerTransformed = Ask()
                 .Map(answer => answer * 2);
 
             Console.WriteLine(answerTransformed);
-            #endregion
+            // end-snippet
         }
 
-        [Runner("bind")]
+        [Runner("resultBind")]
         public static void Bind()
         {
-            #region bind
+            // begin-snippet: resultBind
             static Result<int> Ask() => 42;
 
             Result<int> answerTransformed = Ask()
                 .Bind(answer => answer == 0 ? Result.Error<int>("Division by zero") : 42 / answer);
 
             Console.WriteLine(answerTransformed);
-            #endregion
+            // end-snippet
         }
 
         [Runner("errorPropagation")]
         public static void ErrorPropagation()
         {
-            #region errorPropagation
+            // begin-snippet: errorPropagation
 
             static Result<int> Transform(Result<int> result) =>
                 result
@@ -64,13 +64,13 @@ namespace DocSamples
 
             Result<int> secondLevelError = Transform(Result.Ok(0));
             Console.WriteLine($"Second level: {secondLevelError}");
-            #endregion
+            // end-snippet
         }
 
-        [Runner("match")]
+        [Runner("resultMatch")]
         public static void Match()
         {
-            #region match
+            // begin-snippet: resultMatch
             static Result<int> Ask() => 42;
 
             string whatIsIt =
@@ -80,14 +80,58 @@ namespace DocSamples
                 );
 
             Console.WriteLine(whatIsIt);
-            #endregion
+            // end-snippet
         }
     }
 
     class ReadmeSamples
     {
+        [Runner("resultLinq")]
+        public static void Linq()
+        {
+            // begin-snippet: resultLinq
+            static Result<int> ParseInt(string text) =>
+                int.TryParse(text, out var number) ? number : Result.Error<int>($"'{text}' is not a number");
+
+            static Result<int> Divide(int dividend, int divisor) =>
+                divisor == 0 ? Result.Error<int>("Division by zero") : dividend / divisor;
+
+            static Result<int> DivideTexts(string a, string b) =>
+                from x in ParseInt(a)
+                from y in ParseInt(b)
+                from quotient in Divide(x, y)
+                select quotient * 2;
+
+            Console.WriteLine(DivideTexts("84", "2"));
+            Console.WriteLine(DivideTexts("84", "zero"));
+            // end-snippet
+        }
+
+        [Runner("option")]
+        public static void OptionSample()
+        {
+            // begin-snippet: option
+            Option<int> some = Option.Some(42);
+            Option<int> none = Option.None<int>();
+
+            Console.WriteLine(some.Map(i => i * 2));
+            Console.WriteLine(none.Map(i => i * 2));
+
+            //Match works like on Result
+            Console.WriteLine(some.Match(i => $"The answer is {i}", () => "No answer"));
+
+            //leave the Option world with a fallback value
+            int answer = none.GetValueOrDefault(0);
+            Console.WriteLine(answer);
+
+            //convert to Result, the error is only created if the option is None
+            Result<int> result = none.ToResult(() => "No answer found");
+            Console.WriteLine(result);
+            // end-snippet
+        }
+
         [Runner("fruitSalad")]
-        #region fruitSalad
+        // begin-snippet: fruitSalad
         public static async Task FruitSalad()
         {
             var stock = ImmutableList.Create(
@@ -160,6 +204,6 @@ namespace DocSamples
                 AgeInDays = ageInDays;
             }
         }
-        #endregion
+        // end-snippet
     }
 }
