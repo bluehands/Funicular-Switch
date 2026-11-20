@@ -41,7 +41,7 @@
       "funicularswitch": {
         "type": "Project",
         "dependencies": {
-          "FunicularSwitch.Analyzers": "[1.0.0, )",
+          "FunicularSwitch.Analyzers": "[2.0.0, )",
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       },
@@ -51,7 +51,7 @@
       "funicularswitch.generic": {
         "type": "Project",
         "dependencies": {
-          "FunicularSwitch": "[6.3.0, )",
+          "FunicularSwitch": "[8.0.0, )",
           "System.Threading.Tasks.Extensions": "[4.6.3, )"
         }
       }

@@ -5,7 +5,7 @@
       "funicularswitch": {
         "type": "Project",
         "dependencies": {
-          "FunicularSwitch.Analyzers": "[1.0.0, )"
+          "FunicularSwitch.Analyzers": "[2.0.0, )"
         }
       },
       "FunicularSwitch.Analyzers": {

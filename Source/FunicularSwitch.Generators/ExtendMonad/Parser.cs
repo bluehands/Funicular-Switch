@@ -8,7 +8,8 @@ namespace FunicularSwitch.Generators.ExtendMonad;
 
 internal class Parser
 {
-    public static GenerationResult<ExtendMonadInfo> GetExtendedMonadSchema(INamedTypeSymbol targetSymbol, ExtendMonadAttribute extendMonadAttribute, CancellationToken cancellationToken) =>
+    public static GenerationResult<ExtendMonadInfo> GetExtendedMonadSchema(INamedTypeSymbol targetSymbol,
+        ExtendMonadAttribute extendMonadAttribute, CancellationToken cancellationToken) =>
         from monadInfo in MonadParser.ResolveMonadDataFromMonadType(targetSymbol, cancellationToken)
         let staticMonadGenerationInfo = new StaticMonadGenerationInfo(
             targetSymbol.Name,
@@ -37,8 +38,9 @@ internal class Parser
                         ["A", "B"],
                         t =>
                         [
-                            new ParameterGenerationInfo(monadInfo.GenericTypeName([..t, "A"]), string.Empty),
-                            new ParameterGenerationInfo(Types.Func("A", monadInfo.GenericTypeName([..t, "B"])), string.Empty),
+                            new ParameterGenerationInfo(monadInfo.GenericTypeName([.. t, "A"]), string.Empty),
+                            new ParameterGenerationInfo(Types.Func("A", monadInfo.GenericTypeName([.. t, "B"])),
+                                string.Empty)
                         ],
                         monadInfo.BindMethod.Name,
                         _ => string.Empty
