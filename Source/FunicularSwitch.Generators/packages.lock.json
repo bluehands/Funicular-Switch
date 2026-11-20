@@ -4,9 +4,9 @@
     ".NETStandard,Version=v2.0": {
       "DarkLink.RoslynHelpers.AttributeGenerator": {
         "type": "Direct",
-        "requested": "[0.1.8, )",
-        "resolved": "0.1.8",
-        "contentHash": "KFQaTSoYYIAoMRhm6+sstfVyRvlhGdBLBbXSW3ocqG3/mlXK8e3+lExSBzjj9v569JtNm+v8cHXBChhatdp9lA=="
+        "requested": "[0.1.15, )",
+        "resolved": "0.1.15",
+        "contentHash": "rh1Ins70T5NtOHKZmGy7+/gXB/ENNQNNEiiT7KY2vdpMVv78qqe0P2Y5IuvlGnqmLjTuue0iBauDokBUrjHfcg=="
       },
       "Microsoft.CodeAnalysis.CSharp": {
         "type": "Direct",
