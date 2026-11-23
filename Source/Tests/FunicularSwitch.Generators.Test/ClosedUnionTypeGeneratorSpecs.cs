@@ -105,7 +105,7 @@ public class Run_closed_union_type_generator : VerifySourceGenerator
             """;
 
         // compiler cannot prove exhaustiveness here, so the generator keeps the default arm
-        return Verify(code, languageVersion: Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp15, useNet11References: true);
+        return VerifyCSharp15(code);
     }
 
     [TestMethod]
