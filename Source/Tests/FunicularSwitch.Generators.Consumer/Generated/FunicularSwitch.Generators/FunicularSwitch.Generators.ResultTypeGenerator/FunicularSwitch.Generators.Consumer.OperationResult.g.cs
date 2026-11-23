@@ -6,7 +6,7 @@ using FunicularSwitch.Generic;
 namespace FunicularSwitch.Generators.Consumer
 {
 #pragma warning disable 1591
-    abstract partial class OperationResult
+    partial class OperationResult
     {
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::System.Diagnostics.Contracts.PureAttribute]
@@ -17,10 +17,6 @@ namespace FunicularSwitch.Generators.Consumer
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::System.Diagnostics.Contracts.PureAttribute]
         public static OperationResult<T> Ok<T>(T value) => new OperationResult<T>.Ok_(value);
-        public bool IsError => GetType().GetGenericTypeDefinition() == typeof(OperationResult<>.Error_);
-        public bool IsOk => !IsError;
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public abstract Error? GetErrorOrDefault();
 
         [global::System.Diagnostics.DebuggerStepThrough]
         
@@ -79,16 +75,19 @@ namespace FunicularSwitch.Generators.Consumer
         }
     }
 
-    abstract partial class OperationResult<T> : OperationResult, global::System.Collections.Generic.IEnumerable<T>
+    abstract partial class OperationResult<T> : global::System.Collections.Generic.IEnumerable<T>
     {
 
         [global::System.Diagnostics.DebuggerNonUserCode]
         
-        public new static OperationResult<T> Error(Error message) => Error<T>(message);
+        public static OperationResult<T> Error(Error message) => OperationResult.Error<T>(message);
 
         [global::System.Diagnostics.DebuggerNonUserCode]
         
-        public static OperationResult<T> Ok(T value) => Ok<T>(value);
+        public static OperationResult<T> Ok(T value) => OperationResult.Ok<T>(value);
+
+        [global::System.Diagnostics.Contracts.PureAttribute]
+        public abstract Error? GetErrorOrDefault();
 
         [global::System.Diagnostics.DebuggerStepThrough]
         
@@ -97,13 +96,6 @@ namespace FunicularSwitch.Generators.Consumer
         [global::System.Diagnostics.DebuggerStepThrough]
         
         public static implicit operator OperationResult<T>(OperationResultError myResultError) => myResultError.WithOk<T>();
-
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public static bool operator true(OperationResult<T> result) => result.IsOk;
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public static bool operator false(OperationResult<T> result) => result.IsError;
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public static bool operator !(OperationResult<T> result) => result.IsError;
 
         //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
         bool Equals(OperationResult<T> other) => this switch

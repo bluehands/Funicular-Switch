@@ -52,6 +52,7 @@ static class Generator
             if (resultTypeSchema.IsInternal)
                 code = code
                     .Replace("public abstract partial", "abstract partial")
+                    .Replace("public partial class", "partial class")
                     .Replace("public readonly partial struct", "readonly partial struct")
                     .Replace("public static partial", "static partial");
 
@@ -198,9 +199,9 @@ static class Generator
                 return combine({combineArguments});
 
             return MyResult.Error<TResult>(
-                MergeErrors(new MyResult[] {{ {resultArrayElements} }}
-                    .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!{(isValueType ? ".Value" : "")})
+                MergeErrors(new[] {{ {Expand(i => $"r{i}.GetErrorOrDefault()")} }}
+                    .Where(e => e != null)
+                    .Select(e => e!{(isValueType ? ".Value" : "")})
                 )!);
         }}
         

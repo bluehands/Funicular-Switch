@@ -50,7 +50,7 @@ internal static class Generator
                       public AndWhichConstraint<{{assertionsTypeName}}<T>, T> BeOk(string because = "", params object[] becauseArgs)
                       {
                           CurrentAssertionChain
-                              .ForCondition(this.Subject.IsOk)
+                              .ForCondition(this.Subject is {{resultTypeFullNameWithGlobalNamespace}}<T>.Ok_)
                               .BecauseOf(because, becauseArgs)
                               .FailWith("Expected {context} to be Ok{reason}, but found {0}", this.Subject.ToString());
                               
@@ -60,7 +60,7 @@ internal static class Generator
                       public AndWhichConstraint<{{assertionsTypeName}}<T>, {{errorTypeNameFullName}}> BeError(string because = "", params object[] becauseArgs)
                       {
                           CurrentAssertionChain
-                              .ForCondition(this.Subject.IsError)
+                              .ForCondition(this.Subject is {{resultTypeFullNameWithGlobalNamespace}}<T>.Error_)
                               .BecauseOf(because, becauseArgs)
                               .FailWith("Expected {context} to be Error{reason}, but found {0}", this.Subject.ToString());
                               

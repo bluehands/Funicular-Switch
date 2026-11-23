@@ -16,7 +16,7 @@ namespace GlobalNamespaceTypesConsumer
         public AndWhichConstraint<ResultWithGlobalErrorAssertions<T>, T> BeOk(string because = "", params object[] becauseArgs)
         {
             CurrentAssertionChain
-                .ForCondition(this.Subject.IsOk)
+                .ForCondition(this.Subject is global::GlobalNamespaceTypesConsumer.ResultWithGlobalError<T>.Ok_)
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context} to be Ok{reason}, but found {0}", this.Subject.ToString());
                 
@@ -26,7 +26,7 @@ namespace GlobalNamespaceTypesConsumer
         public AndWhichConstraint<ResultWithGlobalErrorAssertions<T>, GlobalError> BeError(string because = "", params object[] becauseArgs)
         {
             CurrentAssertionChain
-                .ForCondition(this.Subject.IsError)
+                .ForCondition(this.Subject is global::GlobalNamespaceTypesConsumer.ResultWithGlobalError<T>.Error_)
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context} to be Error{reason}, but found {0}", this.Subject.ToString());
                 

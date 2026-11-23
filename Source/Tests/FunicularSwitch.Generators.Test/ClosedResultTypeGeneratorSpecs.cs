@@ -67,4 +67,27 @@ public class Run_closed_result_type_generator : VerifySourceGenerator
                 .Should().BeEmpty();
         }, Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp15, useNet11References: true);
     }
+
+    [TestMethod]
+    public Task For_result_type_attribute_on_closed_non_generic_type()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            namespace FunicularSwitch.Test;
+
+            [ResultType(errorType: typeof(string))]
+            public closed partial class Result
+            {
+            }
+            """;
+
+        return Verify(code, [], (compilation, _) =>
+        {
+            compilation.GetDiagnostics().Where(d => d.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error)
+                .Should().BeEmpty("Result<T> no longer derives from Result, so a closed non-generic declaration compiles (no CS9383)");
+        }, Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp15, useNet11References: true);
+    }
 }

@@ -85,7 +85,7 @@ public class When_using_generated_result_type
 
         // ReSharper disable once IntDivisionByZero
         var result = ok.Map(i => i / 0);
-        result.IsError.Should().BeTrue();
+        result.Should().BeOfType<OperationResult<int>.Error_>();
 
         // ReSharper disable once IntDivisionByZero
         result = await ok.Map(async i =>
@@ -93,9 +93,9 @@ public class When_using_generated_result_type
             await Task.Delay(100);
             return i / 0;
         });
-        result.IsError.Should().BeTrue();
+        result.Should().BeOfType<OperationResult<int>.Error_>();
 
-        42.Validate(BuggyValidate).IsError.Should().BeTrue();
+        42.Validate(BuggyValidate).Should().BeOfType<Result<int>.Error_>();
 
         static IEnumerable<string> BuggyValidate(int number) => throw new InvalidOperationException("Boom");
 

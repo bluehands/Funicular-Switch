@@ -16,7 +16,7 @@ namespace FunicularSwitch.Generators.AwesomeAssertions.Consumer.Dependency
         public AndWhichConstraint<GenericResultAssertions<T>, T> BeOk(string because = "", params object[] becauseArgs)
         {
             CurrentAssertionChain
-                .ForCondition(this.Subject.IsOk)
+                .ForCondition(this.Subject is global::FunicularSwitch.Generators.AwesomeAssertions.Consumer.Dependency.GenericResult<T>.Ok_)
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context} to be Ok{reason}, but found {0}", this.Subject.ToString());
                 
@@ -26,7 +26,7 @@ namespace FunicularSwitch.Generators.AwesomeAssertions.Consumer.Dependency
         public AndWhichConstraint<GenericResultAssertions<T>, object> BeError(string because = "", params object[] becauseArgs)
         {
             CurrentAssertionChain
-                .ForCondition(this.Subject.IsError)
+                .ForCondition(this.Subject is global::FunicularSwitch.Generators.AwesomeAssertions.Consumer.Dependency.GenericResult<T>.Error_)
                 .BecauseOf(because, becauseArgs)
                 .FailWith("Expected {context} to be Error{reason}, but found {0}", this.Subject.ToString());
                 

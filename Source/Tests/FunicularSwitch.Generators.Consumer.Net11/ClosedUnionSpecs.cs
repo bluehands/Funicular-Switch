@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FunicularSwitch.Generators.Consumer.Net11.NonGenericResult;
 
 namespace FunicularSwitch.Generators.Consumer.Net11;
 
@@ -85,5 +86,18 @@ public class ClosedUnionSpecs
         text.Should().Be("ok 42");
         result.Match(i => i, _ => -1).Should().Be(42);
         Result.Error<int>("failed").Match(i => i, _ => -1).Should().Be(-1);
+    }
+
+    [TestMethod]
+    public void ClosedNonGenericResultType()
+    {
+        Outcome<int> outcome = Outcome.Error<int>("failed");
+        var text = outcome switch
+        {
+            Outcome<int>.Ok_ ok => $"ok {ok.Value}",
+            Outcome<int>.Error_ error => $"error {error.Details}",
+        };
+        text.Should().Be("error failed");
+        outcome.GetErrorOrDefault().Should().Be("failed");
     }
 }

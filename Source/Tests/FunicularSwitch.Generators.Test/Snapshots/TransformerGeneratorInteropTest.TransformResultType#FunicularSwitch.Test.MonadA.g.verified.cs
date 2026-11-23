@@ -7,7 +7,7 @@ using System;
 namespace FunicularSwitch.Test
 {
 #pragma warning disable 1591
-    public abstract partial class MonadA
+    public partial class MonadA
     {
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::System.Diagnostics.Contracts.PureAttribute]
@@ -18,10 +18,6 @@ namespace FunicularSwitch.Test
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::System.Diagnostics.Contracts.PureAttribute]
         public static MonadA<T> Ok<T>(T value) => new MonadA<T>.Ok_(value);
-        public bool IsError => GetType().GetGenericTypeDefinition() == typeof(MonadA<>.Error_);
-        public bool IsOk => !IsError;
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public abstract String? GetErrorOrDefault();
 
         [global::System.Diagnostics.DebuggerStepThrough]
         
@@ -80,16 +76,19 @@ namespace FunicularSwitch.Test
         }
     }
 
-    public abstract partial class MonadA<T> : MonadA, global::System.Collections.Generic.IEnumerable<T>
+    public abstract partial class MonadA<T> : global::System.Collections.Generic.IEnumerable<T>
     {
 
         [global::System.Diagnostics.DebuggerNonUserCode]
         
-        public new static MonadA<T> Error(String message) => Error<T>(message);
+        public static MonadA<T> Error(String message) => MonadA.Error<T>(message);
 
         [global::System.Diagnostics.DebuggerNonUserCode]
         
-        public static MonadA<T> Ok(T value) => Ok<T>(value);
+        public static MonadA<T> Ok(T value) => MonadA.Ok<T>(value);
+
+        [global::System.Diagnostics.Contracts.PureAttribute]
+        public abstract String? GetErrorOrDefault();
 
         [global::System.Diagnostics.DebuggerStepThrough]
         
@@ -98,13 +97,6 @@ namespace FunicularSwitch.Test
         [global::System.Diagnostics.DebuggerStepThrough]
         
         public static implicit operator MonadA<T>(MonadAError myResultError) => myResultError.WithOk<T>();
-
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public static bool operator true(MonadA<T> result) => result.IsOk;
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public static bool operator false(MonadA<T> result) => result.IsError;
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public static bool operator !(MonadA<T> result) => result.IsError;
 
         //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
         bool Equals(MonadA<T> other) => this switch

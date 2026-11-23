@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using FunicularSwitch.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

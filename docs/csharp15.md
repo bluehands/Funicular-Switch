@@ -10,6 +10,15 @@ FunicularSwitch.Generators 5.0, FunicularSwitch.Analyzers 2.0 and FunicularSwitc
   This is a hard minimum, there are no analyzer folders for older compilers. The `FunicularSwitch.Generators` and `FunicularSwitch.Analyzers` packages ship a `buildTransitive` target that fails the build with error `FUNICULAR001` and an explanatory message if the compiler is older (it checks `$(CompilerApiVersion)`, e.g. `roslyn5.12`). Set `<FunicularSwitchSkipCompilerCheck>true</FunicularSwitchSkipCompilerCheck>` to suppress the check (the analyzers then fail to load with CS8032).
 - The analyzer suggestions (FS0001-FS0007) come from the separate `FunicularSwitch.Analyzers` package. Generators alone don't report them.
 - `Match`/`Switch` of generated union types now throw `ArgumentNullException` instead of `ArgumentException` for a null receiver. `ArgumentNullException` derives from `ArgumentException`, so existing `catch` blocks keep working.
+- **Result types: `Result<T>` no longer derives from the non-generic `Result`.** `Result` only holds the static factories (`Ok`, `Error`, `Try`). This lets you declare either type `closed`, including `[ResultType] public closed partial class Result;` (that failed with CS9383 before). This applies to generated result types and to `FunicularSwitch.Result<T>`. Removed members and their replacements:
+
+  | Removed | Use instead |
+  |---|---|
+  | `result.IsOk` / `result.IsError` | `result is Result<T>.Ok_` / `is Result<T>.Error_ e`, or `Match` |
+  | `if (result)` / `if (!result)` (`operator true/false/!`) | `Match`, or a switch on `Ok_` / `Error_` |
+  | `Result` as a common base type (e.g. `Result[]`, `r is Result`) | `Result<T>` or a type parameter |
+
+  `GetErrorOrDefault()` is still available on `Result<T>`.
 
 ## Closed unions vs. `Match`
 
