@@ -65,6 +65,28 @@ public static class RoslynExtensions
     public static bool Implements(this INamedTypeSymbol symbol, ITypeSymbol interfaceType)
         => symbol.AllInterfaces.Any(i => interfaceType.Equals(i, SymbolEqualityComparer.Default));
 
+    /// <summary>Constructs Leaf&lt;U&gt; : Tree&lt;U&gt; as Leaf&lt;T&gt; for generated members of Tree&lt;T&gt;.</summary>
+    public static INamedTypeSymbol? TryUseBaseTypeParameters(this INamedTypeSymbol caseSymbol, INamedTypeSymbol unionTypeSymbol)
+    {
+        if (!caseSymbol.IsGenericType || caseSymbol.ContainingType is { IsGenericType: true } || !unionTypeSymbol.IsGenericType)
+            return null;
+
+        var baseType = caseSymbol.BaseType;
+        while (baseType != null && !SymbolEqualityComparer.Default.Equals(baseType.OriginalDefinition, unionTypeSymbol.OriginalDefinition))
+            baseType = baseType.BaseType;
+        if (baseType == null) return null;
+
+        var arguments = new ITypeSymbol[caseSymbol.TypeParameters.Length];
+        for (var i = 0; i < arguments.Length; i++)
+        {
+            var index = baseType.TypeArguments.ToList().FindIndex(a => SymbolEqualityComparer.Default.Equals(a, caseSymbol.TypeParameters[i]));
+            if (index < 0) return null;
+            arguments[i] = unionTypeSymbol.OriginalDefinition.TypeParameters[index];
+        }
+
+        return caseSymbol.OriginalDefinition.Construct(arguments);
+    }
+
     public static string? GetFullNamespace(this INamedTypeSymbol namedType)
     {
         var parentNamespaces = new List<string>();
