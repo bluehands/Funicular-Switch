@@ -212,7 +212,7 @@ static class Parser
                 constructors = constructors.AddRange(d.node
                     .ChildNodes()
                     .OfType<ConstructorDeclarationSyntax>()
-                    .Select(c => c.ToMemberInfo(c.Identifier.Text, compilation)));
+                    .Select(c => c.ToMemberInfo(c.Identifier.Text, ToCaseParameterInfo)));
 
                 //primary constructors
                 if (d.node is TypeDeclarationSyntax { ParameterList: not null } typeDeclaration)
@@ -221,14 +221,25 @@ static class Parser
                             Name: d.node.Name(),
                             Modifiers: d.node.Modifiers.ToEquatableModifiers(),
                             Parameters: typeDeclaration.ParameterList.Parameters
-                                .Select(p => p.ToParameterInfo(compilation))
+                                .Select(ToCaseParameterInfo)
                                 .ToImmutableArray())
                     );
 
                 requiredMembers = requiredMembers.AddRange(d.node.ChildNodes()
                     .OfType<MemberDeclarationSyntax>()
                     .Where(m => m.Modifiers.HasRequiredModifier())
-                    .Select(m => m.ToPropertyOrFieldInfo(compilation)));
+                    .Select(m =>
+                    {
+                        var member = m.ToPropertyOrFieldInfo(compilation);
+                        if (withBaseTypeParameters == null) return member;
+                        var type = withBaseTypeParameters.GetMembers(member.Name.TrimStart('@')).Single() switch
+                        {
+                            IPropertySymbol property => property.Type,
+                            IFieldSymbol field => field.Type,
+                            _ => member.Type
+                        };
+                        return member with { Type = type };
+                    }));
             }
 
             var (parameterName, staticMethodName) =
@@ -244,6 +255,23 @@ static class Parser
                 requiredMembers: requiredMembers,
                 parameterName: parameterName,
                 staticFactoryMethodName: staticMethodName);
+
+            ParameterInfo ToCaseParameterInfo(ParameterSyntax syntax)
+            {
+                var semanticModel = compilation.GetSemanticModel(syntax.SyntaxTree);
+                var parameter = syntax.ToParameterInfo(semanticModel);
+                if (withBaseTypeParameters == null) return parameter;
+
+                // Constructed member symbols substitute type parameters recursively, including nullable and nested types.
+                var symbol = semanticModel.GetDeclaredSymbol(syntax)!;
+                var constructor = withBaseTypeParameters.InstanceConstructors
+                    .Single(c => SymbolEqualityComparer.Default.Equals(c.OriginalDefinition, symbol.ContainingSymbol));
+                return new ParameterInfo(
+                    parameter.Name,
+                    parameter.Modifiers,
+                    constructor.Parameters[symbol.Ordinal].Type,
+                    parameter.DefaultClause);
+            }
         }).ToImmutableArray();
 
         return new(derived, errors, true);

@@ -302,21 +302,23 @@ public static class RoslynExtensions
     }
 
     public static CallableMemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Compilation compilation)
+        => member.ToMemberInfo(name, p => p.ToParameterInfo(compilation.GetSemanticModel(member.SyntaxTree)));
+
+    public static CallableMemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Func<ParameterSyntax, ParameterInfo> mapParameters)
     {
         var modifiers = member.Modifiers;
-        return new(name,
-            ToEquatableModifiers(modifiers),
+        return new CallableMemberInfo(
+            name,
+            modifiers.ToEquatableModifiers(),
             member.ParameterList.Parameters
-                .Select(p =>
-                    ToParameterInfo(p, compilation))
+                .Select(mapParameters)
                 .ToImmutableArray());
     }
 
     public static ImmutableArray<string> ToEquatableModifiers(this SyntaxTokenList modifiers) => modifiers.Select(m => m.Text).ToImmutableArray();
 
-    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, Compilation compilation)
+    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, SemanticModel semanticModel)
     {
-        var semanticModel = compilation.GetSemanticModel(p.SyntaxTree);
         var typeInfo = semanticModel.GetTypeInfo(p.Type!);
         var annotation = p.Type is NullableTypeSyntax
             ? NullableAnnotation.Annotated

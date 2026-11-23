@@ -153,7 +153,7 @@ internal static class Generator
         foreach (var derivedType in unionTypeSchema.DerivedTypes)
         {
             var derivedTypeFullName = derivedType.FullTypeName();
-            var derivedTypeFullNameWithGlobalNamespace = derivedType.FullTypeNameWithNamespaceAndGenerics();
+            var derivedTypeFullNameWithGlobalNamespace = (derivedType.TryUseBaseTypeParameters(unionTypeSchema.UnionTypeBaseType) ?? derivedType).FullTypeNameWithNamespaceAndGenerics();
             var friendlyDerivedUnionTypeName = derivedType.Name.Trim('_');
             var derivedAssertionCode =
                 $$"""
