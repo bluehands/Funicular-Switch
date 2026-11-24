@@ -7,7 +7,7 @@ using System;
 namespace FunicularSwitch.Test
 {
 #pragma warning disable 1591
-    public partial class MonadA
+    public static partial class MonadA
     {
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::System.Diagnostics.Contracts.PureAttribute]

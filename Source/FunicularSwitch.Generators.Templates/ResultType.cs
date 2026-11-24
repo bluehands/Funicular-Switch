@@ -6,7 +6,7 @@ using global::System.Linq;
 namespace FunicularSwitch.Generators.Templates
 {
 #pragma warning disable 1591
-    public partial class MyResult
+    public static partial class MyResult
     {
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::System.Diagnostics.Contracts.PureAttribute]

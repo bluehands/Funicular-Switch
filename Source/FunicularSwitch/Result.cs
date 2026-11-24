@@ -7,7 +7,7 @@ using FunicularSwitch.Generators;
 
 namespace FunicularSwitch
 {
-    public abstract partial class Result
+    public static partial class Result
     {
         public static Result<Unit> Try(Action action, Func<Exception, string> formatError)
         {

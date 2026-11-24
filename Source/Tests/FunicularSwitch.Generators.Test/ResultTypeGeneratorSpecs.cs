@@ -284,7 +284,7 @@ public class Run_result_type_generator : VerifySourceGenerator
             namespace FunicularSwitch.Test;
 
             [ResultType(errorType: typeof(MyError))]
-            public abstract partial class OperationResult
+            public abstract partial class OperationResult<T>
             {
             }
             

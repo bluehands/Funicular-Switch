@@ -7,7 +7,7 @@ using FunicularSwitch.Generic;
 namespace FunicularSwitch.Generators.Consumer
 {
 #pragma warning disable 1591
-    public partial class Result
+    public static partial class Result
     {
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::System.Diagnostics.Contracts.PureAttribute]

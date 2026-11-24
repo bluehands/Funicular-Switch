@@ -6,7 +6,7 @@ using global::System.Linq;
 namespace FunicularSwitch.Test
 {
 #pragma warning disable 1591
-    public abstract partial class Result
+    public static partial class Result
     {
         
 

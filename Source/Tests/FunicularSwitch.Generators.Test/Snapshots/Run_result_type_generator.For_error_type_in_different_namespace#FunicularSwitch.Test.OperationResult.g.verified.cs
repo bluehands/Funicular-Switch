@@ -7,7 +7,7 @@ using FunicularSwitch.Test.Errors;
 namespace FunicularSwitch.Test
 {
 #pragma warning disable 1591
-    public partial class OperationResult
+    public static partial class OperationResult
     {
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::System.Diagnostics.Contracts.PureAttribute]

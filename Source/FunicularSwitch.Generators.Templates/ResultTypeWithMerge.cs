@@ -5,7 +5,7 @@ using global::System.Linq;
 namespace FunicularSwitch.Generators.Templates
 {
 #pragma warning disable 1591
-    public abstract partial class MyResult
+    public static partial class MyResult
     {
         //generated aggregate methods
     }

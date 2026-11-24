@@ -6,7 +6,7 @@ using FunicularSwitch.Generic;
 namespace FunicularSwitch.Generators.Consumer
 {
 #pragma warning disable 1591
-    public abstract partial class Result
+    public static partial class Result
     {
         
 

@@ -7,7 +7,7 @@ using FunicularSwitch.Test.Extensions;
 namespace FunicularSwitch.Test
 {
 #pragma warning disable 1591
-    public abstract partial class OperationResult
+    public static partial class OperationResult
     {
         
 

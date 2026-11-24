@@ -1,5 +1,5 @@
 using FluentAssertions;
-using FunicularSwitch.Generators.Consumer.Net11.NonGenericResult;
+using FunicularSwitch.Generators.Consumer.Net11.ResultSpecs;
 
 namespace FunicularSwitch.Generators.Consumer.Net11;
 
@@ -89,7 +89,7 @@ public class ClosedUnionSpecs
     }
 
     [TestMethod]
-    public void ClosedNonGenericResultType()
+    public void ClosedGenericResultType()
     {
         Outcome<int> outcome = Outcome.Error<int>("failed");
         var text = outcome switch

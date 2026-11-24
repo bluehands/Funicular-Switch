@@ -140,11 +140,11 @@ static class Parser
             {
                 FieldDeclarationSyntax f when f.Modifiers.HasModifier(SyntaxKind.StaticKeyword) => f.Declaration
                     .Variables.Select(v => v.Identifier.Text),
-                PropertyDeclarationSyntax p when p.Modifiers.HasModifier(SyntaxKind.StaticKeyword) => new[]
-                {
+                PropertyDeclarationSyntax p when p.Modifiers.HasModifier(SyntaxKind.StaticKeyword) =>
+                [
                     p.Name()
-                },
-                _ => Array.Empty<string>()
+                ],
+                _ => [],
             })
             .ToImmutableArray();
 

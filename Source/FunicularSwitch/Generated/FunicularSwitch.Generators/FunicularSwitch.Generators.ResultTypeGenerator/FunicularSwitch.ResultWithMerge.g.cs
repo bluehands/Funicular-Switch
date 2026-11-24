@@ -5,7 +5,7 @@ using System;
 namespace FunicularSwitch
 {
 #pragma warning disable 1591
-    public abstract partial class Result
+    public static partial class Result
     {
         
 
