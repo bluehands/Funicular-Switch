@@ -1,0 +1,77 @@
+name: Publish NuGet packages
+
+on:
+  release:
+    types: [ published ]
+
+env:
+  # Versions are defined in the project files. A GitHub pre-release gets a version suffix, a full release does not.
+  IsPreRelease: ${{ github.event.release.prerelease }}
+  VersionSuffix: -ci.${{ github.run_number }}
+  ReferencePreReleaseAnalyzer: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: global.json
+        # runtimes for the older test target frameworks (net8/net9/net10); net11 comes with the SDK from global.json
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+    - name: Restore
+      run: dotnet restore ./Source
+    - name: Build
+      run: dotnet build ./Source --no-restore --configuration Release /p:ContinuousIntegrationBuild=true
+    - name: Test
+      run: dotnet test ./Source --no-build --configuration Release --verbosity normal
+    - name: Pack
+      shell: pwsh
+      run: |
+        $projects = @(
+          'Source/FunicularSwitch/FunicularSwitch.csproj',
+          'Source/FunicularSwitch.Generators/FunicularSwitch.Generators.csproj',
+          'Source/FunicularSwitch.Generators.AwesomeAssertions/FunicularSwitch.Generators.AwesomeAssertions.csproj',
+          'Source/FunicularSwitch.Generic/FunicularSwitch.Generic.csproj',
+          'Source/FunicularSwitch.Generic.Assertions/FunicularSwitch.Generic.Assertions.csproj',
+          'Source/FunicularSwitch.Analyzers.NuGet/FunicularSwitch.Analyzers.NuGet.csproj',
+          'Source/FunicularSwitch.Transformers/FunicularSwitch.Transformers.csproj'
+        )
+        foreach ($p in $projects) {
+          dotnet pack $p --no-build --configuration Release --output artifacts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        }
+    - uses: actions/upload-artifact@v4
+      with:
+        name: packages
+        path: artifacts/*nupkg
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      id-token: write # required for NuGet trusted publishing (OIDC)
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: packages
+        path: artifacts
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    - name: NuGet login (trusted publishing)
+      id: login
+      uses: NuGet/login@v1
+      with:
+        user: ${{ vars.NUGET_USER }}
+    - name: Push
+      run: dotnet nuget push "artifacts/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
