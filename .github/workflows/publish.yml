@@ -15,6 +15,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    # snapshot test files exceed the Windows MAX_PATH limit
+    - name: Enable git long paths
+      run: git config --system core.longpaths true
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
