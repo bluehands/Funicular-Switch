@@ -6,9 +6,6 @@
     type: boolean
     default: false
 
-trigger:
-- main
-
 pool:
   vmImage: 'windows-latest'
 
