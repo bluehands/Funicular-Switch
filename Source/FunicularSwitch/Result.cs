@@ -7,7 +7,7 @@ using FunicularSwitch.Generators;
 
 namespace FunicularSwitch
 {
-    public abstract partial class Result
+    public static partial class Result
     {
         public static Result<Unit> Try(Action action, Func<Exception, string> formatError)
         {
@@ -37,7 +37,11 @@ namespace FunicularSwitch
     }
 
     [ResultType(ErrorType = typeof(string))]
+#if NET11_0_OR_GREATER
+    public closed partial class Result<T>;
+#else
     public abstract partial class Result<T>;
+#endif
 
     public static partial class ResultExtension
     {

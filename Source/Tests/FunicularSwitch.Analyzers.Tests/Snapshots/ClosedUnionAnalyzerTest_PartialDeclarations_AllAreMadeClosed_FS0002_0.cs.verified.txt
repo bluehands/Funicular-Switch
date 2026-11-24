@@ -1,0 +1,9 @@
+﻿using FunicularSwitch.Generators;
+namespace FunicularSwitch.Generators
+{
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface)]
+    public sealed class UnionTypeAttribute : System.Attribute { }
+}
+[UnionType]
+public closed partial record Shape;
+public closed partial record Shape { public sealed record Circle : Shape; }

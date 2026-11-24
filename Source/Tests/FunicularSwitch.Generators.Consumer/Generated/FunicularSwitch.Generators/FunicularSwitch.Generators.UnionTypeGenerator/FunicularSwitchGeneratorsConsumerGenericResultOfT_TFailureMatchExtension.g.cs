@@ -8,6 +8,7 @@ namespace FunicularSwitch.Generators.Consumer
 		public static TMatchResult Match<T, TFailure, TMatchResult>(this global::FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure> genericResult, global::System.Func<FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure>.Ok_, TMatchResult> ok, global::System.Func<FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure>.Error_, TMatchResult> error) =>
 		genericResult switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(genericResult)),
 			FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure>.Ok_ ok1 => ok(ok1),
 			FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure>.Error_ error2 => error(error2),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.GenericResult: {genericResult.GetType().Name}")
@@ -17,6 +18,7 @@ namespace FunicularSwitch.Generators.Consumer
 		public static async global::System.Threading.Tasks.Task<TMatchResult> Match<T, TFailure, TMatchResult>(this global::FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure> genericResult, global::System.Func<FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure>.Ok_, global::System.Threading.Tasks.Task<TMatchResult>> ok, global::System.Func<FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure>.Error_, global::System.Threading.Tasks.Task<TMatchResult>> error) =>
 		genericResult switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(genericResult)),
 			FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure>.Ok_ ok1 => await ok(ok1).ConfigureAwait(false),
 			FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure>.Error_ error2 => await error(error2).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.GenericResult: {genericResult.GetType().Name}")
@@ -35,6 +37,8 @@ namespace FunicularSwitch.Generators.Consumer
 		{
 			switch (genericResult)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(genericResult));
 				case FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure>.Ok_ ok1:
 					ok(ok1);
 					break;
@@ -51,6 +55,8 @@ namespace FunicularSwitch.Generators.Consumer
 		{
 			switch (genericResult)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(genericResult));
 				case FunicularSwitch.Generators.Consumer.GenericResult<T, TFailure>.Ok_ ok1:
 					await ok(ok1).ConfigureAwait(false);
 					break;

@@ -9,6 +9,7 @@ namespace FunicularSwitch.Test
 		public static T Match<T>(this global::FunicularSwitch.Test.FieldType fieldType, global::System.Func<FunicularSwitch.Test.FieldType.Bool_, T> @bool, global::System.Func<FunicularSwitch.Test.FieldType.Enum_, T> @enum, global::System.Func<FunicularSwitch.Test.FieldType.String_, T> @string) =>
 		fieldType switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(fieldType)),
 			FunicularSwitch.Test.FieldType.Bool_ @bool1 => @bool(@bool1),
 			FunicularSwitch.Test.FieldType.Enum_ @enum2 => @enum(@enum2),
 			FunicularSwitch.Test.FieldType.String_ @string3 => @string(@string3),
@@ -19,6 +20,7 @@ namespace FunicularSwitch.Test
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Test.FieldType fieldType, global::System.Func<FunicularSwitch.Test.FieldType.Bool_, global::System.Threading.Tasks.Task<T>> @bool, global::System.Func<FunicularSwitch.Test.FieldType.Enum_, global::System.Threading.Tasks.Task<T>> @enum, global::System.Func<FunicularSwitch.Test.FieldType.String_, global::System.Threading.Tasks.Task<T>> @string) =>
 		fieldType switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(fieldType)),
 			FunicularSwitch.Test.FieldType.Bool_ @bool1 => await @bool(@bool1).ConfigureAwait(false),
 			FunicularSwitch.Test.FieldType.Enum_ @enum2 => await @enum(@enum2).ConfigureAwait(false),
 			FunicularSwitch.Test.FieldType.String_ @string3 => await @string(@string3).ConfigureAwait(false),
@@ -38,6 +40,8 @@ namespace FunicularSwitch.Test
 		{
 			switch (fieldType)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(fieldType));
 				case FunicularSwitch.Test.FieldType.Bool_ @bool1:
 					@bool(@bool1);
 					break;
@@ -57,6 +61,8 @@ namespace FunicularSwitch.Test
 		{
 			switch (fieldType)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(fieldType));
 				case FunicularSwitch.Test.FieldType.Bool_ @bool1:
 					await @bool(@bool1).ConfigureAwait(false);
 					break;

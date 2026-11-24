@@ -29,6 +29,45 @@ public class Run_union_type_generator : VerifySourceGenerator
     }
 
     [TestMethod]
+    public Task For_partial_union_type_in_global_namespace()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            [UnionType]
+            public abstract partial record Base;
+
+            public record One : Base;
+            public record Two(int Value) : Base;
+            """;
+
+        return Verify(code);
+    }
+
+    [TestMethod]
+    public Task For_union_type_with_cases_in_global_namespace()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            namespace FunicularSwitch.Test
+            {
+                [UnionType]
+                public abstract partial record Base;
+            }
+
+            public record One : FunicularSwitch.Test.Base;
+            public record Two : FunicularSwitch.Test.Base;
+            """;
+
+        return Verify(code);
+    }
+
+    [TestMethod]
     public Task For_record_union_type_with_multi_level_concrete_derived_types()
     {
         var code =
@@ -613,5 +652,103 @@ public class Run_union_type_generator : VerifySourceGenerator
 			""";
 
         return Verify(code, additionalAssemblies: [typeof(InstantHandleAttribute).Assembly]);
+    }
+
+    [TestMethod]
+    public Task ForUnionType_WithNonNestedCaseThatUsesDifferentGenericName_GeneratesCorrectly()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            namespace Unit.Test;
+
+            [UnionType]
+            public abstract partial record Tree<T>;
+
+            public sealed record Leaf<U>(U Value) : Tree<U>;
+            """;
+
+        return Verify(code);
+    }
+
+    [TestMethod]
+    public Task ForUnionType_WithRenamedGenericConstructorAndRequiredMembers_GeneratesCorrectly()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using System.Collections.Generic;
+            using FunicularSwitch.Generators;
+
+            namespace Unit.Test;
+
+            [UnionType]
+            public abstract partial class Tree<T> where T : class;
+
+            public class Container<TItem>
+            {
+                public class Nested<TNested>;
+            }
+
+            public sealed class Leaf<U> : Tree<U> where U : class
+            {
+                public Leaf(U? value, List<(U Item, U[] Items)> items) { }
+                public Leaf(Container<U>.Nested<U[]> nested) { }
+
+                public required U? @event { get; init; }
+                public required Dictionary<string, U?[,]> Values;
+            }
+
+            public static class Consumer
+            {
+                public static Tree<string> Create() => Tree<string>.Leaf(
+                    (string?)null, new List<(string Item, string[] Items)>(),
+                    null, new Dictionary<string, string?[,]>());
+
+                public static Tree<string> CreateNested() => Tree<string>.Leaf(
+                    new Container<string>.Nested<string[]>(),
+                    null, new Dictionary<string, string?[,]>());
+            }
+            """;
+
+        return Verify(code);
+    }
+
+    [TestMethod]
+    public Task ForUnionType_WithReorderedGenericParametersAndIndirectBase_GeneratesCorrectly()
+    {
+        var code =
+            /* lang=csharp */
+            """
+            using FunicularSwitch.Generators;
+
+            namespace Unit.Test;
+
+            [UnionType]
+            public abstract partial record Pair<TFirst, TSecond>
+                where TFirst : class
+                where TSecond : struct;
+
+            public abstract record Intermediate<TItem, TKey> : Pair<TKey, TItem>
+                where TItem : struct
+                where TKey : class;
+
+            public sealed record Value<U, V>(V Key, U? Item) : Intermediate<U, V>
+                where U : struct
+                where V : class
+            {
+                public required (V Key, U[] Items) Details { get; init; }
+            }
+
+            public static class Consumer
+            {
+                public static Pair<string, int> Create() => Pair<string, int>.Value(
+                    "key", null, ("details", new int[] { 1 }));
+            }
+            """;
+
+        return Verify(code);
     }
 }

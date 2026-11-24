@@ -10,7 +10,7 @@ internal class Generator
         var filename = $"{info.FullTypeName}.g.cs";
 
         var cs = new CSharpBuilder("    ");
-        using (cs.Namespace(info.Namespace))
+        using (info.Namespace != null ? cs.Namespace(info.Namespace) : null)
         {
             GeneralGenerator.WriteStaticMonad(info.StaticMonadGenerationInfo, cs, cancellationToken);
         }

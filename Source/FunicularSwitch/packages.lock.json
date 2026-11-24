@@ -33,6 +33,17 @@
       "FunicularSwitch.Analyzers": {
         "type": "Project"
       }
+    },
+    "net11.0": {
+      "System.Threading.Tasks.Extensions": {
+        "type": "Direct",
+        "requested": "[4.6.3, )",
+        "resolved": "4.6.3",
+        "contentHash": "7sCiwilJLYbTZELaKnc7RecBBXWXA+xMLQWZKWawBxYjp6DBlSE3v9/UcvKBvr1vv2tTOhipiogM8rRmxlhrVA=="
+      },
+      "FunicularSwitch.Analyzers": {
+        "type": "Project"
+      }
     }
   }
 }

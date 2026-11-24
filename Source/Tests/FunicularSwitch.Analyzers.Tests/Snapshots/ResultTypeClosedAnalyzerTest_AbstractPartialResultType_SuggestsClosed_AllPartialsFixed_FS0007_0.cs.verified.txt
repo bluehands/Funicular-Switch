@@ -1,0 +1,10 @@
+﻿using FunicularSwitch.Generators;
+namespace FunicularSwitch.Generators
+{
+    [System.AttributeUsage(System.AttributeTargets.Class)]
+    public sealed class ResultTypeAttribute : System.Attribute { public ResultTypeAttribute(System.Type errorType) { } }
+}
+public class MyError;
+[ResultType(typeof(MyError))]
+public closed partial class MyResult<T>;
+public closed partial class MyResult<T> { }

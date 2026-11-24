@@ -1,0 +1,12 @@
+﻿using FunicularSwitch.Generators;
+namespace FunicularSwitch.Generators
+{
+    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface)]
+    public sealed class UnionTypeAttribute : System.Attribute { }
+}
+[UnionType]
+public closed record Tree<T>
+{
+    public sealed record Leaf(T Value) : Tree<T>;
+    public sealed record Node(Tree<T> Left, Tree<T> Right) : Tree<T>;
+}

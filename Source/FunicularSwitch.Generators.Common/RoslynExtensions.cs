@@ -49,6 +49,13 @@ public static class RoslynExtensions
             if (type.Equals(baseType, SymbolEqualityComparer.Default))
                 return true;
 
+            //case with own type parameters deriving from generic base, e.g. Leaf<T> : Tree<T>
+            if (type is INamedTypeSymbol { IsGenericType: true } genericType
+                && baseType.IsGenericType
+                && SymbolEqualityComparer.Default.Equals(genericType.OriginalDefinition, baseType.OriginalDefinition)
+                && baseType.TypeArguments.All(a => a is ITypeParameterSymbol))
+                return true;
+
             baseType = baseType.BaseType;
         }
 
@@ -57,6 +64,28 @@ public static class RoslynExtensions
 
     public static bool Implements(this INamedTypeSymbol symbol, ITypeSymbol interfaceType)
         => symbol.AllInterfaces.Any(i => interfaceType.Equals(i, SymbolEqualityComparer.Default));
+
+    /// <summary>Constructs Leaf&lt;U&gt; : Tree&lt;U&gt; as Leaf&lt;T&gt; for generated members of Tree&lt;T&gt;.</summary>
+    public static INamedTypeSymbol? TryUseBaseTypeParameters(this INamedTypeSymbol caseSymbol, INamedTypeSymbol unionTypeSymbol)
+    {
+        if (!caseSymbol.IsGenericType || caseSymbol.ContainingType is { IsGenericType: true } || !unionTypeSymbol.IsGenericType)
+            return null;
+
+        var baseType = caseSymbol.BaseType;
+        while (baseType != null && !SymbolEqualityComparer.Default.Equals(baseType.OriginalDefinition, unionTypeSymbol.OriginalDefinition))
+            baseType = baseType.BaseType;
+        if (baseType == null) return null;
+
+        var arguments = new ITypeSymbol[caseSymbol.TypeParameters.Length];
+        for (var i = 0; i < arguments.Length; i++)
+        {
+            var index = baseType.TypeArguments.ToList().FindIndex(a => SymbolEqualityComparer.Default.Equals(a, caseSymbol.TypeParameters[i]));
+            if (index < 0) return null;
+            arguments[i] = unionTypeSymbol.OriginalDefinition.TypeParameters[index];
+        }
+
+        return caseSymbol.OriginalDefinition.Construct(arguments);
+    }
 
     public static string? GetFullNamespace(this INamedTypeSymbol namedType)
     {
@@ -273,21 +302,23 @@ public static class RoslynExtensions
     }
 
     public static CallableMemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Compilation compilation)
+        => member.ToMemberInfo(name, p => p.ToParameterInfo(compilation.GetSemanticModel(member.SyntaxTree)));
+
+    public static CallableMemberInfo ToMemberInfo(this BaseMethodDeclarationSyntax member, string name, Func<ParameterSyntax, ParameterInfo> mapParameters)
     {
         var modifiers = member.Modifiers;
-        return new(name,
-            ToEquatableModifiers(modifiers),
+        return new CallableMemberInfo(
+            name,
+            modifiers.ToEquatableModifiers(),
             member.ParameterList.Parameters
-                .Select(p =>
-                    ToParameterInfo(p, compilation))
+                .Select(mapParameters)
                 .ToImmutableArray());
     }
 
     public static ImmutableArray<string> ToEquatableModifiers(this SyntaxTokenList modifiers) => modifiers.Select(m => m.Text).ToImmutableArray();
 
-    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, Compilation compilation)
+    public static ParameterInfo ToParameterInfo(this ParameterSyntax p, SemanticModel semanticModel)
     {
-        var semanticModel = compilation.GetSemanticModel(p.SyntaxTree);
         var typeInfo = semanticModel.GetTypeInfo(p.Type!);
         var annotation = p.Type is NullableTypeSyntax
             ? NullableAnnotation.Annotated

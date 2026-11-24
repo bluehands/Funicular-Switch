@@ -36,13 +36,21 @@ static class Parser
 
         var fullNamespace = unionTypeSymbol.GetFullNamespace();
 
-        var derivedTypes = compilation.SyntaxTrees.SelectMany(syntaxTree =>
+        var walkerResults = compilation.SyntaxTrees.Select(syntaxTree =>
         {
             var root = syntaxTree.GetRoot(cancellationToken);
             var treeSemanticModel = syntaxTree != unionTypeClass.SyntaxTree ? compilation.GetSemanticModel(syntaxTree) : semanticModel;
 
             return FindConcreteDerivedTypesWalker.Get(root, unionTypeSymbol, treeSemanticModel);
-        });
+        }).ToImmutableArray();
+        var derivedTypes = walkerResults.SelectMany(r => r.Concrete).ToImmutableArray();
+        var abstractDerivedTypes = walkerResults.SelectMany(r => r.Abstract).ToImmutableArray();
+
+        var isClosed = LanguageFeatures.SupportsClosed(compilation)
+            && LanguageFeatures.IsClosed(unionTypeSymbol);
+        //the compiler only knows the switch is exhaustive if every direct subtype is a case or a closed type with covered subtypes
+        var isExhaustive = isClosed
+            && AllCovered(unionTypeSymbol, derivedTypes.Select(d => d.symbol), abstractDerivedTypes);
 
 
         var isPartial = unionTypeClass.Modifiers.HasModifier(SyntaxKind.PartialKeyword)
@@ -50,7 +58,7 @@ static class Parser
         var generateFactoryMethods = isPartial && staticFactoryMethods;
 
         return
-            ToOrderedCases(caseOrder, derivedTypes, compilation, generateFactoryMethods, unionTypeSymbol.Name)
+            ToOrderedCases(caseOrder, derivedTypes, compilation, generateFactoryMethods, unionTypeSymbol.Name, unionTypeSymbol)
                 .Map(cases => new UnionTypeSchema(
                     Namespace: fullNamespace,
                     TypeName: unionTypeSymbol.Name,
@@ -61,6 +69,8 @@ static class Parser
                     TypeConstraints: typeConstraints,
                     IsInternal: acc is Accessibility.NotApplicable or Accessibility.Internal,
                     IsPartial: isPartial,
+                    IsExhaustive: isExhaustive,
+                    IsNativeUnion: false,
                     TypeKind: unionTypeClass switch
                     {
                         RecordDeclarationSyntax => UnionTypeTypeKind.Record,
@@ -75,6 +85,22 @@ static class Parser
 
 
         static GenerationResult<UnionTypeSchema> Error(Diagnostic diagnostic) => GenerationResult<UnionTypeSchema>.Empty.AddDiagnostics(diagnostic);
+    }
+
+    static bool AllCovered(INamedTypeSymbol baseType, IEnumerable<INamedTypeSymbol> concrete, IEnumerable<INamedTypeSymbol> abstractTypes)
+    {
+        var concreteSet = concrete.ToImmutableArray();
+        var all = concreteSet.Concat(abstractTypes).ToImmutableArray();
+        return all
+            .Where(t => SymbolEqualityComparer.Default.Equals(t.BaseType?.OriginalDefinition, baseType.OriginalDefinition))
+            .All(Covered);
+
+        bool Covered(INamedTypeSymbol type)
+        {
+            if (concreteSet.Contains(type, SymbolEqualityComparer.Default)) return true;
+            return LanguageFeatures.IsClosed(type)
+                && all.Where(t => SymbolEqualityComparer.Default.Equals(t.BaseType?.OriginalDefinition, type.OriginalDefinition)).All(Covered);
+        }
     }
 
     private static (string parameterName, string methodName) DeriveParameterAndStaticMethodName(string typeName,
@@ -114,11 +140,11 @@ static class Parser
             {
                 FieldDeclarationSyntax f when f.Modifiers.HasModifier(SyntaxKind.StaticKeyword) => f.Declaration
                     .Variables.Select(v => v.Identifier.Text),
-                PropertyDeclarationSyntax p when p.Modifiers.HasModifier(SyntaxKind.StaticKeyword) => new[]
-                {
+                PropertyDeclarationSyntax p when p.Modifiers.HasModifier(SyntaxKind.StaticKeyword) =>
+                [
                     p.Name()
-                },
-                _ => Array.Empty<string>()
+                ],
+                _ => [],
             })
             .ToImmutableArray();
 
@@ -127,7 +153,7 @@ static class Parser
 
     static GenerationResult<ImmutableArray<DerivedType>> ToOrderedCases(CaseOrder caseOrder,
         IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int
-            numberOfConctreteBaseTypes)> derivedTypes, Compilation compilation, bool getConstructors, string baseTypeName)
+            numberOfConctreteBaseTypes)> derivedTypes, Compilation compilation, bool getConstructors, string baseTypeName, INamedTypeSymbol unionTypeSymbol)
     {
         var ordered = derivedTypes.OrderByDescending(d => d.numberOfConctreteBaseTypes);
         ordered = caseOrder switch
@@ -179,13 +205,14 @@ static class Parser
             var fullNamespace = d.symbol.GetFullNamespace();
             var constructors = ImmutableArray<CallableMemberInfo>.Empty;
             var requiredMembers = ImmutableArray<PropertyOrFieldInfo>.Empty;
+            var withBaseTypeParameters = d.symbol.TryUseBaseTypeParameters(unionTypeSymbol);
 
             if (getConstructors)
             {
                 constructors = constructors.AddRange(d.node
                     .ChildNodes()
                     .OfType<ConstructorDeclarationSyntax>()
-                    .Select(c => c.ToMemberInfo(c.Identifier.Text, compilation)));
+                    .Select(c => c.ToMemberInfo(c.Identifier.Text, ToCaseParameterInfo)));
 
                 //primary constructors
                 if (d.node is TypeDeclarationSyntax { ParameterList: not null } typeDeclaration)
@@ -194,25 +221,57 @@ static class Parser
                             Name: d.node.Name(),
                             Modifiers: d.node.Modifiers.ToEquatableModifiers(),
                             Parameters: typeDeclaration.ParameterList.Parameters
-                                .Select(p => p.ToParameterInfo(compilation))
+                                .Select(ToCaseParameterInfo)
                                 .ToImmutableArray())
                     );
 
                 requiredMembers = requiredMembers.AddRange(d.node.ChildNodes()
                     .OfType<MemberDeclarationSyntax>()
                     .Where(m => m.Modifiers.HasRequiredModifier())
-                    .Select(m => m.ToPropertyOrFieldInfo(compilation)));
+                    .Select(m =>
+                    {
+                        var member = m.ToPropertyOrFieldInfo(compilation);
+                        if (withBaseTypeParameters == null) return member;
+                        var type = withBaseTypeParameters.GetMembers(member.Name.TrimStart('@')).Single() switch
+                        {
+                            IPropertySymbol property => property.Type,
+                            IFieldSymbol field => field.Type,
+                            _ => member.Type
+                        };
+                        return member with { Type = type };
+                    }));
             }
 
             var (parameterName, staticMethodName) =
-                DeriveParameterAndStaticMethodName(qualifiedTypeName.Name, baseTypeName);
+                DeriveParameterAndStaticMethodName(d.node.Name(), baseTypeName);
+
+            var fullCaseTypeName = $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}";
+            if (withBaseTypeParameters != null)
+                fullCaseTypeName = withBaseTypeParameters.FullTypeNameWithNamespaceAndGenerics();
 
             return new DerivedType(
-                fullTypeName: $"{(fullNamespace != null ? $"{fullNamespace}." : "")}{qualifiedTypeName}",
+                fullTypeName: fullCaseTypeName,
                 constructors: constructors,
                 requiredMembers: requiredMembers,
                 parameterName: parameterName,
                 staticFactoryMethodName: staticMethodName);
+
+            ParameterInfo ToCaseParameterInfo(ParameterSyntax syntax)
+            {
+                var semanticModel = compilation.GetSemanticModel(syntax.SyntaxTree);
+                var parameter = syntax.ToParameterInfo(semanticModel);
+                if (withBaseTypeParameters == null) return parameter;
+
+                // Constructed member symbols substitute type parameters recursively, including nullable and nested types.
+                var symbol = semanticModel.GetDeclaredSymbol(syntax)!;
+                var constructor = withBaseTypeParameters.InstanceConstructors
+                    .Single(c => SymbolEqualityComparer.Default.Equals(c.OriginalDefinition, symbol.ContainingSymbol));
+                return new ParameterInfo(
+                    parameter.Name,
+                    parameter.Modifiers,
+                    constructor.Parameters[symbol.Ordinal].Type,
+                    parameter.DefaultClause);
+            }
         }).ToImmutableArray();
 
         return new(derived, errors, true);
@@ -229,6 +288,7 @@ enum CaseOrder
 class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
 {
     readonly List<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex)> m_DerivedClasses = new();
+    readonly List<INamedTypeSymbol> m_AbstractDerivedClasses = new();
     readonly SemanticModel m_SemanticModel;
     readonly ITypeSymbol m_BaseClass;
 
@@ -238,11 +298,11 @@ class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
         m_BaseClass = baseClass;
     }
 
-    public static IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int numberOfConctreteBaseTypes)> Get(SyntaxNode node, ITypeSymbol baseClass, SemanticModel semanticModel)
+    public static (IEnumerable<(INamedTypeSymbol symbol, BaseTypeDeclarationSyntax node, int? caseIndex, int numberOfConctreteBaseTypes)> Concrete, IEnumerable<INamedTypeSymbol> Abstract) Get(SyntaxNode node, ITypeSymbol baseClass, SemanticModel semanticModel)
     {
         var me = new FindConcreteDerivedTypesWalker(semanticModel, baseClass);
         me.Visit(node);
-        return me.m_DerivedClasses.Select(d => (d.symbol, d.node, d.caseIndex, numberOfConctreteBaseTypes: me.m_DerivedClasses.Count(t => d.symbol.InheritsFrom(t.symbol))));
+        return (me.m_DerivedClasses.Select(d => (d.symbol, d.node, d.caseIndex, numberOfConctreteBaseTypes: me.m_DerivedClasses.Count(t => d.symbol.InheritsFrom(t.symbol)))), me.m_AbstractDerivedClasses);
     }
 
     public override void VisitClassDeclaration(ClassDeclarationSyntax node)
@@ -265,10 +325,12 @@ class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
 
     void CheckIsConcreteDerived(BaseTypeDeclarationSyntax node)
     {
-        var isAbstract = node.Modifiers.Any(m => m.Text.ToString() == "abstract");
+        var declared = m_SemanticModel.GetDeclaredSymbol(node);
+        //closed types are implicitly abstract
+        var isAbstract = declared?.IsAbstract ?? node.Modifiers.Any(m => m.Text.ToString() == "abstract");
         if (!isAbstract)
         {
-            var symbol = m_SemanticModel.GetDeclaredSymbol(node);
+            var symbol = declared;
             if (symbol != null && (symbol.InheritsFrom(m_BaseClass) || symbol.Implements(m_BaseClass)))
             {
                 var attribute = node.AttributeLists
@@ -279,6 +341,12 @@ class FindConcreteDerivedTypesWalker : CSharpSyntaxWalker
 
                 m_DerivedClasses.Add((symbol, node, caseIndex));
             }
+        }
+        else
+        {
+            var symbol = declared;
+            if (symbol != null && symbol.InheritsFrom(m_BaseClass))
+                m_AbstractDerivedClasses.Add(symbol);
         }
     }
 

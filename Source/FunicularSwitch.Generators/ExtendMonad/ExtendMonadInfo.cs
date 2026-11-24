@@ -4,5 +4,5 @@ namespace FunicularSwitch.Generators.ExtendMonad;
 
 internal record ExtendMonadInfo(
     string FullTypeName,
-    string Namespace,
+    string? Namespace,
     StaticMonadGenerationInfo StaticMonadGenerationInfo);

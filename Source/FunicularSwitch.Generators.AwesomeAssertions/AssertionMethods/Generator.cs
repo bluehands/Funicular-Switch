@@ -9,6 +9,10 @@ internal static class Generator
 {
     public const string TemplateNamespace = "FunicularSwitch.Generators.AwesomeAssertions.Templates";
 
+    // types in the global namespace have no namespace to import or to declare
+    static (string usingNs, string nsOpen, string nsClose) NamespaceParts(string? @namespace) =>
+        @namespace != null ? ($"using {@namespace};", $"namespace {@namespace}\n{{", "}") : ("", "", "");
+
     public static IEnumerable<(string filename, string source)> EmitForResultType(
         ResultTypeSchema resultTypeSchema,
         Action<Diagnostic> reportDiagnostic,
@@ -20,7 +24,8 @@ internal static class Generator
             SymbolWrapper.FullTypeWithNamespaceAndGenericsDisplayFormat.WithGenericsOptions(SymbolDisplayGenericsOptions
                 .None);
         var resultTypeFullNameWithGlobalNamespace = resultTypeSchema.ResultType.ToDisplayString(format);
-        var resultTypeNamespace = resultTypeSchema.ResultType.GetFullNamespace()!;
+        var resultTypeNamespace = resultTypeSchema.ResultType.GetFullNamespace();
+        var (usingNs, nsOpen, nsClose) = NamespaceParts(resultTypeNamespace);
 
         var errorTypeNameFullName = resultTypeSchema.ErrorType?.FullTypeNameWithNamespace() ?? typeof(string).FullName;
 
@@ -33,10 +38,9 @@ internal static class Generator
               using AwesomeAssertions.Execution;
               using AwesomeAssertions.Primitives;
               using AwesomeAssertions;
-              using {{resultTypeNamespace}};
+              {{usingNs}}
               
-              namespace {{resultTypeNamespace}}
-              {
+              {{nsOpen}}
                   internal partial class {{assertionsTypeName}}<T> : ObjectAssertions<{{resultTypeFullNameWithGlobalNamespace}}<T>, {{assertionsTypeName}}<T>>
                   {
                       public {{assertionsTypeName}}({{resultTypeFullNameWithGlobalNamespace}}<T> value) : base(value, AssertionChain.GetOrCreate())
@@ -46,7 +50,7 @@ internal static class Generator
                       public AndWhichConstraint<{{assertionsTypeName}}<T>, T> BeOk(string because = "", params object[] becauseArgs)
                       {
                           CurrentAssertionChain
-                              .ForCondition(this.Subject.IsOk)
+                              .ForCondition(this.Subject is {{resultTypeFullNameWithGlobalNamespace}}<T>.Ok_)
                               .BecauseOf(because, becauseArgs)
                               .FailWith("Expected {context} to be Ok{reason}, but found {0}", this.Subject.ToString());
                               
@@ -56,28 +60,27 @@ internal static class Generator
                       public AndWhichConstraint<{{assertionsTypeName}}<T>, {{errorTypeNameFullName}}> BeError(string because = "", params object[] becauseArgs)
                       {
                           CurrentAssertionChain
-                              .ForCondition(this.Subject.IsError)
+                              .ForCondition(this.Subject is {{resultTypeFullNameWithGlobalNamespace}}<T>.Error_)
                               .BecauseOf(because, becauseArgs)
                               .FailWith("Expected {context} to be Error{reason}, but found {0}", this.Subject.ToString());
                               
                           return new(this, this.Subject.GetErrorOrDefault()!);
                       }
                   }
-              }
+              {{nsClose}}
               """;
 
         var extensionCode =
             $$"""
               #nullable enable
-              using {{resultTypeNamespace}};
-
-              namespace {{resultTypeNamespace}}
-              {
+              {{usingNs}}
+              
+              {{nsOpen}}
                   internal static class {{resultTypeNameFullName}}AwesomeAssertionExtensions
                   {
                       public static {{assertionsTypeName}}<T> Should<T>(this {{resultTypeFullNameWithGlobalNamespace}}<T> result) => new(result);
                   }
-              }
+              {{nsClose}}
               """;
 
         yield return (
@@ -102,6 +105,7 @@ internal static class Generator
         EquatableArray<string> typeConstraints = unionTypeSchema.UnionTypeBaseType.TypeParameters
             .Select(t => t.FormatTypeConstraints()).ToImmutableArray();
         var unionTypeNamespace = unionTypeSchema.UnionTypeBaseType.GetFullNamespace();
+        var (usingNs, nsOpen, nsClose) = NamespaceParts(unionTypeNamespace);
         var typeParametersText = RoslynExtensions.FormatTypeParameters(typeParameters);
 
         var generateFileHint = $"{unionTypeFullNameWithNamespace}{RoslynExtensions.FormatTypeParameterForFileName(typeParameters)}";
@@ -112,10 +116,9 @@ internal static class Generator
             #nullable enable
             using AwesomeAssertions.Primitives;
             using AwesomeAssertions.Execution;
-            using {{unionTypeNamespace}};
+            {{usingNs}}
             
-            namespace {{unionTypeNamespace}}
-            {
+            {{nsOpen}}
                 internal partial class {{unionTypeFullName}}Assertions{{typeParametersText}} : ObjectAssertions<{{unionTypeFullNameWithNamespaceAndGenerics}}, {{unionTypeFullName}}Assertions{{typeParametersText}}>{{typeConstraintsText}}
                 {
                     public {{unionTypeFullName}}Assertions({{unionTypeFullNameWithNamespaceAndGenerics}} value) : base(value, AssertionChain.GetOrCreate())
@@ -123,21 +126,20 @@ internal static class Generator
                     
                     }
                 }
-            }
+            {{nsClose}}
             """;
 
         var extensionsCode =
             $$"""
             #nullable enable
-            using {{unionTypeNamespace}};
+            {{usingNs}}
             
-            namespace {{unionTypeNamespace}}
-            {
+            {{nsOpen}}
                 internal static class {{unionTypeFullName}}AwesomeAssertionExtensions
                 {
                     public static {{unionTypeFullName}}Assertions{{typeParametersText}} Should{{typeParametersText}}(this {{unionTypeFullNameWithNamespaceAndGenerics}} unionType){{typeConstraintsText}} => new(unionType);
                 }
-            }
+            {{nsClose}}
             """;
 
         yield return (
@@ -151,17 +153,16 @@ internal static class Generator
         foreach (var derivedType in unionTypeSchema.DerivedTypes)
         {
             var derivedTypeFullName = derivedType.FullTypeName();
-            var derivedTypeFullNameWithGlobalNamespace = derivedType.FullTypeNameWithNamespaceAndGenerics();
+            var derivedTypeFullNameWithGlobalNamespace = (derivedType.TryUseBaseTypeParameters(unionTypeSchema.UnionTypeBaseType) ?? derivedType).FullTypeNameWithNamespaceAndGenerics();
             var friendlyDerivedUnionTypeName = derivedType.Name.Trim('_');
             var derivedAssertionCode =
                 $$"""
                 #nullable enable
                 using AwesomeAssertions;
                 using AwesomeAssertions.Execution;
-                using {{unionTypeNamespace}};
+                {{usingNs}}
                 
-                namespace {{unionTypeNamespace}}
-                {
+                {{nsOpen}}
                     internal partial class {{unionTypeFullName}}Assertions{{typeParametersText}}
                     {
                         public AndWhichConstraint<{{unionTypeFullName}}Assertions{{typeParametersText}}, {{derivedTypeFullNameWithGlobalNamespace}}> Be{{friendlyDerivedUnionTypeName}}(
@@ -177,7 +178,7 @@ internal static class Generator
                             return new(this, (this.Subject as {{derivedTypeFullNameWithGlobalNamespace}})!);
                         }
                     }
-                }
+                {{nsClose}}
                 """;
             yield return (
                 $"{generateFileHint}_Derived_{derivedType.Name}Assertions.g.cs",

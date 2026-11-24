@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FunicularSwitch.Test;
@@ -155,25 +155,6 @@ public class ResultSpecs
         result.Equals(Result.Ok(42)).Should().BeTrue();
         Option<int> option = 42;
         option.Equals(Option.Some(42)).Should().BeTrue();
-    }
-
-    [TestMethod]
-    public void BoolConversionTest()
-    {
-        if (Result.Ok(42))
-        {
-        }
-        else Assert.Fail();
-
-        if (!Result.Error<int>("Fail"))
-        {
-        }
-        else Assert.Fail();
-
-        if (!Result.Ok(42))
-        {
-            Assert.Fail();
-        }
     }
 
     [TestMethod]

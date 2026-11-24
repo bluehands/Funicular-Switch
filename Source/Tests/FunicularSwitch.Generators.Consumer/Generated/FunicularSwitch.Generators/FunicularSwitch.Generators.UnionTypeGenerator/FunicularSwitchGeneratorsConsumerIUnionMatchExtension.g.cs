@@ -8,6 +8,7 @@ namespace FunicularSwitch.Generators.Consumer
 		public static T Match<T>(this global::FunicularSwitch.Generators.Consumer.IUnion iUnion, global::System.Func<FunicularSwitch.Generators.Consumer.IUnion.Case1_, T> case1, global::System.Func<FunicularSwitch.Generators.Consumer.IUnion.Case2_, T> case2) =>
 		iUnion switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(iUnion)),
 			FunicularSwitch.Generators.Consumer.IUnion.Case1_ case11 => case1(case11),
 			FunicularSwitch.Generators.Consumer.IUnion.Case2_ case22 => case2(case22),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.IUnion: {iUnion.GetType().Name}")
@@ -17,6 +18,7 @@ namespace FunicularSwitch.Generators.Consumer
 		public static async global::System.Threading.Tasks.Task<T> Match<T>(this global::FunicularSwitch.Generators.Consumer.IUnion iUnion, global::System.Func<FunicularSwitch.Generators.Consumer.IUnion.Case1_, global::System.Threading.Tasks.Task<T>> case1, global::System.Func<FunicularSwitch.Generators.Consumer.IUnion.Case2_, global::System.Threading.Tasks.Task<T>> case2) =>
 		iUnion switch
 		{
+			null => throw new global::System.ArgumentNullException(nameof(iUnion)),
 			FunicularSwitch.Generators.Consumer.IUnion.Case1_ case11 => await case1(case11).ConfigureAwait(false),
 			FunicularSwitch.Generators.Consumer.IUnion.Case2_ case22 => await case2(case22).ConfigureAwait(false),
 			_ => throw new global::System.ArgumentException($"Unknown type derived from FunicularSwitch.Generators.Consumer.IUnion: {iUnion.GetType().Name}")
@@ -35,6 +37,8 @@ namespace FunicularSwitch.Generators.Consumer
 		{
 			switch (iUnion)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(iUnion));
 				case FunicularSwitch.Generators.Consumer.IUnion.Case1_ case11:
 					case1(case11);
 					break;
@@ -51,6 +55,8 @@ namespace FunicularSwitch.Generators.Consumer
 		{
 			switch (iUnion)
 			{
+				case null:
+					throw new global::System.ArgumentNullException(nameof(iUnion));
 				case FunicularSwitch.Generators.Consumer.IUnion.Case1_ case11:
 					await case1(case11).ConfigureAwait(false);
 					break;

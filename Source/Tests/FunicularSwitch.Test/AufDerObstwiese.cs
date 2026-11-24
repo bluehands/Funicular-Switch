@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static FunicularSwitch.Test.AufDerWiese;
 // ReSharper disable StringLiteralTypo
@@ -26,7 +26,7 @@ namespace FunicularSwitch.Test
                     new Ausrüstung(leiter: null, scheren: new List<Schere> { new Schere(scharf: false) }),
                     new Wetter(sonnig: true, windstärke: 6));
 
-            ergebnis.IsOk.Should().BeFalse();
+            ergebnis.Should().BeError();
             Console.WriteLine(ergebnis.GetErrorOrDefault());
         }
     }

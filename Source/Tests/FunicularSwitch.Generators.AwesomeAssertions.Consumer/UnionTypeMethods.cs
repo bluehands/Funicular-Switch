@@ -138,6 +138,33 @@ public class UnionTypeMethods
     }
 
     [Fact]
+    public void ExternalGenericUnion_Should_Use_Renamed_Case_Parameters()
+    {
+        ExternalGenericUnion<int> value = new ExternalValue<int>(42);
+
+        ExternalValue<int> actual = value.Should().BeExternalValue().Which;
+        actual.Value.Should().Be(42);
+        actual.Should().BeSameAs(value);
+        Action(() => value.Should().BeExternalEmpty()).Should().Throw<XunitException>();
+
+        ExternalGenericUnion<int> empty = new ExternalEmpty<int>();
+        ExternalEmpty<int> actualEmpty = empty.Should().BeExternalEmpty().Which;
+        actualEmpty.Should().BeSameAs(empty);
+        Action(() => empty.Should().BeExternalValue()).Should().Throw<XunitException>();
+    }
+
+    [Fact]
+    public void ExternalGenericUnion_Should_Use_Reordered_Case_Parameters()
+    {
+        ReorderedGenericUnion<string, int> value = new ReorderedValue<int, string>("key", 42);
+
+        ReorderedValue<int, string> actual = value.Should().BeReorderedValue().Which;
+        actual.Key.Should().Be("key");
+        actual.Value.Should().Be(42);
+        actual.Should().BeSameAs(value);
+    }
+
+    [Fact]
     public void MultiGenericUnionType_Match_WorksCorrectly()
     {
         // ARRANGE

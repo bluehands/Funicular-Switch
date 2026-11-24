@@ -16,7 +16,12 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        global-json-file: global.json
+        # runtimes for the older test target frameworks (net8/net9/net10); net11 comes with the SDK from global.json
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
     - name: Restore dependencies
       run: dotnet restore ./Source
     - name: Build

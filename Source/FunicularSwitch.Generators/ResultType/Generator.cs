@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Text.RegularExpressions;
+using System.Collections.Immutable;
 using FunicularSwitch.Generators.Common;
 using FunicularSwitch.Generators.Generation;
 using Microsoft.CodeAnalysis;
@@ -51,8 +52,18 @@ static class Generator
             if (resultTypeSchema.IsInternal)
                 code = code
                     .Replace("public abstract partial", "abstract partial")
+                    .Replace("public partial class", "partial class")
                     .Replace("public readonly partial struct", "readonly partial struct")
                     .Replace("public static partial", "static partial");
+
+            if (resultTypeSchema.IsClosed)
+            {
+                //C# 15: result base is a closed hierarchy (Ok_, Error_), so the compiler knows switches over it are exhaustive and default arms would be unreachable
+                code = Regex.Replace(code, $@"\babstract partial class {Regex.Escape(resultTypeName)}<T>", $"closed partial class {resultTypeName}<T>");
+                //switch expression arms (_ => throw ...) that only guard "unexpected" derived types. Switch statements keep their
+                //"default: throw", the compiler's flow analysis still requires it (CS0161 otherwise).
+                code = Regex.Replace(code, @"^[ \t]*_ => throw new global::System\.InvalidOperationException\(\$""Unexpected[^\r\n]*\r?\n", "", RegexOptions.Multiline);
+            }
 
             code = code
                 .Replace("//additional using directives", additionalNamespaces.Distinct().Select(a => $"using {a};").ToSeparatedString("\n"));
@@ -188,9 +199,9 @@ static class Generator
                 return combine({combineArguments});
 
             return MyResult.Error<TResult>(
-                MergeErrors(new MyResult[] {{ {resultArrayElements} }}
-                    .Where(r => r.IsError)
-                    .Select(r => r.GetErrorOrDefault()!{(isValueType ? ".Value" : "")})
+                MergeErrors(new[] {{ {Expand(i => $"r{i}.GetErrorOrDefault()")} }}
+                    .Where(e => e != null)
+                    .Select(e => e!{(isValueType ? ".Value" : "")})
                 )!);
         }}
         

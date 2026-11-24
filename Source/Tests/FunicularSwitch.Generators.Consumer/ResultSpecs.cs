@@ -121,11 +121,11 @@ namespace FunicularSwitch.Generators.Consumer
         {
             var obj = Result.Ok<object>(42);
             var intResult = obj.As<int>(() => "not an int");
-            intResult.IsOk.Should().BeTrue();
+            intResult.Should().BeOfType<Result<int>.Ok_>();
             intResult.GetValueOrThrow().Should().Be(42);
 
             var stringResult = obj.As<string>(() => "not a string");
-            stringResult.IsError.Should().BeTrue();
+            stringResult.Should().BeOfType<Result<string>.Error_>();
         }
 
         [TestMethod]
@@ -133,25 +133,6 @@ namespace FunicularSwitch.Generators.Consumer
         {
             Result<int> result = 42;
             result.Equals(Result.Ok(42)).Should().BeTrue();
-        }
-
-        [TestMethod]
-        public void BoolConversionTest()
-        {
-            if (Result.Ok(42))
-            {
-            }
-            else Assert.Fail();
-
-            if (!Result.Error<int>("Fail"))
-            {
-            }
-            else Assert.Fail();
-
-            if (!Result.Ok(42))
-            {
-                Assert.Fail();
-            }
         }
 
         [TestMethod]

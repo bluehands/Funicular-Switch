@@ -3,7 +3,7 @@
 
 		<!--General settings-->
 
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0;net11.0</TargetFrameworks>
 		<IsPackable>true</IsPackable>
 
 		<VersionSuffixLocal />
@@ -13,7 +13,7 @@
 		</VersionSuffixLocal>
 
 		<!--#region adapt versions here-->
-		<MajorVersion>7</MajorVersion>
+		<MajorVersion>8</MajorVersion>
 		<MinorAndPatchVersion>0</MinorAndPatchVersion>
 		<!--#endregion-->
 
@@ -53,8 +53,10 @@
 	</Target>
 
 	<PropertyGroup>
+		<!-- only the netstandard2.0 output is checked in; net11.0 differs (closed) -->
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+		<CompilerGeneratedFilesOutputPath Condition="'$(TargetFramework)' != 'netstandard2.0'">obj/generated-$(TargetFramework)</CompilerGeneratedFilesOutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -62,6 +64,7 @@
   at least one subdirectory, which is our key that it's coming from a source generator as opposed to something that is coming from
   some other tool. -->
 		<Compile Remove="$(CompilerGeneratedFilesOutputPath)/*/**/*.cs" />
+		<Compile Remove="Generated/*/**/*.cs" />
 	</ItemGroup>
 	
 	<ItemGroup>

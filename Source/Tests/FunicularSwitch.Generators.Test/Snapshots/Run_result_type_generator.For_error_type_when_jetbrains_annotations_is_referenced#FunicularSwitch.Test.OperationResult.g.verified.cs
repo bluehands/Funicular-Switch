@@ -7,7 +7,7 @@ using global::System.Linq;
 namespace FunicularSwitch.Test
 {
 #pragma warning disable 1591
-    public abstract partial class OperationResult
+    public static partial class OperationResult
     {
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::System.Diagnostics.Contracts.PureAttribute]
@@ -18,10 +18,6 @@ namespace FunicularSwitch.Test
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::System.Diagnostics.Contracts.PureAttribute]
         public static OperationResult<T> Ok<T>(T value) => new OperationResult<T>.Ok_(value);
-        public bool IsError => GetType().GetGenericTypeDefinition() == typeof(OperationResult<>.Error_);
-        public bool IsOk => !IsError;
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public abstract MyError? GetErrorOrDefault();
 
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::JetBrains.Annotations.MustUseReturnValue]
@@ -80,16 +76,19 @@ namespace FunicularSwitch.Test
         }
     }
 
-    public abstract partial class OperationResult<T> : OperationResult, global::System.Collections.Generic.IEnumerable<T>
+    public abstract partial class OperationResult<T> : global::System.Collections.Generic.IEnumerable<T>
     {
 
         [global::System.Diagnostics.DebuggerNonUserCode]
         [global::JetBrains.Annotations.MustUseReturnValue]
-        public new static OperationResult<T> Error(MyError message) => Error<T>(message);
+        public static OperationResult<T> Error(MyError message) => OperationResult.Error<T>(message);
 
         [global::System.Diagnostics.DebuggerNonUserCode]
         [global::JetBrains.Annotations.MustUseReturnValue]
-        public static OperationResult<T> Ok(T value) => Ok<T>(value);
+        public static OperationResult<T> Ok(T value) => OperationResult.Ok<T>(value);
+
+        [global::System.Diagnostics.Contracts.PureAttribute]
+        public abstract MyError? GetErrorOrDefault();
 
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::JetBrains.Annotations.MustUseReturnValue]
@@ -98,13 +97,6 @@ namespace FunicularSwitch.Test
         [global::System.Diagnostics.DebuggerStepThrough]
         [global::JetBrains.Annotations.MustUseReturnValue]
         public static implicit operator OperationResult<T>(OperationResultError myResultError) => myResultError.WithOk<T>();
-
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public static bool operator true(OperationResult<T> result) => result.IsOk;
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public static bool operator false(OperationResult<T> result) => result.IsError;
-        [global::System.Diagnostics.Contracts.PureAttribute]
-        public static bool operator !(OperationResult<T> result) => result.IsError;
 
         //just here to suppress warning, never called because all subtypes (Ok_, Error_) implement Equals and GetHashCode
         bool Equals(OperationResult<T> other) => this switch
